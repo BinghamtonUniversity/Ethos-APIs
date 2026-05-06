@@ -1,0 +1,1006 @@
+openapi: 3.0.0
+info:
+  title: Instructional Events
+  description: >
+    The Instructional Events entity contains a set of meetings or gatherings of
+    students and teachers such as lectures, discussions, or lab experiments that
+    are scheduled in a specific learning environment suitable for the type of
+    event. An instructional event is associated with a course section and an
+    appropriate instructional method. Instructional events can be recurrent and
+    are scheduled to occur in a specific location.
+
+
+    The instructional-events API supports set of meetings or gatherings of students and teachers such as lectures, discussions, or lab experiments. The 'startOn' and 'endOn' in this API are date-time properties which use UTC time zone processing. The institution time zone on GUBINST or the corresponding campus time zone on STVCAMP should be defined. For details on UTC time zone processing please refer to 'UTC time zone support in instructional-events' section of Banner Ethos API handbook.
+
+
+    Please refer to "API Integration Configuration Settings" section in the Banner Ethos API Handbook" for details on API configuration settings that needs to be configured for this API.
+  version: 11.1.0-beta
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: beta
+  x-source-domain: Student
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: instructional-events
+paths:
+  /api/instructional-events:
+    get:
+      summary: Returns resources from SSRMEET
+      description: >
+        Returns a paged listing of all the instructional event records from
+        SSRMEET table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_INSTRUCTIONAL_EVENTS
+      tags:
+        - instructional-events
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v11.1.0+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 20 and upper limit is 30.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Section  
+
+            Returns all instructional events for the section ID passed.
+
+            ```
+
+            /instructional-events?criteria={"section":{"id":"891f5018-5056-44b4-8adf-2d318c64f33f"}}
+
+            ```
+            
+            ### Start On  
+
+            Returns all instructional events for the start on date passed.
+
+            ```
+
+            /instructional-events?criteria={"recurrence":{"timePeriod":{"startOn":"1994-08-29T11:30:00-05:00"}}}
+            
+            ```
+            
+            ### End On  
+
+            Returns all instructional events for the end on date passed.
+
+            ```
+
+            /instructional-events?criteria={"recurrence":{"timePeriod":{"endOn":"1994-12-09T11:50:00-06:00"}}}
+            
+            ```
+            
+        - name: academicPeriod
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Academic Period  
+
+            Returns all instructional events for the academic period ID passed.
+
+            ```
+
+            /instructional-events?academicPeriod={"academicPeriod":{"id":"4a0c95f7-0903-408a-8694-77b313809909"}}
+
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/vnd.hedtech.integration.v11.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-instructional-events.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11.1.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new resource in SSRMEET
+      description: >
+        POST requests must include a nil GUID value
+        ("00000000-0000-0000-0000-000000000000") for the root id property.
+
+
+        Creates a new instructional event record in SSRMEET.
+
+
+        The properties 'title','description', 'recurrence.repeatRule.type of daily, monthly and yearly', approvals.approvalEntity and 'location.type of site and other' are not supported on a create request.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_INSTRUCTIONAL_EVENTS
+      tags:
+        - instructional-events
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11.1.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11.1.0+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v11.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-instructional-events.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v11.1.0+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-instructional-events.json"
+  /api/instructional-events/{id}:
+    get:
+      summary: Return the requested resource from SSRMEET
+      description: >
+        Returns a single instructional event record from SSRMEET table with the
+        requested identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_INSTRUCTIONAL_EVENTS
+      tags:
+        - instructional-events
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11.1.0+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v11.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-instructional-events.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    put:
+      summary: Update the requested resource from SSRMEET
+      description: >
+        Updates an existing instructional event record.
+
+
+        The properties 'title','description', 'recurrence.repeatRule.type of daily, monthly and yearly' and 'location.type of site and other' are not supported on a update request.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_INSTRUCTIONAL_EVENTS
+      tags:
+        - instructional-events
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Instructional Events for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11.1.0+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11.1.0+json 
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v11.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-instructional-events.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-instructional-events.json"
+    delete:
+      summary: Removes a resource from SSRMEET
+      description: |
+        Delete the one resource with the passed in identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_INSTRUCTIONAL_EVENTS
+      tags:
+        - instructional-events
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Instructional Events for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-instructional-events.json:
+      title: Instructional Events
+      description: An instructional activity that takes place during a section.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: A globally unique identifier of an instructional activity to be
+            used in all external references.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: GORGUID_GUID(LDM_NAME= instructional-events) 
+          x-lineageDerivedLogic: A record in GORGUID where  GORGUID_LDM_NAME as 'instructional-events'
+        title:
+          title: Title
+          description: The full name of an instructional activity.
+          type: string
+          x-lineageReferenceObject: unsupported
+        description:
+          title: Description
+          description: A description of an instructional activity.
+          type: string
+          x-lineageReferenceObject: unsupported
+        section:
+          title: Section
+          description: An instance of a course.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Section.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: sections 
+              x-lineageReferenceObject: SSRMEET_CRN(SSRMEET)
+          additionalProperties: false
+          required:
+            - id
+        instructionalMethod:
+          title: Instructional Method
+          description: The method, style, or format of instruction associated with the
+            instructor's involvement with the section (for example, 'Lecture',
+            'Lab').
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Instructional Method.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: instructional-methods 
+              x-lineageReferenceObject: SSRMEET_SCHD_CODE(SSRMEET)
+          additionalProperties: false
+          required:
+            - id
+        workLoad:
+          title: Work Load
+          description: The total amount of work associated with the instructional event.
+          oneOf:
+            - type: number
+              x-lineageReferenceObject: SCRSCHD_ADJ_WORKLOAD(SCRSCHD)
+            - type: string
+              nullable: true
+        recurrence:
+          title: Recurrence
+          description: The recurring meeting time pattern associated with the
+            instructional event.
+          oneOf:
+            - type: object
+              format: recurrence
+              properties:
+                timePeriod:
+                  title: Time Period
+                  description: The period of time to be repeated.
+                  type: object
+                  properties:
+                    startOn:
+                      title: Start On
+                      description: The beginning of the time period being repeated.
+                      type: string
+                      format: date-time
+                      pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                      x-lineageReferenceObject: derived  
+                      x-lineageDerivedLogic: Display the concatenated value of 'SSRMEET_START_DATE and SSRMEET_BEGIN_TIME'
+                    endOn:
+                      title: End On
+                      description: The end of the time period being repeated.
+                      oneOf:
+                        - type: string
+                          format: date-time
+                          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                          x-lineageReferenceObject: derived  
+                          x-lineageDerivedLogic: Display the concatenated value of 'SSRMEET_END_DATE  and  SSRMEET_END_TIME'
+                        - type: string
+                          maxLength: 0
+                  additionalProperties: false
+                  required:
+                    - startOn
+                repeatRule:
+                  title: Repeat Rule
+                  description: The rule that describes how to repeat the time period.
+                  oneOf:
+                    - title: Daily
+                      description: Rules for repeating on a daily basis.
+                      type: object
+                      properties:
+                        type:
+                          title: Type
+                          description: ""
+                          enum:
+                            - daily
+                          type: string
+                          x-lineageReferenceObject: unsupported
+                        interval:
+                          title: Interval
+                          description: Number of days between each repetition.
+                          oneOf:
+                            - type: integer
+                              x-lineageReferenceObject: unsupported
+                            - type: string
+                              nullable: true
+                        ends:
+                          title: Ends
+                          description: When to end the daily repetitions.
+                          oneOf:
+                            - title: One Of-1
+                              description: ""
+                              type: object
+                              properties:
+                                repetitions:
+                                  title: Repetitions
+                                  description: Number of times to repeat, then stop.
+                                  type: integer
+                                  x-lineageReferenceObject: unsupported
+                              additionalProperties: false
+                              required:
+                                - repetitions
+                            - title: One Of-2
+                              description: ""
+                              type: object
+                              properties:
+                                date:
+                                  title: Date
+                                  description: The date after which to stop repeating.
+                                  type: string
+                                  format: date
+                                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                                  x-lineageReferenceObject: unsupported
+                              additionalProperties: false
+                              required:
+                                - date
+                            - type: object
+                              maxProperties: 0
+                      additionalProperties: false
+                      required:
+                        - type
+                    - title: Weekly
+                      description: Rules for repeating on a weekly basis.
+                      type: object
+                      properties:
+                        type:
+                          title: Type
+                          description: ""
+                          enum:
+                            - weekly
+                          type: string
+                          x-lineageReferenceObject: derived  
+                          x-lineageDerivedLogic: Display weekly
+                        interval:
+                          title: Interval
+                          description: Number of weeks between each repetition.
+                          oneOf:
+                            - type: integer
+                              x-lineageReferenceObject: derived  
+                              x-lineageDerivedLogic: Display 1
+                            - type: string
+                              nullable: true
+                        daysOfWeek:
+                          title: Days of Week
+                          description: The days of the week on which to repeat the event.
+                          type: array
+                          items:
+                            enum:
+                              - sunday
+                              - monday
+                              - tuesday
+                              - wednesday
+                              - thursday
+                              - friday
+                              - saturday
+                            type: string
+                            x-lineageReferenceObject: SSRMEET_SAT_DAY(SSRMEET) or  SSRMEET_SUN_DAY(SSRMEET) or  SSRMEET_WED_DAY(SSRMEET) or  SSRMEET_THU_DAY(SSRMEET) or  SSRMEET_FRI_DAY(SSRMEET) or  SSRMEET_MON_DAY(SSRMEET) or  SSRMEET_TUE_DAY(SSRMEET)
+                        ends:
+                          title: Ends
+                          description: When to end the weekly repetitions.
+                          oneOf:
+                            - title: One Of-1
+                              description: ""
+                              type: object
+                              properties:
+                                repetitions:
+                                  title: Repetitions
+                                  description: Number of times to repeat, then stop.
+                                  type: integer
+                                  x-lineageReferenceObject: unsupported
+                              additionalProperties: false
+                              required:
+                                - repetitions
+                            - title: One Of-2
+                              description: ""
+                              type: object
+                              properties:
+                                date:
+                                  title: Date
+                                  description: The date after which to stop repeating.
+                                  type: string
+                                  format: date
+                                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                                  x-lineageReferenceObject: STVTERM_END_DATE(STVTERM)
+                              additionalProperties: false
+                              required:
+                                - date
+                            - type: object
+                              maxProperties: 0
+                      additionalProperties: false
+                      required:
+                        - type
+                    - title: Monthly
+                      description: Rules for repeating on a monthly basis.
+                      type: object
+                      properties:
+                        type:
+                          title: Type
+                          description: ""
+                          enum:
+                            - monthly
+                          type: string
+                          x-lineageReferenceObject: unsupported
+                        interval:
+                          title: Interval
+                          description: Number of months between each repetition.
+                          oneOf:
+                            - type: integer
+                              x-lineageReferenceObject: unsupported
+                            - type: string
+                              nullable: true
+                        repeatBy:
+                          title: Repeat By
+                          description: How to calculate the day of the month on which to start repeating.
+                          oneOf:
+                            - title: One Of-1
+                              description: ""
+                              type: object
+                              properties:
+                                dayOfMonth:
+                                  title: Day of Month
+                                  description: The number of the day in the month on which to start repeating.
+                                  type: integer
+                                  x-lineageReferenceObject: unsupported
+                              additionalProperties: false
+                              required:
+                                - dayOfMonth
+                            - title: One Of-2
+                              description: ""
+                              type: object
+                              properties:
+                                dayOfWeek:
+                                  title: Day of Week
+                                  description: The cardinal day of the week (e.g., the first Tuesday, the last
+                                    Friday, etc.) in the month on which to start
+                                    repeating.
+                                  type: object
+                                  properties:
+                                    occurrence:
+                                      title: Occurrence
+                                      description: The nth occurrence of the day of the week in the month. Use a
+                                        positive number to count from the start
+                                        of the month (e.g., 1 = first in the
+                                        month, 2 = second in the month), and a
+                                        negative number to count from the end of
+                                        the month (e.g. -1 = last in the month,
+                                        -2 = second from last, etc.).
+                                      type: integer
+                                      x-lineageReferenceObject: unsupported
+                                    day:
+                                      title: Day of Week
+                                      description: A day in a week.
+                                      enum:
+                                        - sunday
+                                        - monday
+                                        - tuesday
+                                        - wednesday
+                                        - thursday
+                                        - friday
+                                        - saturday
+                                      type: string
+                                      x-lineageReferenceObject: unsupported
+                                  additionalProperties: false
+                                  required:
+                                    - occurrence
+                                    - day
+                              additionalProperties: false
+                              required:
+                                - dayOfWeek
+                        ends:
+                          title: Ends
+                          description: When to end the monthly repetitions.
+                          oneOf:
+                            - title: One Of-1
+                              description: ""
+                              type: object
+                              properties:
+                                repetitions:
+                                  title: Repetitions
+                                  description: Number of times to repeat, then stop.
+                                  type: integer
+                                  x-lineageReferenceObject: unsupported
+                              additionalProperties: false
+                              required:
+                                - repetitions
+                            - title: One Of-2
+                              description: ""
+                              type: object
+                              properties:
+                                date:
+                                  title: Date
+                                  description: The date after which to stop repeating.
+                                  type: string
+                                  format: date
+                                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                                  x-lineageReferenceObject: unsupported
+                              additionalProperties: false
+                              required:
+                                - date
+                            - type: object
+                              maxProperties: 0
+                      additionalProperties: false
+                      required:
+                        - type
+                        - repeatBy
+                    - title: Yearly
+                      description: Rules for repeating on an annual basis.
+                      type: object
+                      properties:
+                        type:
+                          title: Type
+                          description: ""
+                          enum:
+                            - yearly
+                          type: string
+                          x-lineageReferenceObject: unsupported
+                        interval:
+                          title: Interval
+                          description: Number of years between each repetition.
+                          oneOf:
+                            - type: integer
+                              x-lineageReferenceObject: unsupported
+                            - type: string
+                              nullable: true
+                        ends:
+                          title: Ends
+                          description: When to end the yearly repetitions.
+                          oneOf:
+                            - title: One Of-1
+                              description: ""
+                              type: object
+                              properties:
+                                repetitions:
+                                  title: Repetitions
+                                  description: Number of times to repeat, then stop.
+                                  type: integer
+                                  x-lineageReferenceObject: unsupported
+                              additionalProperties: false
+                              required:
+                                - repetitions
+                            - title: One Of-2
+                              description: ""
+                              type: object
+                              properties:
+                                date:
+                                  title: Date
+                                  description: The date after which to stop repeating.
+                                  type: string
+                                  format: date
+                                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                                  x-lineageReferenceObject: unsupported
+                              additionalProperties: false
+                              required:
+                                - date
+                            - type: object
+                              maxProperties: 0
+                      additionalProperties: false
+                      required:
+                        - type
+              additionalProperties: false
+              required:
+                - timePeriod
+                - repeatRule
+            - type: object
+              maxProperties: 0
+        locations:
+          title: Locations
+          description: The locations where the instructional event will take place.
+          type: array
+          items:
+            type: object
+            properties:
+              location:
+                title: Location
+                description: The location where the instructional event will take place.
+                oneOf:
+                  - title: Site
+                    description: A physical location within the organization where the event will
+                      take place
+                    type: object
+                    properties:
+                      type:
+                        title: Type
+                        description: The type of location (i.e. site).
+                        enum:
+                          - site
+                        type: string
+                        x-lineageReferenceObject: unsupported
+                      site:
+                        title: Site
+                        description: The physical site where the event will take place
+                        type: object
+                        properties:
+                          id:
+                            title: ID
+                            description: The global identifier for the Site.
+                            type: string
+                            format: guid
+                            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                            x-lineageLookupReferenceObject: sites 
+                            x-lineageReferenceObject: unsupported
+                        additionalProperties: false
+                        required:
+                          - id
+                    additionalProperties: false
+                    required:
+                      - type
+                      - site
+                  - title: Room
+                    description: A room within a building, on a floor.
+                    type: object
+                    properties:
+                      type:
+                        title: Type
+                        description: The type of location (i.e. room).
+                        enum:
+                          - room
+                        type: string
+                        x-lineageReferenceObject: derived  
+                        x-lineageDerivedLogic: Display room. The only room type processed in Banner is 'classroom'
+                      room:
+                        title: Room
+                        description: The room where the event will take place.
+                        type: object
+                        properties:
+                          id:
+                            title: ID
+                            description: The global identifier for the Room.
+                            type: string
+                            format: guid
+                            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                            x-lineageLookupReferenceObject: rooms 
+                            x-lineageReferenceObject: SSRMEET_ROOM_CODE(SSRMEET)
+                        additionalProperties: false
+                        required:
+                          - id
+                    additionalProperties: false
+                    required:
+                      - type
+                      - room
+                  - title: Online Location
+                    description: A meeting location available via a computer network, such as an
+                      online video conference.
+                    type: object
+                    properties:
+                      type:
+                        title: Type
+                        description: The type of location (i.e. online).
+                        enum:
+                          - online
+                        type: string
+                        x-lineageReferenceObject: unsupported
+                      phoneNumber:
+                        title: Phone
+                        description: The international telephone number of the location.
+                        type: string
+                        x-lineageReferenceObject: unsupported
+                      phoneExtension:
+                        title: Extension
+                        description: The telephone extension number of the location's telephone.
+                        type: string
+                        x-lineageReferenceObject: unsupported
+                      webAddress:
+                        title: Web Address
+                        description: The primary web address (URL) of the online meeting location.
+                        type: string
+                        x-lineageReferenceObject: unsupported
+                    additionalProperties: false
+                    required:
+                      - type
+                  - title: Other Location
+                    description: A user provided description of a non-standard location for the
+                      instructional event.
+                    type: object
+                    properties:
+                      type:
+                        title: Type
+                        description: The type of location (i.e. other).
+                        enum:
+                          - other
+                        type: string
+                        x-lineageReferenceObject: unsupported
+                      title:
+                        title: Title
+                        description: A user provided description of a non-standard location for the
+                          instructional event.
+                        type: string
+                        x-lineageReferenceObject: unsupported
+                    additionalProperties: false
+                    required:
+                      - type
+            additionalProperties: false
+            required:
+              - location
+        approvals:
+          title: Approvals
+          description: The type and source of approvals applied to the instructional event.
+          type: array
+          items:
+            type: object
+            properties:
+              approvalType:
+                title: Type
+                description: The type of approval granted.
+                enum:
+                  - instructorAvailability(deprecated)
+                  - instructorCapacity(deprecated)
+                  - roomAvailability
+                  - roomCapacity(deprecated)
+                  - eventTimeConflict
+                type: string
+                x-lineageReferenceObject: derived
+                x-lineageDerivedLogic: If SSRMEET_OVER_RIDE(SSRMEET) value is R then display roomAvailability, or if SSRMEET_OVER_RIDE(SSRMEET) value is T display eventTimeConflict, or if SSRMEET_OVER_RIDE(SSRMEET) value is O display both roomAvailability and eventTimeConflict
+            additionalProperties: false
+            required:
+              - approvalType
+      required:
+        - id
+        - section
+        - instructionalMethod
+      additionalProperties: false

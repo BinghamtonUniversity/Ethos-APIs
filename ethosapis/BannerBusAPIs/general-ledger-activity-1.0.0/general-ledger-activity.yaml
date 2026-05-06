@@ -1,0 +1,405 @@
+openapi: 3.0.0
+info:
+  title: general-ledger-activity
+  description: API for FGIGLAC administrative page
+  version: 1.0.0
+  x-audience: all
+  x-release-status: beta
+  x-source-name: FGIGLAC
+  x-source-domain: Finance
+  x-source-title: General Ledger Activity
+  x-source-system: banner
+  x-api-type: bus-poc
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/general-ledger-activity:
+    get:
+      tags:
+        - general-ledger-activity
+      summary: Return resources from FGIGLAC
+      parameters:
+        - name: X-SDE-Expand
+          in: header
+          description: The comma seperated value list of block names
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: The maximum number of resources requesting for this result set.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          description: The filter criteria as a single URL query parameter. Use this
+            parameter or the individual parameters listed. Must be a JSON
+            representation of the property searching for. This can be any of the
+            properties listed on the URL or QAPI and must be a json
+            representation that can be validated against the GET schema. Limit
+            and Offset are the only supported additional parameters on the URL.
+          required: false
+          schema:
+            type: string
+        - name: keyblckCoasCode
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: keyblckPeriod
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: keyblckFsyrCode
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: keyblckAcciCode
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: keyblckFundCode
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: keyblckAcctCode
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: fgvtrndAcctCode
+          in: query
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: FGVTRND_ACCT_CODE
+        - name: fgvtrndRuclCode
+          in: query
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: FGVTRND_RUCL_CODE
+        - name: fgvtrndDocCode
+          in: query
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: FGVTRND_DOC_CODE
+        - name: fgvtrndTransAmt
+          in: query
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: FGVTRND_TRANS_AMT
+        - name: fgvtrndDrCrInd
+          in: query
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: FGVTRND_DR_CR_IND
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/general-ledger-activity-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+  /qapi/general-ledger-activity:
+    post:
+      tags:
+        - general-ledger-activity QAPI (Query by POST)
+      summary: Return resources from FGIGLAC
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/general-ledger-activity-1.0.0_get_request"
+            example:
+              keyblckFundCode: 1
+              keyblckCoasCode: B
+              keyblckPeriod: 1
+              keyblckFsyrCode: 22
+              keyblckAcciCode: 1
+              keyblckAcctCode: 1
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/general-ledger-activity-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+components:
+  schemas:
+    general-ledger-activity-1.0.0_qapi_post:
+      required:
+        - keyblckCoasCode
+        - keyblckFsyrCode
+        - keyblckFundCode
+      type: object
+      properties:
+        keyblckCoasCode:
+          type: string
+        keyblckPeriod:
+          type: string
+        keyblckFsyrCode:
+          type: string
+        keyblckAcciCode:
+          type: string
+        keyblckFundCode:
+          type: string
+        keyblckAcctCode:
+          type: string
+        fgvtrndAcctCode:
+          maxLength: 6
+          type: string
+          description: "Lineage reference object : FGVTRND_ACCT_CODE"
+          x-lineageReferenceObject: FGVTRND_ACCT_CODE
+        fgvtrndRuclCode:
+          maxLength: 4
+          type: string
+          description: "Lineage reference object : FGVTRND_RUCL_CODE, Lookup lineage
+            reference object : ftvrucl"
+          x-lineageReferenceObject: FGVTRND_RUCL_CODE
+          x-lineageLookupReferenceObject: ftvrucl
+        fgvtrndDocCode:
+          maxLength: 8
+          type: string
+          description: "Lineage reference object : FGVTRND_DOC_CODE"
+          x-lineageReferenceObject: FGVTRND_DOC_CODE
+        fgvtrndTransAmt:
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FGVTRND_TRANS_AMT"
+          x-lineageReferenceObject: FGVTRND_TRANS_AMT
+        fgvtrndDrCrInd:
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : FGVTRND_DR_CR_IND"
+          x-lineageReferenceObject: FGVTRND_DR_CR_IND
+    errors-2.0.0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+              description:
+                type: string
+    general-ledger-activity-1.0.0_get_response:
+      type: object
+      properties:
+        fgvtrndTransDesc:
+          maxLength: 35
+          type: string
+          description: "Lineage reference object : FGVTRND_TRANS_DESC"
+          x-lineageReferenceObject: FGVTRND_TRANS_DESC
+        fgvtrndDocCode:
+          maxLength: 8
+          type: string
+          description: "Lineage reference object : FGVTRND_DOC_CODE"
+          x-lineageReferenceObject: FGVTRND_DOC_CODE
+        fgvtrndDrCrInd:
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : FGVTRND_DR_CR_IND"
+          x-lineageReferenceObject: FGVTRND_DR_CR_IND
+        fgvtrndTransAmt:
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FGVTRND_TRANS_AMT"
+          x-lineageReferenceObject: FGVTRND_TRANS_AMT
+        fgvtrndRuclCode:
+          maxLength: 4
+          type: string
+          description: "Lineage reference object : FGVTRND_RUCL_CODE, Lookup lineage
+            reference object : ftvrucl"
+          x-lineageReferenceObject: FGVTRND_RUCL_CODE
+          x-lineageLookupReferenceObject: ftvrucl
+        fgvtrndAcctCode:
+          maxLength: 6
+          type: string
+          description: "Lineage reference object : FGVTRND_ACCT_CODE"
+          x-lineageReferenceObject: FGVTRND_ACCT_CODE
+        fgvtrndTransDate:
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : FGVTRND_TRANS_DATE"
+          format: date-time
+          x-lineageReferenceObject: FGVTRND_TRANS_DATE
+      x-lineageReferenceObject: fgvtrnd_block
+    general-ledger-activity-1.0.0_get_request:
+      required:
+        - keyblckCoasCode
+        - keyblckFsyrCode
+        - keyblckFundCode
+      type: object
+      properties:
+        keyblckFundCode:
+          title: Fund
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : keyblckFundCode"
+          x-lineageReferenceObject: keyblckFundCode
+        keyblckCoasCode:
+          title: Chart
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : keyblckCoasCode, Lookup lineage
+            reference object : ftvcoas"
+          x-lineageReferenceObject: keyblckCoasCode
+          x-lineageLookupReferenceObject: ftvcoas
+        fgvtrndDocCode:
+          maxLength: 8
+          type: string
+          description: "Lineage reference object : FGVTRND_DOC_CODE"
+          x-lineageReferenceObject: FGVTRND_DOC_CODE
+        keyblckPeriod:
+          title: Period
+          maxLength: 2
+          type: string
+          description: "Lineage reference object : keyblckPeriod"
+          x-lineageReferenceObject: keyblckPeriod
+        keyblckFsyrCode:
+          title: Fiscal Year
+          maxLength: 2
+          type: string
+          description: "Lineage reference object : keyblckFsyrCode, Lookup lineage
+            reference object : ftvfspd,ftvfsyr,ftvfspd"
+          x-lineageReferenceObject: keyblckFsyrCode
+          x-lineageLookupReferenceObject: ftvfspd,ftvfsyr,ftvfspd
+        keyblckAcciCode:
+          title: Index
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : keyblckAcciCode, Lookup lineage
+            reference object : ftvacci"
+          x-lineageReferenceObject: keyblckAcciCode
+          x-lineageLookupReferenceObject: ftvacci
+        keyblckAcctCode:
+          title: Account
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : keyblckAcctCode"
+          x-lineageReferenceObject: keyblckAcctCode
+        fgvtrndTransAmt:
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FGVTRND_TRANS_AMT"
+          x-lineageReferenceObject: FGVTRND_TRANS_AMT
+        fgvtrndDrCrInd:
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : FGVTRND_DR_CR_IND"
+          x-lineageReferenceObject: FGVTRND_DR_CR_IND
+        fgvtrndRuclCode:
+          maxLength: 4
+          type: string
+          description: "Lineage reference object : FGVTRND_RUCL_CODE, Lookup lineage
+            reference object : ftvrucl"
+          x-lineageReferenceObject: FGVTRND_RUCL_CODE
+          x-lineageLookupReferenceObject: ftvrucl
+        fgvtrndAcctCode:
+          maxLength: 6
+          type: string
+          description: "Lineage reference object : FGVTRND_ACCT_CODE"
+          x-lineageReferenceObject: FGVTRND_ACCT_CODE
+      x-lineageReferenceObject: FGVTRND_BLOCK
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EllucianOAuthUserToken:
+      type: http
+      scheme: bearer
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

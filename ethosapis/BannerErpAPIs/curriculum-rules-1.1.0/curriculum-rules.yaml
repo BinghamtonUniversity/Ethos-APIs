@@ -1,0 +1,935 @@
+openapi: 3.0.0
+info:
+  title: Curriculum Rules
+  description: >
+    
+    This API returns the institutionally defined curriculum rules as seen on the
+    SOACURR administrative page.  Curriculum rules are used to define the valid
+    combinations of curriculum data usable in the Banner Student recruit,
+    admission, student, academic history, and degree audit modules.
+
+
+    In addition to the base curriculum rule (SOBCURR) record detail, any
+    major/department (SORCMJR), concentration (SORCCON), minor (SORCMNR), or
+    module control (SORMCRL) records attached to the base curriculum record are
+    returned in the response.
+  version: 1.1.0
+  x-source-domain: Student
+  x-source-name: SOACURR
+  x-source-title: null
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-audience: all
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/curriculum-rules:
+    get:
+      tags:
+        - curriculum-rules
+      summary: Institutionally defined curriculum rules.
+      description: Returns all SOBCURR records meeting the submitted criteria. Any
+        SORCMJR, SORCMNR, SORCCON, or SORMCRL records associated with the base
+        curriculum rule are also returned in the response.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: |
+            ```
+            application/vnd.hedtech.integration.v1+json
+            ```     
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Effective Term Code of Curriculum Rule
+
+            Returns all curriculum rules valid for the submitted term.
+
+            ```
+
+            /curriculum-rules?criteria={"effectiveTermCode":"200810"}
+
+            ```
+
+            ### Curriculum Rule Number
+
+            Returns the curriculum rule for the submitted rule number.
+
+            ```
+
+            /curriculum-rules?criteria={"curriculumRule":212}
+
+            ```
+
+            ### Program Code
+
+            Returns all curriculum rules where program code is equal to the
+            submitted value.
+
+            ```
+
+            /curriculum-rules?criteria={programCode":"BA-HISTORY"}
+
+            ```
+
+            ### Level Code
+
+            Returns all curriculum rules where the level code is equal to the
+            submitted value.
+
+            ```
+
+            /curriculum-rules?criteria={"levelCode:"UG"}
+
+            ```
+
+            ### Campus Code
+
+            Returns all curriculum rules where the campus code is equal to the
+            submitted value.
+
+            ```
+
+            /curriculum-rules?criteria={"campusCode:"M"}
+
+            ```
+
+            ### Initial Term Code of Curriculum Rule
+
+            Returns all curriculum rules where the inital term code is equal to
+            the submitted value.
+
+            ```
+
+            /curriculum-rules?criteria={"termCodeInitial":"200810"}
+
+            ```
+
+            ### College Code
+
+            Returns all curriculum rules where the college code is equal to the
+            submitted value.
+
+            ```
+
+            /curriculum-rules?criteria={"collegeCode":"AS"}
+
+            ```
+
+            ### Degree Code
+
+            Returns all curriculum rules where the degree code is equal to the
+            submitted value.
+
+            ```
+
+            /curriculum-rules?criteria={"degreeCode":"AAS"}
+
+            ```
+
+            ### Primary Curriculum Roll Indicator
+
+            Returns all curriculum rules where the primary curriculum roll
+            indicator is equal to the submitted value.
+
+            ```
+
+            /curriculum-rules?criteria={"primaryRollInd":true}
+
+            ```
+
+            ### Secondary Curriculum Roll Indicator
+
+            Returns all curriculum rules where the secondary curriculum roll
+            indicator is equal to the submitted value.
+
+            ```
+
+            /curriculum-rules?criteria={"secondaryRollInd":true}
+
+            ```
+
+            ### Lock Indicator
+
+            Returns all curriculum rules where the lock indicator equals the
+            submitted value.
+
+            ```
+
+            /curriculum-rules?criteria={"lockInd":false}
+
+            ```
+
+            ### Study Path Indicator
+
+            Returns all curriculum rules where the study path indicator equals
+            the submitted value.
+
+            ```
+
+            /curriculum-rules?criteria={"studyPathInd":true}
+
+            ```
+        - name: recruitmentProgram
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Recruitment Program  
+
+            Returns a list of active recruit academic programs.
+
+            ```
+
+            /academic-programs?recruitmentProgram={"recruitmentProgram":"active"}
+
+            ```
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/curriculum-rules-1.1.0"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - BasicAuth: []
+          EthosIntegrationBearer: []
+      x-method-permissions: API_CURRICULUM_RULES
+  /api/curriculum-rules/{id}:
+    get:
+      summary: Returns a single curriculum rule record.
+      description: >
+        Returns a single SOBCURR record and its associated SORCMJR, SORCMNR,
+        SORCCON, or SORMCRL records.
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      tags:
+        - curriculum-rules
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: number
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: |
+            ```
+            application/vnd.hedtech.integration.v1+json
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: |
+            ```
+            application/vnd.hedtech.integration.v1+json
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/curriculum-rules-1.1.0"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      x-method-permission: curriculum-rules
+components:
+  schemas:
+    curriculum-rules-1.1.0:
+      type: object
+      properties:
+        id:
+          title: Curriculum Rule ID
+          maxLength: 19
+          type: number
+          description: A unique identifier for the base term enrollment record.
+          x-lineageReferenceObject: SOBCURR_SURROGATE_ID
+        curriculumRule:
+          title: Curriculum Rule Number
+          maxLength: 8
+          type: number
+          description: The rule number of the base curriculum rule.
+          format: integer
+          x-lineageReferenceObject: SOBCURR_CURR_RULE
+        termCodeInitial:
+          title: Initial Term
+          maxLength: 6
+          type: string
+          description: Starting term of the curriculum rule.
+          x-lineageReferenceObject: SOBCURR_TERM_CODE_INIT
+          x-lineageLookupReferenceObject: STVTERM
+        levelCode:
+          title: Level Code
+          maxLength: 2
+          type: string
+          x-lineageReferenceObject: SOBCURR_LEVL_CODE
+          x-lineageLookupReferenceObject: STVLEVL
+        primaryRollInd:
+          title: Primary Curriculum Roll Indicator
+          type: boolean
+          description: Indicator controlling primary curriculum roll from Student to
+            Academic History. true = roll, false = do not roll
+          x-lineageReferenceObject: SOBCURR_PRIM_ROLL_IND
+        secondaryRollInd:
+          title: Secondary Curriculum Roll Indicator
+          type: boolean
+          description: Indicator controlling secondary curriculum roll from Student to
+            Academic History. true = roll, false = do not roll
+          x-lineageReferenceObject: SOBCURR_SECD_ROLL_IND
+        lockInd:
+          title: Lock Indicator
+          type: boolean
+          description: Indicator controlling updates to base curriculum rule. Only locked
+            rules can be assigned to a student. 'true' = locked, 'false' =
+            unlocked
+          x-lineageReferenceObject: SOBCURR_LOCK_IND
+        campusCode:
+          title: Campus Code
+          maxLength: 3
+          type: string
+          x-lineageReferenceObject: SOBCURR_CAMP_CODE
+          x-lineageLookupReferenceObject: STVCAMP
+        collegeCode:
+          title: College Code
+          maxLength: 2
+          type: string
+          x-lineageReferenceObject: SOBCURR_COLL_CODE
+          x-lineageLookupReferenceObject: STVCOLL
+        degreeCode:
+          title: Degree Code
+          maxLength: 6
+          type: string
+          x-lineageReferenceObject: SOBCURR_DEGC_CODE
+          x-lineageLookupReferenceObject: STVDEGC
+        programCode:
+          title: Program Code
+          maxLength: 12
+          type: string
+          x-lineageReferenceObject: SOBCURR_PROGRAM
+          x-lineageLookupReferenceObject: SMRPRLE
+        programCodeDesc:
+          title: Program Description
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: SMRPRLE_PROGRAM_DESC
+        studyPathInd:
+          title: Study Path Indicator
+          type: boolean
+          description: Indicator to turn study path creation on for the curriculum from
+            the admissions applications. true = on, false = off
+          x-lineageReferenceObject: SOBCURR_STUDY_PATH_IND
+        academicProgramId:
+          title: Academic Program Identifier
+          maxLength: 36
+          type: string
+          format: guid
+          description: Unique identifier for the rule in the academic-programs resource.
+          x-lineageReferenceObject: SOBCURR_GUID
+        majorsDepartments:
+          title: MajorsDepartments
+          description: The major/department rules associated with the base curriculum rule.
+          type: array
+          items:
+            type: object
+            properties:
+              curriculumRule:
+                title: Curriculum Rule Number
+                maxLength: 8
+                type: number
+                format: integer
+                x-lineageReferenceObject: SORCMJR_CURR_RULE
+              majorRule:
+                title: Major/Department Rule Number
+                maxLength: 8
+                type: string
+                format: integer
+                x-lineageReferenceObject: SORCMJR_CMJR_RULE
+              termCodeEffective:
+                title: Effective Term for Major/Department Rule
+                maxLength: 6
+                type: string
+                format: string
+                x-lineageReferenceObject: SORCMJR_TERM_CODE_EFF
+                x-lineageLookupReferenceObject: STVTERM
+              admissionsInd:
+                title: ON-Off Indicator for Major/Department Rule in Admissions
+                description: true = On, false = Off in module
+                type: boolean
+                x-lineageReferenceObject: SORCMJR_ADM_IND
+              studentInd:
+                title: ON-Off Indicator for Major/Department Rule in Student
+                description: true = On, false = Off in module
+                type: boolean
+                x-lineageReferenceObject: SORCMJR_STU_IND
+              historyInd:
+                title: ON-Off Indicator for Major/Department Rule in Academic History
+                description: true = On, false = Off in module
+                type: boolean
+                x-lineageReferenceObject: SORCMJR_HIS_IND
+              recruitingInd:
+                title: ON-Off Indicator for Major/Department Rule in Recruiting
+                description: true = On, false = Off in module
+                type: boolean
+                x-lineageReferenceObject: SORCMJR_REC_IND
+              degreeAuditInd:
+                title: On-Off Indicator for Major/Department rule in Degree Audit
+                description: true = On, false = Off in module
+                type: boolean
+                x-lineageReferenceObject: SORCMJR_DAU_IND
+              modifiedOn:
+                title: Last Date Record was Modified
+                type: string
+                format: date
+                x-lineageReferenceObject: SORCMJR_ACTIVITY_DATE
+              majorCode:
+                title: Major Code Associated with the Major/Department Rule
+                maxLength: 4
+                type: string
+                x-lineageReferenceObject: SORCMJR_MAJR_CODE
+                x-lineageLookupReferenceObject: STVMAJR
+              departmentCode:
+                title: Department Code Associated with the Major/Department Rule
+                maxLength: 4
+                type: string
+                x-lineageReferenceObject: SORCMJR_DEPT_CODE
+                x-lineageLookupReferenceObject: STVDEPT
+              degreeCode:
+                title: EDI Degree Level Code associated with the Major Rule
+                maxLength: 3
+                type: string
+                x-lineageReferenceObject: SORCMJR_DEGR_CDE
+              ediQualifierCode:
+                title: EDI Qualifier Code associated with the EDI Value
+                maxLength: 2
+                type: string
+                x-lineageReferenceObject: SORCMJR_EDI_QLFR
+              ediValue:
+                title: EDI Field of Study Identifier associated with the Major Rule
+                maxLength: 30
+                type: string
+                x-lineageReferenceObject: SORCMJR_EDI_VALUE
+              webDisplayInd:
+                title: Indicator denoting whether the curriculum rule should display on Web
+                description: true = display on web, false = do not display
+                type: boolean
+                x-lineageReferenceObject: SORCMJR_DISP_WEB_IND
+              webDescription:
+                title: Curriculum Rule Description to be Displayed on Web
+                maxLength: 60
+                type: string
+                x-lineageReferenceObject: SORCMJR_DESC
+              autoDecisionInd:
+                title: Indicator to Allow Automatic decision on Web Application
+                type: boolean
+                description: true = automatic decision allowed, false = automatic decision not
+                  allowed
+                x-lineageReferenceObject: SORCMJR_AUTO_DEC_IND
+              recruitCrosswalkRule:
+                title: Recruiting Crosswalk Rule
+                maxLength: 19
+                type: number
+                format: integer
+                x-lineageReferenceObject: SRBRICC_SURROGATE_ID
+              recruitProgramName:
+                title: Recruiting Program Name
+                maxLength: 100
+                type: string
+                x-lineageReferenceObject: SRBRICC_ACAD_PROG_NAME
+            required:
+              - curriculumRule
+              - majorRule
+              - termCodeEffective
+              - admissionsInd
+              - studentInd
+              - historyInd
+              - recruitingInd
+              - degreeAuditInd
+              - modifiedOn
+              - webDisplayInd
+              - autoDecisionInd
+        concentrations:
+          title: Concentrations
+          description: The concentration rules associated with the base curriculum rule.
+          type: array
+          items:
+            type: object
+            properties:
+              curriculumRule:
+                title: Curriculum Rule Number
+                maxLength: 8
+                type: number
+                format: integer
+                x-lineageReferenceObject: SORCCON_CURR_RULE
+              concentrationRule:
+                title: Concentration Rule Number
+                maxLength: 8
+                type: string
+                format: integer
+                x-lineageReferenceObject: SORCCON_CCON_RULE
+              termCodeEffective:
+                title: Effective Term for Concentration Rule
+                maxLength: 6
+                type: string
+                format: string
+                x-lineageReferenceObject: SORCCON_TERM_CODE_EFF
+                x-lineageLookupReferenceObject: STVTERM
+              admissionsInd:
+                title: ON-Off Indicator for Concentration Rule in Admissions
+                description: true = On, false = Off in module
+                type: boolean
+                x-lineageReferenceObject: SORCCON_ADM_IND
+              studentInd:
+                title: ON-Off Indicator for Concentration Rule in Student
+                description: true = On, false = Off in module
+                type: boolean
+                x-lineageReferenceObject: SORCCON_STU_IND
+              historyInd:
+                title: ON-Off Indicator for Concentration Rule in Academic History
+                description: true = On, false = Off in module
+                type: boolean
+                x-lineageReferenceObject: SORCCON_HIS_IND
+              recruitingInd:
+                title: ON-Off Indicator for Concentration Rule in Recruiting
+                description: true = On, false = Off in module
+                type: boolean
+                x-lineageReferenceObject: SORCCON_REC_IND
+              degreeAuditInd:
+                title: On-Off Indicator for Concentration rule in Degree Audit
+                description: true = On, false = Off in module
+                type: boolean
+                x-lineageReferenceObject: SORCCON_DAU_IND
+              modifiedOn:
+                title: Last Date Record was Modified
+                type: string
+                format: date
+                x-lineageReferenceObject: SORCCON_ACTIVITY_DATE
+              concentrationMajorRule:
+                title: Major/Department Rule Reference
+                maxLength: 8
+                type: string
+                format: integer
+                x-lineageReferenceObject: SORCCON_CMJR_RULE
+              concentrationCode:
+                title: Concentration Code Associated with the Concentration Rule
+                maxLength: 4
+                type: string
+                x-lineageReferenceObject: SORCCON_MAJR_CODE_CONC
+                x-lineageLookupReferenceObject: STVMAJR
+              ediQualifierCode:
+                title: EDI Qualifier Code associated with the EDI Value
+                maxLength: 2
+                type: string
+                x-lineageReferenceObject: SORCCON_EDI_QLFR
+              ediValue:
+                title: EDI Field of Study Identifier associated with the Concentration Rule
+                maxLength: 30
+                type: string
+                x-lineageReferenceObject: SORCCON_EDI_VALUE
+              webDisplayInd:
+                title: Indicator denoting whether the concentration rule should display on Web
+                description: true = display on web, false = do not display
+                type: boolean
+                x-lineageReferenceObject: SORCCON_DISP_WEB_IND
+              webDescription:
+                title: Concentration Description to be Displayed on Web
+                maxLength: 60
+                type: string
+                x-lineageReferenceObject: SORCCON_DESC
+            required:
+              - curriculumRule
+              - concentrationRule
+              - termCodeEffective
+              - admissionsInd
+              - studentInd
+              - historyInd
+              - recruitingInd
+              - degreeAuditInd
+              - modifiedOn
+              - webDisplayInd
+        minors:
+          title: Minors
+          description: The minor rules associated with the base curriculum rule.
+          type: array
+          items:
+            type: object
+            properties:
+              curriculumRule:
+                title: Curriculum Rule Number
+                maxLength: 8
+                type: number
+                format: integer
+                x-lineageReferenceObject: SORCMNR_CURR_RULE
+              minorRule:
+                title: Minor Rule Number
+                maxLength: 8
+                type: string
+                format: integer
+                x-lineageReferenceObject: SORCMNR_CMNR_RULE
+              termCodeEffective:
+                title: Effective Term for Minor Rule
+                maxLength: 6
+                type: string
+                format: string
+                x-lineageReferenceObject: SORCMNR_TERM_CODE_EFF
+                x-lineageLookupReferenceObject: STVTERM
+              admissionsInd:
+                title: ON-Off Indicator for Minor Rule in Admissions
+                description: true = On, false = Off in module
+                type: boolean
+                x-lineageReferenceObject: SORCMNR_ADM_IND
+              studentInd:
+                title: ON-Off Indicator for Minor Rule in Student
+                description: true = On, false = Off in module
+                type: boolean
+                x-lineageReferenceObject: SORCMNR_STU_IND
+              historyInd:
+                title: ON-Off Indicator for Minor Rule in Academic History
+                description: true = On, false = Off in module
+                type: boolean
+                x-lineageReferenceObject: SORCMNR_HIS_IND
+              recruitingInd:
+                title: ON-Off Indicator for Minor Rule in Recruiting
+                description: true = On, false = Off in module
+                type: boolean
+                x-lineageReferenceObject: SORCMNR_REC_IND
+              degreeAuditInd:
+                title: On-Off Indicator for Minor rule in Degree Audit
+                description: true = On, false = Off in module
+                type: boolean
+                x-lineageReferenceObject: SORCMNR_DAU_IND
+              modifiedOn:
+                title: Last Date Record was Modified
+                type: string
+                format: date
+                x-lineageReferenceObject: SORCMNR_ACTIVITY_DATE
+              minorCode:
+                title: Minor Code Associated with the Minor Rule
+                maxLength: 4
+                type: string
+                x-lineageReferenceObject: SORCMNR_MAJR_CODE_MINR
+                x-lineageLookupReferenceObject: STVMAJR
+              ediQualifierCode:
+                title: EDI Qualifier Code associated with the EDI Value
+                maxLength: 2
+                type: string
+                x-lineageReferenceObject: SORCMNR_EDI_QLFR
+              ediValue:
+                title: EDI Field of Study Identifier associated with the Minor Rule
+                maxLength: 30
+                type: string
+                x-lineageReferenceObject: SORCMNR_EDI_VALUE
+              webDisplayInd:
+                title: Indicator denoting whether the minor rule should display on Web
+                description: true = display on web, false = do not display
+                type: boolean
+                x-lineageReferenceObject: SORCMNR_DISP_WEB_IND
+              webDescription:
+                title: Minor Description to be Displayed on Web
+                maxLength: 60
+                type: string
+                x-lineageReferenceObject: SORCMNR_DESC
+            required:
+              - curriculumRule
+              - minorRule
+              - termCodeEffective
+              - admissionsInd
+              - studentInd
+              - historyInd
+              - recruitingInd
+              - degreeAuditInd
+              - modifiedOn
+              - webDisplayInd
+        curriculumRuleModuleIndicators:
+          title: Curriculum Base Rule Module Indicators
+          description: Module Indicators for the Base Curriculum Rule
+          type: array
+          items:
+            type: object
+            properties:
+              curriculumRule:
+                title: Base Curriculum Rule Number
+                maxLength: 8
+                type: number
+                format: integer
+                x-lineageReferenceObject: SORMCRL_CURR_RULE
+              termCodeEffective:
+                title: Effective Term for Module Indicators Rule
+                maxLength: 6
+                type: string
+                format: string
+                x-lineageReferenceObject: SORMCRL_TERM_CODE_EFF
+                x-lineageLookupReferenceObject: STVTERM
+              recruitingInd:
+                title: ON-Off Indicator for Curriculum Rule in Recruiting
+                description: true = On, false = Off in module
+                type: boolean
+                x-lineageReferenceObject: SORMCRL_REC_IND
+              admissionsInd:
+                title: ON-Off Indicator for Curriculum Rule in Admissions
+                description: true = On, false = Off in module
+                type: boolean
+                x-lineageReferenceObject: SORMCRL_ADM_IND
+              studentInd:
+                title: ON-Off Indicator for Curriculum Rule in Student
+                description: true = On, false = Off in module
+                type: boolean
+                x-lineageReferenceObject: SORMCRL_STU_IND
+              historyInd:
+                title: ON-Off Indicator for Curriculum Rule in Academic History
+                description: true = On, false = Off in module
+                type: boolean
+                x-lineageReferenceObject: SORMCRL_HIS_IND
+              degreeAuditInd:
+                title: On-Off Indicator for Curriculum rule in Degree Audit
+                description: true = On, false = Off in module
+                type: boolean
+                x-lineageReferenceObject: SORMCRL_DAU_IND
+              modifiedOn:
+                title: Last Date Record was Modified
+                type: string
+                format: date
+                x-lineageReferenceObject: SORMCRL_ACTIVITY_DATE
+            required:
+              - curriculumRule
+              - termCodeEffective
+              - admissionsInd
+              - studentInd
+              - historyInd
+              - recruitingInd
+              - degreeAuditInd
+              - modifiedOn
+      required:
+        - id
+        - curriculumRule
+        - termCodeInitial
+        - levelCode
+        - primaryRollInd
+        - secondaryRollInd
+        - lockInd
+        - studyPathInd
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary
+                  data entity used to create the resource. This is useful for
+                  referencing the source item through the applications
+                  administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

@@ -1,0 +1,252 @@
+openapi: 3.0.0
+info:
+  title: Student Services Amenities
+  description: This API returns the Student Services and Amenities Fee Details
+  version: 1.0.0
+  x-source-name: SVQ_STUDENT_APAC_SSAF
+  x-source-title: student-services-amenities
+  x-source-system: Banner
+  x-api-type: erp
+  x-audience: all
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/student-services-amenities:
+    get:
+      tags:
+        - student-services-amenities
+      summary: Provide the list of student services amenity.
+      description: Provide the list of student services amenity.
+      parameters:
+        - name: limit
+          in: query
+          description:
+            The maximum number of resources requesting for this result set.
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/student-services-amenities-1.0.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client's preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - BearerAuth: []
+        - BasicAuth: []
+      x-method-permission:
+components:
+  schemas:
+    student-services-amenities-1.0.0_response:
+      type: object
+      properties:
+        studentId:
+          "title": "Student ID"
+          "description": "Student Identifier."
+          "type": string
+          "maxLength": 9
+          "x-lineageReferenceObject": SVQ_STUDENT_APAC_SSAF.SPRIDEN_ID
+        acyrCode:
+          "title": "Academic Year"
+          "description": "Academic year"
+          "type": number
+          "maxLength": 4
+          "x-lineageReferenceObject": SVQ_STUDENT_APAC_SSAF.STVTERM_ACYR_CODE
+        termCode:
+          "title": "Term code"
+          "description": "Term code"
+          "type": string
+          "maxLength": 6
+          "x-lineageReferenceObject": SVQ_STUDENT_APAC_SSAF.SFRSTCR_TERM_CODE
+          "x-lineageLookupReferenceObject": stvterm
+        termType:
+          "title": "Type of the Term"
+          "description": "Type of the Term"
+          "type": string
+          "maxLength": 1
+          "x-lineageReferenceObject": SVQ_STUDENT_APAC_SSAF.STVTERM_TRMT_CODE
+        billHr:
+          "title": "Bill hour"
+          "description": "Bill hour for the registered class."
+          "type": number
+          "x-lineageReferenceObject": SVQ_STUDENT_APAC_SSAF.BILL_HR_SUM
+        insmCode:
+          "title": "Instructional method"
+          "description": "Instructional method of the class"
+          "type": string
+          "maxLength": 4000
+          "x-lineageReferenceObject": SVQ_STUDENT_APAC_SSAF.SSBSECT_INSM_CODE
+        rateCode:
+          "title": "Curriculum rate code"
+          "description": "Curriculum rate code"
+          "type": string
+          "maxLength": 5
+          "x-lineageReferenceObject": SVQ_STUDENT_APAC_SSAF.SORLCUR_RATE_CODE
+        ssafAmount:
+          "title": "Amenities fee"
+          "description": "Student service and amenities fee"
+          "type": number
+          "x-lineageReferenceObject": SVQ_STUDENT_APAC_SSAF.SSAF_TERM_SUM
+        eftsl:
+          "title": "Eftsl"
+          "description": "Eftsl override"
+          "type": number
+          "x-lineageReferenceObject": SVQ_STUDENT_APAC_SSAF.EFTSL_OVERRIDE_SUM
+        orgId:
+          "title": "Organisation ID"
+          "description": "The unique identifier for the TCSI organization"
+          "type": string
+          "x-lineageReferenceObject": SVQ_STUDENT_APAC_SSAF.ORG_ID
+        detailCode:
+          "title": "Detail Code"
+          "description": "Detail code associated with the transaction"
+          "type": string
+          "x-lineageReferenceObject": SVQ_STUDENT_APAC_SSAF.DETAIL_CODE
+        partOfTerm:
+          "title": "Part Of Term"
+          "description": "This field identifies the Part of Term Code for the Term"
+          "type": string
+          "x-lineageReferenceObject": SVQ_STUDENT_APAC_SSAF.PART_TERM
+        program  :
+          "title": "Program"
+          "description": "program of the curriculum"
+          "type": string
+          "x-lineageReferenceObject": SVQ_STUDENT_APAC_SSAF.PROGRAM
+      required:
+        - studentId
+        - acyrCode
+        - termCode
+        - termType
+        - billHr
+        - insmCode
+        - rateCode
+        - ssafAmount
+        - eftsl
+        - orgId
+        - detailCode
+        - partOfTerm
+        - program
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

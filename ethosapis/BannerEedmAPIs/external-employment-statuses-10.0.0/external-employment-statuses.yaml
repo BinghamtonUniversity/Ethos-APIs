@@ -1,0 +1,160 @@
+openapi: 3.0.0
+info:
+  title: External Employment Statuses
+  description: The valid list of user defined external employment statuses.
+  version: "10.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Human Resources
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/external-employment-statuses:
+    get:
+      summary: Return all resources
+      description: This resource is exposed only through the Ethos API in order to be
+        compliant with the Ethos domain definition. It returns an empty array.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EXT_EMPLOYMENT_STATUS
+      tags:
+        - external-employment-statuses
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-external-employment-statuses.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v10.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-external-employment-statuses.json:
+      title: External Employment Statuses
+      description: The valid list of user defined external employment statuses.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the external employment status.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: unsupported
+        title:
+          title: Title
+          description: The full name of the external employment status.
+          type: string
+          minLength: 1
+          x-lineageReferenceObject: unsupported
+        description:
+          title: Description
+          description: The description of the external employment status.
+          type: string
+          x-lineageReferenceObject: unsupported
+        code:
+          title: Code
+          description: A code that may be used to identify the external employment status.
+          type: string
+          x-lineageReferenceObject: unsupported
+      required:
+        - id
+        - title
+      additionalProperties: false

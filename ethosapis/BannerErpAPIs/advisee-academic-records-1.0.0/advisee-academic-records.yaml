@@ -1,0 +1,347 @@
+openapi: 3.0.0
+info:
+  title: Advisee Academic Records
+  description: This API retrieves student academic information like progrmams, levels, majors/minors, gpa, class standing, academic standings for a given advisee.  
+  version: 1.0.0
+  x-api-type: erp
+  x-release-status: ga
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Student
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /qapi/advisee-academic-records:
+    post:
+      tags:
+      - advisee-academic-records QAPI
+      summary: Returns resources from SPRIDEN, SMRPRLE, SORLCUR, SOVLFOS, STVCLAS, SHRLGPA STVASTD, GORGUID.
+      description: Queries for the student academic information based on given advisee registered for a term.     
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/json
+
+            ```
+          schema:
+            type: string             
+        - name: max
+          in: query
+          description:  |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/advisee-academic-records-1.0.0_qapi_post_request"            
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/advisee-academic-records-1.0.0_qapi_post_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the clientâ€™s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_ADVISEE_ACADEMIC_RECORDS
+components:
+  schemas:
+    advisee-academic-records-1.0.0_qapi_post_request:
+      type: object
+      properties:
+        advisee:
+          title: Advisee Id
+          type: string
+          description: "The GORGUID_GUID of an advisee"
+          x-lineageReferenceObject: GORGUID_GUID
+          example: da1fb7fe-c23a-4d9a-8736-9b45f962e72c
+        term:
+          title: Term Id
+          type: string
+          description: "The GORGUID_GUID of a term associated with advisee."
+          x-lineageLookupReferenceObject: GORGUID
+          example: 2591108f-403d-457a-ada0-064597415c55   
+      required:
+       - advisee
+       - term
+    advisee-academic-records-1.0.0_qapi_post_response:
+      type: object
+      required: 
+      - student
+      - term
+      - studentId
+      - studentErpId
+      - advisorType
+      - programId
+      - programTitle
+      - programPriority
+      - academicLevelGuid
+      - academicLevelCode
+      properties:
+        student:
+          title: Advisee Id
+          type: string
+          description: "The GORGUID_GUID of an advisee"
+          x-lineageReferenceObject: GORGUID_GUID
+          example: da1fb7fe-c23a-4d9a-8736-9b45f962e72c
+        term:
+          title: Term Id
+          type: string
+          description: "The GORGUID_GUID of a term associated with advisor."
+          x-lineageReferenceObject: GORGUID_GUID
+          example: 2591108f-403d-457a-ada0-064597415c55      
+        studentErpId:
+          title: Student banner id 
+          type: string
+          description: "The Banner id associated with student."
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: A00277848
+        programId:
+          title: Program GUID 
+          type: string
+          description: "GUID associated with academic program."
+          x-lineageReferenceObject: SMRPRLE_GUID
+          example: 21bcf878-5cbc-435d-bf13-6329b4c35efe
+        programTitle:
+          title: Academic Program 
+          type: string
+          description: "Academic program associated with student."
+          x-lineageReferenceObject: SORLCUR_PROGRAM
+        programPriority:
+          title: Program priority 
+          type: string
+          description: "Academic program priority."
+          x-lineageReferenceObject: SORLCUR_PRIORITY
+          example: 1  
+        classificationId:
+          title: Student Classification GUID 
+          type: string
+          description: "GUID associated with student classification."
+          x-lineageReferenceObject: STVCLAS_GUID
+          example: f980ae00-ee79-4d4f-9aad-54735babb9d0
+        classificationTitle:
+          title: Student Classification title 
+          type: string
+          description: "Title of student classification."
+          x-lineageReferenceObject: STVCLAS_DESC
+          example: First Year Law
+        gpaValue:
+          title: Cumulative GPA 
+          type: string
+          description: "The cumulative GPA earned by student."
+          x-lineageReferenceObject: SHRLGPA_GPA
+          example: 8.25
+        fieldOfStudyGuid:
+          title: Field of study GUID 
+          type: string
+          description: "GUID associated with discipline/sub-discipline record."
+          x-lineageReferenceObject: GORGUID_GUID
+          example: f980ae00-ee79-4d4f-9aad-54735babb9d0
+        fieldOfStudyTitle:
+          title: Field of study title 
+          type: string
+          description: "Major/Minor/Conc code associated with program."
+          x-lineageReferenceObject: SOVLFOS_MAJR_CODE
+          example: ART
+        academicLevelGuid:
+          title: Academic Level GUID 
+          type: string
+          description: "GUID associated with academic level of student."
+          x-lineageReferenceObject: GORGUID_GUID
+          example: 59c23e91-1831-42c5-a0b7-4496c0d302d3
+        academicLevelCode:
+          title: Academic Level code 
+          type: string
+          description: "Level code associated with student program."
+          x-lineageReferenceObject: SORLCUR_LEVL_CODE
+          example: UG  
+        academicStandingGuid:
+          title: Academic Standing GUID 
+          type: string
+          description: "GUID associated with academic standing of student for a given term."
+          x-lineageReferenceObject: STVASTD_GUID
+          example: 45c23e91-1831-42c5-a0b7-4496c0d302d3
+        academicStandingTitle:
+          title: Academic Standing  
+          type: string
+          description: "Academic Standing associated with a student and term ."
+          x-lineageReferenceObject: STVASTD_DESC
+          example: Good Standing
+        overrideStandingGuid:
+          title: Override Standing GUID 
+          type: string
+          description: "GUID associated with override standing of student for a given term."
+          x-lineageReferenceObject: STVASTD_GUID
+          example: 79c23e91-1831-42c5-a0b7-4496c0d302d3
+        overrideStandingTitle:
+          title: Override Standing  
+          type: string
+          description: "Override Academic Standing associated with a student and term ."
+          x-lineageReferenceObject: STVASTD_DESC
+          example: Good Standing
+        learnerFieldOfStudyCode:
+          title: Learner field of study
+          type: string
+          description: "Major or Minor or Conc or LFOS associated with program."
+          x-lineageReferenceObject: SOVLFOS_LFST_CODE
+          example: CONC
+        lfosSeq:
+          title: Learner field of study sequence number
+          type: integer
+          description: "Learner field of study sequence number."
+          x-lineageReferenceObject: SOVLFOS_SEQNO
+          example: 1 
+          
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

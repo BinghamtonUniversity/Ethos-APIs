@@ -1,0 +1,531 @@
+openapi: 3.0.0
+info:
+  title: Section Requisites and Connections
+  description: >
+  
+    The Section Requisites and Connections API returns section requisite and connection details for a specified term and crn as seen
+    on the SSAPREQ and SSADETL administrative pages.
+        
+
+    Any section links (SSRLINK), section corequisites (SSRCORQ) or prerequisite restriction 
+    (SSRRTST) records associated with the section are returned in the response.
+
+
+    Section requisite and connection details can be created or maintained using section-requisites-and-connections-adjustments-process.
+
+  version: 1.0.0-beta
+  x-api-type: erp
+  x-release-status: beta
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Student
+  x-source-name: SSAPREQ SSADETL 
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /qapi/section-requisites-and-connections:
+    post:
+      tags:
+      - section-requisites-and-connections - QAPI
+      summary: Returns resources from SSBSECT, SSRLINK, SSRCORQ and SSRRTST
+      description: >
+        Queries for the requested resource using a set of attributes provided in the post
+        request body.  Please note the path to the server is overridden to use /qapi/{resource} 
+        in the URL and not /api/{resource}.
+        
+        
+        Returns any SSBSECT, SSRLINK, SSRCORQ and SSRRTST records meeting the submitted criteria.        
+          
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string            
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/section-requisites-and-connections-1.0.0_qapi_post_request"
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/section-requisites-and-connections-1.0.0_qapi_post_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SEC_PREREQ_CON
+components:
+  schemas:
+    section-requisites-and-connections-1.0.0_qapi_post_request:
+      type: object
+      required:
+        - term
+      properties:   
+        term:
+          title: Term
+          maxLength: 6
+          type: string
+          description: "A user provided value. The term code is used to retrieve the 
+            section details that are equal to the provided value."
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202201
+        crn: 
+          title: Course Reference Number
+          maxLength: 5
+          type: string
+          description: "The course reference number (CRN) associated with the course section." 
+          x-lineageReferenceObject: SSBSECT_CRN
+          example: 51289      
+    section-requisites-and-connections-1.0.0_qapi_post_response:
+      type: object
+      required:
+        - term
+        - crn
+      properties:      
+        term:
+          title: Term
+          maxLength: 6
+          type: string
+          description: "A user provided value. The term code is used to retrieve the 
+            section requisite and connection details that are equal to the provided value."
+          x-lineageReferenceObject: SSBSECT_TERM_CODE
+          x-lineageLookupReferenceObject: STVTERM 
+          example: 202201     
+        crn: 
+          title: Course Reference Number
+          maxLength: 5
+          type: string
+          description: "The Course Reference Number (CRN) assigned to this course section."
+          x-lineageReferenceObject: SSBSECT_CRN
+          example: 51289            
+        linkConnectors:
+          title: Link Connectors
+          type: array
+          items:
+            type: object
+            required:
+            - connector
+            properties:              
+              connector:
+                title:  Link Connector Code
+                maxLength: 2
+                type:  string
+                description: "Code to identify the linked sections."
+                x-lineageReferenceObject:  SSRLINK_LINK_CONN
+                example: LV
+              modifiedOn:
+                title: Modified On
+                maxLength: 11
+                type: string
+                format: date-time
+                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                description: "Most current date the record was created or changed."
+                x-lineageReferenceObject:  SSRLINK_ACTIVITY_DATE
+                example: 2024-05-05T04:00:00Z             
+              modifiedBy:
+                title:  Modified By
+                maxLength:  30
+                type:  string
+                description: "User who inserted or last updated the data."
+                x-lineageReferenceObject:  SSRLINK_USER_ID
+                example: SYSTEM08                
+        sectionSpecificCorequisites:
+          title: Section Specific Corequisites
+          type: array        
+          items:
+            required:
+              - crn
+            properties:
+              crn:
+                title:  Corequisite Course Reference Number
+                maxLength:  5
+                type:  string
+                description:  "Course Reference Number for the corequisite section."
+                x-lineageReferenceObject:  SSRCORQ_CRN_CORQ
+                example: 100
+              subject:
+                title:  Subject Code
+                maxLength:  4
+                type:  string
+                description:  "Subject of the corequisite section."
+                x-lineageReferenceObject:  SSBSECT_SUBJ_CODE 
+                x-lineageLookupReferenceObject: STVSUBJ
+                example: ENGL
+              subjectDescription:
+                title: Subject Code Description
+                maxLength: 30
+                type: string
+                description:  "Description of the subject of the corequisite section."                
+                x-lineageReferenceObject: STVSUBJ_DESC
+                example: English
+              courseNumber:
+                title:  Corequisite Course Number
+                maxLength:  5
+                type:  string
+                description:  "Course number of the corequisite section."
+                x-lineageReferenceObject:  SSBSECT_CRSE_NUMB 
+                x-lineageLookupReferenceObject: STVSUBJ
+                example: 101                
+              section:
+                title: Section Number
+                maxLength: 3
+                type: string
+                description: "Section identifier of the corequisite section."
+                x-lineageReferenceObject: SSBSECT_SEQ_NUMB         
+                example: 1  
+              modifiedOn:
+                title: Modified On
+                maxLength: 11
+                type: string
+                format: date-time
+                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                description: "Most current date the record was created or changed."
+                x-lineageReferenceObject:  SSRCORQ_ACTIVITY_DATE
+                example: 2024-05-05T04:00:00Z   
+              modifiedBy:
+                title:  Modified By
+                maxLength:  30
+                type:  string
+                format: string 
+                description:  "User who inserted or last updated the data."
+                x-lineageReferenceObject:  SSRCORQ_USER_ID
+                example: SYSTEM08                
+        prerequisite:
+          title: Section Prerequisite
+          type: object
+          required:
+            - checkMethodDetail
+          properties:
+            checkMethodDetail:
+              type: object
+              title: Course Prerequisite Check Method Detail
+              properties:
+                prerequisiteCheckingMethod:
+                  title: Prerequisite Checking Method
+                  type: string
+                  enum:
+                  - basic
+                  - cappAreas
+                  - degreeworks
+                  description: "The type of prerequisite checking."
+                  x-lineageReferenceObject: SSBSECT_PREREQ_CHK_METHOD_CDE
+                modifiedOn:
+                  title: Modified On
+                  maxLength: 11
+                  type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                  description: "Most current date the record was created or changed."
+                  x-lineageReferenceObject: SSSBSECT_ACTIVITY_DATE
+                  example: 2024-05-05T04:00:00Z          
+                modifiedBy: 
+                  title:  Modified By
+                  maxLength:  30
+                  type:  string
+                  description: "User who inserted or last updated the data."
+                  x-lineageReferenceObject:  SSBSECT_USER_ID
+                  example: SYSTEM08                  
+            basicPrerequisites:
+              title: Basic Prerequisites
+              description: The basic prerequisites identified for the section.
+              type: array              
+              items:
+                type: object
+                required:
+                - requirement   
+                - lineOrderSequence                
+                properties:
+                  lineOrderSequence:
+                    title: Line Order Sequence
+                    maxLength: 23
+                    type: number
+                    description: The line order sequence number is used to ensure the record will be in the correct order.
+                    x-lineageReferenceObject: SSRRTST_SEQNO
+                    example: 2  
+                  logicalOperator:
+                    title: Logical Operator
+                    description: The logical operator for the requirement (and, or).
+                    oneOf:
+                    - type: string
+                      enum:
+                      - and
+                      - or
+                    - type: string
+                      maxLength: 0                      
+                    x-lineageReferenceObject: SSRRTST_CONNECTOR
+                    example: or
+                  leftParenthesis:
+                    title: Left Parenthesis
+                    maxLength: 1
+                    description: The parenthesis for the requirement (left parenthesis equals true).
+                    type: boolean
+                    x-lineageReferenceObject: SSRRTST_LPAREN 
+                    example: true
+                  requirement:
+                    title: Requirement
+                    description: The requirement associated with the basic prerequisite.
+                    oneOf:
+                    - title: Course
+                      description: The course identified as a prerequisite of the target course.
+                      type: object
+                      x-lineageReferenceObject: SSRRTST_CRSE_NUMB_PREQ
+                      properties:
+                        course:
+                          title: Course
+                          description: The course identified as a prerequisite of the target course.
+                          type: object
+                          properties:
+                            subject:
+                              title: Subject
+                              description: "The subject area of the course."
+                              x-lineageReferenceObject: SSRRTST_SUBJ_CODE_PREQ
+                              type: string
+                              maxLength: 4
+                              example: ECON
+                            courseNumber:
+                              title: Number
+                              description: The course number.
+                              type: string
+                              maxLength: 5
+                              x-lineageReferenceObject: SSRRTST_CRSE_NUMB_PREQ
+                              example: 100
+                            concurrentEnrollment:
+                              title: Concurrent Enrollment
+                              description: An indicator of whether concurrent enrollment is allowed or not allowed.
+                              x-lineageReferenceObject: SSRRTST_CONCURRENCY_IND
+                              oneOf:
+                              - type: string
+                                enum:
+                                - allowed
+                                - notAllowed
+                              - type: string
+                                maxLength: 0
+                              example: notAllowed
+                            minimumGrade:
+                              title: Minimum Grade
+                              description: The minimum grade for the prerequisite course.
+                              type: string
+                              maxLength: 6                                  
+                              x-lineageReferenceObject: SSRRTST_MIN_GRDE
+                              x-lineageLookupReferenceObject: SHRGRDE
+                              example: D
+                            academicLevel:
+                              title: Academic Level
+                              description: The academic level associated with the prerequisite course.
+                              type: string
+                              maxLength: 2                                 
+                              x-lineageReferenceObject: SSRRTST_LEVEL_CODE
+                              x-lineageReferenceLookupObject: STVLEVL
+                              example: UG
+                          required:
+                          - subject
+                          - courseNumber
+                      required:
+                      - course
+                    - title: Assessment
+                      description: The assessment identified as a prerequisite of the target course.
+                      type: object
+                      properties:
+                        assessment:
+                          title: Assessment
+                          description: The assessment and minimum test score identified as a prerequisite of the target course.
+                          type: object
+                          properties:
+                            minimumTestScore:
+                              title: Minimum Test Score
+                              description: The minimum test score for the assessment.
+                              x-lineageReferenceObject: SSRRTST_TEST_SCORE
+                              type: string
+                              minLength: 1
+                              maxLength: 15
+                              example: 55
+                            assessment:
+                              title: Assessment 
+                              description: The assessment code identified as a prerequisite of the target course.
+                              x-lineageReferenceObject: SSRRTST_TESC_CODE
+                              x-lineageReferenceLookupObject: STVTESC
+                              type: string
+                              maxLength: 6
+                              example: A05                                  
+                            assessmentDescription:
+                              title: Assessment Description
+                              description: Description of the assessment code.
+                              maxLength: 30
+                              type: string
+                              x-lineageReferenceObject: STVTESC_DESC
+                              example: ACT English
+                          required:
+                          - minimumTestScore
+                          - assessment
+                      required:
+                      - assessment
+                  rightParenthesis:
+                    title: Right Parenthesis 
+                    maxLength: 1
+                    type: boolean
+                    description: The parenthesis for the requirement (right parenthesis = true).
+                    x-lineageReferenceObject: SSRRTST_RPAREN
+                    example: true  
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject:  SSRRTST_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z                                  
+                  modifiedBy: 
+                    title: Modified By
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SSRRTST_USER_ID
+                    example: SYSTEM08                         
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

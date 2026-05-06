@@ -1,0 +1,836 @@
+openapi: 3.0.0
+info:
+  title: Person Holds
+  description: >
+    Persons holds API processes the holds that are defined for an individual
+    person.
+  version: 16.0.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Student
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: person-holds
+paths:
+  /api/person-holds:
+    get:
+      summary: Returns resources from SPRHOLD and SPRTHLD
+      description: >
+        Returns a paged listing of all the person hold records from SPRHOLD and SPRTHLD
+        table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSON_HOLDS
+      tags:
+        - person-holds
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards for more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v16.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: object
+            properties:
+              person:
+                type: object
+                description: Filter by the person's global identifier.
+                properties:
+                  id:
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                required:
+                  - id
+                additionalProperties: false
+              type:
+                type: object
+                description: Filter by the hold type's global identifier.
+                properties:
+                  id:
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                required:
+                  - id
+                additionalProperties: false
+          description: |
+            Filters the collection of person holds. Supported criteria filters:
+
+            ### Filter by Person
+            Returns all person holds for the specified person GUID.
+            ```
+            /api/person-holds?criteria={"person":{"id":"<guid>"}}
+            ```
+
+            ### Filter by Hold Type
+            Returns all person holds of the specified hold type GUID.
+            ```
+            /api/person-holds?criteria={"type":{"id":"<guid>"}}
+            ```
+        - name: allActiveHolds
+          in: query
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                enum:
+                  - active
+            required:
+              - status
+            additionalProperties: false
+          description: |
+            Named query that returns all currently active person holds.
+            ```
+            /api/person-holds?allActiveHolds={"status":"active"}
+            ```
+        - name: personActiveHolds
+          in: query
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                enum:
+                  - active
+              person:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                required:
+                  - id
+                additionalProperties: false
+            required:
+              - status
+              - person
+            additionalProperties: false
+          description: |
+            Named query that returns all currently active person holds for the specified person GUID.
+            ```
+            /api/person-holds?personActiveHolds={"status":"active","person":{"id":"<guid>"}}
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/vnd.hedtech.integration.v16.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-person-holds.json"
+              examples:
+                mixed:
+                  summary: Mixed holdPeriod types
+                  value:
+                    - id: "d2e3b6a1-4f8c-4e2d-9b7a-1c5e3f2a0d94"
+                      person:
+                        id: "d2e3b6a1-4f8c-4e2d-9b7a-1c5e3f2a0d94"
+                      hold:
+                        id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                      holdPeriod:
+                        startOn: "2026-01-15"
+                        endOn: "2026-08-31"
+                      notificationIndicator: notify
+                      comment: "Pending transcript review"
+                      reason: "Missing transcript"
+                    - id: "c3f4a7b2-1d9e-4c6f-8a2b-5e7d9f1c3a08"
+                      person:
+                        id: "c3f4a7b2-1d9e-4c6f-8a2b-5e7d9f1c3a08"
+                      hold:
+                        id: "b5c6d7e8-f9a0-1234-bcde-f01234567890"
+                      holdPeriod:
+                        academicPeriod:
+                          id: "e1d2c3b4-a5f6-7890-cdef-ab1234567890"
+                        startOn: "2026-01-15"
+                        endOn: "2026-05-15"
+                        holdStatus: activeHold
+                      notificationIndicator: watch
+                      comment: "Outstanding balance hold"
+                      reason: "Outstanding balance"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new resource in SPRHOLD or SPRTHLD
+      description: >
+        POST requests must include a nil GUID value
+        ("00000000-0000-0000-0000-000000000000") for the root id property.
+
+
+        Creates a new person hold record. The target table depends on holdPeriod:
+        Date Based -> SPRHOLD; Period Based -> SPRTHLD.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSON_HOLDS
+      tags:
+        - person-holds
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v16.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-person-holds.json"
+              examples:
+                dateBased:
+                  summary: Date Based holdPeriod
+                  value:
+                    id: "a4f3e2d1-9c8b-4a7f-b6e5-d3c2b1a09f8e"
+                    person:
+                      id: "d2e3b6a1-4f8c-4e2d-9b7a-1c5e3f2a0d94"
+                    hold:
+                      id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                    holdPeriod:
+                      startOn: "2026-01-15"
+                      endOn: "2026-08-31"
+                    notificationIndicator: notify
+                    comment: "Pending transcript review"
+                    reason: "Missing transcript"
+                periodBased:
+                  summary: Period Based holdPeriod
+                  value:
+                    id: "f8e7d6c5-b4a3-4f2e-9d8c-7b6a5f4e3d2c"
+                    person:
+                      id: "c3f4a7b2-1d9e-4c6f-8a2b-5e7d9f1c3a08"
+                    hold:
+                      id: "b5c6d7e8-f9a0-1234-bcde-f01234567890"
+                    holdPeriod:
+                      academicPeriod:
+                        id: "e1d2c3b4-a5f6-7890-cdef-ab1234567890"
+                      startOn: "2026-01-15"
+                      endOn: "2026-05-15"
+                      holdStatus: activeHold
+                    notificationIndicator: watch
+                    comment: "Outstanding balance hold"
+                    reason: "Outstanding balance"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-person-holds.json"
+            examples:
+              dateBased:
+                summary: Date Based holdPeriod
+                value:
+                  id: "00000000-0000-0000-0000-000000000000"
+                  person:
+                    id: "d2e3b6a1-4f8c-4e2d-9b7a-1c5e3f2a0d94"
+                  hold:
+                    id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                  holdPeriod:
+                    startOn: "2026-01-15"
+                    endOn: "2026-08-31"
+                  notificationIndicator: notify
+                  comment: "Pending transcript review"
+                  reason: "Missing transcript"
+              periodBased:
+                summary: Period Based holdPeriod
+                value:
+                  id: "00000000-0000-0000-0000-000000000000"
+                  person:
+                    id: "c3f4a7b2-1d9e-4c6f-8a2b-5e7d9f1c3a08"
+                  hold:
+                    id: "b5c6d7e8-f9a0-1234-bcde-f01234567890"
+                  holdPeriod:
+                    academicPeriod:
+                      id: "e1d2c3b4-a5f6-7890-cdef-ab1234567890"
+                    startOn: "2026-01-15"
+                    endOn: "2026-05-15"
+                    holdStatus: activeHold
+                  notificationIndicator: watch
+                  comment: "Outstanding balance hold"
+                  reason: "Outstanding balance"
+  /api/person-holds/{id}:
+    get:
+      summary: Returns the requested resource from SPRHOLD or SPRTHLD
+      description: |
+        Returns the requested person hold record from SPRHOLD or SPRTHLD.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSON_HOLDS
+      tags:
+        - person-holds
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: guid
+            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v16.0.0+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-person-holds.json"
+              examples:
+                dateBased:
+                  summary: Date Based holdPeriod
+                  value:
+                    id: "d2e3b6a1-4f8c-4e2d-9b7a-1c5e3f2a0d94"
+                    person:
+                      id: "d2e3b6a1-4f8c-4e2d-9b7a-1c5e3f2a0d94"
+                    hold:
+                      id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                    holdPeriod:
+                      startOn: "2026-01-15"
+                      endOn: "2026-08-31"
+                    notificationIndicator: notify
+                    comment: "Pending transcript review"
+                    reason: "Missing transcript"
+                periodBased:
+                  summary: Period Based holdPeriod
+                  value:
+                    id: "c3f4a7b2-1d9e-4c6f-8a2b-5e7d9f1c3a08"
+                    person:
+                      id: "c3f4a7b2-1d9e-4c6f-8a2b-5e7d9f1c3a08"
+                    hold:
+                      id: "b5c6d7e8-f9a0-1234-bcde-f01234567890"
+                    holdPeriod:
+                      academicPeriod:
+                        id: "e1d2c3b4-a5f6-7890-cdef-ab1234567890"
+                      startOn: "2026-01-15"
+                      endOn: "2026-05-15"
+                      holdStatus: activeHold
+                    notificationIndicator: watch
+                    comment: "Outstanding balance hold"
+                    reason: "Outstanding balance"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    put:
+      summary: Update the requested resource from SPRHOLD or SPRTHLD
+      description: >
+        Updates the existing person hold record with the passed in identifier.
+        The target table depends on holdPeriod: Date Based -> SPRHOLD;
+        Period Based -> SPRTHLD.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSON_HOLDS
+      tags:
+        - person-holds
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Person Holds for use in all external
+            references
+          schema:
+            type: string
+            format: guid
+            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v16.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-person-holds.json"
+              examples:
+                dateBased:
+                  summary: Date Based holdPeriod
+                  value:
+                    id: "d2e3b6a1-4f8c-4e2d-9b7a-1c5e3f2a0d94"
+                    person:
+                      id: "d2e3b6a1-4f8c-4e2d-9b7a-1c5e3f2a0d94"
+                    hold:
+                      id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                    holdPeriod:
+                      startOn: "2026-01-15"
+                      endOn: "2026-08-31"
+                    notificationIndicator: notify
+                    comment: "Pending transcript review"
+                    reason: "Missing transcript"
+                periodBased:
+                  summary: Period Based holdPeriod
+                  value:
+                    id: "c3f4a7b2-1d9e-4c6f-8a2b-5e7d9f1c3a08"
+                    person:
+                      id: "c3f4a7b2-1d9e-4c6f-8a2b-5e7d9f1c3a08"
+                    hold:
+                      id: "b5c6d7e8-f9a0-1234-bcde-f01234567890"
+                    holdPeriod:
+                      academicPeriod:
+                        id: "e1d2c3b4-a5f6-7890-cdef-ab1234567890"
+                      startOn: "2026-01-15"
+                      endOn: "2026-05-15"
+                      holdStatus: activeHold
+                    notificationIndicator: watch
+                    comment: "Outstanding balance hold"
+                    reason: "Outstanding balance"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-person-holds.json"
+            examples:
+              dateBased:
+                summary: Date Based holdPeriod
+                value:
+                  id: "d2e3b6a1-4f8c-4e2d-9b7a-1c5e3f2a0d94"
+                  person:
+                    id: "d2e3b6a1-4f8c-4e2d-9b7a-1c5e3f2a0d94"
+                  hold:
+                    id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                  holdPeriod:
+                    startOn: "2026-01-15"
+                    endOn: "2026-08-31"
+                  notificationIndicator: notify
+                  comment: "Pending transcript review"
+                  reason: "Missing transcript"
+              periodBased:
+                summary: Period Based holdPeriod
+                value:
+                  id: "c3f4a7b2-1d9e-4c6f-8a2b-5e7d9f1c3a08"
+                  person:
+                    id: "c3f4a7b2-1d9e-4c6f-8a2b-5e7d9f1c3a08"
+                  hold:
+                    id: "b5c6d7e8-f9a0-1234-bcde-f01234567890"
+                  holdPeriod:
+                    academicPeriod:
+                      id: "e1d2c3b4-a5f6-7890-cdef-ab1234567890"
+                    startOn: "2026-01-15"
+                    endOn: "2026-05-15"
+                    holdStatus: activeHold
+                  notificationIndicator: watch
+                  comment: "Outstanding balance hold"
+                  reason: "Outstanding balance"
+    delete:
+      summary: Deletes the requested resource from SPRHOLD or SPRTHLD
+      description: >
+        Deletes the requested person hold record from SPRHOLD or SPRTHLD.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSON_HOLDS
+      tags:
+        - person-holds
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Person Holds for use in all external
+            references
+          schema:
+            type: string
+            format: guid
+            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-person-holds.json:
+      title: Person Holds
+      description: A customized list of holds that may be applied to a person.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of a person hold
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = person-holds) or SPRTHLD_GUID(SPRTHLD)
+          x-lineageDerivedLogic: >
+            For Date Based holdPeriod, display GUID from GORGUID where GORGUID_LDM_NAME = 'person-holds', sourced from SPRHOLD via SVQ_SPRHOLD_PERSON_HOLD.
+            For Period Based holdPeriod, display SPRTHLD_GUID directly from SPRTHLD via SVQ_SPRTHLD_TERM_HOLD. No GORGUID entry is created for period based holds.
+        person:
+          title: Person
+          description: The person, for whom the hold has been recorded
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Person.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons)
+              x-lineageDerivedLogic: Display GUID from GORGUID where GORGUID_LDM_NAME = 'persons' and GORGUID_DOMAIN_KEY matches SPRHOLD_PIDM or SPRTHLD_PIDM
+          additionalProperties: false
+          required:
+            - id
+        hold:
+          title: Hold
+          description: The hold applied to the person.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Hold.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: person-hold-types
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = person-hold-types)
+              x-lineageDerivedLogic: Display GUID from GORGUID where GORGUID_LDM_NAME = 'person-hold-types' and GORGUID_DOMAIN_KEY matches SPRHOLD_HLDD_CODE or SPRTHLD_HLDD_CODE
+          additionalProperties: false
+          required:
+            - id
+        holdPeriod:
+          title: Hold Period
+          description: The time components applicable to the hold.
+          oneOf:
+            - title: Date Based
+              description: Date range applied to the person hold.
+              type: object
+              properties:
+                startOn:
+                  title: Start On
+                  description: The date when the hold goes into effect
+                  type: string
+                  format: date
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                  x-lineageReferenceObject: SPRHOLD_FROM_DATE(SPRHOLD)
+                endOn:
+                  title: End On
+                  description: The date when the hold ends
+                  oneOf:
+                    - type: string
+                      format: date
+                      pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                    - type: string
+                      maxLength: 0
+                  x-lineageReferenceObject: SPRHOLD_TO_DATE(SPRHOLD)
+              additionalProperties: false
+              required:
+                - startOn
+            - title: Period Based
+              description: Academic period based person hold details
+              type: object
+              properties:
+                academicPeriod:
+                  title: Academic Period
+                  description: The academic period associated with the person hold.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Academic Period.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: academic-periods
+                      x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = term)
+                      x-lineageDerivedLogic: Display GUID from GORGUID where GORGUID_LDM_NAME = 'term' and GORGUID_DOMAIN_KEY matches SPRTHLD_TERM_CODE
+                  additionalProperties: false
+                  required:
+                    - id
+                startOn:
+                  title: Start On
+                  description: The date when the hold goes into effect
+                  oneOf:
+                    - type: string
+                      format: date
+                      pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                    - type: string
+                      maxLength: 0
+                  x-lineageReferenceObject: SPRTHLEA_START_DATE(SPRTHLEA)
+                  x-lineageDerivedLogic: Informational only. Active status for period based holds is controlled by SPRTHLD_ACTIVE_IND, not this date.
+                endOn:
+                  title: End On
+                  description: The date when the hold ends
+                  oneOf:
+                    - type: string
+                      format: date
+                      pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                    - type: string
+                      maxLength: 0
+                  x-lineageReferenceObject: SPRTHLEA_END_DATE(SPRTHLEA)
+                  x-lineageDerivedLogic: Informational only. Active status for period based holds is controlled by SPRTHLD_ACTIVE_IND, not this date.
+                holdStatus:
+                  title: Hold Status
+                  description: For academic period based holds, indicates if the hold is active for the period or is inactive.
+                  enum:
+                    - activeHold
+                    - inactiveHold
+                  type: string
+                  x-lineageReferenceObject: derived
+                  x-lineageDerivedLogic: Display 'activeHold' if SPRTHLD_ACTIVE_IND = 'Y', display 'inactiveHold' if SPRTHLD_ACTIVE_IND = 'N'
+              additionalProperties: false
+              required:
+                - academicPeriod
+        notificationIndicator:
+          title: Notification Indicator
+          description: Indicates if the person should be notified of the hold being placed
+          oneOf:
+            - type: string
+              enum:
+                - notify
+                - watch
+            - type: string
+              maxLength: 0
+          x-lineageReferenceObject: derived
+          x-lineageDerivedLogic: >
+            For Date Based holdPeriod, map to SPRHOLEA_NOTIFICATION_IND(SPRHOLEA).
+            For Period Based holdPeriod, map to SPRTHLEA_NOTIFICATION_IND(SPRTHLEA).
+        comment:
+          title: Comment
+          description: A comment for the hold
+          type: string
+          x-lineageReferenceObject: derived
+          x-lineageDerivedLogic: >
+            For Date Based holdPeriod, map to SPRHOLEA_HOLD_COMMENT(SPRHOLEA).
+            For Period Based holdPeriod, map to SPRTHLEA_HOLD_COMMENT(SPRTHLEA).
+        reason:
+          title: Reason
+          description: A brief reason for the person hold.
+          type: string
+          minLength: 1
+          maxLength: 30
+          x-lineageReferenceObject: SPRHOLD_REASON(SPRHOLD) or SPRTHLD_REASON(SPRTHLD)
+          x-lineageDerivedLogic: >
+            For Date Based holdPeriod, map to SPRHOLD_REASON(SPRHOLD).
+            For Period Based holdPeriod, map to SPRTHLD_REASON(SPRTHLD).
+      required:
+        - id
+        - person
+        - hold
+        - holdPeriod
+      additionalProperties: false

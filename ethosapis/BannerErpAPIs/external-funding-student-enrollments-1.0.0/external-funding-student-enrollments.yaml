@@ -1,0 +1,590 @@
+openapi: 3.0.0
+info:
+  title: External Funding Student Enrollments
+  description: >
+
+    Returns student enrollment details required to process student funding by external funding sources.
+    Details include general student information, registration and curriculum details. 
+    Program information from the external funding source is compared with Banner and the response includes 
+    such details.
+    Additional information on student holds and cohorts is also provided. 
+    The details are based on the SGASTDN, SFAREGS, SGASADD, SGASTHD, SOAHOLD and SGACHRT administrative pages.
+
+  version: 1.0.0-beta
+  x-api-type: erp
+  x-release-status: beta
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Student
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: '{server_url}'
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /qapi/external-funding-student-enrollments:
+    post:
+      tags:
+        - external-funding-student-enrollments - QAPI
+      summary: Returns general student information, student registration and curriculum information of the student.
+      description: >
+        Returns general student information, student registration and curriculum information from SORCLUR,
+        SFBETRM,SFRENSP, SGRSTSP, SGBSTDN, SGRSATT, SGRSTHD, SPRHOLD and SGRCHRT tables. 
+        Matches the program information from the external funding source with the program information in Banner.
+        Returns the records that meet the requested criteria of Student ID and term.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/external-funding-student-enrollments-1.0.0_qapi_post_request'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-STP-Code:
+              description:
+                If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description:
+                If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/external-funding-student-enrollments-1.0.0_qapi_post_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EXT_FUND_STU_ENROLLMENTS
+components:
+  schemas:
+    external-funding-student-enrollments-1.0.0_qapi_post_request:
+      type: object
+      required:
+        - studentId
+        - termCode
+      properties:
+        studentId:
+          title: Student ID
+          type: string
+          description: 'The student identifier of the student.'
+          example: 'A00102028'
+        termCode:
+          title: Term Code
+          type: string
+          description:
+            'The term code for which the student, curriculum and registration
+            details are fetched.'
+          example: '202410'
+        moduleTerms:
+          title: Module Terms
+          type: array
+          description: Array of terms to fetch course information for the student.
+          items:
+            type: string
+          example: ['202410', '202420', '202430']
+        programDetails:
+          type: array
+          description: >
+            The program details of the Banner program mapped from the external funding source program of the student, along with program details from the funding source directly.
+          items:
+            type: object
+            properties:
+              programCode:
+                title: Program Code
+                type: string
+                description: The code of the student's enrolled program .
+                example: 'BA-SCIENCE'
+              disciplineCode:
+                title: Discipline Code
+                type: string
+                description: The discipline code associated with the program
+                example: 'BIO-SCIENCES'
+              disciplineTypeCode:
+                title: Discipline Type Code
+                type: string
+                description: The discipline type associated with the discipline code (major, minor, concentration)
+                example: 'MAJOR'
+              concentrationCode:
+                title: Concentration Code
+                type: string
+                description: The concentration associated with the program.
+                example: 'BIOTECH'
+              concentrationTypeCode:
+                title: Concentration Type Code
+                type: string
+                description: The concentration type code of the concentration.
+                example: 'CONCENTRATION'
+              campusCode:
+                title: Campus Code
+                type: string
+                description: The location at which the program is delivered.
+                example: 'M'
+              programLevel:
+                title: Level Code
+                maxLength: 2
+                type: string
+                description: Indicates the academic level of the student's program.
+                x-lineageReferenceObject: SORLCUR_LEVL_CODE
+                x-lineageLookupReferenceObject: STVLEVL
+                example: 'UG'
+              sourceProgramStudyMode:
+                title: Source Program Study Mode
+                type: string
+                description: The mode of study of the program as specified by the external funding source.
+                example: 'FT'
+              programYear:
+                title: Program Year
+                type: string
+                description: The program year of the student from the external funding source.
+                example: '01'
+    external-funding-student-enrollments-1.0.0_qapi_post_response:
+      type: object
+      properties:
+        actualProgramDetails:
+          title: Actual Program Details
+          type: object
+          description: If the external funding program details do not match the student's latest current enrolled program in the ERP, the actualProgramDetails will return information from the most recently enrolled program for the student, identified by the highest sequence number in SORLCUR table.
+          properties:
+            programCode:
+              title: Program Code
+              type: string
+              description: The code of the student's latest current enrolled program.
+            campusCode:
+              title: Campus Code
+              type: string
+              description: The location at which the latest current enrolled program is delivered.
+            concentrationCode:
+              title: Concentration Code
+              type: string
+              description: The concentration associated with the latest current enrolled program.
+            concentrationTypeCode:
+              title: Concentration Type Code
+              type: string
+              description: The concentration type code of the concentration.
+            disciplineCode:
+              title: Discipline Code
+              type: string
+              description: The discipline code associated with the latest current enrolled program
+            disciplineTypeCode:
+              title: Discipline Type Code
+              type: string
+              description: The discipline type associated with the discipline code (major, minor, concentration)
+            dateOfFirstAttendance:
+              title: Date of First Attendance
+              type: string
+              format: date
+              description: Date of first attendance for the latest current enrolled program.
+              example: 'YYYY-MM-DD'
+            programLevel:
+              title: Level Code
+              type: string
+              description: Indicates the academic level of the student's program.
+              x-lineageReferenceObject: SORLCUR_LEVL_CODE
+              x-lineageLookupReferenceObject: STVLEVL
+            startDate:
+              title: Start Date
+              type: string
+              format: date
+              description: >
+                Fetching the admit term of the latest current enrolled program, then retrieve its start date from STVTERM.
+              example: 'YYYY-MM-DD'
+            billingHours:
+              title: Billing Hours
+              type: number
+              description: >
+                The sum of the billing hours of all registered courses for the specified module terms, considering only those whose course statuses with count in enrollment marked on the STVRSTS page.
+                The billing hours of the matched curriculum's study path is only considered.
+              x-lineageReferenceObject: SFRSTCR_CREDIT_HR
+              example: 30.4
+        generalStudentInformation:
+          type: object
+          properties:
+            studentId:
+              title: Student ID
+              type: string
+              maxLength: 9
+              description: 'The student identifier of the student.'
+              x-lineageReferenceObject: SPRIDEN_ID
+              example: 'A00102028'
+            termCode:
+              title: Term Code
+              type: string
+              maxLength: 6
+              description:
+                'The term code for which the student, curriculum and registration
+                details are fetched.'
+              x-lineageReferenceObject: STVTERM_CODE
+              example: '202410'
+            deceased:
+              title: Deceased
+              type: boolean
+              description: >
+                Indicates if the student is deceased.
+              x-lineageReferenceObject: SPBPERS_DEAD_IND
+              x-lineageDerivedLogic: >
+                If the student is deceased, the value is true; otherwise, it is false.
+              example: false
+            enrollmentStatus:
+              title: Enrollment Status Code
+              type: string
+              maxLength: 2
+              description: The student enrollment status for the term.
+              x-lineageReferenceObject: SFBETRM_ESTS_CODE
+              x-lineageLookupReferenceObject: STVESTS
+              example: EL
+            studentStatus:
+              title: Student Status
+              type: string
+              maxLength: 2
+              description: The student status for the term.
+              x-lineageReferenceObject: SGBSTDN_STST_CODE
+              x-lineageLookupReferenceObject: STVESTS
+              example: AS
+            studentHolds:
+              title: Student Holds
+              type: array
+              description: >
+                The holds on the students' accounts.
+              items:
+                type: string
+              x-lineageReferenceObject: SPRHOLD_HLDD_CODE
+              example: ['HOLD3', 'HOLD4']
+            cohorts:
+              title: Student Cohorts
+              type: array
+              description: >
+                The cohort codes which are linked to the student for the study path of the matched curriculum.
+                If there is no matched curriculum, returns all cohort codes associated with the student.
+              items:
+                type: string
+              x-lineageReferenceObject: SGRCHRT_CHRT_CODE
+              example: ['COHORT1', 'COHORT2']
+        program:
+          type: object
+          properties:
+            programLevel:
+              title: Level Code
+              maxLength: 2
+              type: string
+              description: Indicates the academic level of the student's program.
+              x-lineageReferenceObject: SORLCUR_LEVL_CODE
+              x-lineageLookupReferenceObject: STVLEVL
+              example: 'UG'
+            programMatch:
+              title: Program Match
+              type: boolean
+              description: >
+                Indicates if the program details from the external funding source match with the student's
+                enrolled program details.
+              x-lineageDerivedLogic: >
+                For the Banner program details mapped to the external funding source program details, 
+                the matching Banner program details are found from the student's current active learner curriculum
+                records in SORCLUR and SORLFOS. 
+                If a match is found, the value is true; otherwise, it is false. 
+                The attributes used for the match are program code, discipline code, discipline type code, concentration code, 
+                concentration type code and campus code.
+              example: true
+            programYearMatch:
+              title: Program Year Match
+              type: boolean
+              description:
+                Indicates if the program year from the external funding source matches with the program year
+                of the matched curriculum.
+              x-lineageDerivedLogic: >
+                If the program year from the external funding source matches the student's program year in Banner,
+                the value is true; otherwise, it is false. 
+                The program year is obtained from the student's attributes in SGRSATT for the effective term code 
+                and study path sequence number of the matched curriculum.
+              example: true
+            programConcentration:
+              title: Program Concentration
+              type: string
+              description: The discipline of type 'concentration' of the matched curriculum.
+              example: 'BIOTECH'
+            studyModeMatchOnConcentration:
+              title: Study Mode Match on Concentration
+              type: boolean
+              description: >
+                Indicates if the mode of study of the program from the external funding source matches with 
+                the study mode of the matched curriculum.
+              x-lineageDerivedLogic: >
+                If the mode of study of the program from external funding source matches the program's study mode of the student 
+                in Banner, the value is true; otherwise, it is false. 
+                The mode of study of the program is derived from the discipline of type 'concentration' of the matched curriculum.
+              example: false
+            dateOfLastAttendance:
+              title: Date of Last Attendance
+              type: string
+              format: date
+              description: >
+                If the student's curriculum has ended, return the date of last attendance in the program.
+              x-lineageReferenceObject: SORLCUR_END_DATE
+              x-lineageDerivedLogic: >
+                If the curriculum is ended, the value is SORLCUR_END_DATE.
+              example: '2024-05-15'
+            curriculumEnded:
+              title: Curriculum Ended
+              type: boolean
+              description: >
+                Indicates if the student's curriculum has ended.
+              x-lineageReferenceObject: SORLCUR_END_DATE
+              x-lineageDerivedLogic: >
+                If the student's curriculum has ended, the value is true; otherwise, it is false.
+                The curriculum is considered ended if SORLCUR_END_DATE is not null and SORLCUR_END_DATE falls within the STVTERM start and end dates for the requested term code.
+              example: false
+            newEntrantStudent:
+              title: New Entrant Student
+              type: boolean
+              description: >
+                Indicates if the student is a new entrant on the matched curriculum.
+              x-lineageDerivedLogic: >
+                If the student is a new entrant on the matched curriculum, the value is true; otherwise, it is false. 
+                The student is considered a new entrant if SORLCUR_TERM_CODE_ADMIT is equal to the requested term.
+              example: true
+            continuingStudent:
+              title: Continuing Student
+              type: boolean
+              description: >
+                Indicates if the student is a continuing student on the matched curriculum.
+              x-lineageDerivedLogic: >
+                If the student is a continuing student on the matched curriculum, the value is true; otherwise, it is false. 
+                The student is considered a continuing student if SORLCUR_TERM_CODE_ADMIT is not equal to the requested term.
+              example: false
+            siteCode:
+              title: Site Code
+              type: string
+              description: Instructional site code associated with the student’s curriculum record.
+              x-lineageReferenceObject: SORLCUR_SITE_CODE
+              example: 'M'
+            studyPathEnrollmentStatus:
+              title: Study Path Enrollment Status
+              description: Study path enrollment status for the term.
+              maxLength: 2
+              type: string
+              x-lineageReferenceObject: SFRENSP_ESTS_CODE
+              x-lineageLookupReferenceObject: STVESTS
+              example: ES
+            studyPathStatus:
+              title: Study Path Status
+              type: string
+              maxLength: 4
+              description: Student study path status for the effective term.
+              x-lineageReferenceObject: SGRSTSP_STSP_CODE
+              x-lineageLookupReferenceObject: STVSTSP
+              example: AS
+            studyPathSequenceNumber:
+              title: Study Path Sequence Number of the matched curriculum
+              type: string
+              maxLength: '2'
+              description: The sequence number of the matched curriculum on a student path.
+              x-lineageReferenceObject: SORLCUR_KEY_SEQNO
+              example: 1
+            studyPathTransferCenter:
+              title: Study Path Transfer Center Code
+              type: string
+              maxLength: 2
+              description: >
+                Transfer center code of the student for the study path.
+              x-lineageReferenceObject: SGRSTSP_TRCN_CODE
+              example: 'DC'
+            studyPathStudentResidency:
+              title: Study Path Student Residency
+              type: string
+              maxLength: 1
+              description: >
+                Residency status of the student for the study path of the matched curriculum.
+              x-lineageReferenceObject: SGRSTSP_RESD_CODE
+              x-lineageLookupReferenceObject: STVRESD
+              example: 'R'
+            studyPathStudentAcademicStanding:
+              title: Study Path Student Academic Standing
+              type: string
+              maxLength: 2
+              description: >
+                Academic standing override of the student for the study path of the matched curriculum.
+              x-lineageReferenceObject: SGRSTSP_ASTD_CODE
+              x-lineageLookupReferenceObject: STVASTD
+              example: 'DF'
+            studyPathHolds:
+              title: Student Study Path Holds
+              type: array
+              description: >
+                The holds on the student for study path of the matched curriculum.
+              items:
+                type: string
+              x-lineageReferenceObject: SGRSTHD_HLDD_CODE
+              example: ['HOLD1', 'HOLD2']
+            studentAttributes:
+              title: Student Attributes
+              type: array
+              description: >
+                The attributes denoting the student's progression is obtained from SGRSATT for the effective term code
+                and study path sequence number of the matched curriculum.
+              items:
+                type: string
+              x-lineageReferenceObject: SGRSATT_ATTS_CODE
+              example: ['01', '02', '03']
+            course:
+              type: object
+              properties:
+                courseScheduleTypes:
+                  title: Course Schedule Types
+                  type: array
+                  description: >
+                    The schedule type of the courses for the specified module terms.
+                    The courses of the matched curriculum's study path, considering only those whose course statuses with count in enrollment marked on the STVRSTS page.
+                  items:
+                    type: string
+                  x-lineageReferenceObject: SCRSCHD_SCHD_CODE
+                  example: ['LEC']
+                billingHours:
+                  title: Billing Hours
+                  type: number
+                  description: >
+                    The sum of the billing hours of all registered courses for the specified module terms, considering only those whose course statuses with count in enrollment marked on the STVRSTS page.
+                    The billing hours of the matched curriculum's study path is only considered.
+                  x-lineageReferenceObject: SFRSTCR_CREDIT_HR
+                  example: 30.4
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the application’s administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

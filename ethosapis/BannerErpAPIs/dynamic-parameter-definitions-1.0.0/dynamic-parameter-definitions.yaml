@@ -1,0 +1,238 @@
+openapi: 3.0.0
+info:
+  title: dynamic-parameter-definitions
+  version: 1.0.0
+  description: >
+    Retrieves dynamic parameter definitions sourced from the Banner table GLRSLCT.
+    The response is a JSON array of dynamic parameter definition objects.
+    This is a GET-only API and supports optional filtering via query parameters.
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Foundation
+  x-source-title: Dynamic Parameter Definition
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+
+tags:
+  - name: dynamic-parameter-definitions
+
+paths:
+  /api/dynamic-parameter-definitions:
+    get:
+      tags:
+        - dynamic-parameter-definitions
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_DYN_PARAMETER_DEFINITIONS
+      description: >
+        __Filtering:__ Filtering is supported using the optional query parameters below.
+        If multiple filters provided, filters are combined using logical AND.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+            enum:
+              - application/vnd.hedtech.integration.v1.0.0+json
+              - application/vnd.hedtech.integration.v1+json
+              - application/json
+        - name: applicationCode
+          in: query
+          required: false
+          description: >-
+            Optional filter for the Application Code
+
+                /api/dynamic-parameter-definitions?criteria={"applicationCode":"ALUMNI"}
+          schema:
+            type: string
+          example: ALUMNI
+        - name: selectionId
+          in: query
+          required: false
+          description: >-
+            Optional filter for the Selection ID
+
+                /api/dynamic-parameter-definitions?criteria={"selectionId":"FORM_NOT_RECEIVED"}       
+          schema:
+            type: string
+          example: FORM_NOT_RECEIVED
+        - name: creatorId
+          in: query
+          required: false
+          description: >-
+           Optional filter for the Creator Identifier
+
+                /api/dynamic-parameter-definitions?criteria={"creatorId":"ADISUSR"}      
+          schema:
+            type: string
+          example: ADISUSR
+        - name: Multiple Filter criteria
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >
+            ### Retrieval of Dynamic Parameters for a process  
+
+            Filtering is supported using the optional query parameters below. If multiple filters provided, filters are combined using logical AND.
+
+            ```
+
+            /api/dynamic-parameter-definitions?criteria={"applicationCode":"ALUMNI","selectionId":"FORM_NOT_RECEIVED"}
+
+            ```          
+      responses:
+        "200":
+          description: Success
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DynamicParameterDefinition"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DynamicParameterDefinition"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer             
+           
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+
+  schemas:
+    DynamicParameterDefinition:
+      type: object
+      description: >
+        A dynamic parameter definition derived from GLRSLCT.
+
+        Notes and mapping rules:
+        - All string fields are optional unless required by your API contract.
+        - `length` and `number` are string fields with hardcoded defaults (length="30", number="88").
+        - `optionalInd` is hardcoded to "R".
+        - `singleInd` is hardcoded to "M".
+        - `typeInd` is computed:
+          - If the underlying column data type is DATE and the operator is not LIKE/NOT LIKE, then "D" (Date).
+          - Otherwise, "C" (Character).
+        - `helpText` is derived by merging GLRSLCT_DATA_ELEMENT and GLRSLCT_OPERATOR (for example, building a predicate prefix
+          such as `WHERE <data-element> <operator>`).
+        - `separator` is an optional string representing how this parameter may be combined with others; allowed values are operator-like
+          separators (e.g., AND/OR).
+      properties:
+        processName:
+          type: string
+          description: Process name associated with the selection.
+          example: GLBDATAJ
+        applicationCode:
+          type: string
+          description: Application code for the selection.
+          example: ALUMNI
+          x-lineageReferenceObject: GLRSLCT_APPLICATION(GLRSLCT)
+        selectionId:
+          type: string
+          description: Selection identifier.
+          example: FORM_NOT_RECEIVED
+          x-lineageReferenceObject: GLRSLCT_SELECTION(GLRSLCT)
+        creatorId:
+          type: string
+          description: Creator identifier.
+          example: ADISUSR
+          x-lineageReferenceObject: GLRSLCT_CREATOR_ID(GLRSLCT)
+        desc:
+          type: string
+          description: Human-readable parameter description.
+          example: Begin_date
+          x-lineageReferenceObject: GLRSLCT_VALUE(GLRSLCT) 'Fetch input barring '&''
+        value:
+          type: string
+          description: Parameter token/value used in selection logic
+          example: "&Begin_date"
+          x-lineageReferenceObject: GLRSLCT_VALUE(GLRSLCT)
+        helpText:
+          type: string
+          description: >
+            Help text/predicate prefix derived by merging GLRSLCT_DATA_ELEMENT and GLRSLCT_OPERATOR.
+          example: "WHERE AGBGIFT_GIFT_DATE >="
+          x-lineageReferenceObject: GLRSLCT_DATA_ELEMENT(GLRSLCT),GLRSLCT_OPERATOR(GLRSLCT)
+        separator:
+          type: string
+          description: Logical separator that may be used to combine this predicate with others.
+          example: OR
+          x-lineageReferenceObject: GLRSLCT_SEPARATOR(GLRSLCT)
+        length:
+          type: string
+          description: Hardcoded string length value for the parameter.
+          default: "30"
+          example: "30"
+        number:
+          type: string
+          description: Hardcoded string number value for the parameter.
+          default: "88"
+          example: "88"
+        optionalInd:
+          type: string
+          description: Hardcoded optional indicator.
+          default: R
+          example: R
+        singleInd:
+          type: string
+          description: Hardcoded single indicator.
+          default: M
+          example: M
+        typeInd:
+          type: string
+          description: >
+            Type indicator for the parameter.
+            "D" indicates a Date parameter (DATE column type and operator not LIKE/NOT LIKE).
+            "C" indicates a Character parameter (all other cases).
+          enum:
+            - C
+            - D
+          example: C

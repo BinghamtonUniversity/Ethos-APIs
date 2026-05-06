@@ -1,0 +1,245 @@
+openapi: 3.0.1
+info:
+  title: Schema Extensibility Specifications
+  description: API to handle generation of tables and regeneration of supplemental data integration APIs and as well table API specifications for extended and custom tables configurations.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Foundation
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: schema-extensibility-specifications
+paths:
+  /schema-extensibility-specifications:
+    post:
+      tags:
+        - schema-extensibility-specifications
+      summary: Perform schema extensibility actions
+      description: Perform generation of tables, generate supplemental data integration APIs, or regenerate specifications based on the specified action and configuration type.
+      security:
+      - EthosIntegrationBearer: []
+      x-method-permissions: API_SCHEMA_EXT_REGEN
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                generateTables:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                        - LIST
+                        - ALL
+                      description: The type of configuration to be processed.
+                    configurationIdentifiers:
+                      type: array
+                      items:
+                        type: string
+                        format: uuid
+                      description: List of configuration identifiers to be processed.
+                      nullable: true
+                generateSpecifications:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                        - LIST
+                        - ALL
+                      description: The type of configuration to be processed.
+                    configurationIdentifiers:
+                      type: array
+                      items:
+                        type: string
+                        format: uuid
+                      description: List of configuration identifiers to be processed.
+                      nullable: true
+                generateSupplementalDataIntegrationAPIs:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                        - LIST
+                        - ALL
+                      description: The type of configuration to be processed.
+                    configurationIdentifiers:
+                      type: array
+                      items:
+                        type: string
+                        format: uuid
+                      description: List of configuration identifiers to be processed.
+                      nullable: true
+            examples:
+              example-1:
+                summary: Regenerate all 
+                value:
+                  generateTables:
+                    type: "ALL"
+                  generateSpecifications:
+                    type: "ALL"
+                  generateSupplementalDataIntegrationAPIs:
+                    type: "ALL"
+              example-2:
+                summary: Generate Tables with List
+                value:
+                  generateTables:
+                    type: "LIST"
+                    configurationIdentifiers: [
+                      "94da8094-e112-4a62-8262-16faf295de34",
+                      "7f7684b7-8090-4bf0-99ed-3bed570fa187"
+                    ]
+                  generateSpecifications:
+                    type: "LIST"
+                    configurationIdentifiers: [
+                      "87f2dc1d-18a3-4dcf-9363-89b0d7c44b3a",
+                      "a941801b-edf2-4f51-996f-8d0f76afd112"
+                    ]
+                  generateSupplementalDataIntegrationAPIs:
+                    type: "ALL"
+          
+              example-4:
+                summary: Generate Specifications with List
+                value:
+                  generateSpecifications:
+                    type: "LIST"
+                    configurationIdentifiers: [
+                      "87f2dc1d-18a3-4dcf-9363-89b0d7c44b3a",
+                      "a941801b-edf2-4f51-996f-8d0f76afd112"
+                    ]
+              example-5:
+                summary: Generate Specifications with All
+                value:
+                  generateSpecifications:
+                    type: "ALL"
+              example-7:
+                summary: Generate Supplemental Data Integration APIs with List
+                value:
+                  generateSupplementalDataIntegrationAPIs:
+                    type: "LIST"
+                    configurationIdentifiers: [
+                      "b9a6c716-fbf5-4b1c-b73b-f34b14c29289",
+                      "a941801b-edf2-4f51-996f-8d0f76afd112"
+                    ]
+              example-8:
+                summary: Generate Supplemental DataIntegration APIs with All
+                value:
+                  generateSupplementalDataIntegrationAPIs:
+                    type: "ALL"
+      responses:
+        '200':
+          description: Action performed successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                      example: "d36d52b4-941c-4cce-9463-d374cd94f79d"
+                    baselineTable:
+                      type: string
+                      example: "SORFOLK"
+                    tableName:
+                      type: string
+                      example: "xsorfolk"
+                    tableApiName:
+                      type: string
+                      example: "x-xsorfolk"
+                    type:
+                      type: string
+                      example: "extension-configurations"
+                    specCreationStatus:
+                      type: string
+                      example: "Successfully created the extended table resources."
+                    supplementalDataResourceName:
+                      type: string
+                      example: "x-xsorfolk-sd"
+                    supplementalDataResourceSecurityObject:
+                      type: string
+                      example: "API_X_XSORFOLK_SD"
+              examples:
+                example-1:
+                  summary: Extended table and specifications
+                  value:
+                    - id: "86db78be-430a-4558-9342-352447ed00c2"
+                      tableName: "xssbsect"
+                      tableApiName: "x-xssbsect"
+                      type: "extension-configurations"
+                    - id: "86db78be-430a-4558-9342-352447ed00c2"
+                      tableName: "xsorfolk"
+                      tableApiName: "x-xsorfolk"
+                      type: "extension-configurations"
+                example-2:
+                  summary: Custom table and specifications
+                  value:
+                    - id: "b0fbde5e-986a-4675-ba84-0654a0040b31"
+                      tableApiName: "x-xtest"
+                      tableName: "XTEST"
+                      type: "custom-table-configurations"
+                    - id: "33e36b7a-000c-4e5a-9e30-1e79fe7461d2"
+                      tableApiName: "x-xtest22"
+                      tableName: "XTEST22"
+                      type: "custom-table-configurations"
+                example-3:
+                  summary: Custom/Extended tables and specifications
+                  value:
+                    - id: "86db78be-430a-4558-9342-352447ed00c2"
+                      tableName: "xsorfolk"
+                      tableApiName: "x-xsorfolk"
+                      type: "extension-configurations"
+                      resourceForSecureAccess: ""
+                    - id: "33e36b7a-000c-4e5a-9e30-1e79fe7461d2"
+                      tableApiName: "x-xtest22"
+                      tableName: "XTEST22"
+                      type: "custom-table-configurations"
+                example-GenerateSpecifications:
+                  summary: Custom/Extended specifications
+                  value:
+                    - id: "86db78be-430a-4558-9342-352447ed00c2"
+                      tableName: "xsorfolk"
+                      tableApiName: "x-xsorfolk"
+                      type: "extension-configurations"
+                    - id: "4f495f44-a631-45ff-9383-f57557d01bd1"
+                      tableName: "XGTVZIPC"
+                      tableApiName: "x-xgtvzipc"
+                      type: "extension-configurations"
+                example-SupplementalDataIntegrationAPIs:
+                  summary: Custom/Extended supplemental data integration APIs
+                  value:
+                    - id: "86db78be-430a-4558-9342-352447ed00c2"
+                      tableName: "xsorfolk"
+                      tableApiName: "x-xsorfolk"
+                      type: "extension-configurations"
+                    - id: "33e36b7a-000c-4e5a-9e30-1e79fe7461d2"
+                      tableApiName: "x-xtest22"
+                      tableName: "XTEST22"
+                      type: "custom-table-configurations"
+                    - id: "43e36b7a-000c-4e5a-9e30-1e79fe7461d2"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer      

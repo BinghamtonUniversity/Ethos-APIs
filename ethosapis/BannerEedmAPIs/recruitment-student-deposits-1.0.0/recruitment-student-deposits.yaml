@@ -1,0 +1,449 @@
+openapi: 3.0.0
+info:
+  title: Recruitment Student Deposits
+  description: >
+    The Recruitment Student Deposits API contains information about deposits
+    made by a student.
+  version: 1.0.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Student
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: recruitment-student-deposits
+paths:
+  /api/recruitment-student-deposits:
+    get:
+      summary: Returns resources from TBRDEPO
+      description: >
+        Returns a paged listing of all the recruitment student deposit
+        transactions from TBRDEPO table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STUDENT_DEPOSITS
+      tags:
+        - recruitment-student-deposits
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-recruitment-student-deposits.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/recruitment-student-deposits/{id}:
+    get:
+      summary: Return the requested resource from TBRDEPO
+      description: >
+        Returns a single recruitment student deposit record from TBRDEPO table
+        with the requested identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STUDENT_DEPOSITS
+      tags:
+        - recruitment-student-deposits
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-recruitment-student-deposits.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-recruitment-student-deposits.json:
+      title: Recruitment Student Deposits
+      description: Deposits paid by a student.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the recruitment student deposit.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: TBRDEPO_GUID(TBRDEPO)
+        student:
+          title: Student
+          description: The person (student) the deposit has been paid for.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Student.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME= persons)
+          additionalProperties: false
+          required:
+            - id
+        academicPeriod:
+          title: Academic Period
+          description: The term the paid deposit is applied to.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Academic Period.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: academic-periods
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME= term)
+          additionalProperties: false
+          required:
+            - id
+        depositCode:
+          title: Deposit Code
+          description: Detail code used when the deposit is released to the receivable
+            ledger
+          type: string
+          minLength: 4
+          x-lineageReferenceObject: TBRDEPO_DETAIL_CODE_DEPOSIT(TBRDEPO)
+        entryDate:
+          title: Entry Date
+          description: The date when the payment was made.
+          type: string
+          format: date-time
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+          x-lineageReferenceObject: TBRDEPO_ENTRY_DATE(TBRDEPO)
+        chargedAmount:
+          title: Charged Amount
+          description: The amount of the charge.
+          type: object
+          properties:
+            amount:
+              title: Amount
+              description: The amount of the charge.
+              format: currency
+              type: object
+              properties:
+                value:
+                  title: Value
+                  description: ""
+                  minimum: 0
+                  type: number
+                  format: positiveNumber
+                  x-lineageReferenceObject: TBRDEPO_AMOUNT(TBRDEPO) 
+                currency:
+                  title: Currency
+                  description: ""
+                  enum:
+                    - AED
+                    - AFN
+                    - ALL
+                    - AMD
+                    - ANG
+                    - AOA
+                    - ARS
+                    - AUD
+                    - AWG
+                    - AZN
+                    - BAM
+                    - BBD
+                    - BDT
+                    - BGN
+                    - BHD
+                    - BIF
+                    - BMD
+                    - BND
+                    - BOB
+                    - BRL
+                    - BSD
+                    - BTN
+                    - BWP
+                    - BYR
+                    - BZD
+                    - CAD
+                    - CDF
+                    - CHF
+                    - CLP
+                    - CNY
+                    - COP
+                    - CRC
+                    - CUC
+                    - CUP
+                    - CVE
+                    - CZK
+                    - DJF
+                    - DKK
+                    - DOP
+                    - DZD
+                    - EGP
+                    - ERN
+                    - ETB
+                    - EUR
+                    - FJD
+                    - FKP
+                    - GBP
+                    - GEL
+                    - GHS
+                    - GIP
+                    - GMD
+                    - GNF
+                    - GTQ
+                    - GYD
+                    - HKD
+                    - HNL
+                    - HRK
+                    - HTG
+                    - HUF
+                    - IDR
+                    - ILS
+                    - INR
+                    - IQD
+                    - IRR
+                    - ISK
+                    - JMD
+                    - JOD
+                    - JPY
+                    - KES
+                    - KGS
+                    - KHR
+                    - KMF
+                    - KPW
+                    - KRW
+                    - KWD
+                    - KYD
+                    - KZT
+                    - LAK
+                    - LBP
+                    - LKR
+                    - LRD
+                    - LSL
+                    - LYD
+                    - MAD
+                    - MDL
+                    - MGA
+                    - MKD
+                    - MMK
+                    - MNT
+                    - MOP
+                    - MRO
+                    - MUR
+                    - MVR
+                    - MWK
+                    - MXN
+                    - MYR
+                    - MZN
+                    - NAD
+                    - NGN
+                    - NIO
+                    - NOK
+                    - NPR
+                    - NZD
+                    - OMR
+                    - PAB
+                    - PEN
+                    - PGK
+                    - PHP
+                    - PKR
+                    - PLN
+                    - PYG
+                    - QAR
+                    - RON
+                    - RSD
+                    - RUB
+                    - RWF
+                    - SAR
+                    - SBD
+                    - SCR
+                    - SDG
+                    - SEK
+                    - SGD
+                    - SHP
+                    - SLL
+                    - SOS
+                    - SRD
+                    - SSP
+                    - STD
+                    - SVC
+                    - SYP
+                    - SZL
+                    - THB
+                    - TJS
+                    - TMT
+                    - TND
+                    - TOP
+                    - TRY
+                    - TTD
+                    - TWD
+                    - TZS
+                    - UAH
+                    - UGX
+                    - USD
+                    - UYU
+                    - UZS
+                    - VEF
+                    - VND
+                    - VUV
+                    - WST
+                    - XAF
+                    - XCD
+                    - XOF
+                    - XPF
+                    - YER
+                    - ZAR
+                    - ZMW
+                    - ZWL
+                  type: string
+                  x-lineageReferenceObject: GUBINST_BASE_CURR_CODE(GUBINST) 
+              additionalProperties: false
+              required:
+                - value
+                - currency
+          additionalProperties: false
+          required:
+            - amount
+      required:
+        - id
+        - student
+        - academicPeriod
+        - chargedAmount
+      additionalProperties: false

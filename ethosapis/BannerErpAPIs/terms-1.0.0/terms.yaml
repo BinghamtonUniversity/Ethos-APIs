@@ -1,0 +1,288 @@
+openapi: 3.0.0
+info:
+  title: terms
+  description: >
+    Retrieves the list of all valid terms and its information that are setup at
+    an institution .
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Student
+  x-source-title: Terms
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: terms
+paths:
+  /api/terms:
+    get:
+      description: |
+        __Sortable Fields__: [‘code’, ‘description’]
+
+         __Searchable Fields__: [‘code’, ‘description’].
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_TERMS
+      tags:
+        - terms
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          schema:
+            type: string
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+              application/vnd.hedtech.integration.v1.0.0+json
+            ```
+        - name: startDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: >
+            __operators supported :__ equals,
+            lessthan,lessthanequals,greaterthan,greaterthanequals
+          example: api/terms?sort=code&order=asc&filter[0][field]=startDate&filter[0][operator]=equals&filter[0][value]=2010-09-07&filter[0][type]=date
+        - name: endDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: >
+            __operators supported :__ equals,
+            lessthan,lessthanequals,greaterthan,greaterthanequals
+          example: /api/terms?sort=code&order=asc&filter[0][field]=endDate&filter[0][operator]=equals&filter[0][value]=2025-12-21&filter[0][type]=date
+      responses:
+        "200":
+          description: Success
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/terms"
+            application/vnd.hedtech.integration.v1.0.0+xml:
+              schema:
+                type: object
+                $ref: "#/components/schemas/terms"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/terms/{termCode}:
+    get:
+      description: |
+        Retrieves information about a particular term that the user has passed.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_TERMS
+      tags:
+        - terms
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          schema:
+            type: string
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+              application/vnd.hedtech.integration.v1.0.0+json
+            ```
+        - name: termCode
+          in: path
+          required: true
+          description: Code value to identify the term
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/termcode-object"
+            application/vnd.hedtech.integration.v1.0.0+xml:
+              schema:
+                type: object
+                $ref: "#/components/schemas/termcode-object"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    terms:
+      type: array
+      items:
+        type: object
+        properties:
+          version:
+            type: number
+          id:
+            type: number
+          acyr_code:
+            type: object
+            properties:
+              version:
+                type: number
+              id:
+                type: number
+              code:
+                type: string
+              description:
+                type: string
+          code:
+            type: string
+          description:
+            type: string
+          endDate:
+            type: string
+            format: date
+          financeSummerIndicator:
+            type: boolean
+          financialAidPeriod:
+            type: integer
+          financialAidProcessingYear:
+            type: string
+          financialAidTerm:
+            type: string
+          financialEndPeriod:
+            type: integer
+          housingEndDate:
+            type: string
+            format: date
+          housingStartDate:
+            type: string
+            format: date
+          startDate:
+            type: string
+            format: date
+          systemReqInd:
+            type: boolean
+          trmt_code:
+            type: object
+            properties:
+              version:
+                type: number
+              id:
+                type: number
+              code:
+                type: string
+              description:
+                type: string
+    termcode-object:
+      type: object
+      properties:
+        version:
+          type: number
+        id:
+          type: number
+        acyr_code:
+          type: object
+          properties:
+            version:
+              type: number
+            id:
+              type: number
+            code:
+              type: string
+            description:
+              type: string
+        code:
+          type: string
+        description:
+          type: string
+        endDate:
+          type: string
+          format: date
+        financeSummerIndicator:
+          type: boolean
+        financialAidPeriod:
+          type: integer
+        financialAidProcessingYear:
+          type: string
+        financialAidTerm:
+          type: string
+        financialEndPeriod:
+          type: integer
+        housingEndDate:
+          type: string
+          format: date
+        housingStartDate:
+          type: string
+          format: date
+        startDate:
+          type: string
+          format: date
+        systemReqInd:
+          type: boolean
+        trmt_code:
+          type: object
+          properties:
+            version:
+              type: number
+            id:
+              type: number
+            code:
+              type: string
+            description:
+              type: string

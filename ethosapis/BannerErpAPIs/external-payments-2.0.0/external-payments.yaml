@@ -1,0 +1,588 @@
+openapi: 3.0.0
+info:
+  title: External Payments
+  description: >
+    Process one or more External Payments.
+  version: 2.0.0
+  x-api-type: erp
+  x-release-status: ga
+  x-source-system: banner
+  x-source-domain: Student
+  x-audience: all
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/external-payments:
+    post:
+      summary: Updates a resource in GORCCAU and Creates a new resource in TBRACCD
+      description: |
+        <p>Searches resource in GORCCAU where GORCCAU_PAY_TRANS_ID = 'Provided TransactionId' and GORCCAU_STATUS = 'PENDING'.</p>
+        <p>Updates this resource with its new status and other received details.</p>
+        <p>If the new status is SUCCESS, a new resource will be inserted in TBRACCD.</p>
+      security:
+        - BasicAuth: []
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EXTERNAL_PAYMENTS
+      tags:
+        - external-payments
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v2+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to the API
+            source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v2+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v2.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/external-payments_post_response"
+        "400":
+          description: Bad Request
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                InvalidRequestBody:
+                  $ref: '#/components/examples/InvalidRequestBody'
+        "401":
+          description: Unauthorized
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/Unauthorized"
+        "403":
+          description: Forbidden
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                NoPermission:
+                  $ref: "#/components/examples/NoPermission"
+        "404":
+          description: Resource not found
+        "405":
+          description: Method Not Allowed
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                MethodNotAllowed:
+                  $ref: "#/components/examples/MethodNotAllowed"
+        "406":
+          description: Not Acceptable
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                UnsupportedVersion:
+                  $ref: "#/components/examples/UnsupportedVersion"
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v2.0.0+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/external-payments_post_request_body"
+    get:
+      summary: Returns resources from GORCCAU
+      description: |
+        <p>Returns a paged listing of all the payment records from GORCCAU where GORCCAU_STATUS = 'Requested Status'.</p>
+      security:
+        - BasicAuth: []
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EXTERNAL_PAYMENTS
+      tags:
+        - external-payments
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v2+json
+
+            ```
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: true
+          description: A payment status of the resources to match with
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v2.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/external-payments_get_by_status_response"
+        "400":
+          description: Bad Request
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                InvalidFilterParameter:
+                  $ref: '#/components/examples/InvalidFilterParameter'
+        "401":
+          description: Unauthorized
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/Unauthorized"
+        "403":
+          description: Forbidden
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                NoPermission:
+                  $ref: "#/components/examples/NoPermission"
+        "404":
+          description: Resource not found
+        "405":
+          description: Method Not Allowed
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                MethodNotAllowed:
+                  $ref: "#/components/examples/MethodNotAllowed"
+        "406":
+          description: Not Acceptable
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                UnsupportedVersion:
+                  $ref: "#/components/examples/UnsupportedVersion"
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    external-payments_post_request_body:
+      title: External Payments (POST Request Body)
+      description: Request body to send. This data is received from EPS API.
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          title: Data
+          type: array
+          items:
+            type: object
+            required:
+              - payload
+            properties:
+              payload:
+                title: Payload
+                type: object
+                required:
+                  - id
+                properties:
+                  id:
+                    title: ID
+                    description: Unique transaction reference id.
+                    type: string
+                  content:
+                    title: content
+                    type: object
+                    required:
+                      - transactionId
+                      - status
+                      - originalAmt
+                      - providerName
+                      - providerStatus
+                      - createdBy
+                      - modifiedBy
+                      - type
+                      - paymentType
+                      - provTransId
+                      - vendorRefNo
+                    properties:
+                      transactionId:
+                        title: Transaction ID
+                        description: Internal transaction id (gorccau_pay_trans_id).
+                        type: string
+                      status:
+                        title: Status
+                        description: Transaction status.
+                        type: string
+                        enum:
+                          - Cancelled
+                          - Failed
+                          - Success
+                      originalAmt:
+                        title: Original Amount
+                        description: Actual payment amount settled for transaction at provider end.
+                        type: number
+                        format: positiveNumber
+                      providerName:
+                        title: Provider Name
+                        description: Provider name.
+                        type: string
+                      providerStatus:
+                        title: Provider Status
+                        description: Provider status.
+                        type: string
+                      createdBy:
+                        title: Created By
+                        description: ID of user requesting transaction.
+                        type: string
+                      modifiedBy:
+                        title: Modified By
+                        description: Modifier user.
+                        type: string
+                      type:
+                        title: Type
+                        description: Payment type/Other
+                        type: string
+                      paymentType:
+                        title: Payment Type
+                        description: Payment account type/Card type/noneType
+                        type: string
+                      provTransId:
+                        title: Provider Transaction ID
+                        description: Provider transaction id.
+                        type: string
+                      vendorRefNo:
+                        title: Vendor Reference Number
+                        description: External/Third party transaction reference number.
+                        type: string
+                    additionalProperties: false
+                additionalProperties: false
+            additionalProperties: false
+      additionalProperties: false
+    external-payments_post_response:
+      title: External Payments (POST Response)
+      description: Processed transaction details.
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          title: ID
+          description: Unique transaction reference id.
+          type: object
+          required:
+            - id
+            - status
+            - transactionId1
+            - transactionId2
+          properties:
+            id:
+              title: ID
+              description: Unique transaction reference id.
+              type: string
+            status:
+              title: Status
+              description: Status of internal payment.
+              type: string
+              enum:
+                - Processed Record
+                - Unprocessed Record
+                - Previously Processed Record
+            transactionId1:
+              title: Transaction ID1
+              description: Internal transaction id (gorccau_pay_trans_id).
+              type: string
+            transactionId2:
+              title: Transaction ID2
+              description: Transaction id of newly created TBRACCD record (tbraccd_tran_number).
+              type: number
+              format: positiveNumber
+            vendorRefNo:
+              title: Vendor Reference Number
+              description: >
+                External / Third Party transaction reference number.
+                This property will have value only when status comes as Processed Record.
+              type: string
+          additionalProperties: false
+      additionalProperties: false
+    external-payments_get_by_status_response:
+      title: External Payments (GET Response)
+      description: List of GORCCAU resources filtered by requested payment status.
+      type: object
+      required:
+        - activityDate
+        - createdBy
+        - originalAmt
+        - status
+        - transactionId
+      properties:
+        activityDate:
+          title: Activity Date
+          description: Date on which information of this record was entered or last updated.
+          type: string
+        createdBy:
+          title: Created By
+          description: Creator user.
+          type: string
+        originalAmt:
+          title: Original Amount
+          description: Payment amount.
+          type: number
+        status:
+          title: Transaction Status
+          description: Current status of payment.
+          type: string
+          enum:
+            - PENDING
+            - CANCELLED
+            - FAILED
+            - SUCCESS
+        transactionId:
+          title: Transaction ID
+          description: A unique transactionId of the payment.
+          type: number
+          format: positiveNumber
+      additionalProperties: false
+    errors-2.0.0_response:
+      title: Error Response
+      description: Object containing errors list.
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            required:
+              - message
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary
+                  data entity used to create the resource. This is useful for
+                  referencing the source item through the applications
+                  administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  examples:
+    Unauthorized:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "401",
+                    "message": "Full authentication is required to access this resource"
+                }
+            ]
+        }
+    NoPermission:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "403",
+                    "message": "Access is denied"
+                }
+            ]
+        }
+    MethodNotAllowed:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Operation.Not.Permitted",
+                    "description": "Operation not permitted",
+                    "message":  "Method not allowed."
+                }
+            ]
+        }
+    UnsupportedVersion:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "unknownrepresentation.error",
+                    "description":  "Unknown representation error",
+                    "message": "Unsupported media type 'application/vnd.hedtech.integration.vX+json' for resource 'external-payments'"
+                }
+            ]
+        }
+    InvalidFilterParameter:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "status parameter is required."
+                }
+            ]
+        }
+    InvalidRequestBody:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "External Payment Status not found"
+                }
+            ]
+        }

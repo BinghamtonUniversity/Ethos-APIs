@@ -1,0 +1,333 @@
+{
+ 
+  "title": "Student Grade Point Averages",
+  "description": "The information about grade point averages for a student.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "title": "ID",
+      "description": "The global identifier of the student grade point average.",
+      "type": "string",
+      "format": "guid",
+      "pattern": "^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+      "x-lineageReferenceObject": "SHRLGID_GUID(SHRLGID)"
+    },
+    "student": {
+      "title": "Student",
+      "description": "The student associated with the grade point averages.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "title": "ID",
+          "description": "The global identifier for the Student.",
+          "type": "string",
+          "format": "guid",
+          "pattern": "^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+          "x-lineageLookupReferenceObject": "persons",
+          "x-lineageReferenceObject": "SHRLGPA_PIDM(SHRLGPA)"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id"
+      ]
+    },
+    "periodBased": {
+      "title": "Period Based",
+      "description": "The period based grade point averages for the student.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "academicPeriod": {
+            "title": "Academic Period",
+            "description": "The academic period associated with the calculated grade point average.",
+            "type": "object",
+            "properties": {
+              "id": {
+                "title": "ID",
+                "description": "The global identifier for the Academic Period.",
+                "type": "string",
+                "format": "guid",
+                "pattern": "^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+                "x-lineageLookupReferenceObject": "academic-periods",
+                "x-lineageReferenceObject": "SHRTGPA_TERM_CODE(SHRTGPA)"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "id"
+            ]
+          },
+          "academicSource": {
+            "title": "Academic Source",
+            "description": "An indication of the academic sources that have been included in the grade point average (e.g. institution, transfer or all).",
+            "type": "string",
+            "minLength": 1,
+            "x-lineageReferenceObject": "derived",
+            "x-lineageDerivedLogic": "publish 'institution' if SHRTGPA_GPA_TYPE_IND = 'I' or 'transfer' if SHRTGPA_GPA_TYPE_IND = 'T' or 'all' if the periodBased object is included in the payload for the student (i.e. an SHRTGPA record exists), for each period/level published, also publish an 'all' source record - the values will not come from the SHRTGPA table though, instead they will be retrieved using the procedure P_COMB_TERM_GPA from the SHKCGPA package"
+          },
+          "academicLevel": {
+            "title": "Academic Level",
+            "description": "The academic level associated with the calculated grade point average.",
+            "type": "object",
+            "properties": {
+              "id": {
+                "title": "ID",
+                "description": "The global identifier for the Academic Level.",
+                "type": "string",
+                "format": "guid",
+                "pattern": "^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+                "x-lineageLookupReferenceObject": "academic-levels",
+                "x-lineageReferenceObject": "SHRTGPA_LEVL_CODE(SHRTGPA)"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "id"
+            ]
+          },
+          "value": {
+            "title": "Value",
+            "description": "The grade point average.",
+            "type": "number",
+            "x-lineageReferenceObject": "derived",
+            "x-lineageDerivedLogic": "for the 'all' source report the COMB_GPA output from the P_COMB_TERM_GPA"
+          },
+          "attemptedCredits": {
+            "title": "Attempted Credits",
+            "description": "The number of attempted credits used to compute the grade point average.",
+            "type": "number",
+            "x-lineageReferenceObject": "derived",
+            "x-lineageDerivedLogic": "for the 'all' source report the COMB_HOURS_ATTEMPTED output from the P_COMB_TERM_GPA"
+          },
+          "earnedCredits": {
+            "title": "Earned Credits",
+            "description": "The number of earned credits used to compute the grade point average.",
+            "type": "number",
+            "x-lineageReferenceObject": "derived",
+            "x-lineageDerivedLogic": "for the 'all' source report the COMB_HOURS_EARNED output from the P_COMB_TERM_GPA"
+          },
+          "qualityPoints": {
+            "title": "Quality Points",
+            "description": "The number of quality points used to compute the grade point average.",
+            "type": "number",
+            "x-lineageReferenceObject": "derived",
+            "x-lineageDerivedLogic": "for the 'all' source report the COMB_QUALITY_POINTS output from the P_COMB_TERM_GPA"
+          },
+          "gpaCredits": {
+            "title": "Grade Point Average Credits",
+            "description": "Number of GPA credits, as defined by the institution, used to compute the grade point average.",
+            "type": "number",
+            "x-lineageReferenceObject": "derived",
+            "x-lineageDerivedLogic": "for the 'all' source report the COMB_GPA_HOURS output from the P_COMB_TERM_GPA"
+          },
+          "passedCredits": {
+            "title": "Passed Credits",
+            "description": "Number of passed credits, as defined by the institution, used to compute the grade point average.",
+            "type": "number",
+            "x-lineageReferenceObject": "derived",
+            "x-lineageDerivedLogic": "for the 'all' source report the COMB_HOURS_PASSED output from the P_COMB_TERM_GPA"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "academicPeriod",
+          "academicSource",
+          "academicLevel",
+          "value",
+          "attemptedCredits",
+          "earnedCredits",
+          "qualityPoints"
+        ]
+      }
+    },
+    "cumulative": {
+      "title": "Cumulative",
+      "description": "The cumulative grade point averages for the student.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "academicSource": {
+            "title": "Academic Source",
+            "description": "An indication of the academic sources that have been included in the grade point average (e.g. institution, transfer or all).",
+            "type": "string",
+            "minLength": 1,
+            "x-lineageReferenceObject": "derived",
+            "x-lineageDerivedLogic": "publish 'institution' if SHRLGPA_GPA_TYPE_IND = 'I' or 'transfer' if SHRLGPA_GPA_TYPE_IND = 'T' or 'all' if SHRLGPA_GPA_TYPE_IND = 'O'\""
+          },
+          "academicLevel": {
+            "title": "Academic Level",
+            "description": "The academic level associated with the calculated grade point average.",
+            "type": "object",
+            "properties": {
+              "id": {
+                "title": "ID",
+                "description": "The global identifier for the Academic Level.",
+                "type": "string",
+                "format": "guid",
+                "pattern": "^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+                "x-lineageLookupReferenceObject": "academic-levels",
+                "x-lineageReferenceObject": "SHRLGPA_LEVL_CODE(SHRLGPA)"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "id"
+            ]
+          },
+          "value": {
+            "title": "Value",
+            "description": "The grade point average.",
+            "type": "number",
+            "x-lineageReferenceObject": "SHRLGPA_GPA(SHRLGPA)"
+          },
+          "attemptedCredits": {
+            "title": "Attempted Credits",
+            "description": "The number of attempted credits used to compute the grade point average.",
+            "type": "number",
+            "x-lineageReferenceObject": "SHRLGPA_HOURS_ATTEMPTED(SHRLGPA)"
+          },
+          "earnedCredits": {
+            "title": "Earned Credits",
+            "description": "The number of earned credits used to compute the grade point average.",
+            "type": "number",
+            "x-lineageReferenceObject": "SHRLGPA_HOURS_EARNED(SHRLGPA)"
+          },
+          "qualityPoints": {
+            "title": "Quality Points",
+            "description": "The number of quality points used to compute the grade point average.",
+            "type": "number",
+            "x-lineageReferenceObject": "SHRLGPA_QUALITY_POINTS(SHRLGPA)"
+          },
+          "gpaCredits": {
+            "title": "Grade Point Average Credits",
+            "description": "Number of GPA credits, as defined by the institution, used to compute the grade point average.",
+            "type": "number",
+            "x-lineageReferenceObject": "SHRLGPA_GPA_HOURS(SHRLGPA)"
+          },
+          "passedCredits": {
+            "title": "Passed Credits",
+            "description": "Number of passed credits, as defined by the institution, used to compute the grade point average.",
+            "type": "number",
+            "x-lineageReferenceObject": "SHRLGPA_HOURS_PASSED(SHRLGPA)"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "academicSource",
+          "academicLevel",
+          "value",
+          "attemptedCredits",
+          "earnedCredits",
+          "qualityPoints"
+        ]
+      }
+    },
+    "earnedDegrees": {
+      "title": "Earned Degrees",
+      "description": "The grade point average of the student for earned degrees.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "academicProgram": {
+            "title": "Academic Program",
+            "description": "The academic program associated with the grade point average.",
+            "type": "object",
+            "properties": {
+              "id": {
+                "title": "ID",
+                "description": "The global identifier for the Academic Program.",
+                "type": "string",
+                "format": "guid",
+                "pattern": "^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+                "x-lineageLookupReferenceObject": "student-academic-programs",
+                "x-lineageReferenceObject": "derived",
+                "x-lineageDerivedLogic": "where SHRDGMRS_PIDM = SHRDGMR_PIDM and SHRDGMRS_SEQ_NO = SHRDGMR_SEQ_NO AND SHRDGMR_SEQ_NO = SORLCUR_KEY_SEQNO AND SORLCUR_CACT_CODE is 'active' AND SORLCUR_CURRENT_CDE = Y AND SORLCUR_LMOD_CODE = OUTCOME (sb_curriculum_str.f_outcome) is the procedure used in stud-acad-program API"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "id"
+            ]
+          },
+          "academicSource": {
+            "title": "Academic Source",
+            "description": "An indication of the academic sources that have been included in the grade point average (e.g. institution, transfer or all).",
+            "type": "string",
+            "minLength": 1,
+            "x-lineageReferenceObject": "derived",
+            "x-lineageDerivedLogic": "Use 'institution' if SHRDGMRS_INST_GPA or 'transfer' if SHRDGMRS_TRAN_GPA or 'all' if SHRDGMRS_OVER_GPA"
+          },
+          "earnedOn": {
+            "title": "Earned On",
+            "description": "The date the student earned the degree.",
+            "type": "string",
+            "format": "date",
+            "pattern": "^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$",
+            "x-lineageReferenceObject": "SHRDGMR_GRAD_DATE(SHRDGMR)"
+          },
+          "value": {
+            "title": "Value",
+            "description": "The grade point average.",
+            "type": "number",
+            "x-lineageReferenceObject": "derived",
+            "x-lineageDerivedLogic": "P_DEGR_GPA.inst_gpa if academic source = 'institution' OR P_DEGR_GPA.tran_gpa if academic source = 'transfer' OR P_DEGR_GPA.over_gpa if academic source = 'all'"
+          },
+          "attemptedCredits": {
+            "title": "Attempted Credits",
+            "description": "The number of attempted credits used to compute the grade point average.",
+            "type": "number",
+            "x-lineageReferenceObject": "derived",
+            "x-lineageDerivedLogic": "P_DEGR_GPA.inst_hours_attempted if academic source = 'institution' OR P_DEGR_GPA.tran_hours_attempted if academic source = 'transfer' OR P_DEGR_GPA.over_hours_attempted if academic source = 'all'"
+          },
+          "earnedCredits": {
+            "title": "Earned Credits",
+            "description": "The number of earned credits used to compute the grade point average.",
+            "type": "number",
+            "x-lineageReferenceObject": "derived",
+            "x-lineageDerivedLogic": "P_DEGR_GPA.inst_hours_earned if academic source = 'institution' OR P_DEGR_GPA.tran_hours_earned if academic source = 'transfer' OR P_DEGR_GPA.over_hours_earned if academic source = 'all'"
+          },
+          "qualityPoints": {
+            "title": "Quality Points",
+            "description": "The number of quality points used to compute the grade point average.",
+            "type": "number",
+            "x-lineageReferenceObject": "derived",
+            "x-lineageDerivedLogic": "P_DEGR_GPA.inst_quality_points if academic source = 'institution' OR P_DEGR_GPA.tran_quality_points if academic source = 'transfer' OR P_DEGR_GPA.over_quality_points if academic source = 'all'"
+          },
+          "gpaCredits": {
+            "title": "Grade Point Average Credits",
+            "description": "Number of GPA credits, as defined by the institution, used to compute the grade point average.",
+            "type": "number",
+            "x-lineageReferenceObject": "derived",
+            "x-lineageDerivedLogic": "P_DEGR_GPA.inst_gpa_hours if academic source = 'institution' OR P_DEGR_GPA.tran_gpa_hours if academic source = 'transfer' OR P_DEGR_GPA.over_gpa_hours if academic source = 'all'"
+          },
+          "passedCredits": {
+            "title": "Passed Credits",
+            "description": "Number of passed credits, as defined by the institution, used to compute the grade point average.",
+            "type": "number",
+            "x-lineageReferenceObject": "derived",
+            "x-lineageDerivedLogic": "P_DEGR_GPA.inst_hours_passed if academic source = 'institution' OR P_DEGR_GPA.tran_hours_passed if academic source = 'transfer' OR P_DEGR_GPA.over_hours_passed if academic source = 'all'"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "academicProgram",
+          "academicSource",
+          "earnedOn",
+          "value",
+          "attemptedCredits",
+          "earnedCredits",
+          "qualityPoints"
+        ]
+      }
+    }
+  },
+  "required": [
+    "id",
+    "student"
+  ],
+  "additionalProperties": false
+}

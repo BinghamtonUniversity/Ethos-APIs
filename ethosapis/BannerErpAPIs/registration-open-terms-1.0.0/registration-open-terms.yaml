@@ -1,0 +1,166 @@
+openapi: 3.0.0
+info:
+  title: registration-open-terms
+  description: >
+    List terms open for registration is the first step of the registration
+    process flow. The terms are displayed to the student and the student selects
+    a term for registration from the list. The term code value is required for
+    all registration process APIs.
+
+       The list terms open for registration API returns exact matching term if found or it returns list of terms that matches the input parameter with term and/or description. The service lists terms that have the term control master switch turned on; have term control registration open turned on; are open for entry on the current date.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Student
+  x-source-title: Registration Open Terms
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: registration-open-terms
+paths:
+  /api/registration-open-terms:
+    get:
+      description: |
+        __URL valid filter operator values__
+
+          __operator :__ “equals, contains, startswith, equalsignorecase”
+
+        __URL valid filter sort values__
+
+          __sort:__	[‘code’, ‘description’, ‘searchDescription’]
+          
+          __sortOrder:__	[ASC/DESC]
+          
+        __URL valid filter pagination values__
+
+          __max:__	[maximun number of records to return]
+          __offset:__	[start with record number]
+          
+        __Example:__  /api/registration-open-terms?
+                   filter[0][field]=code&
+                   filter[0][operator]=contains&
+                   filter[0][value]=20&
+                   filter[1][field]=description&
+                   filter[1][operator]=contains&
+                   filter[1][value]=Fall&
+                   filter[2][field]=searchDescription&
+                   filter[2][operator]=contains&
+                   filter[2][value]=registration&max=5&
+                   offset=1
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_REGSTATUS
+      tags:
+        - registration-open-terms
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          schema:
+            type: string
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+              application/vnd.hedtech.integration.v1.0.0+json
+            ```
+        - name: term
+          in: query
+          required: false
+          schema:
+            type: string
+          example: filter[0][field]=code& filter[0][operator]=equals&
+            filter[0][value]=201410
+          description: Code value to identify the term
+        - name: description
+          in: query
+          required: false
+          schema:
+            type: string
+          example: "filter[0][field]=description& filter[0][operator]=contains&
+            filter[0][value]=Fall "
+          description: Description of the term associated with the term code
+        - name: searchDescription
+          in: query
+          required: false
+          schema:
+            type: string
+          example: filter[0][field]=searchDescription& filter[0][operator]=contains&
+            filter[0][value]=registration
+          description: Description of the term associated with the term code along with
+        - name: max
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Maximum number of records to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Start with record number
+      responses:
+        "200":
+          description: Success
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/registration-open-terms"
+            application/vnd.hedtech.integration.v1.0.0+xml:
+              schema:
+                type: object
+                $ref: "#/components/schemas/registration-open-terms"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    registration-open-terms:
+      type: array
+      items:
+        type: object
+        properties:
+          term:
+            type: string
+          description:
+            type: string
+          searchDescription:
+            type: string

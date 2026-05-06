@@ -1,0 +1,585 @@
+openapi: 3.0.0
+info:
+  title: Personal Relationships
+  description: >
+    The relationships between two people. It includes reference to the primary
+    person for whom the relationship is described, the person who has the
+    relationship with the subject person, the subject person's relationship type
+    with the related person, the related person's relationship type with the
+    subject person, status of the relationship, dates when the relationship
+    started and ended.
+  version: 16.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Foundation
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/personal-relationships:
+    get:
+      summary: Returns resources from SORFOLK
+      description: |
+        Returns all personal relationship records from SORFOLK.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSONAL_RELATIONSHIPS
+      tags:
+        - personal-relationships
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: person
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Person  
+
+            Filter to return subject person and/or related person.
+
+            ```
+
+            /personal-relationships?person={"person":{"id":"e5be4edc-1e40-4cd7-8d88-5b2cf312845f"}}
+
+            ```
+        - name: relationshipType
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Relationship Type  
+
+            Filter to return the direct and/or reciprocal relationship type.
+
+            ```
+
+            /personal-relationships?relationshipType={"relationshipType":{"id":"e5be4edc-1e40-4cd7-8d88-5b2cf312845f"}}
+
+            ```
+        - name: personFilter
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Person Filter  
+
+            Retrieve information for a specified population
+
+            ```
+
+            /personal-relationships?personFilter={"personFilter":{"id":"b5427b09-422b-98e5-c44d-e6a25b210a44"}}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-personal-relationships.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new resource in SORFOLK
+      description: >
+        Creates a personal relationship record in SORFOLK.
+
+
+        POST requests must include a nil GUID value ("00000000-0000-0000-0000-000000000000") for the root id property.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSONAL_RELATIONSHIPS
+      tags:
+        - personal-relationships
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-personal-relationships.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v16+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-personal-relationships.json"
+  /api/personal-relationships/{id}:
+    get:
+      summary: Return the requested resource from SORFOLK
+      description: >
+        Returns a personal relationship record from SORFOLK for the passed in
+        identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSONAL_RELATIONSHIPS
+      tags:
+        - personal-relationships
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-personal-relationships.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    put:
+      summary: Update the requested resource from SORFOLK
+      description: |
+        Updates a personal relationship record in SORFOLK.
+
+        Properties that are not updatable: id, subjectPerson.id
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSONAL_RELATIONSHIPS
+      tags:
+        - personal-relationships
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Personal Relationships for use in all
+            external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json 
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-personal-relationships.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v16+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-personal-relationships.json"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-personal-relationships.json:
+      title: Personal Relationships
+      description: The relationships between two people.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the personal relationship.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: SORFOLK_PERS_REL_GUID(SORFOLK)
+        subjectPerson:
+          title: Subject Person
+          description: The primary person for whom the relationship is described.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Subject Person.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+              x-lineageDerivedLogic: A record in GORGUID where GORGUID_LDM_NAME = 'persons' and GORGUID_DOMAIN_KEY = SORFOLK_PIDM
+          additionalProperties: false
+          required:
+            - id
+        related:
+          title: Related
+          description: The person who has the relationship with the subject person.
+          oneOf:
+            - title: Person
+              description: The person who has the relationship with the subject person.
+              type: object
+              properties:
+                person:
+                  title: Person
+                  description: The person who has the relationship with the subject person.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Person.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: persons 
+                      x-lineageReferenceObject: SORFOLK_REL_PERS_ID(SORFOLK)
+                  additionalProperties: false
+                  required:
+                    - id
+              additionalProperties: false
+              required:
+                - person
+            - title: Person Details
+              description: The person who has the relationship with the subject person.
+              type: object
+              properties:
+                firstName:
+                  title: First Name
+                  description: The first name of the related person.
+                  type: string
+                  minLength: 1
+                  x-lineageReferenceObject: SORFOLK_PARENT_FIRST(SORFOLK)
+                middleName:
+                  title: Middle Name
+                  description: The middle name of the related person.
+                  type: string
+                  x-lineageReferenceObject: SORFOLK_PARENT_MI(SORFOLK)
+                lastName:
+                  title: Last Name
+                  description: The last name of the related person.
+                  type: string
+                  minLength: 1
+                  x-lineageReferenceObject: SORFOLK_PARENT_LAST(SORFOLK)
+                contactAddressType:
+                  title: Contact Address Type
+                  description: The subject person's address type to be associated with the related
+                    person.
+                  oneOf:
+                    - type: object
+                      properties:
+                        id:
+                          title: ID
+                          description: The global identifier for the Contact Address Type.
+                          type: string
+                          format: guid
+                          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                          x-lineageLookupReferenceObject: address-types 
+                          x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = address-types) 
+                          x-lineageDerivedLogic: A record in GORGUID where GORGUID_LDM_NAME = 'address-types' and GORGUID_DOMAIN_KEY = SORFOLK_ATYP_CODE
+                      additionalProperties: false
+                      required:
+                        - id
+                    - type: object
+                      maxProperties: 0
+              additionalProperties: false
+              required:
+                - firstName
+                - lastName
+        directRelationshipType:
+          title: Direct Relationship Type
+          description: The subject person's relationship type with the related person.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Direct Relationship Type.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: relationship-types 
+                  x-lineageReferenceObject: SORFOLK_DIR_RELT_ID(SORFOLK)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        reciprocalRelationshipType:
+          title: Reciprocal Relationship Type
+          description: The related person's relationship type with the subject person.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Reciprocal Relationship Type.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: relationship-types 
+                  x-lineageReferenceObject: SORFOLK_RELT_CODE(SORFOLK)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        status:
+          title: Status
+          description: The status of the personal relationship.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Status.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: relationship-statuses 
+                  x-lineageReferenceObject: unsupported
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        startOn:
+          title: Start On
+          description: The date when the relationship started.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: SORFOLK_ETHOS_START_ON(SORFOLK)
+            - type: string
+              maxLength: 0
+        endOn:
+          title: End On
+          description: The date when the relationship ended.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: SORFOLK_ETHOS_END_ON(SORFOLK)
+            - type: string
+              maxLength: 0
+        comment:
+          title: Comment
+          description: The comment on the relationship.
+          type: string
+          x-lineageReferenceObject: SORFOLK_ETHOS_COMMENT(SORFOLK)
+      required:
+        - id
+        - subjectPerson
+        - related
+      additionalProperties: false
+

@@ -1,0 +1,386 @@
+openapi: 3.0.0
+info:
+  title: Aptitude Assessments
+  description: Assessments that are used to determine a student&#x27;s aptitude
+    (academic achievement, competency, proficiency). The minimum and maximum
+    test score values are alphanumeric in Banner, but they are numeric in the
+    Ethos data model.  Whenever a non-numeric value exists in Banner in either
+    of these fields, they should both be published (i.e., no "range" should be
+    published).
+  version: 6.1.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Recruitment
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/aptitude-assessments:
+    get:
+      summary: Returns all resources from STVTESC
+      description: Returns a paged listing of all the aptitude assessments from
+        STVTESC table in the Banner system.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_APTITUDE_ASSESSMENTS
+      tags:
+        - aptitude-assessments
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v6.1.0+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: testAndSubtest
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Test And Subtest  
+
+            Returns all aptitude assessments for the corresponding test and subtest passed.
+
+            ```
+
+            /aptitude-assessments?testAndSubtest={"testType":"string","subtestType":"string"}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-aptitude-assessments.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v6.1.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/aptitude-assessments/{id}:
+    get:
+      summary: Return the requested resource from STVTESC.
+      description: Return the one aptitude assessment from STVTESC table with the
+        passed in identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_APTITUDE_ASSESSMENTS
+      tags:
+        - aptitude-assessments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Aptitude Assessments for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v6.1.0+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v6.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v6.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-aptitude-assessments.json"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-aptitude-assessments.json:
+      title: Aptitude Assessments
+      description: Assessments that are used to determine a student's aptitude
+        (academic achievement, competency, proficiency).
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the Aptitude Assessment.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: STVTESC_GUID(STVTESC)
+        title:
+          title: Title
+          description: The full name of the Aptitude Assessment.
+          type: string
+          minLength: 1
+          x-lineageReferenceObject: STVTESC_DESC(STVTESC)
+        code:
+          title: Code
+          description: The code that identifies the Aptitude Assessment.
+          type: string
+          x-lineageReferenceObject: STVTESC_CODE(STVTESC)
+        description:
+          title: Description
+          description: The description of the Aptitude Assessment.
+          type: string
+          x-lineageReferenceObject: unsupported
+        vendor:
+          title: Vendor
+          description: The organization that offers the assessment.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Vendor.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: organizations 
+                  x-lineageReferenceObject: unsupported
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        parentAssessment:
+          title: Parent Assessment
+          description: The assessment of which the assessment is part.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Parent Assessment.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: aptitude-assessments 
+                  x-lineageReferenceObject: unsupported
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        validScores:
+          title: Valid Scores
+          description: The valid scores that may be awarded for the assessment.
+          oneOf:
+            - title: Values
+              description: The valid literal values that may be assigned as a score for the
+                assessment.
+              type: object
+              properties:
+                values:
+                  title: Values
+                  description: The valid literal values that may be assigned as a score for the
+                    assessment.
+                  x-lineageReferenceObject: unsupported
+                  type: array
+                  minItems: 1
+                  items:
+                    type: string
+              additionalProperties: false
+              required:
+                - values
+            - title: Range
+              description: The range of possible numeric scores on the assessment.
+              type: object
+              properties:
+                range:
+                  title: Range
+                  description: The range of possible numeric scores on the assessment.
+                  type: object
+                  properties:
+                    minimum:
+                      title: Minimum
+                      description: The lowest possible score on the assessment.
+                      type: number
+                      x-lineageReferenceObject: STVTESC_MIN_VALUE(STVTESC)
+                    maximum:
+                      title: Maximum
+                      description: The highest possible score on the assessment.
+                      type: number
+                      x-lineageReferenceObject: STVTESC_MAX_VALUE(STVTESC)
+                    increment:
+                      title: Increment
+                      description: The valid increments between the minimum and maximum for assessment
+                        scores.
+                      x-lineageReferenceObject: derived
+                      x-lineageDerivedLogic: Display 1 always
+                      oneOf:
+                        - type: number
+                        - type: string
+                          nullable: true
+                  additionalProperties: false
+                  required:
+                    - minimum
+                    - maximum
+              additionalProperties: false
+              required:
+                - range
+            - type: object
+              maxProperties: 0
+        calculation:
+          title: Calculation
+          description: The type and method of the calculations to be used to determent the
+            assessment score.
+          type: object
+          properties:
+            type:
+              title: Type
+              description: The type of calculation to be applied the assessment score.
+              x-lineageReferenceObject: unsupported
+              enum:
+                - raw
+                - calculated
+              type: string
+            method:
+              title: Method
+              description: The calculation method to determine the assessment's score.
+              oneOf:
+                - type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Method.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: assessment-calculation-methods 
+                      x-lineageReferenceObject: unsupported
+                  additionalProperties: false
+                  required:
+                    - id
+                - type: object
+                  maxProperties: 0
+          additionalProperties: false
+        assessmentType:
+          title: Assessment Type
+          description: The type of the assessment (e.g. admissions, placement, ...).
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Assessment Type.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: aptitude-assessment-types 
+                  x-lineageReferenceObject: unsupported
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+      required:
+        - id
+        - title
+      additionalProperties: false

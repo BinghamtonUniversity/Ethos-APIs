@@ -1,0 +1,635 @@
+openapi: 3.0.0
+info:
+  title: Student Transcript Grades
+  description: >
+    The student transcript grades API retrieves all the grades and the grade
+    change details of grades eligible to be displayed on the student’s
+    transcript. The response also includes associated course or section details,
+    grades along with any incomplete grades associated from SHRGRDE table, grade
+    scheme from SHRGSCH table and credits associated with grade from SHRGRDE
+    table.
+  version: 1.0.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Student
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: student-transcript-grades
+paths:
+  /api/student-transcript-grades:
+    get:
+      summary: Returns resources from SHRTCKN
+      description: >
+        Returns a paged listing of student transcript grade records from
+        SHRTCKN.
+
+
+        Only the most current grade with maximum SHRTCKG_SEQ_NO will be retrieved in the grade property, all the remaining grades are retrieved in the changeDetails property.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STUDENT_TRANSCRIPT_GRADES
+      tags:
+        - student-transcript-grades
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Student  
+
+            Returns all Student Transcript Grades for the specific person id passed.
+
+            ```
+
+            /student-transcript-grades?criteria={"student": {"id": "5674f28b-b216-4055-b236-81a922d93b4c"}}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-student-transcript-grades.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/student-transcript-grades/{id}:
+    get:
+      summary: Return the requested resource from SHRTCKN
+      description: >
+        Returns a single student-transcript-grade record from SHRTCKN with the
+        requested identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STUDENT_TRANSCRIPT_GRADES
+      tags:
+        - student-transcript-grades
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-student-transcript-grades.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-student-transcript-grades.json:
+      title: Student Transcript Grades
+      description: The grades and the grade change details of grades eligible to be
+        displayed on the student’s transcript.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the student transcript grade.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: SHRTNID_GUID(SHRTNID)
+        student:
+          title: Student
+          description: The student associated with the grade.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Student.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+              x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME as 'persons'.
+          additionalProperties: false
+          required:
+            - id
+        course:
+          title: Course
+          description: The course associated with the grade.
+          oneOf:
+            - title: Section
+              description: The section associated with the grade.
+              type: object
+              properties:
+                section:
+                  title: Section
+                  description: The section associated with the grade.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Section.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: sections 
+                      x-lineageReferenceObject: SSBSGID_GUID(SSBSGID)
+                  additionalProperties: false
+                  required:
+                    - id
+              additionalProperties: false
+              required:
+                - section
+            - title: Course
+              description: The details of the course associated with the grade.
+              type: object
+              properties:
+                detail:
+                  title: Detail
+                  description: The details of the course associated with the grade.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Detail.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: courses 
+                      x-lineageReferenceObject: SCBCGID_GUID(SCBCGID)
+                  additionalProperties: false
+                  required:
+                    - id
+              additionalProperties: false
+              required:
+                - detail
+            - title: Name
+              description: The name of the course associated with the grade.
+              type: object
+              properties:
+                name:
+                  title: Name
+                  description: The name of the course associated with the grade.
+                  type: string
+                  minLength: 1
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: Display SHRTCKN_SUBJ_CODE + '-' + SHRTCKN_CRSE_NUMB + '-' + SHRTCKN_CRSE_TITLE only if both course.section.id and course.detail.id are not published.
+              additionalProperties: false
+              required:
+                - name
+        unverifiedGrade:
+          title: Unverified Grade
+          description: The associated instance of unverified grades.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Unverified Grade.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: student-unverified-grades 
+                  x-lineageReferenceObject: SFRUGID_GUID(SFRUGID)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        grade:
+          title: Grade
+          description: The grade entered.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Grade.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: grade-definitions 
+              x-lineageReferenceObject: SHRGDID_GUID(SHRGDID)
+          additionalProperties: false
+          required:
+            - id
+        incompleteGrade:
+          title: Incomplete Grade
+          description: The default incomplete final grade and the extension date
+            associated with the student's grade.
+          type: object
+          properties:
+            finalGrade:
+              title: Final Grade
+              description: The default final grade.
+              oneOf:
+                - type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Final Grade.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: grade-definitions 
+                      x-lineageReferenceObject: SHRGDID_GUID(SHRGDID)
+                  additionalProperties: false
+                  required:
+                    - id
+                - type: object
+                  maxProperties: 0
+            extensionDate:
+              title: Extension Date
+              description: The date after which the default final grade may be applied.
+              oneOf:
+                - type: string
+                  format: date
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                  x-lineageReferenceObject: SHRTCKG_INCOMPLETE_EXT_DATE(SHRTCKG)
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        awardGradeScheme:
+          title: Award Grade Scheme
+          description: The award grade scheme assigned to the student.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Award Grade Scheme.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: grade-schemes 
+              x-lineageReferenceObject: SHRGSCH_GUID(SHRGSCH)
+          additionalProperties: false
+          required:
+            - id
+        creditCategory:
+          title: Credit Category
+          description: The credit category associated with the grade.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Credit Category.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: credit-categories 
+                  x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = credit-categories) 
+                  x-lineageDerivedLogic: If either of course.section.id or course.detail.id are published, then if the associated course record in SCBCRSE has SCBCRSE_CEU_IND = Y, then the GUID of 'ce' credit category is published. If SCBCRSE_CEU_IND  in not Y, then the GUID of 'institution' credit catgeory is published. If course.name is published, then always the GUID of 'institution' credit category is published.
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        credit:
+          title: Credit
+          description: The credits associated with the grade.
+          type: object
+          properties:
+            attemptedCredit:
+              title: Attempted Credit
+              description: The attempted credits associated with the grade.
+              oneOf:
+                - type: number
+                  x-lineageReferenceObject: SHRTCKG_HOURS_ATTEMPTED(SHRTCKG)
+                - type: string
+                  nullable: true
+            earnedCredit:
+              title: Earned Credit
+              description: The earned credits associated with the grade.
+              oneOf:
+                - type: number
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: The p_coursecreditearned_out value from the p_acrec_inst_course_element Banner baseline procedure is displayed.
+                - type: string
+                  nullable: true
+            qualityPoint:
+              title: Quality Point
+              description: The quality points used to compute the GPA.
+              type: object
+              properties:
+                nonWeighted:
+                  title: Non Weighted
+                  description: The base quality points used to compute the GPA.
+                  oneOf:
+                    - type: number
+                      x-lineageReferenceObject: SHRGRDE_QUALITY_POINTS(SHRGRDE)
+                    - type: string
+                      nullable: true
+                gpa:
+                  title: GPA
+                  description: The weighted quality points used to compute the GPA.
+                  oneOf:
+                    - type: number
+                      x-lineageReferenceObject: derived  
+                      x-lineageDerivedLogic: The p_coursequalityptsearned_out value from the p_acrec_inst_course_element Banner baseline procedure is displayed.
+                    - type: string
+                      nullable: true
+              additionalProperties: false
+            repeatedSection:
+              title: Repeated Section
+              description: The indicator of how the grade should be used in the GPA
+                calculation.
+              oneOf:
+                - type: string
+                  enum:
+                    - notRepeated
+                    - repeatedIncludeCredit
+                    - repeatedIncludeQualityPoints
+                    - repeatedIncludeBoth
+                    - repeatedIncludeNeither
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: If the p_courserepeat_out value from the p_acrec_inst_course_element Banner baseline procedure is 'RepeatCounted' then display 'repeatedIncludeBoth';if p_courserepeat_out value is 'RepeatNotCounted', then display 'repeatedIncludeNeither';if p_courserepeat_out value is 'NotCountedOther', then display 'repeatedIncludeQualityPoints'and if p_courserepeat_out value is Null, then display notRepeated.
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        changeReason:
+          title: Change Reason
+          description: The reason specified for a change to a previously entered grade.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Change Reason.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: grade-change-reasons 
+                  x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = grade-change-reasons) 
+                  x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME = 'grade-change-reasons' and GORGUID_DOMAIN_KEY = SHRTCKG_GCHG_CODE
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        recordedOn:
+          title: Recorded On
+          description: The date the grade was recorded.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: SHRTCKG_FINAL_GRDE_CHG_DATE(SHRTCKG)
+            - type: string
+              maxLength: 0
+        changeDetails:
+          title: Change Details
+          description: The grade change details of the grades eligible to be displayed on
+            the transcript.
+          type: array
+          items:
+            type: object
+            properties:
+              sequenceNumber:
+                title: Sequence Number
+                description: The sequence number of the grade change.
+                oneOf:
+                  - type: number
+                    x-lineageReferenceObject: SHRTCKG_SEQ_NO(SHRTCKG)
+                  - type: string
+                    nullable: true
+              grade:
+                title: Grade
+                description: The grade entered.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Grade.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: grade-definitions 
+                    x-lineageReferenceObject: SHRGDID_GUID(SHRGDID)
+                additionalProperties: false
+                required:
+                  - id
+              incompleteGrade:
+                title: Incomplete Grade
+                description: The default incomplete final grade and the extension date
+                  associated with the student's grade.
+                type: object
+                properties:
+                  finalGrade:
+                    title: Final Grade
+                    description: The default final grade.
+                    oneOf:
+                      - type: object
+                        properties:
+                          id:
+                            title: ID
+                            description: The global identifier for the Final Grade.
+                            type: string
+                            format: guid
+                            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                            x-lineageLookupReferenceObject: grade-definitions 
+                            x-lineageReferenceObject: SHRGDID_GUID(SHRGDID)
+                        additionalProperties: false
+                        required:
+                          - id
+                      - type: object
+                        maxProperties: 0
+                  extensionDate:
+                    title: Extension Date
+                    description: The date after which the default final grade may be applied.
+                    oneOf:
+                      - type: string
+                        format: date
+                        pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                        x-lineageReferenceObject: SHRTCKG_INCOMPLETE_EXT_DATE(SHRTCKG)
+                      - type: string
+                        maxLength: 0
+                additionalProperties: false
+              awardGradeScheme:
+                title: Award Grade Scheme
+                description: The award grade scheme assigned to the student.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Award Grade Scheme.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: grade-schemes 
+                    x-lineageReferenceObject: SHRGSCH_GUID(SHRGSCH)
+                additionalProperties: false
+                required:
+                  - id
+              changeReason:
+                title: Change Reason
+                description: The reason specified for a change to a previously entered grade.
+                oneOf:
+                  - type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the Change Reason.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                        x-lineageLookupReferenceObject: grade-change-reasons 
+                        x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = grade-change-reasons) 
+                        x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME = 'grade-change-reasons' and GORGUID_DOMAIN_KEY = SHRTCKG_GCHG_CODE
+                    additionalProperties: false
+                    required:
+                      - id
+                  - type: object
+                    maxProperties: 0
+              recordedOn:
+                title: Recorded On
+                description: The date the grade change was recorded.
+                type: string
+                format: date
+                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                x-lineageReferenceObject: SHRTCKG_FINAL_GRDE_CHG_DATE(SHRTCKG)
+            additionalProperties: false
+            required:
+              - grade
+              - awardGradeScheme
+              - recordedOn
+      required:
+        - id
+        - student
+        - course
+        - grade
+        - awardGradeScheme
+      additionalProperties: false

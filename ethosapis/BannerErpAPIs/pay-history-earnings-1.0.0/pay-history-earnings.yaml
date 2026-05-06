@@ -1,0 +1,358 @@
+openapi: 3.0.0
+info:
+  title: Pay History Earnings
+  description: >
+    Loads payroll usage for assignments or authorizations in the financial aid student employment module.
+  version: 1.0.0
+  x-source-system: banner
+  x-api-type: erp
+  x-source-domain: Human Resources
+  x-audience: all
+  x-release-status: beta
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/pay-history-earnings:
+    get:
+      summary: Returns resources from PHREARN
+      description: >
+        Returns all the records from PHREARN table for the unique
+        combination of Pay Year(PHREARN_YEAR), Pay ID(PHREARN_PICT_CODE),
+        Pay Number(PHREARN_PAYNO) along with the corresponding data from
+        PHRHIST and PTRCALN tables.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PAY_HISTORY_EARNINGS
+      tags:
+        - pay-history-earnings
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Year  
+
+            Returns all Pay History Earnings for the given year
+
+            ```
+
+            /pay-history-earnings?criteria={"year":"2010"}
+
+            ```   
+
+            ### Pay ID  
+
+            Returns all Pay History Earnings for the given Pay ID
+
+            ```
+
+            /pay-history-earnings?criteria={"pictCode":"XM"}
+
+            ```  
+
+            ### Pay Number  
+
+            Returns all Pay History Earnings for the given Pay Number
+
+            ```
+
+            /pay-history-earnings?criteria={"payno":1}
+
+            ```  
+
+            ### Banner ID  
+
+            Returns all Pay History Earnings for the given Banner ID
+
+            ```
+
+            /pay-history-earnings?criteria={"bannerId":"HOP510001"}
+
+            ``` 
+             ### Pay Start On  
+            Returns all Pay History Earnings for the given payStartOn
+
+            ```
+
+            /pay-history-earnings?criteria={"payStartOn":"2014-07-01"}
+
+            ``` 
+             ### Pay End On  
+            Returns all Pay History Earnings for the given payEndOn
+
+            ```
+
+            /pay-history-earnings?criteria={"payEndOn":"2018-07-30"}
+
+            ```
+
+            ### Employee Pay Class 
+
+            Returns all Pay History Earnings for the given Employee Pay Class
+
+            ```
+
+            /pay-history-earnings?criteria={"payClass":{"id":"5aef2b09-049e-4ed9-8ff5-c80c8207d5ba"}}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-pay-history-earnings.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data    
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-pay-history-earnings.json:
+      title: Pay History Earnings
+      description: A detailed description of the earnigs records.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+          
+        activityDate:
+          title: Activity Date
+          description:  Date when record was inserted or last modified.
+          type: string
+          format: date-time
+          example: 2025-08-28
+          x-LineageReferenceObject: PHREARN_ACTIVITY_DATE
+          
+        amount:
+          title: Amount
+          description: Amount associated with the earnings record.
+          type: number
+          format: float
+          example: 2962.98
+          x-LineageReferenceObject: PHREARN_AMT    
+          
+        bannerId:
+          title: bannerId
+          description: Banner ID (PIDM Identifier).
+          type: string
+          format: guid
+          example: HOP510001
+          x-lineageReferenceObject: SPRIDEN_ID
+          maxLength: 9
+          
+        disposition:
+          title: Disposition
+          description: The disposition associated with this payroll.
+          type: string
+          example: 70
+          x-LineageReferenceObject: PHRHIST_DISP 
+          maxLength: 2
+          
+        payEndOn:
+          title: Pay End On
+          description: The last day of the pay period.
+          type: string
+          format: date
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+          x-lineageReferenceObject: PTRCALN_END_DATE(PTRCALN)  
+          
+        hrs:
+          title: Hours
+          description: Number of hours associated with the earnings record.
+          type: number
+          format: float
+          example: 75.36
+          x-LineageReferenceObject: PHREARN_HRS
+          
+        payClass:
+          title: Pay Class
+          description: The pay class associated with the employee.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Pay Class.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: pay-classes 
+                  x-lineageReferenceObject: PTRECLS_PAY_CLASS_GUID(PTRECLS)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0  
+                
+        payNo:
+          title: Pay Number
+          description: The pay number associated with this payroll.
+          type: number
+          example: 1
+          x-LineageReferenceObject: PHREARN_PAYNO    
+          maxLength: 2
+          
+        pictCode:
+          title: PICT Code
+          description: The pay id code associated with this payroll.
+          type: string
+          example: B1
+          x-LineageReferenceObject: PHREARN_PICT_CODE
+          maxLength: 2  
+                      
+        jobPosition:
+          title: Job Position
+          description: Position associated with the record.
+          type: string
+          example: XA0001
+          x-LineageReferenceObject: PHREARN_POSN  
+          maxLength: 6
+          
+        rate:
+          title: Rate
+          description: rate of pay.
+          type: number
+          format: float
+          example: 39.317675
+          x-LineageReferenceObject: PHREARN_RATE
+          
+        sequenceNumber:
+          title: Sequence Number
+          description: The sequence number associated with the earnings record.
+          type: string
+          example: 1
+          x-LineageReferenceObject: PHREARN_SEQ_NO 
+          maxLength: 1
+          
+        payStartOn:
+          title: Pay Start On
+          description: The first day of the pay period.
+          type: string
+          format: date
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+          x-lineageReferenceObject: PTRCALN_START_DATE(PTRCALN)
+          maxLength: 24
+          
+        jobSuffix:
+          title: Job Suffix
+          description: Suffix associated with the record.
+          type: string
+          example: 00
+          x-LineageReferenceObject: PHREARN_SUFF
+          maxLength: 2
+
+        userId:
+          title: User ID
+          description: The user ID of the person who inserted or last updated this record.
+          type: string
+          example: Corey
+          x-LineageReferenceObject: PHREARN_USER_ID
+          maxLength: 30
+          
+        year:
+          title: Year
+          description: The year associated with the payroll.
+          type: string
+          example: 2010
+          x-LineageReferenceObject: PHREARN_YEAR
+          maxLength: 4
+
+      additionalProperties: false
+

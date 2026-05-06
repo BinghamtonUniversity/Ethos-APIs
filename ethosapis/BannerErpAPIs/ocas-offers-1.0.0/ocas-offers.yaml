@@ -1,0 +1,262 @@
+openapi: 3.0.0
+info:
+  title: ocas-offers
+  description: 'This is an API to fetch or Update OCAS Offers. '
+  version: 1.0.0
+  x-source-domain: Student
+  x-api-type: erp
+  x-release-status: ga
+  x-audience: all
+  x-source-title: OCAS Offers
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+paths:
+  /api/ocas-offers:
+    get:
+      tags:
+      - ocas-offers
+      summary: Returns all applicants to be offered.
+      description: This API returns the list of all applicants to be offered.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Offer_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+      - BasicAuth: []
+        EthosIntegrationBearer: []
+    put:
+      tags:
+      - ocas-offers
+      summary: Update Offer to set ocFileInd as Y
+      description: Updates offer details for the given applicant and program information.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Offer_put_request"
+            example:
+              surrId: "267"
+              ocasApplNum: "260000116"
+              oprgCode: "020408"
+              ocmpCode: CC
+              ocFileInd: "Y"
+              fullOrPartTime: F
+        required: true
+      responses:
+        "200":
+          description: Successfully updated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Offer_put_response"
+        "400":
+          description: Invalid request payload
+        "404":
+          description: Offer not found
+        "500":
+          description: Server error
+components:
+  schemas:
+    Offer_get_response:
+      required:
+      - fullOrPartTime
+      - ocasApplNum
+      - ocmpCode
+      - offerActiveDate
+      - offerExpiredDateHard
+      - offerExpiredDateSoft
+      - offerState
+      - oprgCode
+      - programChoiceSequenceNumber
+      - semLevAppliedFor
+      - startDateOfTheProgram
+      - surrId
+      type: object
+      properties:
+        domesticAncillaryAmount:
+          type: string
+          example: "10"
+        domesticOtherAmount:
+          type: string
+          example: "30"
+        domesticTuitionAmount:
+          type: string
+          example: "20"
+        feesDueDate:
+          type: string
+          format: date
+          example: 2026-10-10
+        fullOrPartTime:
+          type: string
+          example: F
+        internationalAmount:
+          type: string
+          example: "249"
+        internationalAncillaryAmount:
+          type: string
+          example: "90"
+        internationalOtherAmount:
+          type: string
+          example: "70"
+        internationalTuitionAmount:
+          type: string
+          example: "89"
+        ocasApplNum:
+          type: string
+          example: "260001636"
+        ocmpCode:
+          type: string
+          example: CC
+        offerActiveDate:
+          type: string
+          example: "20250710"
+        offerExpiredDateHard:
+          type: string
+          example: "20251230"
+        offerExpiredDateSoft:
+          type: string
+          example: "20251230"
+        offerQueueType:
+          type: string
+          example: "0"
+        offerState:
+          type: string
+          example: R
+        oprgCode:
+          type: string
+          example: "020149"
+        programAmount:
+          type: string
+          example: "60"
+        programChoiceSequenceNumber:
+          type: string
+          example: "6"
+        semLevAppliedFor:
+          type: string
+          example: "1"
+        startDateOfTheProgram:
+          type: string
+          format: date
+          example: 2026-09-08
+        surrId:
+          type: string
+          example: "537"
+    Offer_put_request:
+      required:
+      - fullOrPartTime
+      - ocFileInd
+      - ocasApplNum
+      - ocmpCode
+      - oprgCode
+      - surrId
+      type: object
+      properties:
+        surrId:
+          type: string
+          example: "267"
+        ocasApplNum:
+          type: string
+          example: "260000116"
+        oprgCode:
+          type: string
+          example: "020408"
+        ocmpCode:
+          type: string
+          example: CC
+        ocFileInd:
+          type: string
+          example: "Y"
+        fullOrPartTime:
+          type: string
+          example: F
+    Offer_put_response:
+      required:
+      - fullOrPartTime
+      - ocFileInd
+      - ocasApplNum
+      - ocmpCode
+      - offerSentDate
+      - offerState
+      - oprgCode
+      - surrId
+      type: object
+      properties:
+        fullOrPartTime:
+          type: string
+          example: F
+        ocFileInd:
+          type: string
+          example: "Y"
+        ocasApplNum:
+          type: string
+          example: "260000116"
+        ocmpCode:
+          type: string
+          example: CC
+        offerSentDate:
+          type: string
+          example: 2025-07-01
+        offerState:
+          type: string
+          example: A
+        oprgCode:
+          type: string
+          example: "020408"
+        surrId:
+          type: string
+          example: "267"
+    errors_2_0_0:
+      required:
+      - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/errors_2_0_0_errors"
+    errors_2_0_0_errors:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The global identifier of the resource in error.
+        code:
+          type: string
+          description: The error message code used to describe the error details.
+        description:
+          type: string
+          description: The error description used to describe the error details.
+        message:
+          type: string
+          description: The detailed actionable error message.
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

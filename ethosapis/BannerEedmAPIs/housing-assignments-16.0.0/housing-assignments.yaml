@@ -1,0 +1,1026 @@
+openapi: 3.0.0
+info:
+  title: Housing Assignments
+  description: >
+    The assignment of a person to institution provided housing for a specified
+    time period. Additional details like standard rate or an override rate,
+    additional charges, the status and status date of the housing assignment are
+    provided along with the type of resident (e.g. student, RA, etc.).
+
+
+    Please refer to the section "API Integration Configuration Settings" in Banner Ethos API Handbook for all the configuration settings needed for this API.
+  version: 16.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Foundation
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/housing-assignments:
+    get:
+      summary: Returns resources from SLRRASG
+      description: |
+        Returns all the records from SLRRASG.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_HOUSING_ASSIGNMENTS
+      tags:
+        - housing-assignments
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Person  
+
+            A reference to the person assigned a room.
+
+            ```
+
+            /housing-assignments?criteria={"person":{"id":"4a0c95f7-0903-408a-8694-77b313809909"}}
+
+            ```
+
+            ### Academic Period  
+
+            The academic period associated with the housing assignment.
+
+            ```
+
+            /housing-assignments?criteria={"academicPeriod":{"id":"3efc95f7-0903-408a-8694-77b313806639"}}
+
+            ```
+
+            ### Status  
+
+            The status of the room assignment.
+
+            ```
+
+            /housing-assignments?criteria={"status":"assigned"}
+
+            ```
+
+            ### Start On  
+
+            The date the housing assignment starts.
+
+            ```
+
+            /housing-assignments?criteria={"startOn:":"1995-02-06T18:30:00+05:30"}
+
+            ```
+
+            ### End On  
+
+            The date the housing assignment ends.
+
+            ```
+
+            /housing-assignments?criteria={"endOn:":"2016-02-06T18:30:00+05:30"}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-housing-assignments.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new resource in SLRRASG
+      description: >
+        A housing assignment will be created with a POST request in SLRRASG.
+
+
+        Note:
+
+        • When academicPeriod is not sent in the request, depending on the 'MIN' and 'MAX' values defined in the DERIVE.TERM_RULE integration configuration setting, the API uses either the DERIVE_MIN_TERM or DERIVE_MAX_TERM delivered in GORRSQL to derive the effective term of the housing request application. Please refer to 'Housing and meal plan APIs' section in Banner Ethos API handbook for more details.
+
+
+        • An active housing request must exist for the person and term for a create request to be processed.
+
+
+        POST requests must include a nil GUID value ("00000000-0000-0000-0000-000000000000") for the root id property.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_HOUSING_ASSIGNMENTS
+      tags:
+        - housing-assignments
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-housing-assignments.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v16+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-housing-assignments.json"
+  /api/housing-assignments/{id}:
+    get:
+      summary: Return the requested resource from SLRRASG
+      description: |
+        Returns a record from SLRRASG with the passed in identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_HOUSING_ASSIGNMENTS
+      tags:
+        - housing-assignments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-housing-assignments.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    put:
+      summary: Update the requested resource from SLRRASG
+      description: |
+        Updates an existing housing assignment record in SLRRASG.
+
+        Properties that are not updatable: id, person.id, academicPeriod.id
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_HOUSING_ASSIGNMENTS
+      tags:
+        - housing-assignments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Housing Assignments for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json 
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-housing-assignments.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v16+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-housing-assignments.json"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-housing-assignments.json:
+      title: Housing Assignments
+      description: The assignment of a person to institution provided housing.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the housing assignment.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: SLRRASG_GUID(SLRRASG)
+        person:
+          title: Person
+          description: A reference to the person assigned a room.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Person.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+              x-lineageDerivedLogic: A record in GORGUID where GORGUID_LDM_NAME = 'persons' and GORGUID_DOMAIN_KEY = SLRRASG_PIDM.
+          additionalProperties: false
+          required:
+            - id
+        room:
+          title: Room
+          description: The room assigned to the person.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Room.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: rooms 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = rooms) 
+              x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME as 'rooms' will refer to the combination of SLRRASG_BLDG_CODE, SLRRASG_ROOM_NUMBER, SLRRASG_TERM_CODE  in SLRRASG.
+          additionalProperties: false
+          required:
+            - id
+        academicPeriod:
+          title: Academic Period
+          description: The academic period associated with the housing assignment.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Academic Period.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: academic-periods 
+                  x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = term) 
+                  x-lineageDerivedLogic: A record in GORGUID where GORGUID_LDM_NAME = 'term' and GORGUID_DOMAIN_KEY = SLRRASG_TERM_CODE.
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        startOn:
+          title: Start On
+          description: The date the housing assignment starts.
+          type: string
+          format: date-time
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+          x-lineageReferenceObject: SLRRASG_BEGIN_DATE(SLRRASG)
+        endOn:
+          title: End On
+          description: The date the housing assignment ends.
+          oneOf:
+            - type: string
+              format: date-time
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+              x-lineageReferenceObject: SLRRASG_END_DATE(SLRRASG)
+            - type: string
+              maxLength: 0
+        status:
+          title: Status
+          description: The status of the room assignment.
+          enum:
+            - pending
+            - assigned
+            - canceled
+            - terminated
+            - prorated
+          type: string
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: The GORICCR_TRANSLATION_VALUE for setting ROOM.ACTIVE.APPLICATN.STATUS where GORICCR_VALUE = SLRRASG_ASCD_CODE in GORICCR table.
+        statusDate:
+          title: Status Date
+          description: The date when the status was updated.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: SLRRASG_ASCD_DATE(SLRRASG)
+            - type: string
+              maxLength: 0
+        request:
+          title: Request
+          description: A reference to the person's request for housing.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Request.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: housing-requests 
+                  x-lineageReferenceObject: SLBRMAP_HOUSING_GUID(SLBRMAP)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        roomRates:
+          title: Room Rates
+          description: A reference to the charge(s) to the person for the housing
+            assignment.
+          type: array
+          items:
+            title: Room Rates
+            description: A reference to the charge(s) to the person for the housing
+              assignment.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Room Rates.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: room-rates 
+                x-lineageReferenceObject: SLRLMFE_ROOMMATE_GUID(SLRLMFE)
+            additionalProperties: false
+            required:
+              - id
+        ratePeriod:
+          title: Rate Period
+          description: The interval for which rate is defined.
+          oneOf:
+            - type: string
+              enum:
+                - day
+                - week
+                - month
+                - term
+                - year
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: Display 'day' when SLRLMFE_M_D_T is D and display 'month' if SLRLMFE_M_D_T is M and display 'term' if SLRLMFE_M_D_T is T
+            - type: string
+              maxLength: 0
+        rateOverride:
+          title: Rate Override
+          description: The override rate for the room assignment.
+          oneOf:
+            - type: object
+              properties:
+                rate:
+                  title: Rate
+                  description: The rate to be charged to the person in place of the standard room
+                    rate.
+                  format: currency
+                  type: object
+                  properties:
+                    value:
+                      title: Value
+                      description: The monetary value
+                      type: number
+                      x-lineageReferenceObject: SLRRASG_RATE_VALUE(SLRRASG)
+                    currency:
+                      title: Currency
+                      description: The ISO 4217 currency code
+                      enum:
+                        - AED
+                        - AFN
+                        - ALL
+                        - AMD
+                        - ANG
+                        - AOA
+                        - ARS
+                        - AUD
+                        - AWG
+                        - AZN
+                        - BAM
+                        - BBD
+                        - BDT
+                        - BGN
+                        - BHD
+                        - BIF
+                        - BMD
+                        - BND
+                        - BOB
+                        - BRL
+                        - BSD
+                        - BTN
+                        - BWP
+                        - BYR
+                        - BZD
+                        - CAD
+                        - CDF
+                        - CHF
+                        - CLP
+                        - CNY
+                        - COP
+                        - CRC
+                        - CUC
+                        - CUP
+                        - CVE
+                        - CZK
+                        - DJF
+                        - DKK
+                        - DOP
+                        - DZD
+                        - EGP
+                        - ERN
+                        - ETB
+                        - EUR
+                        - FJD
+                        - FKP
+                        - GBP
+                        - GEL
+                        - GHS
+                        - GIP
+                        - GMD
+                        - GNF
+                        - GTQ
+                        - GYD
+                        - HKD
+                        - HNL
+                        - HRK
+                        - HTG
+                        - HUF
+                        - IDR
+                        - ILS
+                        - INR
+                        - IQD
+                        - IRR
+                        - ISK
+                        - JMD
+                        - JOD
+                        - JPY
+                        - KES
+                        - KGS
+                        - KHR
+                        - KMF
+                        - KPW
+                        - KRW
+                        - KWD
+                        - KYD
+                        - KZT
+                        - LAK
+                        - LBP
+                        - LKR
+                        - LRD
+                        - LSL
+                        - LYD
+                        - MAD
+                        - MDL
+                        - MGA
+                        - MKD
+                        - MMK
+                        - MNT
+                        - MOP
+                        - MRO
+                        - MUR
+                        - MVR
+                        - MWK
+                        - MXN
+                        - MYR
+                        - MZN
+                        - NAD
+                        - NGN
+                        - NIO
+                        - NOK
+                        - NPR
+                        - NZD
+                        - OMR
+                        - PAB
+                        - PEN
+                        - PGK
+                        - PHP
+                        - PKR
+                        - PLN
+                        - PYG
+                        - QAR
+                        - RON
+                        - RSD
+                        - RUB
+                        - RWF
+                        - SAR
+                        - SBD
+                        - SCR
+                        - SDG
+                        - SEK
+                        - SGD
+                        - SHP
+                        - SLL
+                        - SOS
+                        - SRD
+                        - SSP
+                        - STD
+                        - SVC
+                        - SYP
+                        - SZL
+                        - THB
+                        - TJS
+                        - TMT
+                        - TND
+                        - TOP
+                        - TRY
+                        - TTD
+                        - TWD
+                        - TZS
+                        - UAH
+                        - UGX
+                        - USD
+                        - UYU
+                        - UZS
+                        - VEF
+                        - VND
+                        - VUV
+                        - WST
+                        - XAF
+                        - XCD
+                        - XOF
+                        - XPF
+                        - YER
+                        - ZAR
+                        - ZMW
+                        - ZWL
+                      type: string
+                      x-lineageReferenceObject: SLRRASG_RATE_CURRENCY(SLRRASG)
+                  additionalProperties: false
+                  required:
+                    - value
+                    - currency
+                reason:
+                  title: Reason
+                  description: The reason the standard room rate was overridden.
+                  oneOf:
+                    - type: object
+                      properties:
+                        id:
+                          title: ID
+                          description: The global identifier for the Reason.
+                          type: string
+                          format: guid
+                          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                          x-lineageLookupReferenceObject: billing-override-reasons 
+                          x-lineageReferenceObject: SLRRASG_REASON_GUID(SLRRASG)
+                      additionalProperties: false
+                      required:
+                        - id
+                    - type: object
+                      maxProperties: 0
+              additionalProperties: false
+              required:
+                - rate
+            - type: object
+              maxProperties: 0
+        additionalCharges:
+          title: Additional Charges
+          description: The additional charges applied to the person for the housing
+            assignment.
+          type: array
+          items:
+            type: object
+            properties:
+              accountingCode:
+                title: Accounting Code
+                description: The accounting code associated with the additional charge.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Accounting Code.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: accounting-codes 
+                    x-lineageReferenceObject: SLRRASGM_ACC_CODE_GUID(SLRRASGM)
+                additionalProperties: false
+                required:
+                  - id
+              charge:
+                title: Charge
+                description: The amount of the additional charge.
+                format: currency
+                type: object
+                properties:
+                  value:
+                    title: Value
+                    description: The monetary value
+                    type: number
+                    x-lineageReferenceObject: SLRRASGM_CHARGE_VALUE(SLRRASGM)
+                  currency:
+                    title: Currency
+                    description: The ISO 4217 currency code
+                    enum:
+                      - AED
+                      - AFN
+                      - ALL
+                      - AMD
+                      - ANG
+                      - AOA
+                      - ARS
+                      - AUD
+                      - AWG
+                      - AZN
+                      - BAM
+                      - BBD
+                      - BDT
+                      - BGN
+                      - BHD
+                      - BIF
+                      - BMD
+                      - BND
+                      - BOB
+                      - BRL
+                      - BSD
+                      - BTN
+                      - BWP
+                      - BYR
+                      - BZD
+                      - CAD
+                      - CDF
+                      - CHF
+                      - CLP
+                      - CNY
+                      - COP
+                      - CRC
+                      - CUC
+                      - CUP
+                      - CVE
+                      - CZK
+                      - DJF
+                      - DKK
+                      - DOP
+                      - DZD
+                      - EGP
+                      - ERN
+                      - ETB
+                      - EUR
+                      - FJD
+                      - FKP
+                      - GBP
+                      - GEL
+                      - GHS
+                      - GIP
+                      - GMD
+                      - GNF
+                      - GTQ
+                      - GYD
+                      - HKD
+                      - HNL
+                      - HRK
+                      - HTG
+                      - HUF
+                      - IDR
+                      - ILS
+                      - INR
+                      - IQD
+                      - IRR
+                      - ISK
+                      - JMD
+                      - JOD
+                      - JPY
+                      - KES
+                      - KGS
+                      - KHR
+                      - KMF
+                      - KPW
+                      - KRW
+                      - KWD
+                      - KYD
+                      - KZT
+                      - LAK
+                      - LBP
+                      - LKR
+                      - LRD
+                      - LSL
+                      - LYD
+                      - MAD
+                      - MDL
+                      - MGA
+                      - MKD
+                      - MMK
+                      - MNT
+                      - MOP
+                      - MRO
+                      - MUR
+                      - MVR
+                      - MWK
+                      - MXN
+                      - MYR
+                      - MZN
+                      - NAD
+                      - NGN
+                      - NIO
+                      - NOK
+                      - NPR
+                      - NZD
+                      - OMR
+                      - PAB
+                      - PEN
+                      - PGK
+                      - PHP
+                      - PKR
+                      - PLN
+                      - PYG
+                      - QAR
+                      - RON
+                      - RSD
+                      - RUB
+                      - RWF
+                      - SAR
+                      - SBD
+                      - SCR
+                      - SDG
+                      - SEK
+                      - SGD
+                      - SHP
+                      - SLL
+                      - SOS
+                      - SRD
+                      - SSP
+                      - STD
+                      - SVC
+                      - SYP
+                      - SZL
+                      - THB
+                      - TJS
+                      - TMT
+                      - TND
+                      - TOP
+                      - TRY
+                      - TTD
+                      - TWD
+                      - TZS
+                      - UAH
+                      - UGX
+                      - USD
+                      - UYU
+                      - UZS
+                      - VEF
+                      - VND
+                      - VUV
+                      - WST
+                      - XAF
+                      - XCD
+                      - XOF
+                      - XPF
+                      - YER
+                      - ZAR
+                      - ZMW
+                      - ZWL
+                    type: string
+                    x-lineageReferenceObject: SLRRASGM_CHARGE_CURRENCY(SLRRASGM)
+                additionalProperties: false
+                required:
+                  - value
+                  - currency
+            additionalProperties: false
+            required:
+              - accountingCode
+              - charge
+        residentType:
+          title: Resident Type
+          description: The resident type of the person for this housing assignment.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Resident Type.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: housing-resident-types 
+                  x-lineageReferenceObject: SLRRASG_RESIDENT_TYPE_GUID(SLRRASG)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        contractNumber:
+          title: Contract Number
+          description: The contract number associated with the housing assignment.
+          type: string
+          x-lineageReferenceObject: SLRRASG_CONTRACT_NUMBER(SLRRASG)
+        comment:
+          title: Comment
+          description: The comment associated with the housing assignment.
+          type: string
+          x-lineageReferenceObject: SLRRASG_COMMENT(SLRRASG)
+      required:
+        - id
+        - person
+        - room
+        - startOn
+        - status
+      additionalProperties: false
+

@@ -1,0 +1,250 @@
+openapi: 3.0.0
+info:
+  title: Pay Stubs
+  description: Listing of the paystubs.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Human Resources
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/pay-stubs:
+    get:
+      summary: Return all the paystub details of an Employee.
+      description: Returns listing of all the paystub details for an Employee.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PAY_STUBS
+      tags:
+        - paystubs
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >
+            ### criteria  
+
+            Returns all the taxes specific to employee based on the year, person
+            ID, payroll code, tax indicator, payroll number and sequence number.
+
+            ```
+
+            /pay-stubs?criteria={"bannerId":'KGLANVIL"}
+
+            ```
+        - name: bannerId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-paystubs.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "201":
+          description: Failure
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ErrorsObj"
+              examples:
+                MandtoryFieldsMissing:
+                  $ref: "#/components/examples/MandtoryFieldsMissing"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-paystubs.json:
+      title: Pay stubs
+      description: Pay Stub information for the specific employee.
+      type: object
+      properties:
+        id:
+          title: ID
+          description: Immutable unique key for the employee record.
+          type: string
+        version:
+          title: Version
+          description: Optimistic lock token.
+          type: string
+        year:
+          title: Year
+          description: The year of the payroll that generated the documents.
+          type: string
+        payrollIdentificationCode:
+          title: Payroll Identification Code
+          description: The pay id that generated the document.
+          type: string
+        payrollNumber:
+          title: Payroll Number
+          description: The number of the payroll that generated the document.
+          type: integer
+        sequenceNumber:
+          title: Sequence Number
+          description: The sequence number of this pay event.
+          type: integer
+        documentNumber:
+          title: Document Number
+          description: The check or direct deposit notice number.
+          type: string
+        documentType:
+          title: Document Type
+          description: Indicates whether the document is a check or a direct
+            deposit  notification.
+          type: string
+        documentDate:
+          title: Document Date
+          description: Date of the check or direct deposit notification.
+          type: string
+        priority:
+          title: Priority
+          description: The sequence that the documents are generated in.
+          type: integer
+        documentNetAmount:
+          title: Document Net Amount
+          description: The amount of the check or direct deposit.
+          type: integer
+        typeIndicator:
+          title: Type Indicator
+          description: Indicates the type of pay event. J = Adjusted, M = Manual, C =
+            Original, R = Redistributed, I = Reissued, V = Voided
+          type: string
+        payrollDisposition:
+          title: Payroll Disposition
+          description: Indicates the status of the pay event within the payoll process flow.
+          type: string
+        adjustsSequenceNumber:
+          title: Adjusts Sequence Number
+          description: The sequence number of the pay event that this one adjusts.
+          type: integer
+        adjustsDate:
+          title: Adjusts Date
+          description: The date of the pay event that this event adjusts.
+          type: string
+        adjustedBySequenceNumber:
+          title: Adjusted by Sequence number
+          description: The sequence number of the pay event that adjusts this pay event.
+          type: string
+        grossAmount:
+          title: Gross Amount
+          description: The total gross for the event.
+          type: integer
+        netAmount:
+          title: Net Amount
+          description: The total net amount of the event.
+          type: integer
+        payPeriodStartDate:
+          title: Pay period start date
+          description: The start date of the pay period.
+          type: string
+        payPeriodEndDate:
+          title: Pay Period end date
+          description: The end date of the pay period.
+          type: string
+        payrollIdentificationDescription:
+          title: Payroll Identification Description
+          description: The description of the payroll. For example - Monthly, Weekly,
+            Bi-weekly, etc.
+          type: string
+        adjustedByIndicator:
+          title: Adjusted By Indicator
+          description: Indicates if this pay stub event is adjusted by a subsequent event.
+          type: boolean
+        adjustsIndicator:
+          title: Adjusts Indicator
+          description: Indicates if this pay stub event is adjusts a previous event.
+          type: boolean
+    ErrorsObj:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        message:
+          type: string
+  examples:
+    MandtoryFieldsMissing:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Filter value is required"
+                }
+            ]
+        }

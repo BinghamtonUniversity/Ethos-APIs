@@ -1,0 +1,267 @@
+openapi: 3.0.0
+info:
+  title: Student Type Data Transformation
+  description: >
+    Updates the student type in Banner to accurately reflect the student's
+    current status, with this is ensured student's are charged with the
+    appropriate fees.
+  version: 1.1.0-beta
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: beta
+  x-source-domain: Student
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/studentTypeDataTransformation:
+    put:
+      tags:
+        - student-type-data-transformation
+      summary: Updates the student type in Banner with the current status
+      description: >
+        update the status of student in SGBSTDN (SGBSTDN_STYP_CODE). The
+        following status are recognized:  a) First Time Student in College ->
+        SGBSTDN_STYP_CODE = 1; b) Concurrent Student  -> SGBSTDN_STYP_CODE = Y;
+        c) First-Time Transfer -> SGBSTDN_STYP_CODE = 2; d) Returning
+        Student   -> SGBSTDN_STYP_CODE = 3; e) Continuing Student  ->
+        SGBSTDN_STYP_CODE = 5. f) The z status will be registered automatically
+        without validations -> SGBSTDN_STYP_CODE = Z
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STUDENT_TYPE_DATA_TRANS
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.1.0+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.1.0+json
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-student-type-data-response.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Failure. Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      requestBody:
+        description: Request body to update the student type
+        $ref: "#/components/requestBodies/studentDataBody"
+        required: true
+components:
+  requestBodies:
+    studentDataBody:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/StudentDataBodySchema"
+  schemas:
+    schema-student-type-data-response.json:
+      title: Student Type Data Transformation Response
+      description: Processed transaction
+      type: object
+      properties:
+        student:
+          title: student Data
+          description: Student processed
+          type: object
+          properties:
+            pidm:
+              title: pidm
+              description: Identifies the internal identification number ofstudent.
+              type: string
+            studentStatus:
+              title: studentStatus
+              description: Identifies the students status for the effective term.
+              type: string
+            studentType:
+              title: studentType
+              description: Identifies the student type for the effective term.
+              type: string
+            termEffective:
+              title: termEffective
+              description: Identifies the effective term associated with student.
+              type: string
+        result:
+          title: result
+          description: Response result
+          type: string
+          enum:
+            - Successfully Processed
+            - No update needed
+            - Unexpected Error
+            - No matches found with validations
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+              description:
+                type: string
+    StudentDataBodySchema:
+      type: object
+      properties:
+        data:
+          oneOf:
+            - type: object
+              properties:
+                prospectId:
+                  title: Prospect Id
+                  description: Defines the identification number used to access prospect.
+                  type: string
+                termCodeEntry:
+                  title: Term Code Entry
+                  description: This field identifies the effective term associated with student
+                    record.
+                  type: string
+                enrollStatus:
+                  title: Enrollment Status
+                  description: Identifies the student type for the effective term and that will be
+                    validated to determine if it is the correct status to
+                    register.
+                  type: string
+                hsEduLevel:
+                  title: High School Education Level
+                  description: Applicant's High School Education Level
+                  type: string
+                hsCompDate:
+                  title: High School Completion Date
+                  description: Applicant's High School Completion Date
+                  type: string
+                  format: date
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                higherEduLevel:
+                  title: Higher Education Level (College)
+                  description: Applicant's Higher Education Level
+                  type: string
+                higherCompDate:
+                  title: Higher Education Completion Date
+                  description: Applicant's Higher Education Completion Date
+                  type: string
+                  format: date
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                collegesInfo:
+                  title: Colleges Attended
+                  description: Colleges Attended.
+                  oneOf:
+                    - type: object
+                      properties:
+                        collegeCount:
+                          title: College Count
+                          description: Number of Colleges Attended
+                          type: integer
+                        colleCds1:
+                          title: College/University CDS Code 1
+                          description: College/University CDS Code
+                          type: string
+                        colleCds1EndDate:
+                          title: College/University CDS Code 1 End Date
+                          description: College/University End Date
+                          type: string
+                          format: date
+                          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                        colleCds2:
+                          title: College/University CDS Code 2
+                          description: College/University CDS Code
+                          type: string
+                        colleCds2EndDate:
+                          title: College/University CDS Code 2 End Date
+                          description: College/University End Date
+                          type: string
+                          format: date
+                          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                        colleCds3:
+                          title: College/University CDS Code 3
+                          description: College/University CDS Code
+                          type: string
+                        colleCds3EndDate:
+                          title: College/University CDS Code 3 End Date
+                          description: College/University End Date
+                          type: string
+                          format: date
+                          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                        colleCds4:
+                          title: College/University CDS Code 4
+                          description: College/University CDS Code
+                          type: string
+                        colleCds4EndDate:
+                          title: College/University CDS Code 1 End Date
+                          description: College/University End Date
+                          type: string
+                          format: date
+                          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+      required:
+        - prospectId
+        - termCodeEntry
+        - enrollStatus
+        - hsEduLevel
+        - collegeCount
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

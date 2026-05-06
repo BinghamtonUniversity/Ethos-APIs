@@ -1,0 +1,443 @@
+openapi: 3.0.0
+info:
+  title: student-non-finance-detail-codes
+  description: API for managing student non-finance detail codes, form TBBEACT table.
+  version: 1.0.0
+  x-audience: all
+  x-release-status: ga
+  x-source-name: TSADETC
+  x-source-domain: Student
+  x-source-title: Detail Code Control Form - Student (Non-Finance)
+  x-source-system: banner
+  x-api-type: bus-poc
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/student-non-finance-detail-codes:
+    post:
+      tags:
+        - student-non-finance-detail-codes
+      summary: Creates a new resource in TSADETC for non-finance
+      parameters: []
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/student-non-finance-detail-codes-1.0.0_post_request"
+            example:
+              criteria.detailCode: "DF01"
+              tbbeactEffDate: "2025-12-15"
+              tbbeactTbdcInd: "N"
+              tbbeactAbdcInd: "N"
+              TBRACCT:
+                - accountA: "1100"
+                  accountB: "22002"
+                  percent: 50
+                - accountA: "3300"
+                  accountB: "44004"
+                  percent: 50
+      responses:
+        "201":
+          description: Created
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/student-non-finance-detail-codes-1.0.0_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-1.0.0"
+              examples:
+                criteria.detailCode is Required:
+                  $ref: '#/components/examples/criteria.detailCodeRequired'
+                tbbeactEffDate is Required:
+                  $ref: '#/components/examples/tbbeactEffDateRequired'
+                percent is Required:
+                  $ref: '#/components/examples/percentRequired'
+                accountA is Required:
+                  $ref: '#/components/examples/accountARequired'
+                accountB is Required:
+                  $ref: '#/components/examples/accountBRequired'
+                tbbeactEffDate Value is Invalid:
+                  $ref: '#/components/examples/InvalidtbbeactEffDate'
+                Designator is Required for Term Based:
+                  $ref: '#/components/examples/DesignatorRequiredForTermBased'
+                Designator is Required for Aid Year Based:
+                  $ref: '#/components/examples/DesignatorRequiredForAidYearBased'
+                Record cannot be both Aid Year Based and Term Based:
+                  $ref: '#/components/examples/RecordCannotBothAidYearBasedAndTermBased'
+                Percentage Value is Incorrect:
+                  $ref: '#/components/examples/IncorrectPercentage'
+                Percentage Total Not Equal to Hundred:
+                  $ref: '#/components/examples/PercentageTotalNotEqualToHundred'
+
+        "401":
+          description: Failure. Unauthorized
+          content:
+            application/vnd.hedtech.integration.errors.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors-1.0.0'
+              examples:
+                Unauthorized:
+                  $ref: '#/components/examples/Unauthorized'
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors-1.0.0'
+              examples:
+                AccessDenied:
+                  $ref: '#/components/examples/AccessDenied'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors-1.0.0'
+              examples:
+                Unsupported Version:
+                  $ref: '#/components/examples/UnsupportedVersion'
+        '500':
+          description: Server error. Unexpected configuration or data.
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+components:
+  schemas:
+    student-non-finance-detail-codes-1.0.0_post_request:
+      required:
+        - criteria.detailCode
+        - tbbeactEffDate
+        - TBRACCT
+      type: object
+      properties:
+        criteria.detailCode:
+          title: Detail Code
+          maxLength: 4
+          type: string
+          description: "This field identifies the detail code associated with every charge and payment that can be entered onto an account."
+          x-lineageReferenceObject: TBBDETC_DETAIL_CODE
+        tbbeactEffDate:
+          title: Effective Date
+          type: string
+          description: "EFFECTIVE DATE: The effective date of this particular record."
+          format: date
+          x-lineageReferenceObject: TBBEACT_EFF_DATE
+        tbbeactAbdcInd:
+          title: Aid Year-based
+          maxLength: 1
+          type: string
+          description: "AID YEAR BASED INDICATOR: Indicates whether a detail code is associated with an aid year-based designator (Y/N)."
+          x-lineageReferenceObject: TBBEACT_ABDC_IND
+        tbbeactTbdcInd:
+          title: Term-based
+          maxLength: 1
+          type: string
+          description: "TERM-BASED INDICATOR: Indicates whether a detail code is associated with a term-based designator (Y/N)."
+          x-lineageReferenceObject: TBBEACT_TBDC_IND
+        TBRACCT:
+          type: array
+          items:
+            required:
+              - accountA
+              - accountB
+              - percent
+            type: object
+            properties:
+              code:
+                title: Designator
+                maxLength: 2
+                type: string
+                description: "Identifies the designator for the detail code. If tbbeactTbdcInd is 'Y', sets TBBEACT_TBDS_IND = 'Y' and TBRACCT_TBDS_IND to the code value. If tbbeactAbdcInd is 'Y', sets TBBEACT_ABDS_IND = 'Y' and TBRACCT_ABDS_IND to the code value."
+              percent:
+                title: Percent
+                type: number
+                format: decimal
+                minimum: 0.00001
+                maximum: 100
+                description: "This field identifies the percentage of the amount associated with the detail that would be posted to Account A and Account B. Precision: number(8,5)."
+                x-lineageReferenceObject: TBRACCT_PERCENT
+              accountA:
+                title: Account A
+                maxLength: 60
+                type: string
+                description: "This field identifies the actual account number from the finance system associated with this detail code."
+                x-lineageReferenceObject: TBRACCT_ACCOUNT_A
+              accountB:
+                title: Account B
+                maxLength: 60
+                type: string
+                description: "This field identifies the actual account number from the finance system associated with this detail code."
+                x-lineageReferenceObject: TBRACCT_ACCOUNT_B
+            x-lineageReferenceObject: TBRACCT
+    student-non-finance-detail-codes-1.0.0_response:
+      type: object
+      properties:
+        TBBEACT:
+          type: array
+          items:
+            type: object
+            properties:
+              displayNchgDate:
+                title: Next Change Date
+                type: string
+                description: "NEXT CHANGE DATE: The next change date for this particular record."
+                format: date-time
+                x-lineageReferenceObject: TBBEACT_NCHG_DATE
+              detailDesc:
+                title: Detail Code Description
+                maxLength: 30
+                type: string
+                description: "This field specifies a free-format description of the detail code."
+                x-lineageReferenceObject: TBBDETC_DESC
+              effDate:
+                title: Effective Date
+                type: string
+                description: "EFFECTIVE DATE: The effective date of this particular record."
+                format: date-time
+                x-lineageReferenceObject: TBBEACT_EFF_DATE
+              abdcInd:
+                title: Aid Year-based
+                maxLength: 1
+                type: string
+                description: "AID YEAR BASED INDICATOR: Indicates whether a detail code is associated with an aid year-based designator (Y/N)."
+                x-lineageReferenceObject: TBBEACT_ABDC_IND
+              detailCode:
+                title: Detail Code
+                maxLength: 4
+                type: string
+                description: "DETAIL CODE: This field identifies the detail code associated with the account definition. The code is validated against the TBBDETC table."
+                x-lineageReferenceObject: TBBEACT_DETAIL_CODE
+              tbdcInd:
+                title: Term-based
+                maxLength: 1
+                type: string
+                description: "TERM-BASED INDICATOR: Indicates whether a detail code is associated with a term-based designator (Y/N)."
+                x-lineageReferenceObject: TBBEACT_TBDC_IND
+            x-lineageReferenceObject: tbbeact
+        TBRACCT:
+          description: "This block will be used to display data when finance is not installed"
+          type: array
+          items:
+            type: object
+            properties:
+              accountA:
+                title: Account A
+                maxLength: 60
+                type: string
+                description: "This field identifies the actual account number from the finance system associated with this detail code."
+                x-lineageReferenceObject: TBRACCT_ACCOUNT_A
+              accountB:
+                title: Account B
+                maxLength: 60
+                type: string
+                description: "This field identifies the actual account number from the finance system associated with this detail code."
+                x-lineageReferenceObject: TBRACCT_ACCOUNT_B
+              code:
+                title: Designator
+                maxLength: 2
+                type: string
+                description: "Represents the designator code. If tbdcInd is 'Y', this is TBRACCT_TBDS_IND. If abdcInd is 'Y', this is TBRACCT_ABDS_IND."
+              percent:
+                title: Percent
+                type: number
+                format: decimal
+                minimum: 0.00001
+                maximum: 100
+                description: "This field identifies the percentage of the amount associated with the detail that would be posted to Account A and Account B. Precision: number(8,5)."
+                x-lineageReferenceObject: TBRACCT_PERCENT
+            x-lineageReferenceObject: tbracct
+    errors-1.0.0:
+      required:
+        - errors
+      type: object
+      properties:
+        message:
+          type: string
+          description: "The detailed actionable error message. "
+        description:
+          type: string
+          description: The error description used to describe the error details.
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EllucianOAuthUserToken:
+      type: http
+      scheme: bearer
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  examples:
+    Unauthorized:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Failed to login"
+            }
+          ]
+        }
+    AccessDenied:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Access is denied"
+            }
+          ]
+        }
+    UnsupportedVersion:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Invalid Version"
+            }
+          ]
+        }
+    criteria.detailCodeRequired:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Mandatory Field: criteria.detailCode is missing from payload"
+            }
+          ]
+        }
+    tbbeactEffDateRequired:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Mandatory Field: tbbeactEffDate is missing from payload"
+            }
+          ]
+        }
+    percentRequired:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Mandatory Field: percent is missing from payload"
+            }
+          ]
+        }
+    accountARequired:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Mandatory Field: accountA is missing from payload"
+            }
+          ]
+        }
+    accountBRequired:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Mandatory Field: accountB is missing from payload"
+            }
+          ]
+        }
+    InvalidtbbeactEffDate:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Invalid Effective Date value, Value must be in yyyy-MM-dd",
+              "description": "Failed to execute bind on item TBBEACT.TBBEACT_EFF_DATE"
+            }
+          ]
+        }
+    DesignatorRequiredForTermBased:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Designator must be entered if Detail Code is Term-Based.",
+              "description": "Failed to execute bind on item TBRACCT.TBRACCT_CODE"
+            }
+          ]
+        }
+    DesignatorRequiredForAidYearBased:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Designator must be entered if Detail Code is Aid Year-Based.",
+              "description": "Failed to execute bind on item TBRACCT.TBRACCT_CODE"
+            }
+          ]
+        }
+    RecordCannotBothAidYearBasedAndTermBased:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Record cannot be both Aid Year based and Term based.",
+              "description": "Failed to execute bind on item TBBEACT.TBBEACT_ABDC_IND"
+            }
+          ]
+        }
+    IncorrectPercentage:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Value must be in range 0 to 100.",
+              "description": "Failed to execute bind on item TBRACCT.TBRACCT_PERCENT"
+            }
+          ]
+        }
+    PercentageTotalNotEqualToHundred:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Account percentages total do not equal 100; change percents.",
+              "description": "Failed to execute SAVE action on item TBRACCT.TBRACCT_B_RUCL_CODE3"
+            }
+          ]
+        }

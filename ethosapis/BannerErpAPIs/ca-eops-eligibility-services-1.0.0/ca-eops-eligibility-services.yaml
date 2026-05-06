@@ -1,0 +1,756 @@
+openapi: 3.0.0
+info:
+  title: ca-eops-eligibility-services
+  description: API for the batch import of Eligibility block for SGAEOPS
+  version: 1.0.0
+  x-release-status: ga
+  x-api-type: erp
+  x-source-system: Banner
+  x-source-domain: Student
+  x-audience: all
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/ca-eops-eligibility-services:
+    get:
+      tags:
+        - ca-eops-eligibility-services
+      summary: Provide the list of ca eops eligibility factor service batch.
+      description: Provide the list of ca eops eligibility factor service batch.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description:
+            The maximum number of resources requesting for this result set.
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+            properties:
+              stuId:
+                oneOf:
+                  - type: string
+                    description: Single Banner ID
+                  - type: array
+                    description: Array of Banner IDs
+                    items:
+                      type: string
+              stuTermCode:
+                type: string
+                description: Registration effective term code
+              stuDicdCode:
+                type: string
+                description: Registration District Identifier code
+              eselCode:
+                type: string
+                description: Registration Eligibility Factor code
+              primaryInd:
+                type: string
+                description: Registration Primary Indicator
+            description: >
+              ### Stu Id
+
+              Returns all records for the Banner ID.
+
+              ```
+              
+              /ca-eops-eligibility-services?criteria={"stuId":"231387509"}
+              
+              ```
+              
+              ### Stu Term Code
+
+              Returns all records for the stuTermCode.
+
+              ```
+              
+              /ca-eops-eligibility-services?criteria={"stuTermCode":"202319"}
+
+              ```
+
+              ### Stu Dicd Code
+
+              Returns all records for the Dicd Code.
+
+              ```
+
+              /ca-eops-eligibility-services?criteria={"stuDicdCode":"123"}
+
+              ```
+
+              ### Esel Code
+
+              Returns all records for the Esel Code.
+
+              ```
+
+              /ca-eops-eligibility-services?criteria={"eselCode":"A"}
+
+              ```
+
+              ### Primary Ind
+
+              Returns all records for the Primary Ind.
+
+              ```
+
+              /ca-eops-eligibility-services?criteria={"primaryInd":"Y"}
+
+              ```
+              
+              ### StuId and stuTermCode
+
+              Returns all records for the Banner ID and stuTermCode.
+
+              ```
+
+              /ca-eops-eligibility-services?criteria={"stuId":"231387509","stuTermCode":"202319"}
+
+              ```
+              
+              ### StuId, stuTermCode and stuDicdCode
+
+              Returns all records for the Banner ID, stuTermCode and stuDicdCode.
+
+              ```
+
+              /ca-eops-eligibility-services?criteria={"stuId":"231387509","stuTermCode":"202319", "stuDicdCode":"123"}
+
+              ```
+              
+              ### Stu Id, stuTermCode and eselCode
+
+              Returns all records for the Banner ID, stuTermCode and eselCode
+
+              ```
+
+              /ca-eops-eligibility-services?criteria={"stuId":"231387509","stuTermCode":"202319","eselCode":"A"}
+
+              ```
+
+              ```
+              
+              ### Stu Id, stuTermCode and primaryInd
+
+              Returns all records for the Banner ID, stuTermCode and primaryInd
+
+              ```
+
+              /ca-eops-eligibility-services?criteria={"stuId":"231387509","stuTermCode":"202319","primaryInd":"Y"}
+
+              ```
+              ### Multiple Banner IDs with Single Term
+
+              Returns all records for multiple Banner IDs with the same term code.
+
+              ```
+
+              /ca-eops-eligibility-services?criteria={"stuTermCode":"213016","stuId":["231387511","231387510","210009710"]}
+
+              ```
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ca-eops-eligibility-services-v1_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client�s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permission: API_CA_EOPS_ELE_SERVICES
+    post:
+      tags:
+        - ca-eops-eligibility-services
+      summary: Create a ca eops eligibility service with given data in the request body.
+      description: Create a ca eops eligibility service with given data in the request body.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              $ref: '#/components/schemas/ca-eops-eligibility-services-v1_post_request'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                $ref: '#/components/schemas/ca-eops-eligibility-services-v1_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client�s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permission: API_CA_EOPS_ELE_SERVICES
+    put:
+      tags:
+        - ca-eops-eligibility-services
+      summary: Update a ca eops eligibility service with given id.
+      description: Update a ca eops eligibility service with given id.
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              $ref: '#/components/schemas/ca-eops-eligibility-services-v1_put_request'
+      responses:
+        '200':
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                $ref: '#/components/schemas/ca-eops-eligibility-services-v1_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client�s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permission: API_CA_EOPS_ELE_SERVICES
+  /api/ca-eops-eligibility-services/batches:
+    post:
+      tags:
+        - ca-eops-eligibility-services
+      summary: Create or update a list of student eligibility factor code batch with given data in the request body.
+      description: Create or update a list of student eligibility factor code batch with given data in the request body.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              $ref: '#/components/schemas/ca-eops-eligibility-services-v1-batches_post_request'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                $ref: '#/components/schemas/ca-eops-eligibility-services-v1-batches_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client�s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permission: API_CA_EOPS_ELE_SERVICES
+components:
+  schemas:
+    ca-eops-eligibility-services-v1_put_request:
+      type: object
+      properties:
+              stuTermCode:
+                "title": "Effective term"
+                "description": "TERM CODE: This field identifies the effective term associated with the service received by the student."
+                "type": string
+                "maxLength": 6
+                "x-lineageReferenceObject": SGRESEL.SGRESEL_TERM_CODE_EFF
+              eselCode:
+                "title": "Eligibility factor code"
+                "description": "ESEL CODE: Eligibility Factor code"
+                "type": string
+                "maxLength": 2
+                "x-lineageReferenceObject": SGRESEL.SGRESEL_ESEL_CODE
+              primaryInd:
+                "title": "Primary use indicator"
+                "description": "PRIMARY INDICATOR: Primary use indicator"
+                "type": string
+                "maxLength": 1
+                "x-lineageReferenceObject": SGRESEL.SGRESEL_PRIMARY_IND
+              stuId:
+                "title": "Person id number"
+                "description": "ID: Unique person identifier."
+                "type": string
+                "x-lineageReferenceObject": SGRESEL.SGRESEL_PIDM
+              stuDicdCode:
+                "title": "districtIdentifier"
+                "description": "DISTRICT CODE: The district or division associated with a student."
+                "type": string
+                "maxLength": 3
+                "x-lineageReferenceObject": SGRESEL.SGRESEL_DICD_CODE
+      required:
+        - stuId
+        - stuTermCode
+    ca-eops-eligibility-services-v1-batches_post_request:
+      type: object
+      properties:
+        items:
+          "title": " List of items to be processed."
+          "description": " List of items to be processed."
+          "type": array
+          "items": 
+            "type": object
+            "properties":
+              stuTermCode:
+                "title": "Registration effective term code that esel code is to be used"
+                "description": "EFF TERM CODE: Registration term code that esel code is to be used."
+                "type": string
+                "maxLength": 6
+                "x-lineageReferenceObject": SGRESEL.SGRESEL_TERM_CODE_EFF
+              pidm:
+                "title": "Unique person internal identification number."
+                "description": "ID: Unique person identifier.."
+                "type": string
+                "x-lineageReferenceObject": SGRESEL.SGRESEL_PIDM
+              eselCode:
+                "title": "Eligibility Factor code"
+                "description": "ESEL CODE: Eligibility Factor code"
+                "type": string
+                "maxLength": 2
+                "x-lineageReferenceObject": SGRESEL.SGRESEL_ESEL_CODE
+              primaryInd:
+                "title": "Primary use Indicator"
+                "description": "PRIMARY INDICATOR: Primary use indicator"
+                "type": string
+                "maxLength": 1
+                "x-lineageReferenceObject": SGRESEL.SGRESEL_PRIMARY_IND
+      required:
+        - items
+    ca-eops-eligibility-services-v1_post_request:
+      type: object
+      properties:
+              stuTermCode:
+                "title": "Effective term"
+                "description": "TERM CODE: This field identifies the effective term associated with the service received by the student."
+                "type": string
+                "maxLength": 6
+                "x-lineageReferenceObject": SGRESEL.SGRESEL_TERM_CODE_EFF
+              eselCode:
+                "title": "Eligibility factor code"
+                "description": "ESEL CODE: Eligibility Factor code"
+                "type": string
+                "maxLength": 2
+                "x-lineageReferenceObject": SGRESEL.SGRESEL_ESEL_CODE
+              primaryInd:
+                "title": "Primary use indicator"
+                "description": "PRIMARY INDICATOR: Primary use indicator"
+                "type": string
+                "maxLength": 1
+                "x-lineageReferenceObject": SGRESEL.SGRESEL_PRIMARY_IND
+              stuId:
+                "title": "Person id number"
+                "description": "ID: Unique person identifier."
+                "type": string
+                "x-lineageReferenceObject": SGRESEL.SGRESEL_PIDM
+              stuDicdCode:
+                "title": "districtIdentifier"
+                "description": "DISTRICT CODE: The district or division associated with a student."
+                "type": string
+                "maxLength": 3
+                "x-lineageReferenceObject": SGRESEL.SGRESEL_DICD_CODE
+      required:
+        - stuId
+        - stuTermCode
+        - eselCode
+        - stuDicdCode
+    ca-eops-eligibility-services-v1-batches_response:
+      type: object
+      properties:
+        status:
+          title: status
+          description: status of the batch.
+          type: string
+          enum:
+              - completed
+              - inProgress
+              - aborted
+          example: completed
+        resource:
+          title: Resource
+          description: The affected resource.
+          type: object
+          properties:
+            name:
+              title: Resource Name
+              description: The pluralized name of the affected resource
+              type: string
+              example: ca-eops-eligibility-services-v1-batches
+            version:
+              title: Resource version
+              description: The version of the resource
+              type: string
+              example: application/vnd.hedtech.integration.v1.0.0+json
+          additionalProperties: false
+          required:
+            - name
+            - version
+        items:
+            type: array
+            items:
+              type: object
+              additionalProperties: true
+              oneOf: 
+                - $ref: '#/components/schemas/ca-eops-eligibility-services-v1-batches_posted_records'
+                - $ref: '#/components/schemas/errors_2_0_0'
+            required:
+              - items
+    ca-eops-eligibility-services-v1-batches_posted_records:
+    ca-eops-eligibility-services-v1_response:
+      type: object
+      properties:
+        items:
+          "title": " List of items to be processed."
+          "description": " List of items to be processed."
+          "type": array
+          "items": 
+            "type": object
+            "properties":
+              stuTermCode:
+                "title": "Effective term"
+                "description": "TERM CODE: This field identifies the effective term associated with the service received by the student."
+                "type": string
+                "maxLength": 6
+                "x-lineageReferenceObject": SGRESEL.SGRESEL_TERM_CODE_EFF
+              eselCode:
+                "title": "Eligibility factor code"
+                "description": "ESEL CODE: Eligibility Factor code"
+                "type": string
+                "maxLength": 2
+                "x-lineageReferenceObject": SGRESEL.SGRESEL_ESEL_CODE
+              primaryInd:
+                "title": "Primary use indicator"
+                "description": "PRIMARY INDICATOR: Primary use indicator"
+                "type": string
+                "maxLength": 1
+                "x-lineageReferenceObject": SGRESEL.SGRESEL_PRIMARY_IND
+              stuId:
+                "title": "Person id number"
+                "description": "ID: Unique person identifier."
+                "type": string
+                "x-lineageReferenceObject": SGRESEL.SGRESEL_PIDM
+              stuDicdCode:
+                "title": "districtIdentifier"
+                "description": "DISTRICT CODE: The district or division associated with a student."
+                "type": string
+                "maxLength": 3
+                "x-lineageReferenceObject": SGRESEL.SGRESEL_DICD_CODE
+      required:
+        - items
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

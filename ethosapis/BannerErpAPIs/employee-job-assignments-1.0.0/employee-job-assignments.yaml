@@ -1,0 +1,1337 @@
+openapi: 3.0.0
+info:
+  title: Employee job assignments
+  description: API for employee job assignment from NBAJOBS.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Human Resources
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/employee-job-assignments:
+    get:
+      summary: Return data from the NBAJOBS page.
+      description: Returns the data that is part of NBAJOBS page.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+      tags:
+        - employee-job-assignments
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: string
+        - name: bannerId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: posn
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: suff
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: effDate
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-extension-job-assignments.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ErrorsObj"
+              examples:
+                BannerIdRequired:
+                  $ref: "#/components/examples/BannerIdRequired"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new record to NBAJOBS page.
+      description: Create a new record to NBAJOBS page.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+      tags:
+        - employee-job-assignments
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: bannerId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: posn
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: suff
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: beginDate
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: jobType
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: step
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-extension-job-assignments-post-put-response.json"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ErrorsObj"
+              examples:
+                BannerIdRequired:
+                  $ref: "#/components/examples/BannerIdRequired"
+                PositionCodeRequired:
+                  $ref: "#/components/examples/PositionCodeRequired"
+                SuffixRequired:
+                  $ref: "#/components/examples/SuffixRequired"
+                BeginDateRequired:
+                  $ref: "#/components/examples/BeginDateRequired"
+                JobTypeRequired:
+                  $ref: "#/components/examples/JobTypeRequired"
+                StepRequired:
+                  $ref: "#/components/examples/StepRequired"
+                InvalidId:
+                  $ref: "#/components/examples/InvalidId"
+                InvalidPosn:
+                  $ref: "#/components/examples/InvalidPosn"
+                InvalidJobType:
+                  $ref: "#/components/examples/InvalidJobType"
+                InvalidDateFormat:
+                  $ref: "#/components/examples/InvalidDateFormat"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-extension-job-assignments-request.json"
+    put:
+      summary: Update the requested record in NBAJOBS Base Job, Job Detail, Payroll
+        Default,Deferred Pay,Miscellaneous and California Pension tabs.
+      description: Update the requested record in NBAJOBS Base Job, Job Detail,
+        Payroll Default,Deferred Pay,Miscellaneous and California Pension tabs.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+      tags:
+        - employee-job-assignents
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json 
+
+            ```
+          schema:
+            type: string
+        - name: bannerId
+          in: path
+          required: true
+          description: Banner ID
+          schema:
+            type: string
+        - name: posn
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: suff
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: effectiveDate
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-extension-job-assignments-post-put-response.json"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ErrorsObj"
+              examples:
+                BannerIdRequired:
+                  $ref: "#/components/examples/BannerIdRequired"
+                PositionCodeRequired:
+                  $ref: "#/components/examples/PositionCodeRequired"
+                SuffixRequired:
+                  $ref: "#/components/examples/SuffixRequired"
+                EffectiveDateRequired:
+                  $ref: "#/components/examples/EffectiveDateRequired"
+                JobTypeRequired:
+                  $ref: "#/components/examples/JobTypeRequired"
+                StepRequired:
+                  $ref: "#/components/examples/StepRequired"
+                InvalidId:
+                  $ref: "#/components/examples/InvalidId"
+                InvalidPosn:
+                  $ref: "#/components/examples/InvalidPosn"
+                InvalidJobType:
+                  $ref: "#/components/examples/InvalidJobType"
+                InvalidDateFormat:
+                  $ref: "#/components/examples/InvalidDateFormat"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-extension-job-assignments-put-request.json"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-extension-job-assignments.json:
+      title: Employee job assignments from NBAJOBS
+      description: Displays the details of the job assignment for the particular
+        Employee ID, postion, suffix and Effective date.
+      type: object
+      properties:
+        posn:
+          title: Position Code
+          description: Position number for the position.
+          type: string
+        suff:
+          title: Suffix
+          description: Suffix for the position.
+          type: string
+        nbrbjobBeginDate:
+          title: Begin Date
+          description: Begin date of the job.
+          type: string
+        nbrbjobEndDate:
+          title: End Date
+          description: End date of the job.
+          type: string
+        deferBal:
+          title: Deferred Balance
+          description: The amount of deferred pay accumulated for this job.
+          type: number
+        contractType:
+          title: Contract Type
+          description: Indicates the type of job. Valid values are P = Primary, S =
+            Secondary, or O = Overload.
+          type: string
+        salaryEncumbrance:
+          title: Salary Encumbrance
+          description: The amount of money that this person will be paid in this job
+            during the current fiscal year.
+          type: number
+        contractBeginDate:
+          title: Contract begin date
+          description: This date represents the date on which a contract begins.
+          type: string
+        contractEndDate:
+          title: Contract end date
+          description: This date represents the date on which a contract ends.
+          type: string
+        totalContractHrs:
+          title: Total contract hours
+          description: The total number of hours of the contract.
+          type: number
+        totalEncumbranceHrs:
+          title: Total encumbrance hours
+          description: The sum of the Job Detail Encumbrance Hours for the currently
+            active fiscal year.
+          type: number
+        stepIncrMon:
+          title: Step increase month
+          description: Month in which an automatic step increase is to take place.
+          type: string
+        stepIncrDay:
+          title: Step increase day
+          description: Day of the month in which an automatic step increase is to take
+            place.
+          type: string
+        coasCod:
+          title: Chart of accounts code
+          description: Chart of Accounts for this job, which is defaulted from the
+            position and cannot be changed. Valued only when Banner Finance is
+            installed..
+          type: string
+        accrueLeaveInd:
+          title: Accrue leave indicator
+          description: Determines whether Leave is accrued for this job.  Valid values are
+            Y = Yes and N = No.
+          type: string
+        civilServiceInd:
+          title: Civil service indicator
+          description: Indicates if this assignment is a civil service job. Valid values
+            are Y = Yes and N = No
+          type: string
+        encumbranceChangeInd:
+          title: Encumbrance change indicator
+          description: Indicates if the encumbrance amount has changed for this
+            job.  Valid values are Y = Yes and N = No.
+          type: string
+        ipedsReptInd:
+          title: IPEDS report indicator
+          description: Indicates if this job should be reported on the IPEDS report. Valid
+            values are Y = Yes and N = No.
+          type: string
+        faclStatscanReptInd:
+          title: Faculty statistical canadian report indicator
+          description: This indicator will allow the Canadian user to gather data that is
+            necessary for reporting of the Annual Faculty STATSCAN reports.
+            Valid values are Y = Yes and N = No
+          type: string
+        fringeEncumbrance:
+          title: Fringe encumbrance
+          description: The cost of fringe benefits that this person will be paid in this
+            job during the current fiscal year
+          type: number
+        probationBeginDate:
+          title: Probation begin date
+          description: The begin date of Probationary Period
+          type: string
+        probationEndDate:
+          title: Probation end date
+          description: The end date of Probationary Period
+          type: string
+        probationUnits:
+          title: Probation units
+          description: Identifies the number of Probationary Units. Will represent months
+            or days depending on the Probationary Period Units institutional
+            setting
+          type: integer
+        eligibleDate:
+          title: Eligible date
+          description: Eligible Date for the Step Increase
+          type: string
+        futureSalaryEnc:
+          title: Future salary encumbrance
+          description: The estimated amount a person will be paid in a job in future
+            fiscal years
+          type: number
+        futureFringeEnc:
+          title: Future fringe encumbrance
+          description: The estimated cost of fringe benefits a person will be paid in a
+            job in future fiscal years
+          type: string
+        effectiveDate:
+          title: Effective date
+          description: Date that the Job Assignment record becomes effective
+          type: string
+        status:
+          title: Status
+          description: Status of the job. Valid values are A = Active, B = Leave without
+            pay with benefits, L = Leave without pay without benefits, F = Leave
+            with full pay and benefits, P = Leave with partial pay and benefits,
+            T = Terminated
+          type: string
+        desc:
+          title: Description
+          description: Description of the job
+          type: string
+        eclsCode:
+          title: Employee clasification code
+          description: The employee class attached to the job, based on the Employee Class
+            entered on the Position Form (NBAPOSN)
+          type: string
+        pictCode:
+          title: Pay ID code
+          description: The Pay ID attached to the job
+          type: string
+        coasCodeTs:
+          title: Timesheet chart of accounts code
+          description: Valued only if Banner Finance is installed
+          type: string
+        orgnCodeTs:
+          title: Timesheet organization
+          description: Organization where time sheet is sent for this job
+          type: string
+        salTable:
+          title: Salary table
+          description: The Salary Table attached to the job. Defaults from the Salary/Rate
+            Rule Form (NTRSALA) via the Position Form (NBAPOSN)
+          type: string
+        salGrade:
+          title: Salary grade
+          description: The Salary Grade attached to the job. Defaults from the Salary/Rate
+            Rule Form (NTRSALA) via the Position Form (NBAPOSN)
+          type: string
+        salStep:
+          title: Salary step
+          description: The Salary Step attached to the job. Defaults from the Salary/Rate
+            Rule Form (NTRSALA) or can be entered online
+          type: integer
+        apptPct:
+          title: Appointment percentage
+          description: The Appointment percent attached to the Job. Used to establish the
+            percentage of full time appointment for an employee in a position.
+            The value defaults from the position record, but the user may change
+            at the job level.  The appointment percent cannot exceed 100
+          type: number
+        fte:
+          title: Full time equivalency
+          description: The full time percentage attached to the job. Defaults to 1
+          type: number
+        hrsDay:
+          title: Hours per day
+          description: The hours attached to the job that are normally worked in a day
+          type: number
+        hrsPay:
+          title: Hours per pay
+          description: The hours attached to the job that are normally worked in a pay
+            period
+          type: number
+        shift:
+          title: Shift
+          description: The shift attached to the job
+          type: string
+        regRate:
+          title: Regular rate
+          description: The regular rate attached to the job
+          type: number
+        assgnSalary:
+          title: Assignment salary
+          description: The salary to be paid each pay period. If the Assignment Salary is
+            entered, the Annual Salary is calculated based on the factor and
+            vice versa
+          type: number
+        factor:
+          title: Factor
+          description: The number of pays per calendar year
+          type: number
+        annSalary:
+          title: Annual salary
+          description: The annual salary attached to the job based on the calendar
+            year.  If the Annual Salary is entered, the Assignment Salary is
+            system calculated based the factor and vice versa
+          type: number
+        perPaySalary:
+          title: Per pay salary
+          description: Used for deferred pay calculations
+          type: number
+        pays:
+          title: Pays
+          description: Used for deferred pay calculations
+          type: number
+        perPayDeferAmt:
+          title: Per pay deferred amount
+          description: The amount deferred each pay period for deferred pay calculation
+          type: number
+        jcreCode:
+          title: Change reason code
+          description: Associates the reason for the change with the job detail record
+          type: string
+        sgrpCode:
+          title: Salary group code
+          description: The Salary Group Code attached to the job
+          type: string
+        emprCode:
+          title: Employer code
+          description: The Employer Identification code attached to the job
+          type: string
+        lgcdCode:
+          title: Longevity code
+          description: Longevity code attached to the job
+          type: string
+        locnCode:
+          title: Location code
+          description: EEO location attached to the job
+          type: string
+        schlCode:
+          title: School code
+          description: EEO school attached to the job
+          type: string
+        supervisorpidm:
+          title: Supervisor pidm
+          description: Internal identification number of the supervisor attached to the job
+          type: integer
+        supervisorPosn:
+          title: Supervisor position
+          description: The position number of the supervisor attached to the job
+          type: string
+        supervisorSuff:
+          title: Supervisor suffix
+          description: Suffix attached to the supervisor's position
+          type: string
+        wkcpCode:
+          title: Worker compensation code
+          description: Workers' Compensation Classification Code attached to the job
+          type: string
+        jblnCode:
+          title: Job location code
+          description: Job Location Code attached to the job
+          type: string
+        persChgDate:
+          title: Personnel change date
+          description: Date the change was actually made as opposed to the effective date
+            which is for payroll purposes
+          type: string
+        pcatCode:
+          title: Premium pay code
+          description: Generates premium pay attached to the job
+          type: string
+        dfprCode:
+          title: Defer pay code
+          description: The defer pay schedule attached to the job. Defaults from PTRDFPR
+          type: string
+        encumbranceHrs:
+          title: Encubrance hours
+          description: Hours used to calculate the encumbrance amount for this job in the
+            active fiscal year
+          type: number
+        contractNo:
+          title: Job contract number
+          description: Job contract number attached to the job
+          type: string
+        strsassnCode:
+          title: STRS assignment code
+          description: STRS Assignment Code attached to the job. Valid values are STRS
+            mandated
+          type: string
+        strsPayCode:
+          title: STRS pay code
+          description: STRS Pay Code for the employee attached to the job
+          type: string
+        persPayCode:
+          title: PERS pay code
+          description: PERS Pay Code for the employee attached to the job
+          type: string
+        timeEntryMethod:
+          title: Time entry method
+          description: Time Entry Method attached to the job. Valid values are P =
+            Payroll, W = Web, D = Departmental, T = Third Party
+          type: string
+        timeEntryType:
+          title: Time entry type
+          description: Time Entry Type attached to the job. It represents the structure of
+            how time will be entered over the Web or on the Electronic Approvals
+            of Time Entry Form (PHATIME). Valid values are T = Time Sheet, E =
+            Exception Time Only, N = None
+          type: string
+        timeInOutInd:
+          title: Time IN and OUT indicator
+          description: Time In/Out Indicator attached to the job
+          type: string
+        lcatCode:
+          title: Leave category code
+          description: A code which identifies a group of leave types. It is used when the
+            Leave by Job Method has been selected for leave processing
+          type: string
+        leavReptMethod:
+          title: Leave report entry method
+          description: Leave Report Method Attached to the job. Valid values are P = None,
+            W = Leave Report on the Web, D = Departmental Leave Report, T =
+            Third Party Leave Report.
+          type: string
+        pictCodeLeavRept:
+          title: Leave report pay ID
+          description: The Leave Report Pay ID attached to the job and associated with a
+            leave report or leave request
+          type: string
+        sclsCode:
+          title: CALSTRS classification code
+          description: Code identifies classification used in CalSTRS monthly and
+            supplemental reports of retirement contributions.
+          type: string
+        stinCode:
+          title: CALSTRS AB1586 code
+          description: Code indicates whether an employee has been marked in CalSTRS
+            system as eligible for recalculation of benefits
+          type: string
+        persApptId:
+          title: CALPERS appointment ID
+          description: 10-digit CalPERS ID for this employee which indicates their
+            association with this employer by CalPERS Member Category
+          type: string
+        persPayRateType:
+          title: CALPERS pay rate type
+          description: CalPERS Pay Rate Type identifies hourly, daily or monthly pay.
+            HRY-Hourly, DLY-Daily, MTY-Monthly
+          type: string
+        persSchedDays:
+          title: CALPERS scheduled days
+          description: Number of days per week considered full time if the Pay Rate Type
+            is Daily
+          type: number
+        sclsBaseHrs:
+          title: Classification base hours
+          description: Minimum base hours associated to a classification code
+          type: number
+        persSchedHrsWeek:
+          title: CALPERS scheduled hours per week
+          description: Number of hours per week considered full time if the Pay Rate Type
+            is not Daily
+          type: number
+        persSpecialOnlyInd:
+          title: PERS special compensation only
+          description: Indicates this job only includes special compensation earnings and
+            no regular earnings. Special compensation will be reported under the
+            matching/primary PERS XML payroll record
+          type: string
+        persPayRateOver:
+          title: CALPERS pay rate
+          description: Pay rate reported to CalPERS where the derived pay rate must be
+            changed for proper reporting
+          type: number
+        csstCode:
+          title: CALSTRS service type code
+          description: California State Teachers Retirement System Service Type Code.
+            Required for CalSTRS Defined Benefit Reporting for both members
+            (DB1) and non-members (DB2)
+          type: string
+        cstbCode:
+          title: CALSTRS time base code
+          description: California State Teachers Retirement System Time Base Code. Basis
+            of employment associated with the contribution line
+          type: string
+        csppCode:
+          title: CALSTRS expected pay periods code
+          description: Four digit California State Teachers Retirement System Expected Pay
+            Periods Code used in Defined Benefit Reporting for Defined Benefit
+            Members (DB1) or Defined Benefit Non-members (DB2)
+          type: string
+        strsFtBaseHrs:
+          title: CALSTRS full time base hours
+          description: The number of hours required in a school term for full-time.
+            Required for reporting California State Teachers Retirement System
+            Defined Benefit Non-member (DB2) employees performing creditable
+            service
+          type: number
+        strsHrsDay:
+          title: CALSTRS work hours per day
+          description: The number of hours required per day in a complete workday for
+            full-time
+          type: number
+      required:
+        - bannerId
+        - posn
+        - suff
+        - effDate
+    schema-extension-job-assignments-request.json:
+      title: Employee job assignments from NBAJOBS Request Body
+      description: Displays the details of the job assignment for the particular
+        Employee ID, postion, suffix and Effective date.
+      type: object
+      properties:
+        bannerId:
+          title: Banner ID
+          description: Indentification number of the employee.
+          type: string
+        posn:
+          title: Position code
+          description: Position number.
+          type: string
+        suff:
+          title: Suffix
+          description: Suffix of the job.
+          type: string
+        beginDate:
+          title: Begin Date
+          description: Begin date of the job.
+          type: string
+        jobType:
+          title: Contract Type
+          description: Indicates the type of job. Valid values are P = Primary, S =
+            Secondary, or O = Overload.
+          type: string
+        step:
+          title: Salary step
+          description: The Salary Step attached to the job. Defaults from the Salary/Rate
+            Rule Form (NTRSALA) or can be entered online
+          type: integer
+      required:
+        - bannerId
+        - posn
+        - suff
+        - beginDate
+        - jobType
+        - step
+      additionalProperties: false
+    schema-extension-job-assignments-put-request.json:
+      title: Employee job assignments from NBAJOBS Request Body
+      description: Displays the details of the job assignment for the particular
+        Employee ID, postion, suffix and Effective date.
+      type: object
+      properties:
+        bannerId:
+          title: Banner ID
+          description: Indentification number of the employee.
+          type: string
+        posn:
+          title: Position code
+          description: Position number.
+          type: string
+        suff:
+          title: Suffix
+          description: Suffix of the job.
+          type: string
+        effectiveDate:
+          title: Effective Date
+          description: Date that the Job Assignment record becomes effective.
+          type: string
+        jobType:
+          title: Contract Type
+          description: Indicates the type of job. Valid values are P = Primary, S =
+            Secondary, or O = Overload.
+          type: string
+        step:
+          title: Salary step
+          description: The Salary Step attached to the job. Defaults from the Salary/Rate
+            Rule Form (NTRSALA) or can be entered online
+          type: integer
+        nbrbjobBeginDate:
+          title: Begin Date
+          description: Begin date of the job.
+          type: string
+        contractType:
+          title: Contract Type
+          description: Indicates the type of job. Valid values are P = Primary, S =
+            Secondary, or O = Overload.
+          type: string
+        totalContractHrs:
+          title: Total contract hours
+          description: The total number of hours of the contract.
+          type: number
+        stepIncrMon:
+          title: Step increase month
+          description: Month in which an automatic step increase is to take place.
+          type: string
+        stepIncrDay:
+          title: Step increase day
+          description: Day of the month in which an automatic step increase is to take
+            place.
+          type: string
+        accrueLeaveInd:
+          title: Accrue leave indicator
+          description: Determines whether Leave is accrued for this job.  Valid values are
+            Y = Yes and N = No.
+          type: string
+        civilServiceInd:
+          title: Civil service indicator
+          description: Indicates if this assignment is a civil service job. Valid values
+            are Y = Yes and N = No
+          type: string
+        probationBeginDate:
+          title: Probation begin date
+          description: The begin date of Probationary Period
+          type: string
+        probationEndDate:
+          title: Probation end date
+          description: The end date of Probationary Period
+          type: string
+        probationUnits:
+          title: Probation units
+          description: Identifies the number of Probationary Units. Will represent months
+            or days depending on the Probationary Period Units institutional
+            setting
+          type: integer
+        eligibleDate:
+          title: Eligible date
+          description: Eligible Date for the Step Increase
+          type: string
+        status:
+          title: Status
+          description: Status of the job. Valid values are A = Active, B = Leave without
+            pay with benefits, L = Leave without pay without benefits, F = Leave
+            with full pay and benefits, P = Leave with partial pay and benefits,
+            T = Terminated
+          type: string
+        coasCodeTs:
+          title: Timesheet chart of accounts code
+          description: Valued only if Banner Finance is installed
+          type: string
+        orgnCodeTs:
+          title: Timesheet organization
+          description: Organization where time sheet is sent for this job
+          type: string
+        salTable:
+          title: Salary table
+          description: The Salary Table attached to the job. Defaults from the Salary/Rate
+            Rule Form (NTRSALA) via the Position Form (NBAPOSN)
+          type: string
+        salGrade:
+          title: Salary grade
+          description: The Salary Grade attached to the job. Defaults from the Salary/Rate
+            Rule Form (NTRSALA) via the Position Form (NBAPOSN)
+          type: string
+        salStep:
+          title: Salary step
+          description: The Salary Step attached to the job. Defaults from the Salary/Rate
+            Rule Form (NTRSALA) or can be entered online
+          type: integer
+        apptPct:
+          title: Appointment percentage
+          description: The Appointment percent attached to the Job. Used to establish the
+            percentage of full time appointment for an employee in a position.
+            The value defaults from the position record, but the user may change
+            at the job level.  The appointment percent cannot exceed 100
+          type: number
+        fte:
+          title: Full time equivalency
+          description: The full time percentage attached to the job. Defaults to 1
+          type: number
+        hrsDay:
+          title: Hours per day
+          description: The hours attached to the job that are normally worked in a day
+          type: number
+        hrsPay:
+          title: Hours per pay
+          description: The hours attached to the job that are normally worked in a pay
+            period
+          type: number
+        shift:
+          title: Shift
+          description: The shift attached to the job
+          type: string
+        regRate:
+          title: Regular rate
+          description: The regular rate attached to the job
+          type: number
+        assgnSalary:
+          title: Assignment salary
+          description: The salary to be paid each pay period. If the Assignment Salary is
+            entered, the Annual Salary is calculated based on the factor and
+            vice versa
+          type: number
+        factor:
+          title: Factor
+          description: The number of pays per calendar year
+          type: number
+        annSalary:
+          title: Annual salary
+          description: The annual salary attached to the job based on the calendar
+            year.  If the Annual Salary is entered, the Assignment Salary is
+            system calculated based the factor and vice versa
+          type: number
+        perPaySalary:
+          title: Per pay salary
+          description: Used for deferred pay calculations
+          type: number
+        pays:
+          title: Pays
+          description: Used for deferred pay calculations
+          type: number
+        perPayDeferAmt:
+          title: Per pay deferred amount
+          description: The amount deferred each pay period for deferred pay calculation
+          type: number
+        jcreCode:
+          title: Change reason code
+          description: Associates the reason for the change with the job detail record
+          type: string
+        sgrpCode:
+          title: Salary group code
+          description: The Salary Group Code attached to the job
+          type: string
+        emprCode:
+          title: Employer code
+          description: The Employer Identification code attached to the job
+          type: string
+        lgcdCode:
+          title: Longevity code
+          description: Longevity code attached to the job
+          type: string
+        locnCode:
+          title: Location code
+          description: EEO location attached to the job
+          type: string
+        schlCode:
+          title: School code
+          description: EEO school attached to the job
+          type: string
+        supervisorpidm:
+          title: Supervisor pidm
+          description: Internal identification number of the supervisor attached to the job
+          type: integer
+        supervisorPosn:
+          title: Supervisor position
+          description: The position number of the supervisor attached to the job
+          type: string
+        supervisorSuff:
+          title: Supervisor suffix
+          description: Suffix attached to the supervisor's position
+          type: string
+        wkcpCode:
+          title: Worker compensation code
+          description: Workers' Compensation Classification Code attached to the job
+          type: string
+        jblnCode:
+          title: Job location code
+          description: Job Location Code attached to the job
+          type: string
+        persChgDate:
+          title: Personnel change date
+          description: Date the change was actually made as opposed to the effective date
+            which is for payroll purposes
+          type: string
+        pcatCode:
+          title: Premium pay code
+          description: Generates premium pay attached to the job
+          type: string
+        dfprCode:
+          title: Defer pay code
+          description: The defer pay schedule attached to the job. Defaults from PTRDFPR
+          type: string
+        encumbranceHrs:
+          title: Encubrance hours
+          description: Hours used to calculate the encumbrance amount for this job in the
+            active fiscal year
+          type: number
+        contractNo:
+          title: Job contract number
+          description: Job contract number attached to the job
+          type: string
+        strsassnCode:
+          title: STRS assignment code
+          description: STRS Assignment Code attached to the job. Valid values are STRS
+            mandated
+          type: string
+        strsPayCode:
+          title: STRS pay code
+          description: STRS Pay Code for the employee attached to the job
+          type: string
+        persPayCode:
+          title: PERS pay code
+          description: PERS Pay Code for the employee attached to the job
+          type: string
+        timeEntryMethod:
+          title: Time entry method
+          description: Time Entry Method attached to the job. Valid values are P =
+            Payroll, W = Web, D = Departmental, T = Third Party
+          type: string
+        timeEntryType:
+          title: Time entry type
+          description: Time Entry Type attached to the job. It represents the structure of
+            how time will be entered over the Web or on the Electronic Approvals
+            of Time Entry Form (PHATIME). Valid values are T = Time Sheet, E =
+            Exception Time Only, N = None
+          type: string
+        timeInOutInd:
+          title: Time IN and OUT indicator
+          description: Time In/Out Indicator attached to the job
+          type: string
+        leavReptMethod:
+          title: Leave report entry method
+          description: Leave Report Method Attached to the job. Valid values are P = None,
+            W = Leave Report on the Web, D = Departmental Leave Report, T =
+            Third Party Leave Report.
+          type: string
+        pictCodeLeavRept:
+          title: Leave report pay ID
+          description: The Leave Report Pay ID attached to the job and associated with a
+            leave report or leave request
+          type: string
+        sclsCode:
+          title: CALSTRS classification code
+          description: Code identifies classification used in CalSTRS monthly and
+            supplemental reports of retirement contributions.
+          type: string
+        stinCode:
+          title: CALSTRS AB1586 code
+          description: Code indicates whether an employee has been marked in CalSTRS
+            system as eligible for recalculation of benefits
+          type: string
+        persApptId:
+          title: CALPERS appointment ID
+          description: 10-digit CalPERS ID for this employee which indicates their
+            association with this employer by CalPERS Member Category
+          type: string
+        persPayRateType:
+          title: CALPERS pay rate type
+          description: CalPERS Pay Rate Type identifies hourly, daily or monthly pay.
+            HRY-Hourly, DLY-Daily, MTY-Monthly
+          type: string
+        persSchedDays:
+          title: CALPERS scheduled days
+          description: Number of days per week considered full time if the Pay Rate Type
+            is Daily
+          type: number
+        sclsBaseHrs:
+          title: Classification base hours
+          description: Minimum base hours associated to a classification code
+          type: number
+        persSchedHrsWeek:
+          title: CALPERS scheduled hours per week
+          description: Number of hours per week considered full time if the Pay Rate Type
+            is not Daily
+          type: number
+        persSpecialOnlyInd:
+          title: PERS special compensation only
+          description: Indicates this job only includes special compensation earnings and
+            no regular earnings. Special compensation will be reported under the
+            matching/primary PERS XML payroll record
+          type: string
+        persPayRateOver:
+          title: CALPERS pay rate
+          description: Pay rate reported to CalPERS where the derived pay rate must be
+            changed for proper reporting
+          type: number
+        csstCode:
+          title: CALSTRS service type code
+          description: California State Teachers Retirement System Service Type Code.
+            Required for CalSTRS Defined Benefit Reporting for both members
+            (DB1) and non-members (DB2)
+          type: string
+        cstbCode:
+          title: CALSTRS time base code
+          description: California State Teachers Retirement System Time Base Code. Basis
+            of employment associated with the contribution line
+          type: string
+        csppCode:
+          title: CALSTRS expected pay periods code
+          description: Four digit California State Teachers Retirement System Expected Pay
+            Periods Code used in Defined Benefit Reporting for Defined Benefit
+            Members (DB1) or Defined Benefit Non-members (DB2)
+          type: string
+        strsFtBaseHrs:
+          title: CALSTRS full time base hours
+          description: The number of hours required in a school term for full-time.
+            Required for reporting California State Teachers Retirement System
+            Defined Benefit Non-member (DB2) employees performing creditable
+            service
+          type: number
+        strsHrsDay:
+          title: CALSTRS work hours per day
+          description: The number of hours required per day in a complete workday for
+            full-time
+          type: number
+      required:
+        - bannerId
+        - posn
+        - suff
+        - effectiveDate
+        - jobType
+        - step
+      additionalProperties: false
+    schema-extension-job-assignments-post-put-response.json:
+      title: Employee job assignments from NBAJOBS Post/Put Response Body.
+      description: Displays the details of the job assignment for the particular
+        Employee ID, position, suffix and Effective date along with any warnings.
+      allOf:
+        - $ref: '#/components/schemas/schema-extension-job-assignments.json'
+        - type: object
+          properties:
+            warnings:
+              type: array
+              items:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: The detailed warning message.   
+    ErrorsObj:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        message:
+          type: string
+  examples:
+    BannerIdRequired:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "ID is required."
+                }
+            ]
+        }
+    PositionCodeRequired:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Position Code is required."
+                }
+            ]
+        }
+    SuffixRequired:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Suffix is required."
+                }
+            ]
+        }
+    EffectiveDateRequired:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Effective Date is required."
+                }
+            ]
+        }
+    JobTypeRequired:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Job Type is required."
+                }
+            ]
+        }
+    StepRequired:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Step is required."
+                }
+            ]
+        }
+    BeginDateRequired:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Begin Date is required."
+                }
+            ]
+        }
+    InvalidId:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "ID is invalid"
+                }
+            ]
+        }
+    InvalidPosn:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Position is invalid"
+                }
+            ]
+        }
+    InvalidJobType:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Job Type is invalid"
+                }
+            ]
+        }
+    InvalidDateFormat:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Date format is incorrect"
+                }
+            ]
+        }    

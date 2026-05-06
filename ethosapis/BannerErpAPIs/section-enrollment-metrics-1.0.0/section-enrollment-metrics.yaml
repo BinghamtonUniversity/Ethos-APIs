@@ -1,0 +1,650 @@
+openapi: 3.0.0
+info:
+  title: Section Enrollment Metrics
+  description: 
+    The Section Enrollment Metrics API returns section enrollment details using a combination of term and course reference number 
+    as seen on the SSASECT administrative page.  In addition to the base section (SSBSECT) details, reserved seats (SSRRESV) are also returned.   
+
+
+    When the Seat Mangement service is enabled, the service for the seat availability is authoritative.
+
+      - If the seat management service is enabled (row exists in SOBREST for XREG with a time out value > 0), the seat management service will be called for the number of registered students (including those whose status is pending), and SSRSEAW will be queried for the number of students on the wait list.
+      
+      - If the seat management service is not enabled, but the seat assignment feature is (SSBSEAT_ENABLE_IND = Y), the seat assignment tables SSRSEAT and SSRSEAW will be queried for the number of registered students, and those on the wait list.
+
+      - If neither the seat management service, nor the seat assignment feature are enabled, then use the section table SSBSECT for the number of registered and wait listed students.
+
+         
+  version: 1.0.0-beta
+  x-api-type: erp
+  x-release-status: beta
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Student
+  x-source-name: SSASECT
+  
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  
+  /qapi/section-enrollment-metrics:
+     post:
+      tags:
+        - section-enrollment-metrics QAPI
+      summary: Returns resources from SSBSECT, SSRRESV
+      description: 
+        Queries for the requested resource using a set of attributes provided in the post
+        request body.  Please note the path to the server is overridden to use /qapi/{resource} 
+        in the URL and not /api/{resource}.
+        
+
+        Returns the SSBSECT record meeting the required submitted criteria of term and crn. Any SSRRESV, 
+        records associated with the section enrollment and reserved seats record are also returned in the response. 
+      
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0-Version+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/section-enrollment-metrics-1.0.0_qapi_post_request'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/section-enrollment-metrics-1.0.0_qapi_post_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the clientâ€™s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permissions: API_SECTION_ENROLLMENT_METRICS 
+     
+      
+components:
+  schemas:
+    section-enrollment-metrics-1.0.0_qapi_post_request:
+      type: object
+      required:
+        - term        
+      properties:              
+        term:
+          title: Term
+          maxLength: 6
+          type: string
+          description: "A user provided value. The term code is used to retrieve the section details that are equal to the provided value."         
+          x-lineageLookupReferenceObject: SSBSECT_TERM_CODE
+          example: 202201    
+        crn: 
+          title: Course Reference Number
+          maxLength: 5
+          type: string
+          description: "The Course Reference Number (CRN) assigned to this course section."
+          x-lineageReferenceObject: SSBSECT_CRN
+          example: 10006
+        sectionStatus:
+          title: Section Status Code
+          maxLength: 1
+          type: string
+          description: "The status of the section."
+          x-lineageReferenceObject: SSBSECT_SSTS_CODE
+          x-lineageLookupReferenceObject: STVSSTS            
+          example: A 
+              
+    section-enrollment-metrics-1.0.0_qapi_post_response:
+      type: object
+      required:
+        - term  
+        - crn  
+        - enrollmentMaximum
+            
+      properties:
+        term:
+          title: Term
+          maxLength: 6
+          type: string
+          description: "The term code for the set of section details."         
+          x-lineageLookupReferenceObject: SSBSECT_TERM_CODE
+          example: 202201    
+        crn: 
+          title: Course Reference Number
+          maxLength: 5
+          type: string
+          description: "The Course Reference Number (CRN) assigned to this course section."
+          x-lineageReferenceObject: SSBSECT_CRN
+          example: 10006              
+        sectionStatus:
+          title: Section Status Code
+          maxLength: 1
+          type: string
+          description: "The status of the section."
+          x-lineageReferenceObject: SSBSECT_SSTS_CODE
+          x-lineageLookupReferenceObject: STVSSTS             
+          example: A 
+        sectionStatusDescription:
+          title: Section Status Code Description
+          maxLength: 30
+          type: string
+          description: "The description of the section status."
+          x-lineageReferenceObject: STVSSTS_DESC
+          example: Active 
+        enrollmentMaximum:
+          title: Enrollment Maximum
+          maxLength: 4
+          type: number
+          description: "Maximum enrollment for the section."
+          x-lineageReferenceObject: SSBSECT_MAX_ENRL
+          example: 21
+        enrollmentActual: 
+          title: Actual Enrollment
+          maxLength: 4
+          type: number
+          description: "Actual enrollment for the section."
+          x-lineageReferenceObject: derived
+          x-lineageDerivedLogic: If Seat Management service is enalbled the value is provided by the service. If Seat Management is not 
+           enabled and the Seat Assignment feature is enabled, the value retirned is the SSRSEAT rowcount. If neither Seat Mangement 
+           nor Seat Assignment are enabled, the value is returned SSBSECT_ENRL.
+          example: 3
+        enrollmentRemaining:
+          title: Remaining Enrollment
+          maxLength: 4
+          type: number
+          description: "Remaining number of seats available for the section."
+          x-lineageReferenceObject: derived
+          x-lineageDerivedLogic: If the Seat Management service or the Seat Assignment feature is enabled the value items
+           (enrollmentMaximum - enrollmentActual). If neither Seat Management are enabled, the value returned is SSBSECT_SEATS_AVAIL.
+          example: 10
+        waitListMaximum: 
+          title: Waitlist Maximum
+          maxLength: 4
+          type: number
+          description: "Maximum number of students allowed to be waitlisted for the section."
+          x-lineageReferenceObject: SSBSECT_WAIT_CAPACITY
+          example: 25
+        waitListActual:
+          title: Actual Waitlist
+          maxLength: 4
+          type: number
+          description: "Actual number of students waitlisted for the section."
+          x-lineageReferenceObject: derived
+          x-lineageDerivedLogic: If the Seat Management service or the Seat Assignment feature are enabled the value is the SSRSEAW
+           row count. If neither Seat Management nor Seat Assignment are enabled the value returned is SSBSECT_WAIT_COUNT.
+          example: 18
+        waitListRemaining: 
+          title: Remaining Waitlist
+          maxLength: 4
+          type: number
+          description: "Remaining number of waitlist seats available for the section."
+          x-lineageReferenceObject: derived
+          x-lineageDerivedLogic: If Seat Management service or Seat Assignment feature are enabled the value is (waitkistMaximun -
+           waitListActual). If neither Seat Management nor Seat Assignment are enabled, the value is SSBSECT_WAIT_AVAIL.
+          example: 7
+        anticipatedEnrollment:
+          title: Anticipated Enrollment
+          maxLength: 4
+          type: number
+          description: "Anticipated enrollment in the section."
+          x-lineageReferenceObject: SSBSECT_PROJ_ENRL
+          example: 0
+        priorEnrollment: 
+          title: Prior Enrollment
+          maxLength: 4
+          type: number
+          description: "Number of students enrolled in the section in the previous term"
+          x-lineageReferenceObject: SSBSECT_PRIOR_ENRL
+          example: 0       
+        hasReservedSeats: 
+          title: Reserved Seats Indicator
+          type: boolean
+          description: "Indicate that reserved seats exist for the section."
+          x-lineageReferenceObject: SSBSECT_RESERVED_IND
+          example: true                             
+        totalCreditHours: 
+          title: Total Credit Hours
+          maxLength: 9
+          type: number
+          description: "Total credit hours of enrolled students."
+          x-lineageReferenceObject: SSBSECT_TOT_CREDIT_HRS
+          example: 90
+        censusOneEnrollment:
+          title: Census One Enrollment Count
+          maxLength: 4
+          type: number
+          description: "Census one enrollment count."
+          x-lineageReferenceObject: SSBSECT_CENSUS_ENRL
+          example: 14
+        censusOneOn: 
+          title: Census One Freeze Date
+          type: string
+          format: date
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$                        
+          description: "Date the enrollment count will be frozen for use in census one reporting."
+          x-lineageReferenceObject: SSBSECT_CENSUS_ENRL_DATE
+          example: 2021-08-20 
+        censusTwoEnrollment:
+          title: Census Two Enrollment Count
+          maxLength: 4
+          type: number
+          description: "Census two enrollment count."
+          x-lineageReferenceObject: SSBSECT_CENSUS_2_ENRL
+          example: 15
+        censusTwoOn: 
+          title: Census Two Freeze Date
+          type: string
+          format: date
+          description: "Date the enrollment count will be frozen for use in census two reporting."
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$                        
+          x-lineageReferenceObject: SSBSECT_CENSUS_2_DATE
+          example: 2021-09-15 
+        reservedSeatDetails:
+                title: Reserved Seat Details
+                type: array               
+                items: 
+                  type: object
+                  required:
+                      - enrollmentMaximum    
+                      - waitlistMaximum 
+                  properties:
+                    
+                    sequenceNumber: 
+                        title: Sequence Number
+                        maxLength: 4
+                        type: number
+                        description: "Reserved seats sequence number."
+                        x-lineageReferenceObject: SSRRESV_SEQ_NO
+                        example: 1                                            
+                    level:
+                      title: Level Code
+                      maxLength: 2
+                      type: string
+                      description: "Student level associated with the section for the reserved seats rule."
+                      x-lineageReferenceObject: SSRRESV_LEVL_CODE
+                      x-lineageLookupReferenceObject: STVLEVL             
+                      example: UG  
+                    levelDescription:
+                      title: Level Code Description
+                      maxLength: 30
+                      type: string
+                      description: "Description of the level code."
+                      x-lineageReferenceObject: STVLEVL_DESC
+                      example: Undergraduate
+                    campus:
+                      title: Campus Code
+                      maxLength: 3
+                      type: string
+                      description: "Campus associated with the section for the reserved seats rule."
+                      x-lineageReferenceObject: SSRRESV_CAMP_CODE
+                      x-lineageLookupReferenceObject: STVCAMP             
+                      example: 999  
+                    campusDescription:
+                      title: Campus Code Description
+                      maxLength: 30
+                      type: string
+                      description: "Description of the campus code."
+                      x-lineageReferenceObject: STVCAMP_DESC
+                      example: All Campuses
+                    college:
+                      title: College Code
+                      maxLength: 2
+                      type: string
+                      description: "College associated with the section for the reserved seats rule."
+                      x-lineageReferenceObject: SSRRESV_COLL_CODE
+                      x-lineageLookupReferenceObject: STVCOLL             
+                      example: NU  
+                    collegeDescription:
+                      title: College Code Description
+                      maxLength: 30
+                      type: string
+                      description: "Description of the college code."
+                      x-lineageReferenceObject: STVCOLL_DESC
+                      example: College of Nursing 
+                    degree:
+                      title: Degree Code
+                      maxLength: 6
+                      type: string
+                      description: "Degree associated with the section for the reserved seats rule."
+                      x-lineageReferenceObject: SSRRESV_DEGC_CODE
+                      x-lineageLookupReferenceObject: STVDEGC         
+                      example: BSN  
+                    degreeDescription:
+                      title: Degree Code Description
+                      maxLength: 30
+                      type: string
+                      description: "Description of the degree code."
+                      x-lineageReferenceObject: STVDEGC_DESC
+                      example: Bachelor of Science in Nursing
+                    program:
+                      title: Program Code
+                      maxLength: 12
+                      type: string
+                      description: "Program associated with the section for the reserved seats rule."
+                      x-lineageReferenceObject: SSRRESV_PROGRAM
+                      x-lineageLookupReferenceObject: STVPROG             
+                      example: BS-N  
+                    programDescription:
+                      title: Program Code Description
+                      maxLength: 30
+                      type: string
+                      description: "Description of the program code."
+                      x-lineageReferenceObject: STVPROG_DESC
+                      example: Bachelor of Science in Nursing
+                    fieldOfStudyType:
+                      title: Field of Study Type Code
+                      maxLength: 15
+                      type: string
+                      description: "Field of study type code associated with the section for the reserved seats rule."
+                      x-lineageReferenceObject: SSRRESV_LFST_CODE
+                      x-lineageLookupReferenceObject: GTVLFST
+                      example: MAJOR  
+                    fieldOfStudyTypeDescription:
+                      title: Field of Study Type Code Description
+                      maxLength: 30
+                      type: string
+                      description: "Description of the field of study type code."
+                      x-lineageReferenceObject: GTVLFST_DESC
+                      example: Major           
+                    fieldOfStudy:
+                      title: Field of Study Code
+                      maxLength: 4
+                      type: string
+                      description: "Field of study code associated with the section for the reserved seats rule."
+                      x-lineageReferenceObject: SSRRESV_LFST_CODE
+                      x-lineageLookupReferenceObject: STVMAJR
+                      example: NU  
+                    fieldOfStudyDescription:
+                      title: Field of Study Code Description
+                      maxLength: 30
+                      type: string
+                      description: "Description of the field of study code."
+                      x-lineageReferenceObject: STVMAJR_DESC
+                      example: Nursing                                                  
+                    department:
+                      title: Department Code
+                      maxLength: 4
+                      type: string
+                      description: "Department associated with the section for the reserved seats rule."
+                      x-lineageReferenceObject: SSRRESV_DEPT_CODE
+                      x-lineageLookupReferenceObject: STVDEPT             
+                      example: NURS  
+                    departmentDescription:
+                      title: Department Code Description
+                      maxLength: 30
+                      type: string
+                      description: "Description of the department code."
+                      x-lineageReferenceObject: STVDEPT_DESC
+                      example: Nursing     
+                    curriculum: 
+                      title: Curriculum
+                      maxLength: 1
+                      type: string
+                      description: "Curriculum associated with the section for the reserved seats rule. Valid values are: P (primary), S (secondary), or A (any)."
+                      x-lineageReferenceObject: SSRRESV_PRIM_SEC_CDE
+                      example: A
+                    class:
+                      title: Class Code
+                      maxLength: 2
+                      type: string
+                      description: "Class code associated with the section for the reserved seats rule."
+                      x-lineageReferenceObject: SSRRESV_CLAS_CODE
+                      x-lineageLookupReferenceObject: STVCLAS             
+                      example: 01                     
+                    classDescription:
+                      title: Class Code Description
+                      maxLength: 30
+                      type: string
+                      description: "Description of the class code."
+                      x-lineageReferenceObject: STVCLAS_DESC           
+                      example: First Year                         
+                    attribute:
+                      title: Attribute Code
+                      maxLength: 4
+                      type: string
+                      description: "Student attribute associated with the section for the reserved seats rule."
+                      x-lineageReferenceObject: SSRRESV_ATTS_CODE
+                      x-lineageLookupReferenceObject: STVATTS             
+                      example: 01  
+                    attributeDescription:
+                      title: Attribute Code Description
+                      maxLength: 30
+                      type: string
+                      description: "Description of the attribute code."
+                      x-lineageReferenceObject: STVATTS_DESC
+                      example: Level 01
+                    cohort:
+                      title: Cohort Code
+                      maxLength: 10
+                      type: string
+                      description: "Cohort associated with the section for the reserved seats rule."
+                      x-lineageReferenceObject: SSRRESV_CHRT_CODE
+                      x-lineageLookupReferenceObject: STVCHRT             
+                      example: B4  
+                    cohortDescription:
+                      title: Cohort Code Description
+                      maxLength: 30
+                      type: string
+                      description: "Description of the cohort code."
+                      x-lineageReferenceObject: STVCHRT_DESC
+                      example: Cohort B4
+                    admitTerm:
+                      title: Admission Term Code
+                      maxLength: 6
+                      type: string
+                      description: "Admission term associated with the section for the reserved seats rule."
+                      x-lineageReferenceObject: SSRRESV_TERM_CODE_ADMIT
+                      x-lineageLookupReferenceObject: STVTERM             
+                      example: 202104  
+                    admitTermDescription:
+                      title: Admit Term Code Description
+                      maxLength: 30
+                      type: string
+                      description: "Description of the admission term code."
+                      x-lineageReferenceObject: STVTERM_DESC
+                      example: Summer 2021 
+                    matriculatedTerm:
+                      title: Matriculation Term Code
+                      maxLength: 6
+                      type: string
+                      description: "Matriculation term associated with the section for the reserved seats rule."
+                      x-lineageReferenceObject: SSRRESV_TERM_CODE_MATRIC
+                      x-lineageLookupReferenceObject: STVTERM    
+                      example: 202504  
+                    matriculatedTermDescription:
+                      title: Matriculated Term Code Description
+                      maxLength: 30
+                      type: string
+                      description: "Description of the matriculation term code."
+                      x-lineageReferenceObject: STVTERM_DESC
+                      example: Summer 2025
+                    graduationTerm:
+                      title: Graduation Term Code
+                      maxLength: 6
+                      type: string
+                      description: "Graduation term associated with the section for the reserved seats rule."
+                      x-lineageReferenceObject: SSRRESV_TERM_CODE_GRAD
+                      x-lineageLookupReferenceObject: STVTERM    
+                      example: 202503  
+                    graduationTermDescription:
+                      title: Graduation Term Code Description
+                      maxLength: 30
+                      type: string
+                      description: "Description of the graduation term code."
+                      x-lineageReferenceObject: STVTERM_DESC
+                      example: Spring 2025
+                    allowUseOverflowSeating:
+                      title: Overflow Indicator
+                      type: boolean
+                      description: "Indicates whether processing will check unreserved available seats when seats on the reserved rule are full. If true, students who were previously unable to register can now register for those unreserved available seats."
+                      x-lineageReferenceObject: SSRRESV_OVERFLOW_IND
+                      example: true
+                    enrollmentMaximum:
+                      title: Maximum Enrollment
+                      maxLength: 4
+                      type: number
+                      description: "Maximum number of reserved seats for the rule."
+                      x-lineageReferenceObject: SSRRESV_MAX_ENRL
+                      example: 25           
+                    enrollmentActual:
+                      title: Actual Enrollment
+                      maxLength: 4
+                      type: number
+                      description: "Number of actual reserved seats taken for the rule. "
+                      x-lineageReferenceObject: SSRRESV_ENRL
+                      example: 15  
+                    enrollmentRemaining:
+                      title: Available Seats
+                      maxLength: 4
+                      type: number
+                      description: "Description of the field of study code."
+                      x-lineageReferenceObject: SSRRESV_SEATS_AVAIL
+                      example: 10
+                    waitlistMaximum:
+                      title: Waitlist Maximum Seats
+                      maxLength: 4
+                      type: number
+                      description: "Maximum number of waitlisted seats for the rule."
+                      x-lineageReferenceObject: SSRRESV_WAIT_CAPACITY
+                      example: 5                                                                               
+                    waitlistActual:
+                      title: Actual Waitlist Seats
+                      maxLength: 4
+                      type: number
+                      description: "Number of actual waitlisted seats taken for the rule."
+                      x-lineageReferenceObject: SSRRESV_WAIT_COUNT         
+                      example: 0  
+                    waitListRemaining:
+                      title: Remaining Waitlist Seats
+                      maxLength: 4
+                      type: number
+                      description: "Number of waitlisted seats available for the rule."
+                      x-lineageReferenceObject: SSRRESV_WAIT_AVAIL
+                      example: 5            
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

@@ -1,0 +1,975 @@
+openapi: 3.0.0
+info:
+  title: Employee Student Hour Time Statuses
+  description: >
+    This API can be used to retrieve, post, or delete employee student hour time status data.
+    This information is used in the Banner process PHPSHRS.
+    Additionally, the API supports the option to create or update employee student hour time status data in batches.
+  version: 1.0.0-beta
+  x-audience: all
+  x-release-status: beta
+  x-source-domain: Human Resources
+  x-source-system: banner
+  x-source-name: PERTSTS
+  x-api-type: erp
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/employee-student-hour-time-statuses:
+    get:
+      tags:
+        - employee-student-hour-time-statuses
+      summary: Get employee student hour time statuses
+      description: Query and retrieve employee student hour time status data for a given criteria. Data is extracted from PERTSTS.
+      parameters:
+        - name: limit
+          in: query
+          description: 
+            The maximum number of resources requesting for this result set.
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/employee-student-hour-time-statuses-1.0.0_get_request_criteria'
+          description: >
+            ### Banner Id
+            
+            Returns the employee student hour time status information for this Banner Id.
+            
+            ```
+
+            /employee-student-hour-time-statuses?criteria={"bannerId": "HOP000001"}
+
+            ```
+
+            ### Term Code
+            
+            Returns the employee student hour time status information for this Term Code.
+            
+            ```
+
+            /employee-student-hour-time-statuses?criteria={"termCode":"202510"}
+            
+            ```
+
+            ### Year
+
+            Returns the employee student hour time status information for this Year.
+
+            ```
+
+            /employee-student-hour-time-statuses?criteria={"year":"2025"}
+
+            ```
+            
+            ### Payroll Identification Code
+
+            Returns the employee student hour time status information for this payroll identification code.
+
+            ```
+
+            /employee-student-hour-time-statuses?criteria={"payrollIdentificationCode":"MN"}
+
+            ```
+            
+            ### Payroll Number
+
+            Returns the employee student hour time status information for this paroll number.
+            
+            ```
+            
+            /employee-student-hour-time-statuses?criteria={"payrollNumber":1}
+
+
+            ```
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/employee-student-hour-time-statuses-1.0.0_get_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_STU_HOUR_TIME_STATUSES
+    post:
+      tags:
+        - employee-student-hour-time-statuses
+      summary: Creates a new resource in PERTSTS.
+      description: >
+        Creates a new employee student hour time status in PERTSTS with a POST request.
+
+
+        POST requests must include a nil GUID value
+        ("00000000-0000-0000-0000-000000000000") for the root id property.
+        
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.1.0.0+json:
+            schema:
+              $ref: '#/components/schemas/employee-student-hour-time-statuses-1.0.0_post_request'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                $ref: '#/components/schemas/employee-student-hour-time-statuses-1.0.0_post_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_STU_HOUR_TIME_STATUSES
+  /api/employee-student-hour-time-statuses/{id}:
+    get:
+      summary: Return the requested resource from PERTSTS
+      description: |
+        Returns a single employee student hour time status record with the requested global identifier.
+      tags:
+        - employee-student-hour-time-statuses
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier (GUID) of the resource for use in all external
+            references.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                $ref: "#/components/schemas/employee-student-hour-time-statuses-1.0.0_get_response"
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_STU_HOUR_TIME_STATUSES
+    put:
+      tags:
+        - employee-student-hour-time-statuses
+      summary: Updates an existing PERTSTS resource.
+      description: Updates the employee student hour time status information.
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: '#/components/schemas/employee-student-hour-time-statuses-1.0.0_put_request'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the employee student hour time status resource.
+          schema:
+            type: string
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+            
+            ```
+            
+            application/vnd.hedtech.integration.v1.0.0+json
+            
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+            
+            ```
+            
+            application/vnd.hedtech.integration.v1.0.0+json
+            
+            ```
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                $ref: "#/components/schemas/employee-student-hour-time-statuses-1.0.0_put_response"
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_STU_HOUR_TIME_STATUSES
+    delete:
+      summary: Removes a employee student hour time status resource from PERTSTS.
+      description: >
+        Removes a employee student hour time status record.
+      tags:
+        - employee-student-hour-time-statuses
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID for the employee student hour time status record.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: No Content
+        '204':
+          description: No Content
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Resource not found
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_STU_HOUR_TIME_STATUSES
+  /api/employee-student-hour-time-statuses/batches:
+    post:
+      tags:
+        - employee-student-hour-time-statuses
+      summary: "Submit a batch of employee student hour time statuses to be created or updated."
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/employee-student-hour-time-statuses-batch-1.0.0_post_request"
+      responses:
+        "201":
+          "description": "Created or Updated"
+          "headers":
+            "X-Media-Type":
+              "description": "The full semantic version with the media type of the response."
+              "required": true
+              "schema":
+                "type": "string"
+            "X-Content-Restricted":
+              "description": "If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included."
+              "schema":
+                "type": "string"
+          "content":
+            "application/vnd.hedtech.integration.v1.0.0+json":
+              "schema":
+                "$ref": "#/components/schemas/employee-student-hour-time-statuses-batch-1.0.0_post_response"
+        "400":
+          "description": "Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+        "401":
+          "description": "Failure. Unauthorized."
+        "403":
+          "description": "Failure. Forbidden. The user does not have the required permissions for the resource."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+        "404":
+          "description": "Failure. Not Found. Cannot map the URI to a resource."
+        "405":
+          "description": "Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+        "406":
+          "description": "Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+        "500":
+          "description": "Server error. Unexpected configuration or data."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_STU_HOUR_TIME_STATUSES
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    employee-student-hour-time-statuses-1.0.0_get_request_criteria:   
+      properties:
+        bannerId:
+          title: Banner Id
+          description: Banner Id.
+          type: string
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: "HOP000001"      
+        termCode:
+          title: Term Code
+          description: The term code.
+          type: string
+          x-lineageReferenceObject: PERTSTS_TERM_CODE
+          example: "202510"
+        year:
+          title: Year
+          description: Payroll year.
+          type: string
+          x-lineageReferenceObject: PERTSTS_YEAR
+          example: "2025"
+        payrollIdentificationCode:
+          title: Payroll Id
+          description: Payroll Id of the pay event
+          type: string
+          x-lineageReferenceObject: PERTSTS_PICT_CODE
+          example: "MN"
+        payrollNumber:
+          title: Payroll Number
+          description: The payroll number of the pay event
+          type: string
+          example: 1
+          x-lineageReferenceObject: PERTSTS_PAYNO
+    employee-student-hour-time-statuses-1.0.0_get_response:
+      properties:
+        bannerId:
+          title: Banner Id
+          description: Banner Id of the entity.
+          type: string
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: "HOP000001"
+        dataOrigin:
+          title: Data Origin
+          description: Source system that created or updated the data.
+          type: string
+          x-lineageReferenceObject: PERTSTS_DATA_ORIGIN
+          example: "Banner"
+        id:
+          title: Id
+          type: string
+          description: "The global identifier of the employee student hour time status."
+          example: 085df706-ee15-4947-93f8-8c260e64795e
+          x-lineageReferenceObject: PERTSTS_GUID
+        lastModified:
+          title: Last Modified
+          description: Date of last activity on this record.
+          type: string
+          format: date
+          x-lineageReferenceObject: PERTSTS_ACTIVITY_DATE
+          example: "2010-01-01"
+        lastModifiedBy:
+          title: Last Modified By
+          description: The user ID of the person who inserted or last updated this record.
+          type: string
+          x-lineageReferenceObject: PERTSTS_USER_ID
+          example: "BANNER_USER"
+        levelCode:
+          title: Level Code
+          description: The student level associated with the time status rule.
+          type: string
+          x-lineageReferenceObject: PERTSTS_LEVL_CODE
+          example: "01"
+        payrollIdentificationCode:
+          title: Payroll Id
+          description: Payroll Id of the pay event.
+          type: string
+          x-lineageReferenceObject: PERTSTS_PICT_CODE
+          example: "MN"
+        payrollNumber:
+          title: Payroll Number
+          description: The payroll number of the pay event.
+          type: number
+          x-lineageReferenceObject: PERTSTS_PAYNO
+          example: 1
+        termCode:
+          title: Term Code
+          description: The effective term of the time status rule.
+          type: string
+          x-lineageReferenceObject: PERTSTS_TERM_CODE
+          example: "202510"
+        timeStatusCode:
+          title: Time Status Code
+          description: The time status code that the rule is defined for.
+          type: string
+          x-lineageReferenceObject: PERTSTS_TMST_CODE
+          example: "00"
+        version:
+          title: Version
+          description: Optimistic lock token.
+          type: number
+          x-lineageReferenceObject: PERTSTS_VERSION
+          example: 1
+        year:
+          title: Payroll Year
+          description: The year of the payroll.
+          type: string
+          x-lineageReferenceObject: PERTSTS_YEAR
+          example: "2025"
+
+    employee-student-hour-time-statuses-1.0.0_post_request:
+      type: object
+      properties:
+        bannerId:
+          title: Banner Id
+          description: Banner Id of the entity.
+          type: string
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: "HOP000001"
+        dataOrigin:
+          title: Data Origin
+          description: Source system that created or updated the data.
+          type: string
+          x-lineageReferenceObject: PERTSTS_DATA_ORIGIN
+          example: "Banner"
+        id:
+          title: Id
+          type: string
+          description: "The global identifier of the employee student hour time status."
+          example: 085df706-ee15-4947-93f8-8c260e64795e
+          x-lineageReferenceObject: PERTSTS_GUID
+        lastModified:
+          title: Last Modified
+          description: Date of last activity on this record.
+          type: string
+          format: date
+          x-lineageReferenceObject: PERTSTS_ACTIVITY_DATE
+          example: "2010-01-01"
+        lastModifiedBy:
+          title: Last Modified By
+          description: The user ID of the person who inserted or last updated this record.
+          type: string
+          x-lineageReferenceObject: PERTSTS_USER_ID
+          example: "BANNER_USER"
+        levelCode:
+          title: Level Code
+          description: The student level associated with the time status rule.
+          type: string
+          x-lineageReferenceObject: PERTSTS_LEVL_CODE
+          example: "01"
+        payrollIdentificationCode:
+          title: Payroll Id
+          description: Payroll Id of the pay event.
+          type: string
+          x-lineageReferenceObject: PERTSTS_PICT_CODE
+          example: "MN"
+        payrollNumber:
+          title: Payroll Number
+          description: The payroll number of the pay event.
+          type: number
+          x-lineageReferenceObject: PERTSTS_PAYNO
+          example: 1
+        termCode:
+          title: Term Code
+          description: The effective term of the time status rule.
+          type: string
+          x-lineageReferenceObject: PERTSTS_TERM_CODE
+          example: "202510"
+        timeStatusCode:
+          title: Time Status Code
+          description: The time status code that the rule is defined for.
+          type: string
+          x-lineageReferenceObject: PERTSTS_TMST_CODE
+          example: "00"
+        version:
+          title: Version
+          description: Optimistic lock token.
+          type: number
+          x-lineageReferenceObject: PERTSTS_VERSION
+          example: 1
+        year:
+          title: Payroll Year
+          description: The year of the payroll.
+          type: string
+          x-lineageReferenceObject: PERTSTS_YEAR
+          example: "2025"
+      required:
+        - id
+        - bannerId
+        - termCode
+        - levelCode
+        - timeStatusCode
+        - year
+        - payrollIdentificationCode
+        - payrollNumber
+    employee-student-hour-time-statuses-1.0.0_post_response:
+      $ref: '#/components/schemas/employee-student-hour-time-statuses-1.0.0_get_response'
+    employee-student-hour-time-statuses-1.0.0_put_request:
+      type: object
+      properties:
+        bannerId:
+          title: Banner Id
+          description: Banner Id of the entity.
+          type: string
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: "HOP000001"
+        dataOrigin:
+          title: Data Origin
+          description: Source system that created or updated the data.
+          type: string
+          x-lineageReferenceObject: PERTSTS_DATA_ORIGIN
+          example: "Banner"
+        id:
+          title: Id
+          type: string
+          description: "The global identifier of the employee student hour time status."
+          example: 085df706-ee15-4947-93f8-8c260e64795e
+          x-lineageReferenceObject: PERTSTS_GUID
+        lastModified:
+          title: Last Modified
+          description: Date of last activity on this record.
+          type: string
+          format: date
+          x-lineageReferenceObject: PERTSTS_ACTIVITY_DATE
+          example: "2010-01-01"
+        lastModifiedBy:
+          title: Last Modified By
+          description: The user ID of the person who inserted or last updated this record.
+          type: string
+          x-lineageReferenceObject: PERTSTS_USER_ID
+          example: "BANNER_USER"
+        levelCode:
+          title: Level Code
+          description: The student level associated with the time status rule.
+          type: string
+          x-lineageReferenceObject: PERTSTS_LEVL_CODE
+          example: "01"
+        payrollIdentificationCode:
+          title: Payroll Id
+          description: Payroll Id of the pay event.
+          type: string
+          x-lineageReferenceObject: PERTSTS_PICT_CODE
+          example: "MN"
+        payrollNumber:
+          title: Payroll Number
+          description: The payroll number of the pay event.
+          type: number
+          x-lineageReferenceObject: PERTSTS_PAYNO
+          example: 1
+        termCode:
+          title: Term Code
+          description: The effective term of the time status rule.
+          type: string
+          x-lineageReferenceObject: PERTSTS_TERM_CODE
+          example: "202510"
+        timeStatusCode:
+          title: Time Status Code
+          description: The time status code that the rule is defined for.
+          type: string
+          x-lineageReferenceObject: PERTSTS_TMST_CODE
+          example: "00"
+        version:
+          title: Version
+          description: Optimistic lock token.
+          type: number
+          x-lineageReferenceObject: PERTSTS_VERSION
+          example: 1
+        year:
+          title: Payroll Year
+          description: The year of the payroll.
+          type: string
+          x-lineageReferenceObject: PERTSTS_YEAR
+          example: "2025"
+    employee-student-hour-time-statuses-1.0.0_put_request_batch:
+      allOf: # Combines the id with the put request model
+        - type: object
+          required:
+            - id
+          properties:
+            id:
+              title: Id
+              type: string
+              description: "The global identifier of the employee student hour time status."
+              x-lineageReferenceObject: PERTSTS_GUID
+              example: 085df706-ee15-4947-93f8-8c260e64795e
+        - $ref: '#/components/schemas/employee-student-hour-time-statuses-1.0.0_put_request'
+    employee-student-hour-time-statuses-1.0.0_put_response:
+      $ref: '#/components/schemas/employee-student-hour-time-statuses-1.0.0_get_response'
+    employee-student-hour-time-statuses-batch-1.0.0_post_request:
+      type: object
+      properties:
+        items:
+          title: items
+          description: List of items to be processed.
+          type: array
+          items:
+            type: object
+            oneOf:
+              - $ref: "#/components/schemas/employee-student-hour-time-statuses-1.0.0_post_request"
+              - $ref: "#/components/schemas/employee-student-hour-time-statuses-1.0.0_put_request_batch"
+      required:
+        - items
+    employee-student-hour-time-statuses-batch-1.0.0_post_response:
+      description: >
+        Returns the list of Ids for those employee student hour time statuses that were successfully created. 
+        For those that did not, it returns the list of error messages.
+      type: object
+      x-last-modified:
+      properties:
+        id:
+          title: ID
+          description: A globally unique identifier of a batch to be used in all external references.
+          type: string
+          example: 085df706-ee15-4947-93f8-8c260e64795e
+        status:
+          title: status
+          description: status of the batch.
+          type: string
+          enum:
+            - completed
+            - inProgress
+            - aborted
+          example: completed
+        resource:
+          title: Resource
+          description: The affected resource.
+          type: object
+          properties:
+            name:
+              title: Resource Name
+              description: The pluralized name of the affected resource
+              type: string
+              example: employee-student-hour-time-statuses
+            version:
+              title: Resource version
+              description: The version of the resource
+              type: string
+              example: 2.0.0
+          additionalProperties: false
+          required:
+            - name
+            - version
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+            oneOf:
+              - $ref: '#/components/schemas/employee-student-hour-time-statuses-1.0.0_get_response'
+              - $ref: '#/components/schemas/errors_2_0_0'
+            required:
+              - items
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description: 
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.

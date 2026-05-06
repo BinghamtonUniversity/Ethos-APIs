@@ -1,0 +1,163 @@
+openapi: 3.0.0
+info:
+  title: student-grades
+  description: >
+    Retrieves the list of student grade codes for the assessment type, course
+    reference number, term, component Id and sub component Id passed.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Student
+  x-source-title: Student Grades
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: student-grades
+paths:
+  /api/student-grades:
+    get:
+      description: >
+        __Paging__ Pagination is supported using parameters limit and offset.
+        Default value for limit is 500 and upper limit is 1000.
+
+          __Sorting__ NA
+
+        __Filtering__ Filtering is supported using url parameters
+        [‘assessmentType’, ‘crn’, ‘term’, ‘componentId’, ‘subComponentId’].
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STUD_GRADES
+      tags:
+        - student-grades
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          schema:
+            type: string
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+              application/vnd.hedtech.integration.v1.0.0+json
+            ```
+        - name: assessmentType
+          in: query
+          required: true
+          schema:
+            type: string
+          example: assessment or reassessment
+        - name: crn
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "283"
+          description: course reference number
+        - name: term
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "201440"
+          description: "term code   "
+        - name: componentId
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "42"
+        - name: subComponentId
+          in: query
+          required: false
+          schema:
+            type: string
+          example: "102896"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/student-grades"
+              examples:
+                student-grades:
+                  $ref: "#/components/examples/student-grades"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    student-grades:
+      type: array
+      items:
+        type: object
+        properties:
+          grades:
+            type: array
+            items:
+              type: string
+  examples:
+    student-grades:
+      value: "[
+
+        {
+
+        \    \"grades\": [
+
+        \        \"A+\",
+
+        \        \"A\",
+
+        \        \"B\",
+
+        \        \"C\",
+
+        \        \"D\",
+
+        \        \"F\"
+
+        \    ]
+
+        }
+
+        \ ]
+
+        \                "

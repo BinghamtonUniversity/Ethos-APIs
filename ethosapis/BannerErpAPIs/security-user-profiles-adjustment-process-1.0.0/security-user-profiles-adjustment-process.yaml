@@ -1,0 +1,587 @@
+openapi: 3.0.0
+info:
+  title: Security User Profiles Adjustment Process
+  description: >
+  
+    The Security User Profiles Adjustment Process API is used to modify access details for a specified Banner Security User.
+      Access to security objects, classes or groups may be added or removed.  The API supports the option to post adjustments to 
+      Banner Security User's access details in batches. 
+
+    Banner security user access details can be queried using security-user-profiles.  
+
+
+    Banner security user details can be queried using security-user-details. 
+
+
+    Business Profile User Assignments can be created, updated or deleted using security-business-profile-user-assignments-adjustment-process.
+
+
+    STP User Assignments can be created, updated or deleted using security-stp-user-assignments-submissions-process.
+
+
+
+    Note: To maintain strict access control, the required security object must be assigned directly to individual users. 
+    Assignment via security classes is not supported for this API.
+
+  version: 1.0.0-beta
+  x-api-type: erp
+  x-release-status: beta
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Foundation
+  x-source-name: GSASECR
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.cas
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /security-user-profiles-adjustment-process:
+    post:
+      tags:
+      - security-user-profiles-adjustment-process
+      summary: Creates or updates resources in GURUOBJ, GURUCLS and GURUGRP. 
+
+      description: >
+       Creates or updates user assignment resources for security objects (GURUOBJ), classes (GURUCLS) and groups (GURUGRP).
+
+
+       API behavior details 
+
+         
+        *  When both additions and removals for the same security component are included in the POST request, the removals will 
+        be processed first, followed by the additions.
+
+
+
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string            
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/security-user-profiles-adjustment-process-1.0.0_post_request"
+      responses:
+        '201':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/security-user-profiles-adjustment-process-1.0.0_response'                
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SECUR_USER_PROF_ADJ_PROC
+  /security-user-profiles-adjustment-process/batches:
+    post:
+      tags:
+      - security-user-profiles-adjustment-process
+      summary: Submit a batch of resources to be created or updated in GURUOBJ, GURUCLS and GURUGRP. 
+
+      description: >
+       Creates or updates batches of user assignment resources for security objects (GURUOBJ), classes (GURUCLS) and groups (GURUGRP).
+
+
+       API behavior details 
+
+         
+        *  When both additions and removals for the same security component are included in the POST request for a user, the removals will 
+        be processed first, followed by the additions.       
+
+        *  Items included in a POST/batches request will be processed sequentially.
+          
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string            
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/security-user-profiles-adjustment-process-batch-1.0.0_post_request"
+      responses:
+        '201':
+          description: Success
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/security-user-profiles-adjustment-process-batch-1.0.0_post_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SECUR_USER_PROF_ADJ_PROC      
+components:
+  schemas:
+    security-user-profiles-adjustment-process-1.0.0_post_request:
+      type: object
+      required:
+        - securityUser          
+      properties:
+        securityUser:
+          title: Security User
+          oneOf:
+            - title: Security User
+              type: object
+              properties:                      
+                userId: 
+                  title: User ID
+                  description: "The Oracle ID or Principal User ID of the security user."
+                  type: string
+                  x-lineageReferenceObject: GOBEACC_USERNAME
+                  example: "EMSUSER_TEST"
+                  maxLength: 30    
+            - title: Security User Details Globally Unique Identifier
+              type: object
+              properties:
+                securityUserDetailsId:
+                  title: Security User Details Globally Unique Identifier
+                  description: "Unique identifier of the security user."
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageReferenceObject: GOBEACC_GUID
+                  x-lineageLookupReferenceObject: security-user-details
+                  example: 49fzfc68-3t89-4756-822c-341aa9d8501q          
+                  maxLength: 36                         
+        directObjectAdditions:
+          title: Add Direct Security Object Assignments
+          type: array   
+          items:
+            type: object   
+            required: 
+            - securityObject           
+            properties:           
+              securityObject:
+                title: Security Object
+                description: "The name of the security object for which access is defined."
+                type: string
+                x-lineageReferenceObject: GURUOBJ_OBJECT
+                example: "75TESTPROC"
+                maxLength: 30    
+              assignmentRole:
+                title: Assigned Object Role
+                description: "The role associated with the assigned security object. If not included in POST request, default role defined for the object will be assigned."
+                type: string
+                x-lineageReferenceObject: GURUOBJ_ROLE
+                x-lineageLookupReferenceObject: GURAOBJ_DEFAULT_ROLE
+                example: "BAN_DEFAULT_M"
+                maxLength: 30   
+        directObjectRemovals:
+          title: Remove Direct Security Object Assignments
+          type: array
+          items:
+            type: object 
+            required:
+            - securityObject             
+            properties:           
+              securityObject:
+                title: Security Object
+                description: "The name of the security object for which access is defined."
+                type: string
+                x-lineageReferenceObject: GURUOBJ_OBJECT
+                example: "75TESTPROC"
+                maxLength: 30                       
+        securityClassAdditions:
+          title: Add Security Class Assignments
+          type: array   
+          items:
+            type: object  
+            required: 
+            - securityClass            
+            properties:           
+              securityClass:
+                title: Security Class
+                maxLength: 30
+                type: string
+                description: "The security class assigned to the user."
+                x-lineageReferenceObject: GURUCLS_CLASS_CODE
+                x-lineageLookupReferenceObject: GTVCLAS
+                example: BAN_BDR_C   
+        securityClassRemovals:
+          title: Remove Security Class Assignments
+          type: array
+          items:
+            type: object
+            required:
+            - securityClass              
+            properties:           
+              securityClass:
+                title: Security Class
+                maxLength: 30
+                type: string
+                description: "The security class assigned to the user."
+                x-lineageReferenceObject: GURUCLS_CLASS_CODE
+                x-lineageLookupReferenceObject: GTVCLAS
+                example: BAN_BDR_C      
+        securityGroupAdditions:
+          title: Add Security Group Assignments
+          type: array   
+          items:
+            type: object   
+            required: 
+            - securityGroup           
+            properties:           
+              securityGroup:
+                title: Security Group
+                maxLength: 30
+                type: string
+                description: "The security group assigned to the user."
+                x-lineageReferenceObject: GURUGRP_SGRP_CODE
+                x-lineageLookupReferenceObject: GTVSGRP
+                example: CASHIERS  
+        securityGroupRemovals:
+          title: Remove Security Group Assignments
+          type: array
+          items:
+            type: object  
+            required:
+            - securityGroup            
+            properties:           
+              securityGroup:
+                title: Security Group
+                maxLength: 30
+                type: string
+                description: "The security group assigned to the user."
+                x-lineageReferenceObject: GURUGRP_SGRP_CODE
+                x-lineageLookupReferenceObject: GTVSGRP
+                example: CASHIERS     
+    security-user-profiles-adjustment-process-1.0.0_response:
+      description: To assist with retrieval of information created/updated by the process API, the security-user-details ID is 
+        returned and may be used with security-user-profiles to retrieve the user's updated access.
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          title: Security User Details Globally Unique Identifier
+          description: "Unique identifier of the security user."
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: GOBEACC_GUID
+          example: 49fzfc68-3t89-4756-822c-341aa9d8501q          
+          maxLength: 36                                                                                                              
+    security-user-profiles-adjustment-process-batch-1.0.0_post_request:
+      type: object
+      properties:
+        items:
+          title: items
+          description: List of items to be processed.
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/security-user-profiles-adjustment-process-batch-1.0.0_post_items'
+      required:
+        - items     
+    security-user-profiles-adjustment-process-batch-1.0.0_post_items:
+      $ref: '#/components/schemas/security-user-profiles-adjustment-process-1.0.0_post_request'                                                                             
+    security-user-profiles-adjustment-process-batch-1.0.0_post_response:
+        description: 'Returns the list of IDs for those security user profile adjustment requests that were successfully processed. For those that were not, it returns the list of error messages.'
+        type: object
+        x-last-modified:
+        properties:
+          id:
+            title: ID
+            description: A globally unique identifier of a batch to be used in all external references. 
+            type: string
+            format: guid
+            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+            example: cf5ff489-e386-43a3-93cf-04d4b1f77216            
+          status:
+            title: status
+            description: status of the batch.
+            type: string
+            enum:
+              - completed
+              - inProgress
+              - aborted
+            example: completed
+          resource:
+            title: Resource
+            description: The affected resource.
+            type: object
+            properties:
+              name:
+                title: Resource Name
+                description: The pluralized name of the affected resource
+                type: string
+                example: security-user-profiles
+              version:
+                title: Resource version
+                description: The version of the resource
+                type: string
+                example: 1.0.0
+            additionalProperties: false
+            required:
+              - name
+              - version
+          items:
+            type: array
+            items:
+              type: object
+              additionalProperties: true
+              oneOf:
+                - type: object
+                  title: ID
+                  required:
+                    - id   
+                  properties:
+                    id:
+                      title: Security User Details Globally Unique Identifier
+                      description: "Unique identifier of the security user. To assist with retrieval of information created/updated by the process API, the security-user-details ID is 
+                        returned and may be used with security-user-profiles to retrieve the user's updated access."
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageReferenceObject: GOBEACC_GUID
+                      example: 49fzfc68-3t89-4756-822c-341aa9d8501q          
+                      maxLength: 36    
+                - type: object
+                  $ref: '#/components/schemas/errors_2_0_0'
+        required:
+          - id
+          - items                                                                                         
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

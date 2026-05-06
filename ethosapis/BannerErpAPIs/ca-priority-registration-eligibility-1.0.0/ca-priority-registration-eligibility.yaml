@@ -1,0 +1,752 @@
+openapi: 3.0.0
+info:
+  title: ca-priority-registration-eligibility
+  description: API for Priority Registration Eligibility 
+  version: 1.0.0-beta
+  x-source-title: API for Priority Registration Eligibility
+  x-source-system: banner
+  x-api-type: erp
+  x-audience: all
+  x-release-status: beta
+  x-source-domain: Student
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/ca-priority-registration-eligibility:
+    get:
+      tags:
+        - ca-priority-registration-eligibility
+      summary: Provide the list of Data for Priority Registration Eligibility .
+      description: Provide the list of Data for Priority Registration Eligibility.
+      parameters:
+        - name: registrationTerm
+          in: query
+          description: Registration term.
+          required: true
+          schema:
+            type: string
+        - name: districtID
+          in: query
+          description: District code.
+          required: true
+          schema:
+            type: string
+        - name: reprocessStudents
+          in: query
+          description: Reprocess Students.
+          required: false
+          schema:
+            type: string
+            enum: [Y, N]
+            description: Indicates whether students should be reprocessed (Y or N)
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ca-priority-registration-eligibility-v1_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the clients preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - BasicAuth: []
+        - EthosIntegrationBearer: []
+      x-method-permission:
+   
+      
+components:
+  schemas:
+    ca-priority-registration-eligibility-v1_response:
+      type: object
+      properties:
+        registrationTerm:
+          title: "Registration Term"
+          description: "Term code for registration."
+          type: string
+          maxLength: 6
+        districtID:
+          title: "District ID"
+          description: "Identification number for the district."
+          type: string
+          maxLength: 10
+        studentGroup:
+          type: array
+          items:
+            type: object
+            properties:
+              bannerId:
+               title: "Banner Id"
+               description: "This field defines the identification number used to access person on-line."
+               type: string
+               maxLength: 9
+               x-lineageReferenceObject: SPRIDEN.SPRIDEN_ID
+              firstName:
+               title: "First Name"
+               description: "First Name of Person."
+               type: string
+               maxLength: 60
+               x-lineageReferenceObject: SPRIDEN.SPRIDEN_FIRST_NAME
+              lastName:
+               title: "Last Name"
+               description: "Last Name of Person."
+               type: string
+               maxLength: 60
+               x-lineageReferenceObject: SPRIDEN.SPRIDEN_LAST_NAME
+              studentBaseCalif:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    termCode:
+                      title: "Term Code"
+                      description: "Term."
+                      type: string
+                      maxLength: 6
+                      x-lineageReferenceObject: SGBSTDN.SGBSTDN_TERM_CODE_EFF
+                    studentStatus:
+                      title: "Student Status"
+                      description: "Current status of the student."
+                      type: string
+                      maxLength: 2
+                      x-lineageReferenceObject: SGBSTDN.SGBSTDN_STST_CODE
+                    educationalGoal:
+                      title: "Educational Goal"
+                      description: "Student’s educational objective."
+                      type: string
+                      maxLength: 2
+                      x-lineageReferenceObject: SGBSTDN.SGBSTDN_EGOL_CODE
+                    collegeCode:
+                      title: "College Code"
+                      description: "Code identifying the college."
+                      type: string
+                      maxLength: 2
+                      x-lineageReferenceObject: SGBSTDN.SGBSTDN_COLL_CODE_DUAL
+                    studentType:
+                      title: "Student Type"
+                      description: "Type of student."
+                      type: string
+                      maxLength: 1
+                      x-lineageReferenceObject: SGBSTDN.SGBSTDN_STYP_CODE
+                    degreeCode:
+                      title: "Degree Code"
+                      description: "Degree code of the curriculum."
+                      type: string
+                      maxLength: 6
+                      x-lineageReferenceObject: SORLCUR.SORLCUR_DEGC_CODE
+                    program:
+                      title: "Program"
+                      description: "Program of the curriculum."
+                      type: string
+                      maxLength: 12
+                      x-lineageReferenceObject: SORLCUR.SORLCUR_PROGRAM
+                    educationLevel:
+                      title: "Education Level"
+                      description: "Education Level Code."
+                      type: string
+                      maxLength: 3
+                      x-lineageReferenceObject: SARADAP.SARADAP_EDLV_CODE
+              studentSport:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    sportTerm:
+                      title: "Term Code"
+                      description: "Term."
+                      type: string
+                      maxLength: 6
+                      x-lineageReferenceObject: SGRSPRT.SGRSPRT_TERM_CODE
+                    sportActivityCode:
+                      title: "Sport Activity Code"
+                      description: "Code for the sport activity."
+                      type: string
+                      maxLength: 8
+                      x-lineageReferenceObject: SGRSPRT.SGRSPRT_ACTC_CODE
+                    sportStatus:
+                      title: "Sport Status"
+                      description: "Status of participation in the sport."
+                      type: string
+                      maxLength: 2
+                      x-lineageReferenceObject: SGRSPRT.SGRSPRT_SPST_CODE
+              studentDisability:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    disabilityTermCode:
+                      title: "Disability Term Code"
+                      description: "Term code related to disability."
+                      type: string
+                      maxLength: 6
+                      x-lineageReferenceObject: SGRDISA.SGRDISA_TERM_CODE
+                    disabilityCode:
+                      title: "Disability Code"
+                      description: "Code for type of disability."
+                      type: string
+                      maxLength: 2
+                      x-lineageReferenceObject: SGRDISA.SGRDISA_DISA_CODE
+              fosterYouthStatus:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    effectiveTermCodeYouth:
+                      title: "Effective Term Youth"
+                      description: "Term code related to disability."
+                      type: string
+                      maxLength: 6
+                      x-lineageReferenceObject: SVBSFYS.SVBSFYS_EFF_TERM
+                    districtIDYouth:
+                      title: "District ID Youth"
+                      description: "ID related to youth services in the district."
+                      type: string
+                      maxLength: 3
+                      x-lineageReferenceObject: SVBSFYS.SVBSFYS_DICD_CODE
+                    fosterYouthCode:
+                      title: "Foster Youth Code"
+                      description: "Code indicating foster youth status."
+                      type: string
+                      maxLength: 1
+                      x-lineageReferenceObject: SVBSFYS.SVBSFYS_FOSTER_YOUTH_CDE
+                    homelessStatusCode:
+                      title: "Homeless Status Code"
+                      description: "Code indicating homelessness status."
+                      type: string
+                      maxLength: 2
+                      x-lineageReferenceObject: SVBSFYS.SVBSFYS_HOME_CODE
+              personalDetails:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    birthDate:
+                      title: "Birth Date"
+                      description: "Date of birth of the student."
+                      type: string
+                      maxLength: 10
+                      x-lineageReferenceObject: SPBPERS.SPBPERS_BIRTH_DATE
+              studentApplicationDecision:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    termCodeEntry:
+                      title: "Term Code Entry"
+                      description: "Entry term code for the application."
+                      type: string
+                      maxLength: 6
+                      x-lineageReferenceObject: SARAPPD.SARAPPD_TERM_CODE_ENTRY
+                    applicationDecisionDate:
+                      title: "Application Decision Date"
+                      description: "Date when application decision was made."
+                      type: string
+                      maxLength: 10
+                      x-lineageReferenceObject: SARAPPD.SARAPPD_APDC_DATE
+                    applicationDecisionCode:
+                      title: "Application Decision Code"
+                      description: "Code indicating application decision."
+                      type: string
+                      maxLength: 2
+                      x-lineageReferenceObject: SARAPPD.SARAPPD_APDC_CODE
+              levelGPA:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    levelCodeGPA:
+                      title: "Level Code GPA"
+                      description: "Code for level of GPA calculation."
+                      type: string
+                      maxLength: 4
+                      x-lineageReferenceObject: SHRLGPA.SHRLGPA_LEVL_CODE
+                    typeIndicatorGPA:
+                      title: "Type Indicator GPA"
+                      description: "Indicator of GPA type."
+                      type: string
+                      maxLength: 1
+                      x-lineageReferenceObject: SHRLGPA.SHRLGPA_GPA_TYPE_IND
+                    hoursAttempted:
+                      title: "Hours Attempted"
+                      description: "Total hours attempted by the student."
+                      type: string
+                      maxLength: 3
+                      x-lineageReferenceObject: SHRLGPA.SHRLGPA_HOURS_ATTEMPTED
+                    hoursEarned:
+                      title: "Hours Earned"
+                      description: "Total hours earned by the student."
+                      type: string
+                      maxLength: 3
+                      x-lineageReferenceObject: SHRLGPA.SHRLGPA_HOURS_EARNED
+                    GPA:
+                      title: "Grade Point Average"
+                      description: "Student's GPA."
+                      type: string
+                      maxLength: 4
+                      x-lineageReferenceObject: SHRLGPA.SHRLGPA_GPA
+              employeeBase:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      statusEmployee:
+                        title: "Employee Status"
+                        description: "Current status of the employee."
+                        type: string
+                        maxLength: 1
+                        x-lineageReferenceObject: PEBEMPL.PEBEMPL_EMPL_STATUS
+                      employeeGrouping:
+                        title: "Employee Grouping"
+                        description: "The employee grouping to which the employee belongs"
+                        type: string
+                        maxLength: 2
+                        x-lineageReferenceObject: PEBEMPL.PEBEMPL_ECLS_CODE
+              militaryServiceStatus:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    militaryEffectiveTerm:
+                      title: "Military Effective Term"
+                      description: "Term in which military benefits apply."
+                      type: string
+                      maxLength: 6
+                      x-lineageReferenceObject: SVBSMSS.SVBSMSS_EFF_TERM
+                    militaryDistrictIDCode:
+                      title: "Military District ID Code"
+                      description: "District ID for military status."
+                      type: string
+                      maxLength: 3
+                      x-lineageReferenceObject: SVBSMSS.SVBSMSS_DICD_CODE
+                    studentServingActiveDuty:
+                      title: "Student Serving Active Duty"
+                      description: "Indicates if the student is serving active duty."
+                      type: string
+                      maxLength: 1
+                      x-lineageReferenceObject: SVBSMSS.SVBSMSS_STUDENT_ACTIVE_IND
+                    studentVeteran:
+                      title: "Student Veteran"
+                      description: "Indicates if the student is a veteran."
+                      type: string
+                      maxLength: 1
+                      x-lineageReferenceObject: SVBSMSS.SVBSMSS_STUDENT_VETERAN_IND
+                    studentMemberActiveReserve:
+                      title: "Student Member Active Reserve"
+                      description: "Indicates if the student is an active reserve member."
+                      type: string
+                      maxLength: 1
+                      x-lineageReferenceObject: SVBSMSS.SVBSMSS_STUDENT_RESERVE_IND
+                    studentMemberNationalGuard:
+                      title: "Student Member National Guard"
+                      description: "Indicates if the student is a member of the National Guard."
+                      type: string
+                      maxLength: 1
+                      x-lineageReferenceObject: SVBSMSS.SVBSMSS_STUDENT_NATL_GRD_IND
+                    guardianVeteran:
+                      title: "Guardian Veteran"
+                      description: "Indicates if the guardian is a veteran."
+                      type: string
+                      maxLength: 1
+                      x-lineageReferenceObject: SVBSMSS.SVBSMSS_GUARDIAN_VETERAN_IND
+                    guardianCurrentlyServingActiveDuty:
+                      title: "Guardian Currently Serving Active Duty"
+                      description: "Indicates if the guardian is currently serving active duty."
+                      type: string
+                      maxLength: 1
+                      x-lineageReferenceObject: SVBSMSS.SVBSMSS_GUARDIAN_ACTIVE_IND
+                    guardianMemberActiveReserve:
+                      title: "Guardian Member Active Reserve"
+                      description: "Indicates if the guardian is a member of the active reserve."
+                      type: string
+                      maxLength: 1
+                      x-lineageReferenceObject: SVBSMSS.SVBSMSS_GUARDIAN_RESERVE_IND
+                    guardianMemberNationalGuard:
+                      title: "Guardian Member National Guard"
+                      description: "Indicates if the guardian is a member of the National Guard."
+                      type: string
+                      maxLength: 1
+                      x-lineageReferenceObject: SVBSMSS.SVBSMSS_GUARDIAN_NATL_GRD_IND
+                    studentVeteranInd:
+                      title: "Student Veteran Indicator"
+                      description: "Indicator of student veteran status."
+                      type: string
+                      maxLength: 1
+                      x-lineageReferenceObject: SVBSMSS.STUDENT_VETERAN_IND
+                    guardianVeteranInd:
+                      title: "Guardian Veteran Indicator"
+                      description: "Indicator of guardian veteran status."
+                      type: string
+                      maxLength: 1
+                      x-lineageReferenceObject: SVBSMSS.GUARDIAN_VETERAN_IND
+              guardianParentInformation:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    parentGuardianTerm:
+                      title: "Parent/Guardian Term"
+                      description: "Term for parent/guardian involvement."
+                      type: string
+                      maxLength: 6
+                      x-lineageReferenceObject: SVBSGPD.SVBSGPD_EFF_TERM
+                    parentGuardianDistrictID:
+                      title: "Parent/Guardian District ID"
+                      description: "District ID of the parent/guardian."
+                      type: string
+                      maxLength: 3
+                      x-lineageReferenceObject: SVBSGPD.SVBSGPD_DICD_CODE
+                    dependentsUnder18:
+                      title: "Dependents Under 18"
+                      description: "Number of dependents under 18."
+                      type: string
+                      maxLength: 1
+                      x-lineageReferenceObject: SVBSGPD.SVBSGPD_DEPTS_UNDER_18
+              educationOpportunityPrograms:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    EOPSEffectiveTerm:
+                      title: "EOPS Effective Term"
+                      description: "Effective term for EOPS services."
+                      type: string
+                      maxLength: 6
+                      x-lineageReferenceObject: SGBEOPS.SGBEOPS_TERM_CODE_EFF
+                    EOPSServicesCode:
+                      title: "EOPS Services Code"
+                      description: "Code for EOPS services."
+                      type: string
+                      maxLength: 2
+                      x-lineageReferenceObject: SGBEOPS.SGBEOPS_EOPS_CODE
+              californiaStudent:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    calWORKsTerm:
+                      title: "CalWORKs Term"
+                      description: "This field identifies the term this CalWORKs student data becomes effective"
+                      type: string
+                      maxLength: 6
+                      x-lineageReferenceObject: SVRCWSD.SVRCWSD_TERM_CODE
+                    calWorksDistrictCollegeCode:
+                      title: "CalWORKs District College Code"
+                      description: "The District/College ID for this record."
+                      type: string
+                      maxLength: 3
+                      x-lineageReferenceObject: SVRCWSD.SVRCWSD_DICD_CODE
+                    calWORKsProgramEligibilityStatus:
+                      title: "CalWORKs Program Eligibility Status"
+                      description: "Program eligibility time limit status code."
+                      type: string
+                      maxLength: 2
+                      x-lineageReferenceObject: SVRCWSD.SVRCWSD_PETL_CODE
+              academicStanding:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    academicHistoryCombinedAcademicStandingCode:
+                      title: "Academic History Combined Academic Standing Code"
+                      description: "Academic History Combined Academic Standing Code."
+                      type: string
+                      maxLength: 6
+                      x-lineageReferenceObject: SHRTTRM.SHRTTRM_ASTD_CODE_END_OF_TERM
+                    academicHistoryProgressEvaluationCode:
+                      title: "Academic History Progress Evaluation Code"
+                      description: "Academic History Progress Evaluation Code."
+                      type: string
+                      maxLength: 2
+                      x-lineageReferenceObject: SHRTTRM.SHRTTRM_ASTD_CODE_DL
+                    academicStandingCode:
+                      title: "Academic Standing Code"
+                      description: "Academic Standing Code."
+                      type: string
+                      maxLength: 2
+                      x-lineageReferenceObject: SHRTTRM.SHRTTRM_PREV_CODE
+                    academicStandingDeansListCode:
+                      title: "Academic Standing Deans List Codes"
+                      description: "Academic Standing Deans List Codes."
+                      type: string
+                      maxLength: 2
+                      x-lineageReferenceObject: SHRTTRM.SHRTTRM_CAST_CODE
+                    academicStandingTerm:
+                      title: "Academic Standing Term"
+                      description: "Academic Standing Term."
+                      type: string
+                      maxLength: 6
+                      x-lineageReferenceObject: SHRTTRM.SHRTTRM_CAST_CODE
+              registrationStudentGroup:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    regStdGroupModifiedBy:
+                      title: "User ID."
+                      description: "The user ID of the person who inserted or last updated this record."
+                      type: string
+                      maxLength: 30
+                      x-lineageReferenceObject: SFBRGRP.SFBRGRP_USER_ID
+                    regStdGroupRegistrationGroup:
+                      title: "Registration time ticketing group code."
+                      description: "Registration time ticketing group code."
+                      type: string
+                      maxLength: 10
+                      x-lineageReferenceObject: SFBRGRP.SFBRGRP_RGRP_CODE
+              studentTestScore:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    studentTestAdmrCode:
+                      title: "Admission Code."
+                      description: "This field identifies the admissions checklist item code which is cross referenced to this table."
+                      type: string
+                      maxLength: 4
+                      x-lineageReferenceObject: SORTEST.SORTEST_ADMR_CODE
+                    studentTestCampusCode:
+                      title: "Campus Code."
+                      description: "Campus associated with test score record. Required when entering test scores manually. Nullable; any valid STVCAMP_CODE."
+                      type: string
+                      maxLength: 3
+                      x-lineageReferenceObject: SORTEST.SORTEST_CAMP_CODE
+                    studentTestScore:
+                      title: "Test Score."
+                      description: "This field identifies a particular test score."
+                      type: string
+                      maxLength: 15
+                      x-lineageReferenceObject: SORTEST.SORTEST_TEST_SCORE
+                    studentTestScoreCode:
+                      title: "Test Score Code."
+                      description: "This field identifies the Test Score Code associated with various tests,ie., SAT, ACT, placement scores."
+                      type: string
+                      maxLength: 6
+                      x-lineageReferenceObject: SORTEST.SORTEST_TESC_CODE
+                    studentTestTermCodeEntry:
+                      title: "Term Code Entry."
+                      description: "Term Code Entry"
+                      type: string
+                      maxLength: 6
+                      x-lineageReferenceObject: SORTEST.SORTEST_TERM_CODE_ENTRY
+                    studentTestTestDate:
+                      title: "Date."
+                      description: "This field identifies the date a particular test was taken."
+                      type: string
+                      maxLength: 7
+                      x-lineageReferenceObject: SORTEST.SORTEST_TEST_DATE
+                    studentTestTsrcCode:
+                      title: "Source Code."
+                      description: "This field identifies the source, or how the test score was entered, ie., magnetic tape, self reported."
+                      type: string
+                      maxLength: 4
+                      x-lineageReferenceObject: SORTEST.SORTEST_TSRC_CODE
+              supportServicesTermEducationPlan:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    calServiceEducationServiceCode:
+                      title: " Education plan service code."
+                      description: " Education plan service code."
+                      type: string
+                      maxLength: 6
+                      x-lineageReferenceObject: SVREDPL.SVREDPL_EPST_CODE
+              supportServicesTermOrientation:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    calServiceOrientationServiceCode:
+                      title: "Orientation service code."
+                      description: "Orientation service code."
+                      type: string
+                      maxLength: 6
+                      x-lineageReferenceObject: SVRORNT.SVRORNT_OSST_CODE
+              supportServicesTermAssessment:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    calServiceAssessmentServiceCode:
+                      title: "Assessment service code."
+                      description: "Assessment service code."
+                      type: string
+                      maxLength: 6
+                      x-lineageReferenceObject: SVRASMT.SVRASMT_ASST_CODE
+              studentMisSpecialTerm:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    umojaProgramStatus:
+                      title: "The Umoja program status of the student."
+                      description: "The Umoja program status of the student."
+                      type: string
+                      maxLength: 2
+                      x-lineageReferenceObject: SVBSUST.SVBSUST_SUST_CODE
+                    puenteProgramStatus:
+                      title: "The Puente program status of the student."
+                      description: "The Puente program status of the student."
+                      type: string
+                      maxLength: 2
+                      x-lineageReferenceObject: SVBPNTE.SVBPNTE_PNTE_CODE
+              studentCohort:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    cohortCode:
+                      title: "Cohort Code."
+                      description: "Cohort Code."
+                      type: string
+                      maxLength: 10
+                      x-lineageReferenceObject: SGRCHRT.SGRCHRT_CHRT_CODE
+              studentAttribute:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    attributeCode:
+                      title: "The student attributes for the person and term."
+                      description: "The student attributes for the person and term."
+                      type: string
+                      maxLength: 4
+                      x-lineageReferenceObject: SGRSATT.SGRSATT_ATTS_CODE
+              studentCommittee:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    committeeCode:
+                      title: "Committee type code."
+                      description: "Committee type code."
+                      type: string
+                      maxLength: 6
+                      x-lineageReferenceObject: SHRCOMM.SHRCOMM_COMT_CODE
+                    member:
+                      title: "Unique idenfifier of a committee member."
+                      description: "Unique idenfifier of a committee member."
+                      type: string
+                      maxLength: 6
+                      x-lineageReferenceObject: SHRCOMM.SHRCOMM_PIDM_MEMBER
+                    participationFrom:
+                      title: "Date when the member was active on the committee."
+                      description: "Date when the member was active on the committee."
+                      type: string
+                      maxLength: 10
+                      x-lineageReferenceObject: SHRCOMM.SHRCOMM_FROM_DATE
+                    participationTo:
+                      title: "Date when the member was inactive on the committee."
+                      description: "Date when the member was inactive on the committee."
+                      type: string
+                      maxLength: 10
+                      x-lineageReferenceObject: SHRCOMM.SHRCOMM_TO_DATE
+      required:
+        - registrationTerm
+        - districtID
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  securitySchemes:
+    BasicAuth:
+        type: http
+        scheme: basic
+    EthosIntegrationBearer:
+        type: http
+        scheme: bearer

@@ -1,0 +1,295 @@
+openapi: 3.0.0
+info:
+  title: Catalog Course Descriptors Adjustments Process
+  description: >
+
+    The Catalog Course Descriptors Adjustments Process API is used to submit adjustments to course syllabus, course description, and course text. Changes to the course syllabus
+    includes the long coure title, learning objectives, required materials, and technical materials.
+
+    Course descriptor details can be queried using catalog-course-descriptors and adjusted using catalog-course-descriptors-adjustments-process.
+
+
+  version: 1.0.0-beta
+  x-api-type: erp
+  x-release-status: beta
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Student
+  x-source-name: SCASYLB SCADETL
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /api/catalog-course-descriptors-adjustments-process:
+    post:
+      tags:
+      - catalog-course-descriptors-adjustments-process
+      summary: Update existing resources in SCRSYLN, SCRSYLO, SCRSYRM, SCRSYTR, SCBDESC, SCRTEXT.
+      description: >
+        Updates the specified base course syllabus (SCRSYLN, SCRSYLO, SCRSYRM, SCRSYTR), course description (SCBDESC), 
+        and course text (SCRTEXT).
+        
+
+
+        API behavior details
+
+
+        For catalog courses with no existing descriptors, the POST request inserts course descriptor records as requested.
+
+
+        For existing catalog course descriptor records, the POST request replaces the effective term record with the course descriptor included in the POST request. This means that the POST request 
+        removes any existing data and replaces it with the data provided in the request.
+
+                  
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.1.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.1.0+json
+
+            ```
+          schema:
+            type: string            
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/catalog-course-descriptors-adjustments-process-1.1.0_post_request"
+      responses:
+        '201':
+          description: Success
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object                
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client's preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_CAT_CRSE_DESC_ADJ_PROC
+components:
+  schemas:
+    catalog-course-descriptors-adjustments-process-1.1.0_post_request:
+      type: object
+      required: 
+      - subject
+      - courseNumber
+      - fromTerm
+      properties:
+        subject:
+          title: Subject
+          maxLength: 4
+          type: string
+          description: "The subject area of the course."
+          x-lineageReferenceObject: SCBCRSE_SUBJ_CODE
+          example: MATH
+        courseNumber: 
+          title: Course Number
+          maxLength: 5
+          type: string
+          description: "The course number associated with the subject for the course."
+          x-lineageReferenceObject: SBCRSE_CRSE_NUMB
+          example: 205    
+        fromTerm:
+          title:  Effective Term
+          maxLength:  6
+          type:  string
+          description:   "The term that this version of the course becomes effective."
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202210             
+        courseTitle:
+          title:  Course Title
+          maxLength:  100
+          type:  string
+          description:  The long course title of the course.
+          x-lineageReferenceObject:  SCRSYLN_LONG_COURSE_TITLE
+          example: Advanced Mathematics
+        courseUrl:
+          title:  Course URL
+          maxLength:  100
+          type:  string
+          description:  This will be displayed to Banner Self-Service users as an active hypertext link.
+          x-lineageReferenceObject:  SCRSYLN_COURSE_URL
+          example: www.ellucian.com
+        objective:
+          title: Objective
+          type:  string
+          description:  The Learning Objective of the course.
+          x-lineageReferenceObject:  SCRSYLO_LEARNING_OBJECTIVES
+          example: This advanced level for math and stat.
+        requiredCourseMaterial:
+          title:  Required Course Material
+          type:  string
+          description:  The Required Materials for the course.
+          x-lineageReferenceObject:  SCRSYRM_REQUIRED_MATERIALS
+          example: Each student must purchase required materials from the bookstore.
+        courseTechnicalRequirement:
+          title:  Course Technical Requirement
+          type: string
+          description:  The Technical Requirements for the course
+          x-lineageReferenceObject:  SCRSYTR_TECHNICAL_REQUIREMENT
+          example: Students must purchase software required for the course.
+        courseDescription:                  
+          title: Course Description
+          type:  string
+          description:  Course descriptive text is maintained here.
+          x-lineageReferenceObject:  SCBDESC_TEXT_NARRATIVE
+          example: Advanced level mathematics and statistical concepts.
+        courseText:
+          type: array
+          title: Course Text
+          items:
+            required: 
+            - sequenceNumber
+            - text
+            properties:
+              sequenceNumber:                  
+                title: Text line sequence number
+                maxLength: 23    
+                type: number
+                example: 1
+                description: The sequence number of the text line. Text is displayed in ascending sequence line number order.
+                x-lineageReferenceObject: SCRTEXT_SEQNO
+              text: 
+                title: Course Text Line
+                maxLength: 60                
+                type:  string
+                example: Sophomore level advanced mathematics course.
+                description:  A free form field for course text. 
+                x-lineageReferenceObject: SCRTEXT_TEXT              
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

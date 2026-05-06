@@ -1,0 +1,434 @@
+openapi: 3.0.0
+info:
+  title: Students
+  description: >
+    Information about a person who has, or is eligible to, register/enroll at
+    the institution as a student.
+  version: 16.0.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Student
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: students
+paths:
+  /api/students:
+    get:
+      summary: Returns resources from SGBSTDN
+      description: |
+        Returns a paged listing of all the student records from SGBSTDN table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STUDENTS
+      tags:
+        - students
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Person  
+
+            The person who has, or is eligible to, register/enroll at the institution as a student.
+
+            ```
+
+            /students?criteria={"person": {"id": "5674f28b-b216-4055-b236-81a922d93b4c"}}
+
+            ```
+
+            ### Type  
+
+            The type of student.
+
+            ```
+
+            /students?criteria={"types":[{"type":{"id": "d8c8acc6-f4c0-4012-bbf3-c31d13f15f9f"}}]}
+
+            ```
+
+            ### Residency  
+
+            The residency type associated with the student.
+
+            ```
+
+            /students?criteria={"residencies":[{"residency":{"id": "0b7035b4-20a7-4f6f-8a40-a8bd823a222c"}}]}
+
+            ```
+        - name: personFilter
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Person Filter  
+
+            Retrieve information for a specified population.
+
+            ```
+
+            /students?personFilter={"personFilter": {"id": "2f3aac5e-305a-4dec-8f8e-6056c0270101"}}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-students.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/students/{id}:
+    get:
+      summary: Return the requested resource from SGBSTDN
+      description: |
+        Returns a single student record with the requested identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STUDENTS
+      tags:
+        - students
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-students.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-students.json:
+      title: Students
+      description: Information about a person who has, or is eligible to,
+        register/enroll at the institution as a student.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the student.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: SGBSTDN_GUID(SGBSTDN)
+        person:
+          title: Person
+          description: The person who has, or is eligible to, register/enroll at the
+            institution as a student.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Person.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: SGBSTDN_PIDM(SGBSTDN)
+          additionalProperties: false
+          required:
+            - id
+        types:
+          title: Types
+          description: The types of the student.
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                title: Type
+                description: The type of student.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Type.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: student-types 
+                    x-lineageReferenceObject: SGBSTDN_STYP_CODE(SGBSTDN)
+                additionalProperties: false
+                required:
+                  - id
+              startOn:
+                title: Start On
+                description: The effective date for the student type.
+                type: string
+                format: date
+                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                x-lineageReferenceObject: derived  
+                x-lineageDerivedLogic: STVTERM_START_DATE for the term code effective is displayed.
+              administrativePeriod:
+                title: Administrative Period
+                description: The starting administrative period for the student type.
+                oneOf:
+                  - type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the Administrative Period.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                        x-lineageLookupReferenceObject: administrative-periods 
+                        x-lineageReferenceObject: SGBSTDN_TERM_CODE_EFF(SGBSTDN)
+                    additionalProperties: false
+                    required:
+                      - id
+                  - type: object
+                    maxProperties: 0
+            additionalProperties: false
+            required:
+              - type
+              - startOn
+        residencies:
+          title: Residencies
+          description: "The residency types (e.g.: international, in state, out of state,
+            etc.) associated with the student for periods of time."
+          type: array
+          items:
+            type: object
+            properties:
+              residency:
+                title: Residency
+                description: The residency type associated with the student.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Residency.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: residency-types 
+                    x-lineageReferenceObject: SGBSTDN_RESD_CODE(SGBSTDN)
+                additionalProperties: false
+                required:
+                  - id
+              startOn:
+                title: Start On
+                description: The date the residency became effective.
+                oneOf:
+                  - type: string
+                    format: date
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                    x-lineageReferenceObject: derived  
+                    x-lineageDerivedLogic: STVTERM_START_DATE for the term code effective is displayed.
+                  - type: string
+                    maxLength: 0
+              administrativePeriod:
+                title: Administrative Period
+                description: The starting administrative period associated with the residency.
+                oneOf:
+                  - type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the Administrative Period.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                        x-lineageLookupReferenceObject: administrative-periods 
+                        x-lineageReferenceObject: SGBSTDN_TERM_CODE_EFF(SGBSTDN)
+                    additionalProperties: false
+                    required:
+                      - id
+                  - type: object
+                    maxProperties: 0
+            additionalProperties: false
+            required:
+              - residency
+        levelClassifications:
+          title: Level Classifications
+          description: The most recent student classification for their academic levels.
+          type: array
+          items:
+            type: object
+            properties:
+              level:
+                title: Level
+                description: The academic level associated with the student.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Level.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: academic-levels 
+                    x-lineageReferenceObject: SORLCUR_LEVL_CODE(SORLCUR)
+                additionalProperties: false
+                required:
+                  - id
+              latestClassification:
+                title: Latest Classification
+                description: The latest classification associated with the academic level.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Latest Classification.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: student-classifications 
+                    x-lineageReferenceObject: derived
+                    x-lineageDerivedLogic:  This is a calculated value for each level code, effective term and person and not stored in Banner.
+                additionalProperties: false
+                required:
+                  - id
+            additionalProperties: false
+            required:
+              - level
+              - latestClassification
+      required:
+        - id
+        - person
+      additionalProperties: false

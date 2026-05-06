@@ -1,0 +1,442 @@
+openapi: 3.0.0
+info:
+  title: Security User Profiles
+  description: >
+  
+    This API returns access details for a specified Banner Security user.  Details include 
+    assigned security objects, security classes, security groups, business profiles
+    and shared technology platforms.  In the Banner user interface, this information is 
+    displayed on the GSASECR, GOAFBPR and GSAVPDI administrative pages in Baner Access Management.
+
+
+    Banner Security User access details for security objects, classes and groups can be modified using security-user-profiles-adjustment-process.  
+
+
+    Banner Banner Business Profile User Assignments can be modified using security-business-profile-user-assignments-adjustment-process.
+
+
+    Note: To maintain strict access control, the required security object must be assigned directly to individual users. 
+    Assignment via security classes is not supported for this API.
+
+  version: 1.0.0-beta
+  x-api-type: erp
+  x-release-status: beta
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Foundation
+  x-source-name: GSASECR, GOAFBPR, GSAVPDI
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /qapi/security-user-profiles:
+    post:
+      tags:
+      - security-user-profiles QAPI
+      summary: Returns resources from GUVUACC, GURUCLS, GURUGRP, GORFBPR and GURUSRI.
+
+      description: >
+        Queries for the requested resource using a set of attributes provided in the post
+        request body.  Please note the path to the server is overridden to use /qapi/{resource} 
+        in the URL and not /api/{resource}.
+        
+        
+        Returns records from GUVUACC, GURUCLS, GURUGRP, GORFBPR and GURUSRI for the submitted user.
+          
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string            
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/security-user-profiles-1.0.0_qapi_post_request"
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/security-user-profiles-1.0.0_qapi_post_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SECURITY_USER_PROFILES
+components:
+  schemas:
+    security-user-profiles-1.0.0_qapi_post_request:
+      type: object
+      required:
+        - securityUser
+      properties:              
+        securityUser:
+          title: Security User
+          oneOf:
+            - title: Security User Id
+              type: object
+              properties:                      
+                userId: 
+                  title: User Id
+                  description: "The Oracle ID or Principal User ID of the security user."
+                  type: string
+                  x-lineageReferenceObject: GOBEACC_USERNAME
+                  example: "EMSUSER_TEST"
+                  maxLength: 30    
+            - title: Security User Details Globally Unique Identifier
+              type: object
+              properties:
+                securityUserDetailsId:
+                  title: Security User Details Globally Unique Identifier
+                  description: "Unique identifier of the security user."
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageReferenceObject: GOBEACC_GUID
+                  x-lineageLookupReferenceObject: security-user-details
+                  example: 49fzfc68-3t89-4756-822c-341aa9d8501q          
+                  maxLength: 36                  
+    security-user-profiles-1.0.0_qapi_post_response:
+      type: object
+      required:
+        - userId 
+      properties:
+        userId: 
+          title: User Id
+          description: "The Oracle ID or Principal User ID of the security user."
+          type: string
+          x-lineageReferenceObject: GOBEACC_USERNAME
+          example: "EMSUSER_TEST"
+          maxLength: 30  
+        securityUserDetailsId:
+          title: Security User Details Globally Unique Identifier
+          description: "Unique identifier of the security user."
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: GOBEACC_GUID
+          example: 49fzfc68-3t89-4756-822c-341aa9d8501q          
+          maxLength: 36            
+        assignedObjects:
+          title: Assigned Objects
+          type: array   
+          items:
+            type: object              
+            properties:           
+              assignedObject:
+                title: Assigned Security Object Code
+                description: "The name of the security object for which access is defined."
+                type: string
+                x-lineageReferenceObject: GUVUACC_OBJECT
+                example: "75TESTPROC"
+                maxLength: 30    
+              assignedRole:
+                title: Assigned Object Role
+                description: "The role associated with the assigned security object."
+                type: string
+                x-lineageReferenceObject: GUVUACC_OBJECT
+                example: "BAN_DEFAULT_M"
+                maxLength: 30           
+              rank:
+                title: Role Rank
+                description: "The order in which the roles will be used."
+                type: number
+                x-lineageReferenceObject: GUVUACC_RANK
+                example: "2" 
+              assignmentMethod:
+                title: Assignment Method
+                description: "How object access was defined: via a class (class), via a direct grant (direct), 
+                  via a class defined in a group (groupClass), or via a direct grant to a group (groupDirect)."
+                type: string
+                x-lineageReferenceObject: GUVUACC_TYPE
+                example: "groupDirect"
+                maxLength: 12  
+                enum:
+                  - class
+                  - direct
+                  - groupClass
+                  - groupDirect               
+              assignedObjectClass:
+                title: Assigned Object Class
+                description: "The Banner security class where this object access was defined."
+                type: string
+                x-lineageReferenceObject: GUVUACC_CLASS
+                example: "BAN_ADMIN_C"
+                maxLength: 30   
+              assignedObjectGroup:
+                title: Assigned Object Group
+                description: "The Security Group where access was defined."
+                type: string
+                x-lineageReferenceObject: GUVUACC_GROUP
+                example: "BAN_ADMIN_SGRP"
+                maxLength: 30                                                                                    
+        assignedClasses:
+                  title: Assigned Classes
+                  type: array
+                  items: 
+                    type: object         
+                    properties: 
+                      securityClass:
+                        title: Security Class
+                        maxLength: 30
+                        type: string
+                        description: "The security class assigned to the user."
+                        x-lineageReferenceObject: GURUCLS_CLASS_CODE
+                        x-lineageLookupReferenceObject: GTVCLAS
+                        example: BAN_BDR_C                
+                      modifiedOn:
+                        title: Modified On
+                        maxLength: 11
+                        type: string
+                        format: date-time
+                        pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                        description: "Most current date the record was created or changed."
+                        x-lineageReferenceObject: GURUCLS_ACTIVITY_DATE
+                        example: 2024-05-05T04:00:00Z                     
+                      modifiedBy:
+                        title: Modified By User ID
+                        maxLength: 30
+                        type: string
+                        description: "User who inserted or last update the data."
+                        x-lineageReferenceObject: GURUCLS_USER_ID
+                        example: SAISUSR                                       
+        assignedGroups:
+                  title: Assigned Groups
+                  type: array
+                  items: 
+                    type: object         
+                    properties: 
+                      securityGroup:
+                        title: Security Group
+                        maxLength: 30
+                        type: string
+                        description: "The security group assigned to the user."
+                        x-lineageReferenceObject: GURUGRP_SGRP_CODE
+                        x-lineageLookupReferenceObject: GTVSGRP
+                        example: CASHIERS                    
+                      modifiedOn:
+                        title: Modified On
+                        maxLength: 11
+                        type: string
+                        format: date-time
+                        pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                        description: "Most current date the record was created or changed."
+                        x-lineageReferenceObject: GURUGRP_ACTIVITY_DATE
+                        example: 2024-05-05T04:00:00Z                     
+                      modifiedBy:
+                        title: Modified By User ID
+                        maxLength: 30
+                        type: string
+                        description: "User who inserted or last update the data."
+                        x-lineageReferenceObject: GURUGRP_USER_ID
+                        example: SAISUSR                                       
+        assignedBusinessProfiles:
+                  title: Assigned Business Profiles
+                  type: array
+                  items: 
+                    type: object         
+                    properties: 
+                      businessProfile:
+                        title: Business Profile
+                        maxLength: 30
+                        type: string
+                        description: "The business profile to which the user is assigned."
+                        x-lineageReferenceObject: GORFBPR_FBPR_CODE
+                        x-lineageLookupReferenceObject: GTVFBPR
+                        example: HR_STAFF_ADMIN                    
+                      modifiedOn:
+                        title: Modified On
+                        maxLength: 11
+                        type: string
+                        format: date-time
+                        pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                        description: "Most current date the record was created or changed."
+                        x-lineageReferenceObject: GORFBPR_ACTIVITY_DATE
+                        example: 2024-05-06T04:00:00Z                     
+                      modifiedBy:
+                        title: Modified By User ID
+                        maxLength: 30
+                        type: string
+                        description: "User who inserted or last update the data."
+                        x-lineageReferenceObject: GORFBPR_USER_ID
+                        example: ACASHIER                                       
+        assignedStpIdentifiers:
+                  title: Assigned Shared Technology Platform (STP) Identifiers
+                  type: array
+                  items: 
+                    type: object         
+                    properties: 
+                      stpIdentifier:
+                        title: STP Identifier
+                        maxLength: 30
+                        type: string
+                        description: "The STP Identifier assigned to the user."
+                        x-lineageReferenceObject: GURUSRI_VPDI_CODE
+                        x-lineageLookupReferenceObject: GTVVPDI
+                        example: INST
+                      isDefaultStpIdentifier:
+                        title: User Default STP Identifier Indicator
+                        description: "Indicates the default STP institution for the user."
+                        type: boolean
+                        x-lineageReferenceObject: GURUSRI_USER_DEF_INST_IND
+                        example: "true"                      
+                      modifiedOn:
+                        title: Modified On
+                        maxLength: 11
+                        type: string
+                        format: date-time
+                        pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                        description: "Most current date the record was created or changed."
+                        x-lineageReferenceObject: GURUSRI_ACTIVITY_DATE
+                        example: 2024-07-05T04:00:00Z                     
+                      modifiedBy:
+                        title: Modified By User ID
+                        maxLength: 30
+                        type: string
+                        description: "User who inserted or last update the data."
+                        x-lineageReferenceObject: GURUSRI_USER_ID
+                        example: FAISUSR                                                                
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

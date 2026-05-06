@@ -1,0 +1,730 @@
+openapi: 3.0.0
+info:
+  title: Person Visas
+  description: >
+    Person visas API processes the details of visas issued to a person.
+    
+    As of 11.1.0 version , Person Visa API is enhanced to accept following additional property values.
+
+      Start On,
+      Issuing Authority,
+      Port of Entry
+
+    Please refer to "API Integration Configuration Settings" section in the Banner Ethos API Handbook" for details on API configuration settings that needs to be configured for this API.
+  version: "11.1.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Foundation
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/person-visas:
+    get:
+      summary: Returns resources from GORVISA
+      description: >
+        Returns a paged listing of all the person visa records from GORVISA
+        table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSON_VISAS
+      tags:
+        - person-visas
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Person  
+
+            Returns all visa records for the person guid passed.
+
+            ```
+
+            /person-visas?criteria={"person":{"id":"2582835d-3e14-435b-b74f-4311746987ce"}}
+
+            ```
+
+            ### Visa Type Category  
+
+            Returns all visa records for the visa type category passed.
+
+            ```
+
+            /person-visas?criteria={"visaType":{"category":"nonImmigrant"}}
+
+            ```
+
+            ### Visa Type Detail  
+
+            Returns all visa records for the visa type detail guid passed.
+
+            ```
+
+            /person-visas?criteria={"visaType":{"detail":{"id":"99b0f599-38d3-4809-b19f-15cad248fd24"}}}
+            
+            ```
+          example: '/person-visas?criteria={"visaType":{"detail":{"id":"99b0f599-38d3-4809-b19f-15cad248fd24"}}}'    
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-person-visas.json"
+              example:
+                  metadata:
+                    createdBy: admin
+                    createdOn: '2023-01-01T00:00:00Z'
+                    modifiedBy: admin
+                    modifiedOn: '2023-01-02T00:00:00Z'
+                  id: "a1b2c3d4-e5f6-7890-ab12-cd34ef567890"  
+                  person:
+                    id: "2582835d-3e14-435b-b74f-4311746987ce"
+                  visaType:
+                    category: "nonImmigrant"
+                    detail:
+                      id: "99b0f599-38d3-4809-b19f-15cad248fd24"
+                  visaId: "F1-2024-001234"
+                  status: "current"
+                  requestedOn: "2024-01-15"
+                  issuedOn: "2024-02-10"
+                  expiresOn: "2029-02-09"
+                  startOn: "2024-08-01"
+                  issuingAuthority:
+                    id: "8f9e8d7c-6b5a-4938-8271-9c8b7a654321"
+                  portEntry:
+                    id: "7e6d5c4b-3a29-1827-3645-5a4b3c2d1e0f"
+                  entries:
+                    - enteredOn: "2024-08-15T14:30:00Z"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11.1.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new resource in GORVISA
+      description: >
+        POST requests must include a nil GUID value
+        ("00000000-0000-0000-0000-000000000000") for the root id property.
+
+
+        Creates a new person visa record in GORVISA table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSON_VISAS
+      tags:
+        - person-visas
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v11.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-person-visas.json"
+              example:
+                metadata:
+                  createdBy: admin
+                  createdOn: '2023-01-01T00:00:00Z'
+                  modifiedBy: admin
+                  modifiedOn: '2023-01-02T00:00:00Z'
+                id: "b2c3d4e5-f6g7-8901-bc23-de45fg678901"
+                person:
+                  id: "3693946e-4f25-546c-c85g-5422857098df"
+                visaType:
+                  category: "nonImmigrant"
+                  detail:
+                    id: "aab1g6aa-49e4-5920-c2ag-26dbe359gc35"
+                visaId: "H1B-2024-987654"
+                status: "current"
+                requestedOn: "2024-03-01"
+                issuedOn: "2024-04-15"
+                expiresOn: "2027-04-14"
+                startOn: "2024-10-01"
+                issuingAuthority:
+                  id: "9g0f9e8d-7c6b-5a49-9382-ad9c8b7a6543"
+                portEntry:
+                  id: "8f7e6d5c-4b3a-2918-4756-6b5a4c3d2e1f"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-person-visas.json"
+            example:
+              metadata:
+                createdBy: admin
+                createdOn: '2023-01-01T00:00:00Z'
+                modifiedBy: admin
+                modifiedOn: '2023-01-02T00:00:00Z'
+              id: "00000000-0000-0000-0000-000000000000"
+              person:
+                id: "3693946e-4f25-546c-c85g-5422857098df"
+              visaType:
+                category: "nonImmigrant"
+                detail:
+                  id: "aab1g6aa-49e4-5920-c2ag-26dbe359gc35"
+              visaId: "H1B-2024-987654"
+              requestedOn: "2024-03-01"
+              issuedOn: "2024-04-15"
+              expiresOn: "2027-04-14"
+              startOn: "2024-10-01"
+              issuingAuthority:
+                id: "9g0f9e8d-7c6b-5a49-9382-ad9c8b7a6543"
+              portEntry:
+                id: "8f7e6d5c-4b3a-2918-4756-6b5a4c3d2e1f"
+  /api/person-visas/{id}:
+    get:
+      summary: Return the requested resource from GORVISA
+      description: |
+        Returns a single person visa record with the requested identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSON_VISAS
+      tags:
+        - person-visas
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v11.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-person-visas.json"
+              example:
+                metadata:
+                 createdBy: admin
+                 createdOn: '2023-01-01T00:00:00Z'
+                 modifiedBy: admin
+                 modifiedOn: '2023-01-02T00:00:00Z'
+                id: "a1b2c3d4-e5f6-7890-ab12-cd34ef567890"
+                person:
+                  id: "2582835d-3e14-435b-b74f-4311746987ce"
+                visaType:
+                  category: "nonImmigrant"
+                  detail:
+                    id: "99b0f599-38d3-4809-b19f-15cad248fd24"
+                visaId: "F1-2024-001234"
+                status: "current"
+                requestedOn: "2024-01-15"
+                issuedOn: "2024-02-10"
+                expiresOn: "2029-02-09"
+                startOn: "2024-08-01"
+                issuingAuthority:
+                  id: "8f9e8d7c-6b5a-4938-8271-9c8b7a654321"
+                portEntry:
+                  id: "7e6d5c4b-3a29-1827-3645-5a4b3c2d1e0f"
+                entries:
+                  - enteredOn: "2024-08-15T14:30:00Z"
+                  - enteredOn: "2024-12-20T09:15:00Z"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    put:
+      summary: Update the requested resource from GORVISA
+      description: >
+        Updates the person visa record in GORVISA table with the requested
+        identifier. Note that the person and visaType properties cannot be
+        changed.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSON_VISAS
+      tags:
+        - person-visas
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Person Visas for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json 
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v11.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-person-visas.json"
+              example:
+                metadata:
+                 createdBy: admin
+                 createdOn: '2023-01-01T00:00:00Z'
+                 modifiedBy: admin
+                 modifiedOn: '2023-01-02T00:00:00Z'
+                id: "a1b2c3d4-e5f6-7890-ab12-cd34ef567890"
+                person:
+                  id: "2582835d-3e14-435b-b74f-4311746987ce"
+                visaType:
+                  category: "nonImmigrant"
+                  detail:
+                    id: "99b0f599-38d3-4809-b19f-15cad248fd24"
+                visaId: "F1-2024-001234"
+                status: "current"
+                requestedOn: "2024-01-15"
+                issuedOn: "2024-02-10"
+                expiresOn: "2029-02-09"
+                startOn: "2024-08-01"
+                issuingAuthority:
+                  id: "8f9e8d7c-6b5a-4938-8271-9c8b7a654321"
+                portEntry:
+                  id: "7e6d5c4b-3a29-1827-3645-5a4b3c2d1e0f"
+                entries:
+                  - enteredOn: "2024-08-15T14:30:00Z"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-person-visas.json"
+            example:
+              metadata:
+                createdBy: admin
+                createdOn: '2023-01-01T00:00:00Z'
+                modifiedBy: admin
+                modifiedOn: '2023-01-02T00:00:00Z'
+              id: "a1b2c3d4-e5f6-7890-ab12-cd34ef567890"
+              person:
+                id: "2582835d-3e14-435b-b74f-4311746987ce"
+              visaType:
+                category: "nonImmigrant"
+                detail:
+                  id: "99b0f599-38d3-4809-b19f-15cad248fd24"
+              visaId: "F1-2024-001234"
+              status: "current"
+              requestedOn: "2024-01-15"
+              issuedOn: "2024-02-10"
+              expiresOn: "2029-02-09"
+              startOn: "2024-08-01"
+              issuingAuthority:
+                id: "8f9e8d7c-6b5a-4938-8271-9c8b7a654321"
+              portEntry:
+                id: "8f7e6d5c-4b3a-2918-4756-6b5a4c3d2e1f"
+              entries:
+                - enteredOn: "2024-08-15T14:30:00Z"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-person-visas.json:
+      title: Person Visas
+      description: Visas issued to a person.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+              example: "system.admin"
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+              example: "2024-02-10T10:30:00Z"
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+              example: "jane.doe"
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+              example: "2024-08-20T15:45:00Z"
+          additionalProperties: false
+        id:
+          title: ID
+          description: A global identifier of a visa record
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: GORVISA_GUID(GORVISA)
+          example: "a1b2c3d4-e5f6-7890-ab12-cd34ef567890"
+        person:
+          title: Person
+          description: The person to whom the visa was issued
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Person.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+              x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME as 'persons' will refer to each SPRIDEN_PIDM in SPRIDEN.
+              example: "2582835d-3e14-435b-b74f-4311746987ce"
+          additionalProperties: false
+          required:
+            - id
+        visaType:
+          title: Visa Type
+          description: A type of a visa
+          type: object
+          properties:
+            category:
+              title: Category
+              description: A global category of visa types
+              enum:
+                - immigrant
+                - nonImmigrant
+              type: string
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: For the value in GORVISA_VTYP_CODE, if STVVTYP_NON_RES_IND is 'Y' display as 'nonImmigrant' and if STVVTYP_NON_RES_IND is not 'Y' then display as 'immigrant'
+              example: "nonImmigrant"
+            detail:
+              title: Detail
+              description: ""
+              oneOf:
+                - type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Detail.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: visa-types 
+                      x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = visa-types) 
+                      x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME as 'visa-types' will refer to the GORVISA_VTYP_CODE in GORVISA.
+                      example: "99b0f599-38d3-4809-b19f-15cad248fd24"
+                  additionalProperties: false
+                  required:
+                    - id
+                - type: object
+                  maxProperties: 0
+          additionalProperties: false
+          minProperties: 1
+          required:
+            - category
+        visaId:
+          title: Visa Identifier
+          description: The identifier of the visa
+          type: string
+          x-lineageReferenceObject: GORVISA_VISA_NUMBER(GORVISA)
+          example: "F1-2024-001234"
+        status:
+          title: Status
+          description: Visa status
+          oneOf:
+            - type: string
+              enum:
+                - current
+                - expired
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: If the current date is greater than GORVISA_VISA_EXPIRE_DATE then display as 'expired', else display as  'current'
+            - type: string
+              maxLength: 0
+        requestedOn:
+          title: Date Requested
+          description: The date when the visa was requested
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: GORVISA_VISA_REQ_DATE(GORVISA)
+            - type: string
+              maxLength: 0
+        issuedOn:
+          title: Date Issued
+          description: The date when the visa was issued
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: GORVISA_VISA_ISSUE_DATE(GORVISA)
+            - type: string
+              maxLength: 0
+        expiresOn:
+          title: Expires On
+          description: The visa expiration date
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: GORVISA_VISA_EXPIRE_DATE(GORVISA)
+            - type: string
+              maxLength: 0
+        entries:
+          title: Entries
+          description: Entries into the country on this visa
+          type: array
+          items:
+            type: object
+            properties:
+              enteredOn:
+                title: Entered On
+                description: The date of entry
+                oneOf:
+                  - type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    x-lineageReferenceObject: GORVISAM_ENTERED_ON(GORVISAM)
+                  - type: string
+                    maxLength: 0
+                example: "2024-08-15T14:30:00Z"
+            additionalProperties: false
+          example:
+            - enteredOn: "2024-08-15T14:30:00Z"
+            - enteredOn: "2024-12-20T09:15:00Z"
+        startOn: 
+            title: Start On
+            description: The start date of the visa.
+            type: string
+            format: date
+            pattern: ^(-?(?:1-90-9*)?0-94)-(10-2|01-9)-(30-1|01-9|1-20-9)$
+            x-lineageReferenceObject: GORVISA_VISA_START_DATE(GORVISA)
+            example: "2024-08-01"
+        issuingAuthority: 
+            title: Issuing Authority
+            description: The agency that authorized the visa.
+            type: object
+            properties: 
+                id: 
+                    title: ID
+                    description: The global identifier for the Issuing Authority.
+                    type: string
+                    format: guid
+                    pattern: ^a-f0-98(?:-a-f0-94)3-a-f0-912$
+                    x-lineageLookupReferenceObject: visa-authority-codes 
+                    x-lineageReferenceObject: GTVVISS_GUID
+                    x-lineageDerivedLogic: Display GUID from GTVVISS where GTVVISS_CODE refers to the GORVISA_VISS_CODE in GORVISA
+                    example: "8f9e8d7c-6b5a-4938-8271-9c8b7a654321"
+            additionalProperties: false
+            required: 
+                - id
+        portEntry: 
+            title: Port of Entry
+            description: The port of entry into the country.
+            type: object
+            properties: 
+                id: 
+                    title: ID
+                    description: The global identifier for the Port of Entry.
+                    type: string
+                    format: guid
+                    pattern: ^a-f0-98(?:-a-f0-94)3-a-f0-912$
+                    x-lineageLookupReferenceObject: port-entry-codes 
+                    x-lineageReferenceObject: STVPENT_GUID
+                    x-lineageDerivedLogic: Display GUID from STVPENT where STVPENT_CODE refers to the GORVISA_PENT_CODE in GORVISA
+                    example: "7e6d5c4b-3a29-1827-3645-5a4b3c2d1e0f"
+            additionalProperties: false
+            required: 
+                - id    
+      required:
+        - id
+        - person
+        - visaType
+      additionalProperties: false

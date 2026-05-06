@@ -1,0 +1,1305 @@
+openapi: 3.0.0
+info:
+  title: miscellaneous-transaction
+  description: API for TFAMISC administrative page
+  version: 1.0.0
+  x-audience: all
+  x-release-status: ga
+  x-source-name: TFAMISC
+  x-source-domain: Student
+  x-source-title: Miscellaneous Transaction - Finance
+  x-source-system: banner
+  x-api-type: bus-poc
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/miscellaneous-transaction:
+    get:
+      tags:
+        - miscellaneous-transaction
+      summary: Return resources from TFAMISC
+      parameters:
+        - name: X-SDE-Expand
+          in: header
+          description: The comma separated value list of block names
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: The maximum number of resources requesting for this result set.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          description: The filter criteria as a single URL query parameter. Use this
+            parameter or the individual parameters listed. Must be a JSON representation
+            of the property searching for. This can be any of the properties listed
+            on the URL or QAPI and must be a json representation that can be validated
+            against the GET schema. Limit and Offset are the only supported additional
+            parameters on the URL.
+          required: false
+          schema:
+            type: string
+        - name: receiptNumber
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/miscellaneous-transaction-1.0.0_get_response'
+        "401":
+          description: Failure. Unauthorized
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors-2.0.0'
+      security:
+        - EllucianOAuthUserToken: []
+        - BasicAuth: []
+    post:
+      tags:
+        - miscellaneous-transaction
+      summary: Creates a new resource in TFAMISC
+      parameters: []
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: '#/components/schemas/miscellaneous-transaction-1.0.0_post_request'
+            examples:
+              example1:
+                summary: Amount is passed in the request.
+                value:
+                  id: KBECK
+                  transDate: 2024-07-24
+                  transaction: [
+                    {
+                      workDetailCode: CASH,
+                      drCrInd: D,
+                      amount: 80,
+                      paymentId: 46,
+                      merchantId: 12345,
+                      workCoas: "B",
+                      workFund: "S1110",
+                      workOrgn: "11001",
+                      workAcct: "7120",
+                      workProg: "200",
+                      workRuclCode: "CR05"
+                    },
+                    {
+                      workDetailCode: CASH,
+                      drCrInd: C,
+                      amount: 80,
+                      paymentId: 46,
+                      merchantId: 12345,
+                      workCoas: "B",
+                      workFund: "S1110",
+                      workOrgn: "11001",
+                      workAcct: "7120",
+                      workProg: "200",
+                      workRuclCode: "CR05"
+                    }]
+                  name: sample
+                  streetLine1: GreatAvenue
+                  streetLine2: park
+                  streetLine3: street
+                  city: Newyork
+                  zip: 678233
+                  natnCode: 157
+              example2:
+                summary: Foreign amount and Currency code is passed in the request.
+                value:
+                  id: KBECK
+                  transDate: 2024-07-24
+                  transaction: [
+                    {
+                      workDetailCode: CASH,
+                      drCrInd: D,
+                      paymentId: 46,
+                      merchantId: 12345,
+                      currCode: AUD,
+                      foreignAmount: 100,
+                      workCoas: "B",
+                      workFund: "S1110",
+                      workOrgn: "11001",
+                      workAcct: "7120",
+                      workProg: "200",
+                      workRuclCode: "CR05"
+                    },
+                    {
+                      workDetailCode: CASH,
+                      drCrInd: C,
+                      paymentId: 46,
+                      merchantId: 12345,
+                      currCode: AUD,
+                      foreignAmount: 100,
+                      workCoas: "B",
+                      workFund: "S1110",
+                      workOrgn: "11001",
+                      workAcct: "7120",
+                      workProg: "200",
+                      workRuclCode: "CR05"
+                    }]
+                  name: sample
+                  streetLine1: GreatAvenue
+                  streetLine2: park
+                  streetLine3: street
+                  city: Newyork
+                  zip: 678233
+                  natnCode: 157
+              example3:
+                summary: Amount is passed for debit and Foreign amount and Currency code is passed for credit.
+                value:
+                  id: KBECK
+                  transDate: 2024-07-24
+                  transaction: [
+                    {
+                      workDetailCode: CASH,
+                      drCrInd: D,
+                      amount: 80,
+                      paymentId: 46,
+                      merchantId: 12345,
+                      workCoas: "B",
+                      workFund: "S1110",
+                      workOrgn: "11001",
+                      workAcct: "7120",
+                      workProg: "200",
+                      workRuclCode: "CR05"
+                    },
+                    {
+                      workDetailCode: CASH,
+                      drCrInd: C,
+                      paymentId: 46,
+                      merchantId: 12345,
+                      currCode: AUD,
+                      foreignAmount: 100,
+                      workCoas: "B",
+                      workFund: "S1110",
+                      workOrgn: "11001",
+                      workAcct: "7120",
+                      workProg: "200",
+                      workRuclCode: "CR05"
+                    }]
+                  name: sample
+                  streetLine1: GreatAvenue
+                  streetLine2: park
+                  streetLine3: street
+                  city: Newyork
+                  zip: 678233
+                  natnCode: 157
+              example4:
+                summary: Foreign amount and Currency code is passed for debit and Amount is passed for credit.
+                value:
+                  id: KBECK
+                  transDate: 2024-07-24
+                  transaction: [
+                    {
+                      workDetailCode: CASH,
+                      drCrInd: D,
+                      paymentId: 46,
+                      merchantId: 12345,
+                      currCode: AUD,
+                      foreignAmount: 100,
+                      workCoas: "B",
+                      workFund: "S1110",
+                      workOrgn: "11001",
+                      workAcct: "7120",
+                      workProg: "200",
+                      workRuclCode: "CR05"
+                    },
+                    {
+                      workDetailCode: CASH,
+                      drCrInd: C,
+                      amount: 80,
+                      paymentId: 46,
+                      merchantId: 12345,
+                      workCoas: "B",
+                      workFund: "S1110",
+                      workOrgn: "11001",
+                      workAcct: "7120",
+                      workProg: "200",
+                      workRuclCode: "CR05"
+                    }]
+                  name: sample
+                  streetLine1: GreatAvenue
+                  streetLine2: park
+                  streetLine3: street
+                  city: Newyork
+                  zip: 678233
+                  natnCode: 157
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/miscellaneous-transaction-1.0.0_post_response'
+        "401":
+          description: Failure. Unauthorized
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors-2.0.0'
+      security:
+        - EllucianOAuthUserToken: []
+        - BasicAuth: []
+  /qapi/miscellaneous-transaction:
+    post:
+      tags:
+        - miscellaneous-transaction QAPI (Query by POST)
+      summary: Return resources from TFAMISC
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: '#/components/schemas/miscellaneous-transaction-1.0.0_qapi_post_request'
+            example:
+              receiptNumber: 3987
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/miscellaneous-transaction-1.0.0_qapi_post_response'
+        "401":
+          description: Failure. Unauthorized
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors-2.0.0'
+      security:
+        - EllucianOAuthUserToken: []
+        - BasicAuth: []
+components:
+  schemas:
+    miscellaneous-transaction-1.0.0_post_request:
+      required:
+        - streetLine1
+        - id
+      type: object
+      properties:
+        streetLine2:
+          title: Street Line 2
+          maxLength: 75
+          type: string
+          description: "Lineage reference object : TBBMISC_STREET_LINE2"
+          x-lineageReferenceObject: TBBMISC_STREET_LINE2
+        zip:
+          title: ZIP or Postal Code
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : TBBMISC_ZIP, Lookup lineage reference\
+            \ object : gtvzipc"
+          x-lineageReferenceObject: TBBMISC_ZIP
+          x-lineageLookupReferenceObject: gtvzipc
+        streetLine1:
+          title: Street Line 1
+          maxLength: 75
+          type: string
+          description: "Lineage reference object : TBBMISC_STREET_LINE1"
+          x-lineageReferenceObject: TBBMISC_STREET_LINE1
+        statCode:
+          title: State or Province
+          maxLength: 3
+          type: string
+          description: "Lineage reference object : TBBMISC_STAT_CODE, Lookup lineage\
+            \ reference object : stvstat"
+          x-lineageReferenceObject: TBBMISC_STAT_CODE
+          x-lineageLookupReferenceObject: stvstat
+        natnCode:
+          title: Nation
+          maxLength: 5
+          type: string
+          description: "Lineage reference object : TBBMISC_NATN_CODE, Lookup lineage\
+            \ reference object : stvnatn"
+          x-lineageReferenceObject: TBBMISC_NATN_CODE
+          x-lineageLookupReferenceObject: stvnatn
+        city:
+          title: City
+          maxLength: 50
+          type: string
+          description: "Lineage reference object : TBBMISC_CITY"
+          x-lineageReferenceObject: TBBMISC_CITY
+        documentNumber:
+          title: Document
+          maxLength: 8
+          type: string
+          description: "Lineage reference object : documentNumber, Lookup lineage\
+            \ reference object : tbrmisd"
+          x-lineageReferenceObject: documentNumber
+          x-lineageLookupReferenceObject: tbrmisd
+        streetLine4:
+          title: Street Line 4
+          maxLength: 75
+          type: string
+          description: "Lineage reference object : TBBMISC_STREET_LINE4"
+          x-lineageReferenceObject: TBBMISC_STREET_LINE4
+        streetLine3:
+          title: Street Line 3
+          maxLength: 75
+          type: string
+          description: "Lineage reference object : TBBMISC_STREET_LINE3"
+          x-lineageReferenceObject: TBBMISC_STREET_LINE3
+        houseNumber:
+          title: House Number
+          maxLength: 10
+          type: string
+          description: "Lineage reference object : TBBMISC_HOUSE_NUMBER"
+          x-lineageReferenceObject: TBBMISC_HOUSE_NUMBER
+        transDate:
+          title: Transaction Date
+          maxLength: 26
+          type: string
+          description: "Lineage reference object : transDate"
+          format: date-time
+          x-lineageReferenceObject: transDate
+        name:
+          title: Name
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : TBBMISC_NAME"
+          x-lineageReferenceObject: TBBMISC_NAME
+        id:
+          title: ID
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : id"
+          x-lineageReferenceObject: id
+        receiptNumber:
+          title: Receipt Number
+          maxLength: 8
+          type: number
+          description: "Lineage reference object : receiptNumber"
+          x-lineageReferenceObject: receiptNumber
+        transaction:
+          type: array
+          items:
+            required:
+              - workDetailCode
+              - drCrInd
+              - streetLine1
+            type: object
+            properties:
+              amount:
+                title: Amount
+                maxLength: 16
+                type: number
+                description: "Lineage reference object : TBRMISD_AMOUNT"
+                x-lineageReferenceObject: TBRMISD_AMOUNT
+              currCode:
+                title: Currency Code
+                maxLength: 4
+                type: string
+                description: "Lineage reference object : TBRMISD_CURR_CODE, Lookup\
+                  \ lineage reference object : gtvcurr"
+                x-lineageReferenceObject: TBRMISD_CURR_CODE
+                x-lineageLookupReferenceObject: gtvcurr
+              workCoas:
+                title: COA
+                maxLength: 1
+                type: string
+              workOrgn:
+                title: Organization
+                maxLength: 6
+                type: string
+              workRuclCode:
+                title: Rule Class
+                maxLength: 4
+                type: string
+              workAcct:
+                title: Account
+                maxLength: 6
+                type: string
+              workDetailCode:
+                title: Detail Code
+                maxLength: 4
+                type: string
+                description: "Lookup lineage reference object : tbbdetc"
+                x-lineageLookupReferenceObject: tbbdetc
+              foreignAmount:
+                title: Currency Amount
+                maxLength: 16
+                type: number
+                description: "Lineage reference object : TBRMISD_FOREIGN_AMOUNT"
+                x-lineageReferenceObject: TBRMISD_FOREIGN_AMOUNT
+              workLocn:
+                title: Location
+                maxLength: 6
+                type: string
+              workAcci:
+                title: Index
+                maxLength: 6
+                type: string
+              merchantId:
+                title: Merchant ID
+                maxLength: 20
+                type: string
+                description: "Lineage reference object : TBRMISD_MERCHANT_ID"
+                x-lineageReferenceObject: TBRMISD_MERCHANT_ID
+              paymentId:
+                title: Payment Number
+                maxLength: 20
+                type: string
+                description: "Lineage reference object : TBRMISD_PAYMENT_ID"
+                x-lineageReferenceObject: TBRMISD_PAYMENT_ID
+              workProg:
+                title: Program
+                maxLength: 6
+                type: string
+              workFund:
+                title: Fund
+                maxLength: 6
+                type: string
+              drCrInd:
+                title: Debit or Credit
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : TBRMISD_DR_CR_IND"
+                x-lineageReferenceObject: TBRMISD_DR_CR_IND
+              desc:
+                title: Description
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : TBRMISD_DESC"
+                x-lineageReferenceObject: TBRMISD_DESC
+              workActv:
+                title: Activity
+                maxLength: 6
+                type: string
+            x-lineageReferenceObject: TBRMISD
+        atypCode:
+          title: Address Type
+          maxLength: 2
+          type: string
+        atypSeqno:
+          title: Sequence Number
+          maxLength: 2
+          type: number
+      x-lineageReferenceObject: TBBMISC
+    errors-2.0.0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for
+                  the primary data entity used to create the resource. This is useful
+                  for referencing the source item through the applications administrative
+                  user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: 'The detailed actionable error message. '
+    miscellaneous-transaction-1.0.0_qapi_post_request:
+      type: object
+      properties:
+        receiptNumber:
+          title: Receipt Number
+          maxLength: 8
+          type: number
+          description: "Lineage reference object : receiptNumber"
+          x-lineageReferenceObject: receiptNumber
+      x-lineageReferenceObject: KEY_BLOCK
+    miscellaneous-transaction-1.0.0_get_response:
+      type: object
+      properties:
+        tbrmisd:
+          type: array
+          items:
+            required:
+              - amount
+              - desc
+              - drCrInd
+              - workDetailCode
+            type: object
+            properties:
+              amount:
+                title: Amount
+                maxLength: 16
+                type: number
+                description: "Lineage reference object : TBRMISD_AMOUNT"
+                x-lineageReferenceObject: TBRMISD_AMOUNT
+              currCode:
+                title: Currency Code
+                maxLength: 4
+                type: string
+                description: "Lineage reference object : TBRMISD_CURR_CODE, Lookup\
+                  \ lineage reference object : gtvcurr"
+                x-lineageReferenceObject: TBRMISD_CURR_CODE
+                x-lineageLookupReferenceObject: gtvcurr
+              workCoas:
+                title: COA
+                maxLength: 1
+                type: string
+              workOrgn:
+                title: Organization
+                maxLength: 6
+                type: string
+              workRuclCode:
+                title: Rule Class
+                maxLength: 4
+                type: string
+              workAcct:
+                title: Account
+                maxLength: 6
+                type: string
+              foreignAmount:
+                title: Currency Amount
+                maxLength: 16
+                type: number
+                description: "Lineage reference object : TBRMISD_FOREIGN_AMOUNT"
+                x-lineageReferenceObject: TBRMISD_FOREIGN_AMOUNT
+              workDetailCode:
+                title: Detail Code
+                maxLength: 4
+                type: string
+                description: "Lookup lineage reference object : tbbdetc"
+                x-lineageLookupReferenceObject: tbbdetc
+              workLocn:
+                title: Location
+                maxLength: 6
+                type: string
+              workAcci:
+                title: Index
+                maxLength: 6
+                type: string
+              merchantId:
+                title: Merchant ID
+                maxLength: 20
+                type: string
+                description: "Lineage reference object : TBRMISD_MERCHANT_ID"
+                x-lineageReferenceObject: TBRMISD_MERCHANT_ID
+              paymentId:
+                title: Payment Number
+                maxLength: 20
+                type: string
+                description: "Lineage reference object : TBRMISD_PAYMENT_ID"
+                x-lineageReferenceObject: TBRMISD_PAYMENT_ID
+              workAccount:
+                title: Account
+                maxLength: 60
+                type: string
+              workProg:
+                title: Program
+                maxLength: 6
+                type: string
+              workFund:
+                title: Fund
+                maxLength: 6
+                type: string
+              drCrInd:
+                title: Debit or Credit
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : TBRMISD_DR_CR_IND"
+                x-lineageReferenceObject: TBRMISD_DR_CR_IND
+              desc:
+                title: Description
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : TBRMISD_DESC"
+                x-lineageReferenceObject: TBRMISD_DESC
+              workActv:
+                title: Activity
+                maxLength: 6
+                type: string
+            x-lineageReferenceObject: tbrmisd
+        tbrcmis:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                maxLength: 1
+                type: string
+            x-lineageReferenceObject: tbrcmis
+        receipt_print_ctl:
+          type: array
+          items:
+            type: object
+            properties:
+              printReceipt:
+                title: Print Receipt
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : printReceipt"
+                x-lineageReferenceObject: printReceipt
+              dupReceiptInd:
+                title: Print Duplicate
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : dupReceiptInd"
+                x-lineageReferenceObject: dupReceiptInd
+            x-lineageReferenceObject: receipt_print_ctl
+        tbbmisc:
+          type: array
+          items:
+            type: object
+            properties:
+              natnDesc:
+                maxLength: 30
+                type: string
+              streetLine2:
+                title: Street Line 2
+                maxLength: 75
+                type: string
+                description: "Lineage reference object : TBBMISC_STREET_LINE2"
+                x-lineageReferenceObject: TBBMISC_STREET_LINE2
+              zip:
+                title: ZIP or Postal Code
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : TBBMISC_ZIP, Lookup lineage\
+                  \ reference object : gtvzipc"
+                x-lineageReferenceObject: TBBMISC_ZIP
+                x-lineageLookupReferenceObject: gtvzipc
+              streetLine1:
+                title: Street Line 1
+                maxLength: 75
+                type: string
+                description: "Lineage reference object : TBBMISC_STREET_LINE1"
+                x-lineageReferenceObject: TBBMISC_STREET_LINE1
+              statCode:
+                title: State or Province
+                maxLength: 3
+                type: string
+                description: "Lineage reference object : TBBMISC_STAT_CODE, Lookup\
+                  \ lineage reference object : stvstat"
+                x-lineageReferenceObject: TBBMISC_STAT_CODE
+                x-lineageLookupReferenceObject: stvstat
+              natnCode:
+                title: Nation
+                maxLength: 5
+                type: string
+                description: "Lineage reference object : TBBMISC_NATN_CODE, Lookup\
+                  \ lineage reference object : stvnatn"
+                x-lineageReferenceObject: TBBMISC_NATN_CODE
+                x-lineageLookupReferenceObject: stvnatn
+              city:
+                title: City
+                maxLength: 50
+                type: string
+                description: "Lineage reference object : TBBMISC_CITY"
+                x-lineageReferenceObject: TBBMISC_CITY
+              streetLine4:
+                title: Street Line 4
+                maxLength: 75
+                type: string
+                description: "Lineage reference object : TBBMISC_STREET_LINE4"
+                x-lineageReferenceObject: TBBMISC_STREET_LINE4
+              streetLine3:
+                title: Street Line 3
+                maxLength: 75
+                type: string
+                description: "Lineage reference object : TBBMISC_STREET_LINE3"
+                x-lineageReferenceObject: TBBMISC_STREET_LINE3
+              houseNumber:
+                title: House Number
+                maxLength: 10
+                type: string
+                description: "Lineage reference object : TBBMISC_HOUSE_NUMBER"
+                x-lineageReferenceObject: TBBMISC_HOUSE_NUMBER
+              createSource:
+                title: Create Source
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : TBBMISC_CREATE_SOURCE"
+                x-lineageReferenceObject: TBBMISC_CREATE_SOURCE
+              name:
+                title: Name
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : TBBMISC_NAME"
+                x-lineageReferenceObject: TBBMISC_NAME
+              atypCode:
+                title: Address Type
+                maxLength: 2
+                type: string
+              atypSeqno:
+                title: Sequence Number
+                maxLength: 2
+                type: number
+            x-lineageReferenceObject: tbbmisc
+    miscellaneous-transaction-1.0.0_post_response:
+      type: object
+      properties:
+        key_block:
+          type: array
+          items:
+            type: object
+            properties:
+              creditTotal:
+                title: Credit Total
+                maxLength: 18
+                type: number
+                description: "Lineage reference object : creditTotal"
+                x-lineageReferenceObject: creditTotal
+              documentNumber:
+                title: Document
+                maxLength: 8
+                type: string
+                description: "Lineage reference object : documentNumber, Lookup lineage\
+                  \ reference object : tbrmisd"
+                x-lineageReferenceObject: documentNumber
+                x-lineageLookupReferenceObject: tbrmisd
+              rwname:
+                maxLength: 230
+                type: string
+                description: "Lineage reference object : rwname"
+                x-lineageReferenceObject: rwname
+              transDate:
+                title: Transaction Date
+                maxLength: 26
+                type: string
+                description: "Lineage reference object : transDate"
+                format: date
+                x-lineageReferenceObject: transDate
+              id:
+                title: ID
+                maxLength: 9
+                type: string
+                description: "Lineage reference object : id"
+                x-lineageReferenceObject: id
+              sessUser:
+                title: User
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : sessUser"
+                x-lineageReferenceObject: sessUser
+              receiptNumber:
+                title: Receipt Number
+                maxLength: 8
+                type: string
+                description: "Lineage reference object : receiptNumber"
+                x-lineageReferenceObject: receiptNumber
+              debitTotal:
+                title: Debit Total
+                maxLength: 18
+                type: number
+                description: "Lineage reference object : debitTotal"
+                x-lineageReferenceObject: debitTotal
+            x-lineageReferenceObject: key_block
+        tbrmisd:
+          type: array
+          items:
+            required:
+              - amount
+              - desc
+              - drCrInd
+              - workDetailCode
+            type: object
+            properties:
+              amount:
+                title: Amount
+                maxLength: 16
+                type: number
+                description: "Lineage reference object : TBRMISD_AMOUNT"
+                x-lineageReferenceObject: TBRMISD_AMOUNT
+              currCode:
+                title: Currency Code
+                maxLength: 4
+                type: string
+                description: "Lineage reference object : TBRMISD_CURR_CODE, Lookup\
+                  \ lineage reference object : gtvcurr"
+                x-lineageReferenceObject: TBRMISD_CURR_CODE
+                x-lineageLookupReferenceObject: gtvcurr
+              workCoas:
+                title: COA
+                maxLength: 1
+                type: string
+              workOrgn:
+                title: Organization
+                maxLength: 6
+                type: string
+              workRuclCode:
+                title: Rule Class
+                maxLength: 4
+                type: string
+              workAcct:
+                title: Account
+                maxLength: 6
+                type: string
+              foreignAmount:
+                title: Currency Amount
+                maxLength: 16
+                type: number
+                description: "Lineage reference object : TBRMISD_FOREIGN_AMOUNT"
+                x-lineageReferenceObject: TBRMISD_FOREIGN_AMOUNT
+              workDetailCode:
+                title: Detail Code
+                maxLength: 4
+                type: string
+                description: "Lookup lineage reference object : tbbdetc"
+                x-lineageLookupReferenceObject: tbbdetc
+              workLocn:
+                title: Location
+                maxLength: 6
+                type: string
+              workAcci:
+                title: Index
+                maxLength: 6
+                type: string
+              merchantId:
+                title: Merchant ID
+                maxLength: 20
+                type: string
+                description: "Lineage reference object : TBRMISD_MERCHANT_ID"
+                x-lineageReferenceObject: TBRMISD_MERCHANT_ID
+              paymentId:
+                title: Payment Number
+                maxLength: 20
+                type: string
+                description: "Lineage reference object : TBRMISD_PAYMENT_ID"
+                x-lineageReferenceObject:
+              workAccount:
+                title: Account
+                maxLength: 60
+                type: string
+              workProg:
+                title: Program
+                maxLength: 6
+                type: string
+              workFund:
+                title: Fund
+                maxLength: 6
+                type: string
+              drCrInd:
+                title: Debit or Credit
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : TBRMISD_DR_CR_IND"
+                x-lineageReferenceObject: TBRMISD_DR_CR_IND
+              desc:
+                title: Description
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : TBRMISD_DESC"
+                x-lineageReferenceObject: TBRMISD_DESC
+              workActv:
+                title: Activity
+                maxLength: 6
+                type: string
+            example:
+              - amount: 0
+                currCode: "string"
+                foreignAmount: 0
+                workDetailCode: "string"
+                merchantId: "string"
+                paymentId: "string"
+                drCrInd: "string"
+                desc: "string"
+                workCoas: "string"
+                workFund: "string"
+                workOrgn: "string"
+                workAcct: "string"
+                workProg: "string"
+                workRuclCode: "string"
+              - amount: 0
+                currCode: "string"
+                foreignAmount: 0
+                workDetailCode: "stri"
+                merchantId: "string"
+                paymentId: "string"
+                drCrInd: "string"
+                desc: "string"
+                workCoas: "string"
+                workFund: "string"
+                workOrgn: "string"
+                workAcct: "string"
+                workProg: "string"
+                workRuclCode: "string"
+            x-lineageReferenceObject: tbrmisd
+        tbbmisc:
+          type: array
+          items:
+            type: object
+            properties:
+              natnDesc:
+                maxLength: 30
+                type: string
+              streetLine2:
+                title: Street Line 2
+                maxLength: 75
+                type: string
+                description: "Lineage reference object : TBBMISC_STREET_LINE2"
+                x-lineageReferenceObject: TBBMISC_STREET_LINE2
+              zip:
+                title: ZIP or Postal Code
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : TBBMISC_ZIP, Lookup lineage\
+                  \ reference object : gtvzipc"
+                x-lineageReferenceObject: TBBMISC_ZIP
+                x-lineageLookupReferenceObject: gtvzipc
+              streetLine1:
+                title: Street Line 1
+                maxLength: 75
+                type: string
+                description: "Lineage reference object : TBBMISC_STREET_LINE1"
+                x-lineageReferenceObject: TBBMISC_STREET_LINE1
+              statCode:
+                title: State or Province
+                maxLength: 3
+                type: string
+                description: "Lineage reference object : TBBMISC_STAT_CODE, Lookup\
+                  \ lineage reference object : stvstat"
+                x-lineageReferenceObject: TBBMISC_STAT_CODE
+                x-lineageLookupReferenceObject: stvstat
+              natnCode:
+                title: Nation
+                maxLength: 5
+                type: string
+                description: "Lineage reference object : TBBMISC_NATN_CODE, Lookup\
+                  \ lineage reference object : stvnatn"
+                x-lineageReferenceObject: TBBMISC_NATN_CODE
+                x-lineageLookupReferenceObject: stvnatn
+              city:
+                title: City
+                maxLength: 50
+                type: string
+                description: "Lineage reference object : TBBMISC_CITY"
+                x-lineageReferenceObject: TBBMISC_CITY
+              streetLine4:
+                title: Street Line 4
+                maxLength: 75
+                type: string
+                description: "Lineage reference object : TBBMISC_STREET_LINE4"
+                x-lineageReferenceObject: TBBMISC_STREET_LINE4
+              streetLine3:
+                title: Street Line 3
+                maxLength: 75
+                type: string
+                description: "Lineage reference object : TBBMISC_STREET_LINE3"
+                x-lineageReferenceObject: TBBMISC_STREET_LINE3
+              houseNumber:
+                title: House Number
+                maxLength: 10
+                type: string
+                description: "Lineage reference object : TBBMISC_HOUSE_NUMBER"
+                x-lineageReferenceObject: TBBMISC_HOUSE_NUMBER
+              createSource:
+                title: Create Source
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : TBBMISC_CREATE_SOURCE"
+                x-lineageReferenceObject: TBBMISC_CREATE_SOURCE
+              name:
+                title: Name
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : TBBMISC_NAME"
+                x-lineageReferenceObject: TBBMISC_NAME
+              atypCode:
+                title: Address Type
+                maxLength: 2
+                type: string
+              atypSeqno:
+                title: Sequence Number
+                maxLength: 2
+                type: number
+            x-lineageReferenceObject: tbbmisc
+    miscellaneous-transaction-1.0.0_qapi_post_response:
+      type: object
+      properties:
+        tbrmisd:
+          type: array
+          items:
+            required:
+              - amount
+              - desc
+              - drCrInd
+              - workDetailCode
+            type: object
+            properties:
+              amount:
+                title: Amount
+                maxLength: 16
+                type: number
+                description: "Lineage reference object : TBRMISD_AMOUNT"
+                x-lineageReferenceObject: TBRMISD_AMOUNT
+              currCode:
+                title: Currency Code
+                maxLength: 4
+                type: string
+                description: "Lineage reference object : TBRMISD_CURR_CODE, Lookup\
+                  \ lineage reference object : gtvcurr"
+                x-lineageReferenceObject: TBRMISD_CURR_CODE
+                x-lineageLookupReferenceObject: gtvcurr
+              foreignAmount:
+                title: Currency Amount
+                maxLength: 16
+                type: number
+                description: "Lineage reference object : TBRMISD_FOREIGN_AMOUNT"
+                x-lineageReferenceObject: TBRMISD_FOREIGN_AMOUNT
+              workDetailCode:
+                title: Detail Code
+                maxLength: 4
+                type: string
+                description: "Lookup lineage reference object : tbbdetc"
+                x-lineageLookupReferenceObject: tbbdetc
+              merchantId:
+                title: Merchant ID
+                maxLength: 20
+                type: string
+                description: "Lineage reference object : TBRMISD_MERCHANT_ID"
+                x-lineageReferenceObject: TBRMISD_MERCHANT_ID
+              paymentId:
+                title: Payment Number
+                maxLength: 20
+                type: string
+                description: "Lineage reference object : TBRMISD_PAYMENT_ID"
+                x-lineageReferenceObject: TBRMISD_PAYMENT_ID
+              drCrInd:
+                title: Debit or Credit
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : TBRMISD_DR_CR_IND"
+                x-lineageReferenceObject: TBRMISD_DR_CR_IND
+              desc:
+                title: Description
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : TBRMISD_DESC"
+                x-lineageReferenceObject: TBRMISD_DESC
+            example:
+              - amount: 0
+                currCode: "string"
+                foreignAmount: 0
+                workDetailCode: "string"
+                merchantId: "string"
+                paymentId: "string"
+                drCrInd: "string"
+                desc: "string"
+              - amount: 0
+                currCode: "string"
+                foreignAmount: 0
+                workDetailCode: "string"
+                merchantId: "string"
+                paymentId: "string"
+                drCrInd: "string"
+                desc: "string"
+            x-lineageReferenceObject: tbrmisd
+        tbrcmis:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                maxLength: 1
+                type: string
+            x-lineageReferenceObject: tbrcmis
+        receipt_print_ctl:
+          type: array
+          items:
+            type: object
+            properties:
+              printReceipt:
+                title: Print Receipt
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : printReceipt"
+                x-lineageReferenceObject: printReceipt
+              dupReceiptInd:
+                title: Print Duplicate
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : dupReceiptInd"
+                x-lineageReferenceObject: dupReceiptInd
+            x-lineageReferenceObject: receipt_print_ctl
+        tbbmisc:
+          type: array
+          items:
+            type: object
+            properties:
+              natnDesc:
+                maxLength: 30
+                type: string
+              streetLine2:
+                title: Street Line 2
+                maxLength: 75
+                type: string
+                description: "Lineage reference object : TBBMISC_STREET_LINE2"
+                x-lineageReferenceObject: TBBMISC_STREET_LINE2
+              zip:
+                title: ZIP or Postal Code
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : TBBMISC_ZIP, Lookup lineage\
+                  \ reference object : gtvzipc"
+                x-lineageReferenceObject: TBBMISC_ZIP
+                x-lineageLookupReferenceObject: gtvzipc
+              streetLine1:
+                title: Street Line 1
+                maxLength: 75
+                type: string
+                description: "Lineage reference object : TBBMISC_STREET_LINE1"
+                x-lineageReferenceObject: TBBMISC_STREET_LINE1
+              statCode:
+                title: State or Province
+                maxLength: 3
+                type: string
+                description: "Lineage reference object : TBBMISC_STAT_CODE, Lookup\
+                  \ lineage reference object : stvstat"
+                x-lineageReferenceObject: TBBMISC_STAT_CODE
+                x-lineageLookupReferenceObject: stvstat
+              natnCode:
+                title: Nation
+                maxLength: 5
+                type: string
+                description: "Lineage reference object : TBBMISC_NATN_CODE, Lookup\
+                  \ lineage reference object : stvnatn"
+                x-lineageReferenceObject: TBBMISC_NATN_CODE
+                x-lineageLookupReferenceObject: stvnatn
+              city:
+                title: City
+                maxLength: 50
+                type: string
+                description: "Lineage reference object : TBBMISC_CITY"
+                x-lineageReferenceObject: TBBMISC_CITY
+              streetLine4:
+                title: Street Line 4
+                maxLength: 75
+                type: string
+                description: "Lineage reference object : TBBMISC_STREET_LINE4"
+                x-lineageReferenceObject: TBBMISC_STREET_LINE4
+              streetLine3:
+                title: Street Line 3
+                maxLength: 75
+                type: string
+                description: "Lineage reference object : TBBMISC_STREET_LINE3"
+                x-lineageReferenceObject: TBBMISC_STREET_LINE3
+              houseNumber:
+                title: House Number
+                maxLength: 10
+                type: string
+                description: "Lineage reference object : TBBMISC_HOUSE_NUMBER"
+                x-lineageReferenceObject: TBBMISC_HOUSE_NUMBER
+              createSource:
+                title: Create Source
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : TBBMISC_CREATE_SOURCE"
+                x-lineageReferenceObject: TBBMISC_CREATE_SOURCE
+              name:
+                title: Name
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : TBBMISC_NAME"
+                x-lineageReferenceObject: TBBMISC_NAME
+              atypCode:
+                title: Address Type
+                maxLength: 2
+                type: string
+              atypSeqno:
+                title: Sequence Number
+                maxLength: 2
+                type: number
+            x-lineageReferenceObject: tbbmisc
+  securitySchemes:
+    EllucianOAuthUserToken:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

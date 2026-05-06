@@ -1,0 +1,500 @@
+openapi: 3.0.1
+
+info:
+  title: Logic Specifications
+  description: >
+    The logic-specification API is an alternate representation of the api-specifications v1.0.0 API.
+    The logic specification defines the business logic and functionality of the custom API.
+
+    The logic specification is the source code of the API. It describes the functional flow and
+    the API behavior. On a GET method, the specification describes how to filter data, how to get
+    a single resource or a page, and how to transform the source data into the JSON resource. The
+    logic for Banner supports the ability to read from a table or to view data in the database and
+    map it to a set of JSON properties. The logic specification supports Banner Ethos API standards
+    which include semantic versioning, paging, and filtering.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Foundation
+
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+
+paths:
+  /IntegrationApi/api/api-specifications/{id}:
+    put:
+      summary: Update Logic Specification for Custom API
+      x-method-permissions: API_SPECIFICATIONS
+      tags:
+        - api-specifications
+      description: |
+        Upload or update the Logic Specification for a custom API.
+
+        A successful PUT updates columns in GURASPC including:
+        - GURASPC_LOGIC_SPEC  
+        - GURASPC_RETURNED_MEDIA_TYPE  
+        - GURASPC_KNOWN_MEDIA_TYPES  
+        - GURASPC_MAJOR_VERSION  
+        - GURASPC_EVENT_DEF  
+        - GURASPC_METHODS  
+        - GURASPC_FILTERS  
+        - GURASPC_SECURITY_OBJECT  
+        - GURASPC_GUID_BASE_TABLE  
+        - GURASPC_SHADOW_TABLE  
+
+        GUID table and trigger generation occurs automatically for the resource.
+
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier (UUID) of the custom API specification in GURASPC.
+          schema:
+            type: string
+            format: uuid
+
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.logic-specifications.v1+json:
+            example:
+              contextInitialize:
+                pipeline:
+                  - setRequestValuesInContext
+
+              pipelines:
+                - name: getAPI
+                  segments:
+                    - compileEthosFilter
+                    - getTotalCount
+                    - getResource
+                - name: postAPI
+                  segments:
+                    - createResource
+                    - getGUIDCreated
+
+              resource: x-cipc-codes
+
+              supports:
+                accepts:
+                  - application/vnd.hedtech.integration.v1+json
+                  - application/vnd.hedtech.integration.v1.0.0+json
+                  - application/json
+                returnedMediaType: application/vnd.hedtech.integration.v1.0.0+json
+                contentTypes:
+                  - application/vnd.hedtech.integration.v1.0.0+json
+
+              dependencies:
+                security:
+                  bannerSecurityObject: API_X_CIPC
+                eventDefinition:
+                  rootEntityList:
+                    - STVCIPC
+                  events:
+                    - EEDM.EXTN.X-CIPC-TEST.STVCIPC
+                guid:
+                  tableOwner: SATURN
+                  baseTable: STVCIPC
+
+              segments:
+                - name: setRequestValuesInContext
+                  class: context:initialize
+                  config:
+                    variables:
+                      - setName: resourceId
+                        name: id
+                        type: request:path
+                      - setName: accept
+                        name: accept
+                        type: request:header
+                      - setName: contentType
+                        name: content-type
+                        type: request:header
+                      - setName: limit
+                        name: limit
+                        type: request:path
+                      - setName: offset
+                        name: offset
+                        type: request:path
+                      - setName: criteria
+                        name: criteria
+                        type: request:path
+                      - setName: debug
+                        name: debug
+                        type: request:path
+                      - setName: resourceName
+                        name: pluralizedResourceName
+                        type: request:path
+
+                - name: compileEthosFilter
+                  class: sql:query:ethosFilterCompiler
+                  config:
+                    contextTarget: getQuerySQL
+                    statement: >
+                      SELECT STVCIPC_GUID, STVCIPC_CODE, STVCIPC_DESC, STVCIPC_PUB_YEAR,
+                      STVCIPC_SURROGATE_ID, STVCIPC_ACTIVITY_DATE,
+                      STVCIPC_ACTIVITY_DATE as Datetimestamp
+                      FROM STVCIPC %%WHERE_FILTER%%
+                      ORDER BY STVCIPC_SURROGATE_ID ASC
+                    propertyMaps:
+                      - sourcePropertyType: varchar
+                        sourceProperty: STVCIPC_GUID
+                        jsonPath: "/"
+                        jsonType: S
+                        jsonLabel: id
+                      - sourcePropertyType: varchar
+                        sourceProperty: STVCIPC_DESC
+                        jsonPath: "/"
+                        jsonType: S
+                        jsonLabel: title
+                      - sourcePropertyType: varchar
+                        sourceProperty: STVCIPC_CODE
+                        jsonPath: "/"
+                        jsonType: S
+                        jsonLabel: code
+                      - sourcePropertyType: number
+                        sourceProperty: STVCIPC_PUB_YEAR
+                        jsonPath: "/"
+                        jsonType: N
+                        jsonLabel: revisionYear
+                      - sourcePropertyType: timestamp
+                        sourceProperty: STVCIPC_ACTIVITY_DATE
+                        jsonPath: "/"
+                        jsonType: D
+                        jsonLabel: datetime
+
+                - name: getTotalCount
+                  class: sql:query:ethosTotalCount
+                  config:
+                    statement: "select count(*) from (::getQuerySQL::)"
+
+                - name: getResource
+                  class: sql:query:resultSetJsonTransformer
+                  config:
+                    sqlPagingWrapper: >
+                      SELECT T.* FROM (
+                        SELECT T.*, rowNum as rowIndex
+                        FROM (%%STATEMENT%%) T
+                      ) T
+                      WHERE rowIndex > %%START_INDEX%% AND rowIndex <= %%END_INDEX%%
+                    statement: "::getQuerySQL::"
+                    contextResourceName: "x-cipc-codes"
+                    propertyMaps:
+                      - sourcePropertyType: varchar
+                        sourceProperty: STVCIPC_GUID
+                        jsonPath: "/"
+                        jsonType: S
+                        jsonLabel: id
+                      - sourcePropertyType: varchar
+                        sourceProperty: STVCIPC_DESC
+                        jsonPath: "/"
+                        jsonType: S
+                        jsonLabel: title
+                      - sourcePropertyType: varchar
+                        sourceProperty: STVCIPC_CODE
+                        jsonPath: "/"
+                        jsonType: S
+                        jsonLabel: code
+                      - sourcePropertyType: number
+                        sourceProperty: STVCIPC_PUB_YEAR
+                        jsonPath: "/"
+                        jsonType: N
+                        jsonLabel: revisionYear
+                      - sourcePropertyType: timestamp
+                        sourceProperty: STVCIPC_ACTIVITY_DATE
+                        jsonPath: "/"
+                        jsonType: D
+                        jsonLabel: datetime
+
+      responses:
+        "200":
+          description: Logic specification upload successful.
+          content:
+            application/vnd.hedtech.integration.logic-specifications.v1+json:
+              example:
+                contextInitialize:
+                  pipeline:
+                    - setRequestValuesInContext
+
+                pipelines:
+                  - name: getAPI
+                    segments:
+                      - compileEthosFilter
+                      - getTotalCount
+                      - getResource
+                  - name: postAPI
+                    segments:
+                      - createResource
+                      - getGUIDCreated
+
+                resource: x-cipc-codes
+
+                supports:
+                  accepts:
+                    - application/vnd.hedtech.integration.v1+json
+                    - application/vnd.hedtech.integration.v1.0.0+json
+                    - application/json
+                  returnedMediaType: application/vnd.hedtech.integration.v1.0.0+json
+                  contentTypes:
+                    - application/vnd.hedtech.integration.v1.0.0+json
+
+                dependencies:
+                  security:
+                    bannerSecurityObject: API_X_CIPC
+                  eventDefinition:
+                    rootEntityList:
+                      - STVCIPC
+                    events:
+                      - EEDM.EXTN.X-CIPC-TEST.STVCIPC
+                  guid:
+                    tableOwner: SATURN
+                    baseTable: STVCIPC
+
+                segments:
+                  - name: setRequestValuesInContext
+                    class: context:initialize
+                    config:
+                      variables:
+                        - setName: resourceId
+                          name: id
+                          type: request:path
+                        - setName: accept
+                          name: accept
+                          type: request:header
+                        - setName: contentType
+                          name: content-type
+                          type: request:header
+                        - setName: limit
+                          name: limit
+                          type: request:path
+                        - setName: offset
+                          name: offset
+                          type: request:path
+                        - setName: criteria
+                          name: criteria
+                          type: request:path
+                        - setName: debug
+                          name: debug
+                          type: request:path
+                        - setName: resourceName
+                          name: pluralizedResourceName
+                          type: request:path
+
+                  - name: compileEthosFilter
+                    class: sql:query:ethosFilterCompiler
+                    config:
+                      contextTarget: getQuerySQL
+                      statement: >
+                        SELECT STVCIPC_GUID, STVCIPC_CODE, STVCIPC_DESC, STVCIPC_PUB_YEAR,
+                        STVCIPC_SURROGATE_ID, STVCIPC_ACTIVITY_DATE,
+                        STVCIPC_ACTIVITY_DATE as Datetimestamp
+                        FROM STVCIPC %%WHERE_FILTER%%
+                        ORDER BY STVCIPC_SURROGATE_ID ASC
+                      propertyMaps:
+                        - sourcePropertyType: varchar
+                          sourceProperty: STVCIPC_GUID
+                          jsonPath: "/"
+                          jsonType: S
+                          jsonLabel: id
+                        - sourcePropertyType: varchar
+                          sourceProperty: STVCIPC_DESC
+                          jsonPath: "/"
+                          jsonType: S
+                          jsonLabel: title
+                        - sourcePropertyType: varchar
+                          sourceProperty: STVCIPC_CODE
+                          jsonPath: "/"
+                          jsonType: S
+                          jsonLabel: code
+                        - sourcePropertyType: number
+                          sourceProperty: STVCIPC_PUB_YEAR
+                          jsonPath: "/"
+                          jsonType: N
+                          jsonLabel: revisionYear
+                        - sourcePropertyType: timestamp
+                          sourceProperty: STVCIPC_ACTIVITY_DATE
+                          jsonPath: "/"
+                          jsonType: D
+                          jsonLabel: datetime
+
+                  - name: getTotalCount
+                    class: sql:query:ethosTotalCount
+                    config:
+                      statement: "select count(*) from (::getQuerySQL::)"
+
+                  - name: getResource
+                    class: sql:query:resultSetJsonTransformer
+                    config:
+                      sqlPagingWrapper: >
+                        SELECT T.* FROM (
+                          SELECT T.*, rowNum as rowIndex
+                          FROM (%%STATEMENT%%) T
+                        ) T
+                        WHERE rowIndex > %%START_INDEX%% AND rowIndex <= %%END_INDEX%%
+                      statement: "::getQuerySQL::"
+                      contextResourceName: "x-cipc-codes"
+                      propertyMaps:
+                        - sourcePropertyType: varchar
+                          sourceProperty: STVCIPC_GUID
+                          jsonPath: "/"
+                          jsonType: S
+                          jsonLabel: id
+                        - sourcePropertyType: varchar
+                          sourceProperty: STVCIPC_DESC
+                          jsonPath: "/"
+                          jsonType: S
+                          jsonLabel: title
+                        - sourcePropertyType: varchar
+                          sourceProperty: STVCIPC_CODE
+                          jsonPath: "/"
+                          jsonType: S
+                          jsonLabel: code
+                        - sourcePropertyType: number
+                          sourceProperty: STVCIPC_PUB_YEAR
+                          jsonPath: "/"
+                          jsonType: N
+                          jsonLabel: revisionYear
+                        - sourcePropertyType: timestamp
+                          sourceProperty: STVCIPC_ACTIVITY_DATE
+                          jsonPath: "/"
+                          jsonType: D
+                          jsonLabel: datetime
+
+        "400":
+          description: Invalid logic specification format.
+
+        "404":
+          description: api-specification ID not found.
+
+        "500":
+          description: Server error during logic spec processing.
+
+components:
+  schemas:
+    logicSpecification:
+      type: object
+      description: JSON representation of a logic specification.
+      properties:
+        resource:
+          type: string
+        supports:
+          type: object
+          properties:
+            accepts:
+              type: array
+              items:
+                type: string
+            returnedMediaType:
+              type: string
+            contentTypes:
+              type: array
+              items:
+                type: string
+
+        dependencies:
+          type: object
+          properties:
+            security:
+              type: object
+              properties:
+                bannerSecurityObject:
+                  type: string
+            eventDefinition:
+              type: object
+              properties:
+                rootEntityList:
+                  type: array
+                  items:
+                    type: string
+                events:
+                  type: array
+                  items:
+                    type: string
+            guid:
+              type: object
+              properties:
+                tableOwner:
+                  type: string
+                baseTable:
+                  type: string
+
+        contextInitialize:
+          type: object
+          properties:
+            pipeline:
+              type: array
+              items:
+                type: string
+
+        pipelines:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              segments:
+                type: array
+                items:
+                  type: string
+
+        segments:
+          type: array
+          description: List of logic segments defining each functional unit.
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              class:
+                type: string
+              config:
+                type: object
+                properties:
+                  variables:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        setName:
+                          type: string
+                        name:
+                          type: string
+                        type:
+                          type: string
+                  statement:
+                    type: string
+                  sqlPagingWrapper:
+                    type: string
+                  contextTarget:
+                    type: string
+                  propertyMaps:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        sourcePropertyType:
+                          type: string
+                        sourceProperty:
+                          type: string
+                        jsonPath:
+                          type: string
+                        jsonType:
+                          type: string
+                          enum: ["S", "N", "D"]
+                        jsonLabel:
+                          type: string

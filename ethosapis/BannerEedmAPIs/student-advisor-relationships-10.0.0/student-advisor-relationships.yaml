@@ -1,0 +1,398 @@
+openapi: 3.0.0
+info:
+  title: Student Advisor Relationships
+  description: Information about the relationship between a student and an
+    advisor. In Banner, a student can be associated with multiple advisors in
+    the course of a single term.  One of these advisors must be recognized as
+    the primary.
+  version: "10.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Student
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/student-advisor-relationships:
+    get:
+      summary: Returns all resources from SGRADVR
+      description: Returns all advisors associated with the student in the course of a
+        single term from SGRADVR table. This version of the resource uses a
+        legacy filter format and cannot be displayed as a parameter.  Please
+        refer to the API source documentation for more information.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STUDENT_ADVISOR_RELATNSHPS
+      tags:
+        - student-advisor-relationships
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set. The
+            default limit is 500 and the maximum limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Student  
+
+            Returns all student advisor relationships for the given student
+
+            ```
+
+            /student-advisor-relationships?criteria={"student":"4a0c95f7-0903-408a-8694-77b313809909"}
+
+            ```
+
+            ```
+
+            /student-advisor-relationships?criteria={"student":{"id":"4a0c95f7-0903-408a-8694-77b313809909"}}
+
+            ```
+
+            ### Advisor  
+
+            Returns all student advisor relationships for the given advisor
+
+            ```
+
+            /student-advisor-relationships?criteria={"advisor":"004684bc-176a-40f8-a4ae-c7885cd6a1d1"}
+
+            ```
+
+            ```
+
+            /student-advisor-relationships?criteria={"advisor":{"id":"004684bc-176a-40f8-a4ae-c7885cd6a1d1"}}
+
+            ```
+
+            ### Advisor Type 
+
+            Returns all student advisor relationships for the given advisor
+
+            ```
+
+            /student-advisor-relationships?criteria={"advisorType":"d57dfbb9-4113-43df-8112-8b90cba02286"}
+
+            ```
+
+            ```
+
+            /student-advisor-relationships?criteria={"advisorType":{"id":"d57dfbb9-4113-43df-8112-8b90cba02286"}}
+
+            ```
+
+            ### Start Academic Period 
+
+            Returns all student advisor relationships for the given advisor
+
+            ```
+
+            /student-advisor-relationships?criteria={"startAcademicPeriod":"5ed3ed76-db74-4a57-95ce-d4c8cc775f94"}
+
+            ```
+
+            ```
+
+            /student-advisor-relationships?criteria={"startAcademicPeriod":{"id":"5ed3ed76-db74-4a57-95ce-d4c8cc775f94"}}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-student-advisor-relationships.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v10+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/student-advisor-relationships/{id}:
+    get:
+      summary: Returns the requested resource from SGRADVR.
+      description: Returns a student's advisor relationships from SGRADVR table with
+        the passed in identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STUDENT_ADVISOR_RELATNSHPS
+      tags:
+        - student-advisor-relationships
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Student Advisor Relationships for use in all
+            external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v10+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v10+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-student-advisor-relationships.json"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-student-advisor-relationships.json:
+      title: Student Advisor Relationships
+      description: Information about the relationship between a student and an advisor.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the student advisor relationship.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: SGRADVR_GUID(SGRADVR)
+        advisor:
+          title: Advisor
+          description: The person who provides guidance to the student.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Advisor.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+              x-lineageDerivedLogic: Display Person GUID for SGRADVR_ADVR_PIDM
+          additionalProperties: false
+          required:
+            - id
+        student:
+          title: Student
+          description: The student receiving guidance from the advisor.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Student.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+              x-lineageDerivedLogic: Display Person GUID for SGRADVR_PIDM
+          additionalProperties: false
+          required:
+            - id
+        advisorType:
+          title: Advisor Type
+          description: The type of advisor. (E.g. concentration, major, peer, thesis, etc.)
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Advisor Type.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: advisor-types 
+                  x-lineageReferenceObject: SGRADVR_ADVR_CODE(SGRADVR)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        program:
+          title: Program
+          description: The program for which the student is receiving guidance for from
+            the advisor.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Program.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: academic-programs 
+                  x-lineageReferenceObject: unsupported
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        startOn:
+          title: Start On
+          description: The date when the student was first assigned to the advisor.
+          type: string
+          format: date
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+          x-lineageReferenceObject: STVTERM_START_DATE(STVTERM)
+        endOn:
+          title: End On
+          description: The last date when the student was associated with the advisor.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: Display STVTERM start date-1 for the end term derived with SGRADVR_PIDM and SGRADVR_TERM_CODE_EFF
+            - type: string
+              maxLength: 0
+        assignedPriority:
+          title: Assigned Priority
+          description: The prioritization (e.g. primary) of the advisor as the source of
+            guidance for the student.
+          oneOf:
+            - type: string
+              enum:
+                - primary
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: If SGRADVR_PRIM_IND = 'Y', display 'primary' ; else not displayed
+            - type: string
+              maxLength: 0
+        startAcademicPeriod:
+          title: Start Academic Period
+          description: The academic period when the advisor first provided guidance to the
+            student.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Start Academic Period.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: academic-periods 
+                  x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = term)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+      required:
+        - id
+        - advisor
+        - student
+        - startOn
+      additionalProperties: false

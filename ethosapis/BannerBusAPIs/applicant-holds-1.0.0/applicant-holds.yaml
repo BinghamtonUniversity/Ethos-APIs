@@ -1,0 +1,1035 @@
+openapi: 3.0.0
+info:
+  title: applicant-holds
+  description: API for ROAHOLD administrative page<br><br>When using this API, if
+    you are trying to lock or unlock a hold, you need to perform two APIs calls
+    as the API cannot perform an update to another field(s) at the same time as
+    a lock (unlock).
+  version: 1.0.0
+  x-audience: all
+  x-release-status: beta
+  x-source-name: ROAHOLD
+  x-source-domain: Financial Aid
+  x-source-title: Applicant Holds
+  x-source-system: banner
+  x-api-type: bus-poc
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/applicant-holds:
+    get:
+      tags:
+        - applicant-holds
+      summary: Return resources from ROAHOLD
+      parameters:
+        - name: X-SDE-Expand
+          in: header
+          description: The comma seperated value list of block names
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: The maximum number of resources requesting for this result set.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          description: The filter criteria as a single URL query parameter. Use this
+            parameter or the individual parameters listed. Must be a JSON
+            representation of the property searching for. This can be any of the
+            properties listed on the URL or QAPI and must be a json
+            representation that can be validated against the GET schema. Limit
+            and Offset are the only supported additional parameters on the URL.
+          required: false
+          schema:
+            type: string
+        - name: keyblckId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: holdCode
+          in: query
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: RORHOLD_HOLD_CODE
+        - name: fundCode
+          in: query
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: RORHOLD_FUND_CODE
+        - name: reason
+          in: query
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: RORHOLD_REASON
+        - name: releaseInd
+          in: query
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: RORHOLD_RELEASE_IND
+        - name: aidyCode
+          in: query
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: RORHOLD_AIDY_CODE
+        - name: period
+          in: query
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: RORHOLD_PERIOD
+        - name: fromDate
+          in: query
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: RORHOLD_FROM_DATE
+        - name: toDate
+          in: query
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: RORHOLD_TO_DATE
+        - name: userId
+          in: query
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: RORHOLD_USER_ID
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/applicant-holds-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+    put:
+      tags:
+        - applicant-holds
+      summary: Updates an existing resource in ROAHOLD
+      parameters: []
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/applicant-holds-1.0.0_put_request"
+            example:
+              reason: putTest
+              keyblckId: "333310107"
+              criteria.holdCode: "01"
+              toDate: 2050-08-22
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/applicant-holds-1.0.0_put_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+    post:
+      tags:
+        - applicant-holds
+      summary: Creates a new resource in ROAHOLD
+      parameters: []
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/applicant-holds-1.0.0_post_request"
+            example:
+              fromDate: 2023-10-21
+              reason: testing
+              keyblckId: "333310107"
+              period: "202330"
+              fundCode: ALTLN
+              holdCode: TO
+              toDate: 2050-08-22
+              releaseInd: N
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/applicant-holds-1.0.0_post_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+    delete:
+      tags:
+        - applicant-holds
+      summary: Deletes an existing resource in ROAHOLD
+      parameters: []
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/applicant-holds-1.0.0_delete_request"
+            example:
+              keyblckId: "333310107"
+              criteria.holdCode: "01"
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/applicant-holds-1.0.0_delete_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+  /qapi/applicant-holds:
+    post:
+      tags:
+        - applicant-holds QAPI (Query by POST)
+      summary: Return resources from ROAHOLD
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/applicant-holds-1.0.0_get_request"
+            example:
+              keyblckId: "333310107"
+              holdCode: "01"
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/applicant-holds-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+components:
+  schemas:
+    applicant-holds-1.0.0_get_request:
+      required:
+        - holdCode
+        - fromDate
+        - toDate
+      type: object
+      properties:
+        fromDate:
+          title: Hold From Date
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : RORHOLD_FROM_DATE"
+          format: date-time
+          x-lineageReferenceObject: RORHOLD_FROM_DATE
+        reason:
+          title: Reason
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_REASON"
+          x-lineageReferenceObject: RORHOLD_REASON
+        keyblckId:
+          title: ID
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : keyblckId"
+          x-lineageReferenceObject: keyblckId
+        period:
+          title: Period
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_PERIOD"
+          x-lineageReferenceObject: RORHOLD_PERIOD
+        aidyCode:
+          title: Aid Year
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_AIDY_CODE, Lookup lineage
+            reference object : robinst"
+          x-lineageReferenceObject: RORHOLD_AIDY_CODE
+          x-lineageLookupReferenceObject: robinst
+        fundCode:
+          title: Fund
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_FUND_CODE, Lookup lineage
+            reference object : rfrbase"
+          x-lineageReferenceObject: RORHOLD_FUND_CODE
+          x-lineageLookupReferenceObject: rfrbase
+        holdCode:
+          title: Hold
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_HOLD_CODE, Lookup lineage
+            reference object : rtvhold"
+          x-lineageReferenceObject: RORHOLD_HOLD_CODE
+          x-lineageLookupReferenceObject: rtvhold
+        toDate:
+          title: Hold To Date
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : RORHOLD_TO_DATE"
+          format: date-time
+          x-lineageReferenceObject: RORHOLD_TO_DATE
+        releaseInd:
+          title: Lock
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RORHOLD_RELEASE_IND"
+          x-lineageReferenceObject: RORHOLD_RELEASE_IND
+        userId:
+          title: User
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_USER_ID"
+          x-lineageReferenceObject: RORHOLD_USER_ID
+      x-lineageReferenceObject: RORHOLD
+    applicant-holds-1.0.0_post_response:
+      required:
+        - fromDate
+        - holdCode
+        - toDate
+      type: object
+      properties:
+        fromDate:
+          title: Hold From Date
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : RORHOLD_FROM_DATE"
+          format: date-time
+          x-lineageReferenceObject: RORHOLD_FROM_DATE
+        rtvholdDesc:
+          type: string
+        reason:
+          title: Reason
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_REASON"
+          x-lineageReferenceObject: RORHOLD_REASON
+        period:
+          title: Period
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_PERIOD"
+          x-lineageReferenceObject: RORHOLD_PERIOD
+        aidyCode:
+          title: Aid Year
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_AIDY_CODE, Lookup lineage
+            reference object : robinst"
+          x-lineageReferenceObject: RORHOLD_AIDY_CODE
+          x-lineageLookupReferenceObject: robinst
+        fundCode:
+          title: Fund
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_FUND_CODE, Lookup lineage
+            reference object : rfrbase"
+          x-lineageReferenceObject: RORHOLD_FUND_CODE
+          x-lineageLookupReferenceObject: rfrbase
+        holdCode:
+          title: Hold
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_HOLD_CODE, Lookup lineage
+            reference object : rtvhold"
+          x-lineageReferenceObject: RORHOLD_HOLD_CODE
+          x-lineageLookupReferenceObject: rtvhold
+        toDate:
+          title: Hold To Date
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : RORHOLD_TO_DATE"
+          format: date-time
+          x-lineageReferenceObject: RORHOLD_TO_DATE
+        releaseInd:
+          title: Lock
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RORHOLD_RELEASE_IND"
+          x-lineageReferenceObject: RORHOLD_RELEASE_IND
+        userId:
+          title: User
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_USER_ID"
+          x-lineageReferenceObject: RORHOLD_USER_ID
+      x-lineageReferenceObject: rorhold
+    errors-2.0.0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+              description:
+                type: string
+    applicant-holds-1.0.0_get_response:
+      type: object
+      properties:
+        key_block:
+          type: array
+          items:
+            type: object
+            properties:
+              keyblckId:
+                title: ID
+                maxLength: 9
+                type: string
+                description: "Lineage reference object : keyblckId"
+                x-lineageReferenceObject: keyblckId
+              keyblckName:
+                maxLength: 230
+                type: string
+                description: "Lineage reference object : keyblckName"
+                x-lineageReferenceObject: keyblckName
+              confidInfo:
+                type: string
+                description: "Lineage reference object : confidInfo"
+                x-lineageReferenceObject: confidInfo
+              deceasedInd:
+                type: string
+                description: "Lineage reference object : deceasedInd"
+                x-lineageReferenceObject: deceasedInd
+            x-lineageReferenceObject: key_block
+        rorhold:
+          type: array
+          items:
+            required:
+              - fromDate
+              - holdCode
+              - toDate
+            type: object
+            properties:
+              fromDate:
+                title: Hold From Date
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : RORHOLD_FROM_DATE"
+                format: date-time
+                x-lineageReferenceObject: RORHOLD_FROM_DATE
+              rtvholdDesc:
+                type: string
+              reason:
+                title: Reason
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : RORHOLD_REASON"
+                x-lineageReferenceObject: RORHOLD_REASON
+              period:
+                title: Period
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : RORHOLD_PERIOD"
+                x-lineageReferenceObject: RORHOLD_PERIOD
+              aidyCode:
+                title: Aid Year
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : RORHOLD_AIDY_CODE, Lookup lineage
+                  reference object : robinst"
+                x-lineageReferenceObject: RORHOLD_AIDY_CODE
+                x-lineageLookupReferenceObject: robinst
+              fundCode:
+                title: Fund
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : RORHOLD_FUND_CODE, Lookup lineage
+                  reference object : rfrbase"
+                x-lineageReferenceObject: RORHOLD_FUND_CODE
+                x-lineageLookupReferenceObject: rfrbase
+              holdCode:
+                title: Hold
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : RORHOLD_HOLD_CODE, Lookup lineage
+                  reference object : rtvhold"
+                x-lineageReferenceObject: RORHOLD_HOLD_CODE
+                x-lineageLookupReferenceObject: rtvhold
+              toDate:
+                title: Hold To Date
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : RORHOLD_TO_DATE"
+                format: date-time
+                x-lineageReferenceObject: RORHOLD_TO_DATE
+              releaseInd:
+                title: Lock
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : RORHOLD_RELEASE_IND"
+                x-lineageReferenceObject: RORHOLD_RELEASE_IND
+              userId:
+                title: User
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : RORHOLD_USER_ID"
+                x-lineageReferenceObject: RORHOLD_USER_ID
+            x-lineageReferenceObject: rorhold
+    applicant-holds-1.0.0_put_response:
+      required:
+        - fromDate
+        - holdCode
+        - toDate
+      type: object
+      properties:
+        fromDate:
+          title: Hold From Date
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : RORHOLD_FROM_DATE"
+          format: date-time
+          x-lineageReferenceObject: RORHOLD_FROM_DATE
+        rtvholdDesc:
+          type: string
+        reason:
+          title: Reason
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_REASON"
+          x-lineageReferenceObject: RORHOLD_REASON
+        period:
+          title: Period
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_PERIOD"
+          x-lineageReferenceObject: RORHOLD_PERIOD
+        aidyCode:
+          title: Aid Year
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_AIDY_CODE, Lookup lineage
+            reference object : robinst"
+          x-lineageReferenceObject: RORHOLD_AIDY_CODE
+          x-lineageLookupReferenceObject: robinst
+        fundCode:
+          title: Fund
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_FUND_CODE, Lookup lineage
+            reference object : rfrbase"
+          x-lineageReferenceObject: RORHOLD_FUND_CODE
+          x-lineageLookupReferenceObject: rfrbase
+        holdCode:
+          title: Hold
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_HOLD_CODE, Lookup lineage
+            reference object : rtvhold"
+          x-lineageReferenceObject: RORHOLD_HOLD_CODE
+          x-lineageLookupReferenceObject: rtvhold
+        toDate:
+          title: Hold To Date
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : RORHOLD_TO_DATE"
+          format: date-time
+          x-lineageReferenceObject: RORHOLD_TO_DATE
+        releaseInd:
+          title: Lock
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RORHOLD_RELEASE_IND"
+          x-lineageReferenceObject: RORHOLD_RELEASE_IND
+        userId:
+          title: User
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_USER_ID"
+          x-lineageReferenceObject: RORHOLD_USER_ID
+      x-lineageReferenceObject: rorhold
+    applicant-holds-1.0.0_delete_response:
+      type: object
+    applicant-holds-1.0.0_post_request:
+      required:
+        - holdCode
+        - fromDate
+        - toDate
+      type: object
+      properties:
+        fromDate:
+          title: Hold From Date
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : RORHOLD_FROM_DATE"
+          format: date-time
+          x-lineageReferenceObject: RORHOLD_FROM_DATE
+        reason:
+          title: Reason
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_REASON"
+          x-lineageReferenceObject: RORHOLD_REASON
+        keyblckId:
+          title: ID
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : keyblckId"
+          x-lineageReferenceObject: keyblckId
+        period:
+          title: Period
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_PERIOD"
+          x-lineageReferenceObject: RORHOLD_PERIOD
+        aidyCode:
+          title: Aid Year
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_AIDY_CODE, Lookup lineage
+            reference object : robinst"
+          x-lineageReferenceObject: RORHOLD_AIDY_CODE
+          x-lineageLookupReferenceObject: robinst
+        fundCode:
+          title: Fund
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_FUND_CODE, Lookup lineage
+            reference object : rfrbase"
+          x-lineageReferenceObject: RORHOLD_FUND_CODE
+          x-lineageLookupReferenceObject: rfrbase
+        holdCode:
+          title: Hold
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_HOLD_CODE, Lookup lineage
+            reference object : rtvhold"
+          x-lineageReferenceObject: RORHOLD_HOLD_CODE
+          x-lineageLookupReferenceObject: rtvhold
+        toDate:
+          title: Hold To Date
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : RORHOLD_TO_DATE"
+          format: date-time
+          x-lineageReferenceObject: RORHOLD_TO_DATE
+        releaseInd:
+          title: Lock
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RORHOLD_RELEASE_IND"
+          x-lineageReferenceObject: RORHOLD_RELEASE_IND
+        userId:
+          title: User
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_USER_ID"
+          x-lineageReferenceObject: RORHOLD_USER_ID
+      x-lineageReferenceObject: RORHOLD
+    applicant-holds-1.0.0_put_request:
+      required:
+        - criteria.holdCode
+        - criteria.fromDate
+        - criteria.toDate
+        - toDate
+      type: object
+      properties:
+        criteria.fromDate:
+          title: Hold From Date
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : RORHOLD_FROM_DATE"
+          format: date-time
+          x-lineageReferenceObject: RORHOLD_FROM_DATE
+        reason:
+          title: Reason
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_REASON"
+          x-lineageReferenceObject: RORHOLD_REASON
+        criteria.reason:
+          title: Reason
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_REASON"
+          x-lineageReferenceObject: RORHOLD_REASON
+        criteria.toDate:
+          title: Hold To Date
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : RORHOLD_TO_DATE"
+          format: date-time
+          x-lineageReferenceObject: RORHOLD_TO_DATE
+        criteria.holdCode:
+          title: Hold
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_HOLD_CODE, Lookup lineage
+            reference object : rtvhold"
+          x-lineageReferenceObject: RORHOLD_HOLD_CODE
+          x-lineageLookupReferenceObject: rtvhold
+        criteria.userId:
+          title: User
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_USER_ID"
+          x-lineageReferenceObject: RORHOLD_USER_ID
+        criteria.fundCode:
+          title: Fund
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_FUND_CODE, Lookup lineage
+            reference object : rfrbase"
+          x-lineageReferenceObject: RORHOLD_FUND_CODE
+          x-lineageLookupReferenceObject: rfrbase
+        toDate:
+          title: Hold To Date
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : RORHOLD_TO_DATE"
+          format: date-time
+          x-lineageReferenceObject: RORHOLD_TO_DATE
+        releaseInd:
+          title: Lock
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RORHOLD_RELEASE_IND"
+          x-lineageReferenceObject: RORHOLD_RELEASE_IND
+        criteria.releaseInd:
+          title: Lock
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RORHOLD_RELEASE_IND"
+          x-lineageReferenceObject: RORHOLD_RELEASE_IND
+        keyblckId:
+          title: ID
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : keyblckId"
+          x-lineageReferenceObject: keyblckId
+        criteria.aidyCode:
+          title: Aid Year
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_AIDY_CODE, Lookup lineage
+            reference object : robinst"
+          x-lineageReferenceObject: RORHOLD_AIDY_CODE
+          x-lineageLookupReferenceObject: robinst
+        criteria.period:
+          title: Period
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_PERIOD"
+          x-lineageReferenceObject: RORHOLD_PERIOD
+      x-lineageReferenceObject: RORHOLD
+    applicant-holds-1.0.0_qapi_post:
+      type: object
+      properties:
+        keyblckId:
+          type: string
+        holdCode:
+          title: Hold
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_HOLD_CODE, Lookup lineage
+            reference object : rtvhold"
+          x-lineageReferenceObject: RORHOLD_HOLD_CODE
+          x-lineageLookupReferenceObject: rtvhold
+        fundCode:
+          title: Fund
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_FUND_CODE, Lookup lineage
+            reference object : rfrbase"
+          x-lineageReferenceObject: RORHOLD_FUND_CODE
+          x-lineageLookupReferenceObject: rfrbase
+        reason:
+          title: Reason
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_REASON"
+          x-lineageReferenceObject: RORHOLD_REASON
+        releaseInd:
+          title: Lock
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RORHOLD_RELEASE_IND"
+          x-lineageReferenceObject: RORHOLD_RELEASE_IND
+        aidyCode:
+          title: Aid Year
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_AIDY_CODE, Lookup lineage
+            reference object : robinst"
+          x-lineageReferenceObject: RORHOLD_AIDY_CODE
+          x-lineageLookupReferenceObject: robinst
+        period:
+          title: Period
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_PERIOD"
+          x-lineageReferenceObject: RORHOLD_PERIOD
+        fromDate:
+          title: Hold From Date
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : RORHOLD_FROM_DATE"
+          format: date-time
+          x-lineageReferenceObject: RORHOLD_FROM_DATE
+        toDate:
+          title: Hold To Date
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : RORHOLD_TO_DATE"
+          format: date-time
+          x-lineageReferenceObject: RORHOLD_TO_DATE
+        userId:
+          title: User
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_USER_ID"
+          x-lineageReferenceObject: RORHOLD_USER_ID
+    applicant-holds-1.0.0_delete_request:
+      required:
+        - criteria.holdCode
+        - criteria.fromDate
+        - criteria.toDate
+      type: object
+      properties:
+        criteria.fromDate:
+          title: Hold From Date
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : RORHOLD_FROM_DATE"
+          format: date-time
+          x-lineageReferenceObject: RORHOLD_FROM_DATE
+        keyblckId:
+          title: ID
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : keyblckId"
+          x-lineageReferenceObject: keyblckId
+        criteria.reason:
+          title: Reason
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_REASON"
+          x-lineageReferenceObject: RORHOLD_REASON
+        criteria.toDate:
+          title: Hold To Date
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : RORHOLD_TO_DATE"
+          format: date-time
+          x-lineageReferenceObject: RORHOLD_TO_DATE
+        criteria.holdCode:
+          title: Hold
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_HOLD_CODE, Lookup lineage
+            reference object : rtvhold"
+          x-lineageReferenceObject: RORHOLD_HOLD_CODE
+          x-lineageLookupReferenceObject: rtvhold
+        criteria.userId:
+          title: User
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_USER_ID"
+          x-lineageReferenceObject: RORHOLD_USER_ID
+        criteria.fundCode:
+          title: Fund
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_FUND_CODE, Lookup lineage
+            reference object : rfrbase"
+          x-lineageReferenceObject: RORHOLD_FUND_CODE
+          x-lineageLookupReferenceObject: rfrbase
+        criteria.aidyCode:
+          title: Aid Year
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_AIDY_CODE, Lookup lineage
+            reference object : robinst"
+          x-lineageReferenceObject: RORHOLD_AIDY_CODE
+          x-lineageLookupReferenceObject: robinst
+        criteria.releaseInd:
+          title: Lock
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RORHOLD_RELEASE_IND"
+          x-lineageReferenceObject: RORHOLD_RELEASE_IND
+        criteria.period:
+          title: Period
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORHOLD_PERIOD"
+          x-lineageReferenceObject: RORHOLD_PERIOD
+      x-lineageReferenceObject: RORHOLD
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EllucianOAuthUserToken:
+      type: http
+      scheme: bearer
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

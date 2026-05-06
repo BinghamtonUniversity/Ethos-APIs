@@ -1,0 +1,681 @@
+openapi: 3.0.0
+info:
+  title: Applicant Tracking Requirements
+  description: The Applicant Tracking Requirements API returns applicant
+    requirement records and also supports updating the system indicator for
+    specified records (batch update supported). Single record POST is supported
+    by the applicant-requirements API.
+  version: 1.0.0
+  x-source-domain: Financial Aid
+  x-source-name: RRAAREQ
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-audience: all
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/applicant-tracking-requirements:
+    get:
+      tags:
+        - applicant-tracking-requirements
+      summary: Returns all applicant requirements.
+      description: This API returns the list of all applicant requirements.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: |
+            ```
+            application/vnd.hedtech.integration.v1+json
+            ```     
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Banner Id
+
+            Returns all applicant requirements for the Banner ID passed.
+
+            ```
+
+            /applicant-tracking-requirements?criteria={"bannerId":"331314209"}
+
+            ```
+
+            ### Aid Year Code
+
+            Returns all applicant requirements for the Aid Year Code passed.
+
+            ```
+
+            /applicant-tracking-requirements?criteria={"aidYearCode":"2324"}
+
+            ```
+
+            ### Tracking Requirements Code
+
+            Returns all applicant requirements for the Tracking Requirements
+            Code passed.
+
+            ```
+
+            /applicant-tracking-requirements?criteria={"trackingRequirementsCode":"ADMIT"}
+
+            ```
+
+            ### Fund Code
+
+            Returns all applicant requirements for the Fund Code passed.
+
+            ```
+
+            /applicant-tracking-requirements?criteria={"fundCode":"FWS"}
+
+            ```
+
+            ### Period
+
+            Returns all applicant requirements for the Period passed.
+
+            ```
+
+            /applicant-tracking-requirements?criteria={"period":"202420"}
+
+            ```
+                        
+            ### User ID
+
+            Returns all applicant requirements for the User ID passed.
+
+            ```
+
+            /applicant-tracking-requirements?criteria={"userId":"BANUSR1"}
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated with
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/applicant-tracking-requirements-1.0.0_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EthosIntegrationBearer: []
+      x-method-permissions: API_APPLICANT_TRACKING_REQS
+    put:
+      tags:
+        - applicant-tracking-requirements
+      summary: Updates the system indicator(s) for (an) applicant requirement(s) in
+        RRRAREQ.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: |
+            ```
+            application/vnd.hedtech.integration.v1+json
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: |
+            ```
+            application/vnd.hedtech.integration.v1+json
+            ```
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/applicant-tracking-requirements-1.0.0_put_request"
+            example:
+              id: 57
+              systemIndicator: B
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated with
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/applicant-tracking-requirements-1.0.0_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EthosIntegrationBearer: []
+      x-method-permissions: API_APPLICANT_TRACKING_REQS
+  /api/applicant-tracking-requirements/batches:
+    post:
+      tags:
+        - applicant-tracking-requirements
+      summary: Update a batch of system indicators for applicant requirement records
+        in RRRAREQ.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: |
+            ```
+            application/vnd.hedtech.integration.v1+json
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: |
+            ```
+            application/vnd.hedtech.integration.v1+json
+            ```
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/applicant-tracking-requirements-batch-1.0.0_put_req\
+                uest"
+      responses:
+        "201":
+          description: Created
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/applicant-tracking-requirements-batch-1_0_0_post_re\
+                  sponse"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the clientâ€™s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - BasicAuth: []
+          EthosIntegrationBearer: []
+      x-method-permissions: API_APPLICANT_TRACKING_REQS
+components:
+  schemas:
+    applicant-tracking-requirements-1.0.0_put_request:
+      required:
+        - id
+      type: object
+      properties:
+        id:
+          title: Applicant Requirement ID
+          maxLength: 19
+          type: string
+          description: The unique identifier for an applicant requirement record.
+          x-lineageReferenceObject: RRRAREQ_SURROGATE_ID
+        systemIndicator:
+          title: System Indicator
+          maxLength: 1
+          type: string
+          description: "SYSTEM INDICATOR: Indicates how the tracking requirement was
+            created or updated.  Valid options: A - Archived; B - Batch Posting;
+            F - Fund; M - Manual; S - System; W - Web; X - Banner Document
+            Management Suite"
+          enum:
+            - A
+            - B
+            - F
+            - M
+            - S
+            - W
+            - X
+          x-lineagereferenceobject: RRRAREQ_SYS_IND
+      x-lineageReferenceObject: RRRAREQ
+    applicant-tracking-requirements-1.0.0_response:
+      required:
+        - id
+        - aidYearCode
+        - bannerId
+      type: object
+      properties:
+        id:
+          title: Applicant Requirement ID
+          maxLength: 19
+          type: string
+          description: The unique identifier for an applicant requirement record.
+          x-lineageReferenceObject: RRRAREQ_SURROGATE_ID
+        aidYearCode:
+          title: Aid Year
+          maxLength: 4
+          type: string
+          description: The aid year associated with information in this record.
+          x-lineageReferenceObject: RRRAREQ_AIDY_CODE
+          x-lineageLookupReferenceObject: roiaidy
+        bannerId:
+          title: Banner ID
+          maxLength: 9
+          type: string
+          description: The Banner student identification number for the student in this
+            record.
+          x-lineageReferenceObject: id
+        trackingRequirementsCode:
+          title: Tracking Requirements Code
+          maxLength: 6
+          type: string
+          description: The code associated with the tracking requirement.
+          x-lineageReferenceObject: RRRAREQ_TREQ_CODE
+          x-lineageLookupReferenceObject: rtvtreq
+        modifiedOn:
+          title: Activity Date
+          maxLength: 11
+          type: string
+          description: The date that information in this record was entered or last updated.
+          x-lineageReferenceObject: RRRAREQ_ACTIVITY_DATE
+        trackingRequirementDescription:
+          title: Tracking Requirement Description
+          maxLength: 60
+          type: string
+          description: The description of the one-time tracking requirement (i.e., a
+            tracking requirement not associated with a tracking requirement
+            code).
+          x-lineageReferenceObject: RRRAREQ_TREQ_DESC
+        satisfiedIndicator:
+          title: Satisfied Indicator
+          maxLength: 1
+          type: string
+          description: Indicates if the tracking requirement has been satisfied.
+          x-lineageReferenceObject: RRRAREQ_SAT_IND
+        statusOn:
+          title: Status Date
+          maxLength: 11
+          type: string
+          description: The last date on which the status of this requirement was updated.
+          format: date-time
+          x-lineageReferenceObject: RRRAREQ_STAT_DATE
+        establishedOn:
+          title: Established Date
+          maxLength: 11
+          type: string
+          description: The date the tracking requirement was established.
+          format: date-time
+          x-lineageReferenceObject: RRRAREQ_EST_DATE
+        trackingStatusCode:
+          title: Tracking Status Code
+          maxLength: 1
+          type: string
+          description: "TRACKING STATUS CODE: The status of the tracking requirement."
+          x-lineageReferenceObject: RRRAREQ_TRST_CODE
+          x-lineageLookupReferenceObject: rtvtrst
+        packagingIndicator:
+          title: Required for Packaging Indicator
+          maxLength: 1
+          type: string
+          description: Indicates whether the tracking requirement must be satisfied in
+            order for the fund to be packaged.
+          x-lineageReferenceObject: RRRAREQ_PCKG_IND
+        disbursementIndicator:
+          title: Required for Disburserment Indicator
+          maxLength: 1
+          type: string
+          description: Indicates whether the tracking requirement must be satisfied for
+            the fund to disburse.
+          x-lineageReferenceObject: RRRAREQ_DISB_IND
+        fundCode:
+          title: Fund Code
+          maxLength: 6
+          type: string
+          description: The fund associated with the tracking requirement.
+          x-lineageReferenceObject: RRRAREQ_FUND_CODE
+          x-lineageLookupReferenceObject: rfrbase,rfraspc
+        systemIndicator:
+          title: System Indicator
+          maxLength: 1
+          type: string
+          description: "SYSTEM INDICATOR: Indicates how the tracking requirement was
+            created or updated.  Valid options: A - Archived; B - Batch Posting;
+            F - Fund; M - Manual; S - System; W - Web; X - Banner Document
+            Management Suite"
+          enum:
+            - A
+            - B
+            - F
+            - M
+            - S
+            - W
+            - X
+          x-lineagereferenceobject: RRRAREQ_SYS_IND
+        institutionCode:
+          title: Transfer Institution Code
+          maxLength: 20
+          type: string
+          description: Source/Background institution associated with the tracking
+            requirement.
+          x-lineageReferenceObject: RRRAREQ_SBGI_CODE
+        memoIndicator:
+          title: Required for Memo Indicator
+          maxLength: 1
+          type: string
+          description: Indicates whether the tracking requirement must be satisfied in
+            order to memo.
+          x-lineageReferenceObject: RRRAREQ_DISB_IND
+        userId:
+          title: User Id
+          maxLength: 30
+          type: string
+          description: The user ID of the person who inserted or last updated this record.
+          x-lineageReferenceObject: RRRAREQ_USER_ID
+        perkinsExpiredOn:
+          title: Multi-Award Years Perkins MPN Expiration Date
+          maxLength: 11
+          type: string
+          description: The expiration date of the Perkins multi-award year Master
+            Promissory Note.
+          x-lineageReferenceObject: RRRAREQ_PERK_MPN_EXP_DATE
+        perkinsDisbursedOn:
+          title: Perkins MPN Date of First Disbursement
+          maxLength: 11
+          type: string
+          description: The date of the first Perkins disbursement made for this Perkins
+            Master Promissory Note.
+          x-lineageReferenceObject: RRRAREQ_MPN_FIRST_DISB_DATE
+        perkinsSignedOn:
+          title: Perkins MPN Signature Date
+          maxLength: 11
+          type: string
+          description: The date the student signed the Perkins Master Promissory Note.
+          x-lineageReferenceObject: RRRAREQ_MPN_SIGNED_DATE
+        dataOrigin:
+          title: Data Origin
+          maxLength: 30
+          type: string
+          description: Source system that created or updated the data.
+          x-lineageReferenceObject: RRRAREQ_DATA_ORIGIN
+        trackingLetterIndicator:
+          title: Tracking Letter Indicator
+          maxLength: 1
+          type: string
+          description: Indicates that a tracking letter should be generated for this
+            requirement.
+          x-lineageReferenceObject: RRRAREQ_TRK_LTR_IND
+        requirementInfoAccessIndicator:
+          title: Requirement Information Access Indicator
+          maxLength: 1
+          type: string
+          description: Defines which Tracking requirements can be seen on the Web.
+          x-lineageReferenceObject: RRRAREQ_INFO_ACCESS_IND
+        period:
+          title: Period
+          maxLength: 15
+          type: string
+          description: The period associated with the requirement.
+          x-lineageReferenceObject: RRRAREQ_PERIOD
+          x-lineageLookupReferenceObject: robprds
+        institutionTypeIndicator:
+          title: Transfer Institution Type Indicator
+          maxLength: 1
+          type: string
+          description: Source/Background institution type
+          x-lineageReferenceObject: RRRAREQ_SBGI_TYPE_IND
+        termCode:
+          title: Term Code
+          maxLength: 6
+          type: string
+          description: The term associated with the accounts receivable indicator for the
+            period.
+          x-lineageReferenceObject: RRRAREQ_TERM_CODE
+      x-lineageReferenceObject: RRRAREQ
+    applicant-tracking-requirements-batch-1.0.0_put_request:
+      type: object
+      properties:
+        id:
+          title: ID
+          description: A globally unique identifier of a batch to be used in all external
+            references.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+        resource:
+          title: Resource
+          description: The affected resource.
+          type: object
+          properties:
+            name:
+              title: Resource Name
+              description: The pluralized name of the affected resource
+              type: string
+            version:
+              title: Resource version
+              description: The version of the resource
+              type: string
+          additionalProperties: false
+          required:
+            - name
+            - version
+        items:
+          title: items
+          description: List of items to be processed.
+          type: array
+          items:
+            type: object
+            $ref: "#/components/schemas/applicant-tracking-requirements-1.0.0_put_request"
+      required:
+        - items
+    applicant-tracking-requirements-batch-1_0_0_post_response:
+      description: "Returns the list of Ids for those applicant-requirements that were
+        successfully updated . For those that did not, it returns the list of
+        error messages. "
+      type: object
+      x-last-modified: 1694460214111
+      properties:
+        id:
+          title: ID
+          description: A globally unique identifier of a batch to be used in all external
+            references.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+        status:
+          title: status
+          description: status of the batch.
+          type: string
+          enum:
+            - completed
+            - inProgress
+            - aborted
+        resource:
+          title: Resource
+          description: The affected resource.
+          type: object
+          properties:
+            name:
+              title: Resource Name
+              description: The pluralized name of the affected resource
+              type: string
+            version:
+              title: Resource version
+              description: The version of the resource
+              type: string
+          additionalProperties: false
+          required:
+            - name
+            - version
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+            oneOf:
+              - type: object
+                $ref: "#/components/schemas/applicant-tracking-requirements-1.0.0_response"
+              - type: object
+                $ref: "#/components/schemas/errors_2_0_0"
+          required:
+            - items
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary
+                  data entity used to create the resource. This is useful for
+                  referencing the source item through the applications
+                  administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

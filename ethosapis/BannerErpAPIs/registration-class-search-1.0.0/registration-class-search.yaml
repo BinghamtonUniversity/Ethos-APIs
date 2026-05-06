@@ -1,0 +1,340 @@
+openapi: 3.0.0
+info:
+  title: registration-class-search
+  description: >
+    The class search API is an optional third step in the registration flow.
+    Input parameters to the class search API include the term code, banner Id
+    and optionally subject and course number.
+
+      Subjects can be provided as an input in the form of a comma separated list. If Course Number is provided as a filter, the API returns sections that have the exact match of the course number provided.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Student
+  x-source-title: Registration Class Search
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: registration-class-search
+paths:
+  /api/registration-class-search:
+    get:
+      description: >
+        There are no supported URL sort values.
+
+          Default sort is provided based on the following fields. term, subjectDescription, courseNumber, sequenceNumber, courseReferenceNumber
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_REGSTATUS
+      tags:
+        - registration-class-search
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          schema:
+            type: string
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+              application/vnd.hedtech.integration.v1+json
+            ```
+        - name: term
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "201810"
+          description: >-
+            Code value to identify the term
+
+            ```  
+
+            /api/registration-class-search?term=201810&subject=ANTH,BIO&courseNumber=101&max=10&offset=1
+
+            ```  
+        - name: subject
+          in: query
+          required: false
+          schema:
+            type: string
+          example: ANTH
+          description: Code value to identify the subject, comma separated multiple
+            subjects are allowed
+        - name: courseNumber
+          in: query
+          required: false
+          schema:
+            type: string
+          example: "101"
+          description: Course number
+        - name: keyword
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Search for whole words in class title, description, syllabus and
+            subject description.
+        - name: bannerId
+          in: query
+          required: false
+          schema:
+            type: string
+          example: S12345678
+          description: Identification number used to access a person
+        - name: max
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Maximum number of records to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Start with record number
+      responses:
+        "200":
+          description: Success
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/registration-class-search"
+            application/vnd.hedtech.integration.v1.0.0+xml:
+              schema:
+                type: object
+                $ref: "#/components/schemas/registration-class-search"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    registration-class-search:
+      type: array
+      items:
+        type: object
+        properties:
+          campusDescription:
+            type: string
+          censusEnrollmentDate:
+            type: string
+            format: date
+          courseNumber:
+            type: string
+          courseReferenceNumber:
+            type: string
+          courseTitle:
+            type: string
+          creditHourHigh:
+            type: integer
+          creditHourIndicator:
+            type: integer
+          creditHourLow:
+            type: integer
+          creditHours:
+            type: integer
+          crossList:
+            type: string
+          crossListAvailable:
+            type: integer
+          crossListCapacity:
+            type: integer
+          crossListCount:
+            type: integer
+          enrollment:
+            type: integer
+          faculty:
+            type: array
+            items:
+              type: object
+              properties:
+                bannerId:
+                  type: string
+                category:
+                  type: string
+                courseReferenceNumber:
+                  type: string
+                displayName:
+                  type: string
+                emailAddress:
+                  type: string
+                primaryIndicator:
+                  type: boolean
+                term:
+                  type: string
+          id:
+            type: string
+          isSectionLinked:
+            type: boolean
+          learnerRegStartFromDate:
+            type: string
+            format: date
+          learnerRegStartToDate:
+            type: string
+            format: date
+          linkIdentifier:
+            type: string
+          maximumEnrollment:
+            type: integer
+          meetingTimes:
+            type: array
+            items:
+              type: object
+              properties:
+                beginTime:
+                  type: string
+                building:
+                  type: string
+                buildingDescription:
+                  type: string
+                campus:
+                  type: string
+                campusDescription:
+                  type: string
+                category:
+                  type: string
+                courseReferenceNumber:
+                  type: string
+                creditHourSession:
+                  type: number
+                  format: double
+                endDate:
+                  type: string
+                  format: date
+                endTime:
+                  type: string
+                  format: date
+                hoursWeek:
+                  type: number
+                  format: double
+                meetingScheduleType:
+                  type: string
+                meetingType:
+                  type: string
+                meetingTypeDescription:
+                  type: string
+                room:
+                  type: string
+                startDate:
+                  type: string
+                  format: date
+                monday:
+                  type: boolean
+                tuesday:
+                  type: boolean
+                wednesday:
+                  type: boolean
+                thursday:
+                  type: boolean
+                friday:
+                  type: boolean
+                saturday:
+                  type: boolean
+                sunday:
+                  type: boolean
+          openSection:
+            type: boolean
+          partOfTerm:
+            type: string
+          partOfTermEndDate:
+            type: string
+            format: date
+          partOfTermStartDate:
+            type: string
+            format: date
+          partOfTermWeeks:
+            type: integer
+          registrationAuthorizationActiveCode:
+            type: string
+          registrationFromDate:
+            type: string
+            format: date
+          scheduleTypeDescription:
+            type: string
+          seatsAvailable:
+            type: integer
+          sectionAttributes:
+            type: array
+            items:
+              type: object
+              properties:
+                code:
+                  type: string
+                courseReferenceNumber:
+                  type: string
+                description:
+                  type: string
+                isZTCAttribute:
+                  type: boolean
+                termCode:
+                  type: string
+          sequenceNumber:
+            type: string
+          status:
+            type: object
+            properties:
+              select:
+                type: boolean
+              sectionOpen:
+                type: boolean
+              timeConflict:
+                type: boolean
+              restricted:
+                type: boolean
+              sectionStatus:
+                type: boolean
+          subject:
+            type: string
+          subjectCourse:
+            type: string
+          subjectDescription:
+            type: string
+          term:
+            type: string
+          termDesc:
+            type: string
+          waitAvailable:
+            type: string
+          waitCapacity:
+            type: string
+          waitCount:
+            type: string

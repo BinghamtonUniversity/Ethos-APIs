@@ -1,0 +1,2057 @@
+openapi: 3.0.0
+info:
+  title: Employee Employments
+  description: >
+    This API can be used to retrieve, post, or delete an employee's employment data.
+    This information is displayed in the Banner administrative page PEAEMPL. 
+    Additionally, the API supports the option to create or update employee employment data in batches.
+  version: 1.0.0-beta
+  x-audience: all
+  x-release-status: beta
+  x-source-domain: Human Resources
+  x-source-system: banner
+  x-source-name: PEBEMPL
+  x-api-type: erp
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/employee-employments:
+    get:
+      tags:
+        - employee-employments
+      summary: Returns employee employment data for the given criteria.
+      description: Returns employee employment data for the specified criteria. Data is extracted from PEBEMPL.
+      parameters:
+        - name: limit
+          in: query
+          description:  |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/employee-employments-1.1.0_get_request_criteria'
+          description: >
+            ### Person ID
+            
+            Returns the employee employment information for this Person ID.  This filter should not be used if a Banner ID filter is used.
+            
+            ```
+
+            /employee-employments?criteria={"personId": "085df706-ee15-4947-93f8-8c260e64795e"}
+
+            ```
+
+            ### Banner ID
+            
+            Returns the employee employment information for this Banner ID.   This filter should not be used if a Person ID filter is used.
+            
+            ```
+
+            /employee-employments?criteria={bannerId":"123456789"}
+            
+            ```
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/employee-employments-1.0.0_get_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_EMPLOYMENTS
+    post:
+      tags:
+        - employee-employments
+      summary: An insert of employee employment data for an employee.
+      description: An insert of employee employment data for an employee.
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.1.0.0+json:
+            schema:
+              $ref: '#/components/schemas/employee-employments-1.0.0_post_request'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                $ref: '#/components/schemas/employee-employments-1.0.0_post_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_EMPLOYMENTS
+  /api/employee-employments/{id}:
+    get:
+      summary: Return the requested resource from PEBEMPL
+      description: |
+        Returns a single employee employment record with the requested global identifier.
+      tags:
+        - employee-employments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier (GUID) of the resource for use in all external
+            references.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                $ref: "#/components/schemas/employee-employments-1.0.0_get_response"
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_EMPLOYMENTS
+    put:
+      tags:
+        - employee-employments
+      summary: Update the employee employment data for an employee.
+      description: Update the employee employment data for an employee.
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: '#/components/schemas/employee-employments-1.0.0_put_request'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the employee employment resource.
+          schema:
+            type: string
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+            
+            ```
+            
+            application/vnd.hedtech.integration.v1.0.0+json
+            
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+            
+            ```
+            
+            application/vnd.hedtech.integration.v1.0.0+json
+            
+            ```
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                $ref: "#/components/schemas/employee-employments-1.0.0_put_response"
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_EMPLOYMENTS
+    delete:
+      summary: Removes an employee employment resource from PEBEMPL.
+      description: Removes an employee employment and all associated data for the employee.
+      tags:
+        - employee-employments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID for the employee employment.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: No Content
+        '204':
+          description: No Content
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Resource not found
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_EMPLOYMENTS
+  /api/employee-employments/batches:
+    post:
+      tags:
+        - employee-employments
+      summary: "Submit a batch of employee employments to be created or updated."
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/employee-employments-batch-1.0.0_post_request"
+      responses:
+        "201":
+          "description": "Created or Updated"
+          "headers":
+            "X-Media-Type":
+              "description": "The full semantic version with the media type of the response."
+              "required": true
+              "schema":
+                "type": "string"
+            "X-Content-Restricted":
+              "description": "If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included."
+              "schema":
+                "type": "string"
+          "content":
+            "application/vnd.hedtech.integration.v1.0.0+json":
+              "schema":
+                "$ref": "#/components/schemas/employee-employments-batch-1.0.0_post_response"
+        "400":
+          "description": "Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+        "401":
+          "description": "Failure. Unauthorized."
+        "403":
+          "description": "Failure. Forbidden. The user does not have the required permissions for the resource."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+        "404":
+          "description": "Failure. Not Found. Cannot map the URI to a resource."
+        "405":
+          "description": "Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+        "406":
+          "description": "Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+        "500":
+          "description": "Server error. Unexpected configuration or data."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_EMPLOYMENTS
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    employee-employments-1.1.0_get_request_criteria:
+      type: object
+      properties:
+        personId:
+          title: Person ID
+          description: The global identifier for the Person.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageLookupReferenceObject: persons 
+          x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+          x-lineageDerivedLogic: A record from GORGUID where GORGUID_LDM_NAME = 'persons' and GORGUID_DOMAIN_KEY matches the PIDM value
+        bannerId:
+          title: Banner ID
+          description: Banner ID of the employee.
+          type: string
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: "123456789" 
+    employee-employments-1.0.0_get_response:
+      properties:
+        id:
+          title: Id
+          type: string
+          description: "The global identifier of the employee employment resource."
+          x-lineageReferenceObject: PEBEMPL_GUID
+          example: 085df706-ee15-4947-93f8-8c260e64795e
+        bannerId:
+          title: Banner ID
+          type: string
+          description: "Internal Identification Number of the employee."
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: HOP123456
+        adjustedServiceOn:
+          title: Adjusted Service Date
+          description: Date used to determine years of service for leave accrual if the First Hire Date and the Current Hire Date are not equal.
+          format: date
+          type: string
+          example: 2020-07-01
+          x-lineageReferenceObject: PEBEMPL_ADJ_SERVICE_DATE
+        benefitCategoryCode:
+          title: Benefit Category Code
+          description: The benefit category code to which the employee belongs.
+          type: string
+          example: FT
+          x-lineageReferenceObject: PEBEMPL_BCAT_CODE
+        californiaPensionMemberStatus:
+          title: California Pension Member Status
+          description: >
+            California Pension Member Status. Valid values are:
+              * `strsMember` STRS member
+              * `strsRetiree` STRS retiree
+              * `persMember` PERS member
+              * `persRetiree` PERS retiree
+              * `strsPersMember` STRS/PERS member
+              * `strsPersRetiree` STRS/PERS retiree 
+              * `nonMember` Non-member
+          type: string
+          enum:
+            - strsMember
+            - strsMember
+            - strsRetiree
+            - persMember
+            - persRetiree
+            - strsPersMember
+            - strsPersRetiree 
+            - nonMember
+          example: strsMember
+          x-lineageReferenceObject: PEBEMPL_CALIF_PENSION_IND
+        campusCode:
+          title: Campus Code
+          description: The Campus code to which the employee belongs.
+          type: string
+          example: MN
+          x-lineageReferenceObject: PEBEMPL_CAMP_CODE
+        canadianNonResidentServiceIndustry:
+          title: Canadian Non-resident Service Industry
+          description: The non-resident service code.
+          type: string
+          example: 211
+          x-lineageReferenceObject: PEBEMPL_NRSI_CODE
+        collegeCode:
+          title: College Code
+          description: The College code to which the employee belongs.
+          type: string
+          example: MD
+          x-lineageReferenceObject: PEBEMPL_COLL_CODE
+        currentHireOn:
+          title: Current Hire Date
+          description: The employees current date of hire.
+          format: date
+          type: string
+          example: 2020-07-01
+          x-lineageReferenceObject: PEBEMPL_CURRENT_HIRE_DATE
+        daysInCanada:
+          title: Days In Canada
+          description: Number of days the employee worked in Canada.
+          type: integer
+          example: 56
+          x-lineageReferenceObject: PEBEMPL_DAYS_IN_CANADA
+        distributionCoasCode:
+          title: Distribution Chart of Accounts Code
+          description: The Chart of Accounts code to which the employee's documents, such as checks, are distributed.
+          type: string
+          example: A
+          x-lineageReferenceObject: PEBEMPL_COAS_CODE_DIST
+        distributionOrganizationCode:
+          title: Distribution Organization Code
+          description: The organization code used for document distribution.
+          type: string
+          example: 12010
+          x-lineageReferenceObject: PEBEMPL_ORGN_CODE_DIST
+        districtDivisionCode:
+          title: District or Division Code
+          description: The district or division code associated with an employee.
+          type: string
+          example: MNT
+          x-lineageReferenceObject: PEBEMPL_DICD_CODE
+        eeoFullTimePartTime:
+          title: EEO Full Time Part Time
+          description: >
+            Internal Part Time/Full Time indicator, used for EEO reporting. 
+            Valid values are:
+              * `fullTime` Full-time
+              * `partTime` Part-time
+              * `other` Other
+          type: string
+          enum:
+            - fullTime
+            - partTime
+            - other
+          example: fullTime
+          x-lineageReferenceObject: PEBEMPL_INTERNAL_FT_PT_IND
+        consentedToElectronic1095:
+          title: Electronic 1095 Consent
+          description: Indicates that the employee has consented to receive the 1095 tax form electronically.  
+          type: boolean
+          example: true
+          x-lineageReferenceObject: PEBEMPL_1095TX_CONSENT_IND 
+        electronic1095ConsentOn:
+          title: Electronic 1095 Consent Date
+          description: This field identifies the most recent date the 1095 Electronic Tax Form Consent Indicator was updated.
+          format: date
+          type: string
+          example: 2020-12-01
+          x-lineageReferenceObject: PEBEMPL_1095TX_CONSENT_DATE
+        electronic1095ConsentUserId:
+          title: Electronic 1095 Consent User Id
+          description: The unique identification of the user who last updated the 1095 Electronic Tax Form Consent Indicator.
+          type: string
+          example: HOP123456
+          x-lineageReferenceObject: PEBEMPL_1095TX_CONSENT_USER_ID
+        consentedToElectronicTaxForms:
+          title: Electronic Tax Consent
+          description: Indicates that the employee has consented to receive the tax form electronically. Canada Only.
+          type: boolean
+          example: true
+          x-lineageReferenceObject: PEBEMPL_ETAX_CONSENT_IND
+        electronicTaxConsentOn:
+          title: Electronic Tax Consent Date
+          description: This field identifies the most recent date the Electronic Tax Form Consent Indicator was updated. Canada only.
+          format: date
+          type: string
+          example: 2020-12-01
+          x-lineageReferenceObject: PEBEMPL_ETAX_CONSENT_DATE
+        electronicTaxConsentUserId:
+          title: Electronic Tax Consent User Id
+          description: The unique identification of the user who last updated the Electronic Tax Form Consent Indicator. Canada only.
+          type: string
+          example: HOP123456
+          x-lineageReferenceObject: PEBEMPL_ETAX_CONSENT_USER_ID
+        consentedToElectronicW2:
+          title: Electronic W2 Consent
+          description: Indicates that the employee has consented to receive the W-2 electronically.  
+          type: boolean
+          example: true
+          x-lineageReferenceObject: PEBEMPL_EW2_CONSENT_IND
+        electronicW2ConsentOn:
+          title: Electronic W2 Consent Date
+          description: This field identifies the most recent date the Electronic W-2 Consent Indicator was updated.
+          format: date
+          type: string
+          example: 2020-12-01
+          x-lineageReferenceObject: PEBEMPL_EW2_CONSENT_DATE
+        electronicW2ConsentUserId:
+          title: Electronic W2 Consent User Id
+          description: The unique identification of the user who last updated the Electronic W-2 Consent Indicator.
+          type: string
+          example: HOP123456
+          x-lineageReferenceObject: PEBEMPL_EW2_CONSENT_USER_ID
+        employeeClassCode:
+          title: Employee Class Code
+          description: The employee grouping code to which the employee belongs.
+          type: string
+          example: AD
+          x-lineageReferenceObject: PEBEMPL_ECLS_CODE
+        employeeGroup:
+          title: Employee Group
+          description: The employee group code is a sub-category of the Employee Class.
+          type: string
+          example: INTR
+          x-lineageReferenceObject: PEBEMPL_EGRP_CODE
+        employmentStatus:
+          title: Employment Status
+          description: >
+            The status of the employee. 
+            Valid values are:
+              * `active`               Active
+              * `leaveWithBenefits`    Leave without pay and with benefits
+              * `leaveWithoutBenefits` Leave without pay and without benefits
+              * `leaveWithFullPay`     Leave with full pay and with benefits
+              * `leaveWithPartialPay`  Leave with partial pay and with benefits
+              * `terminated`           Terminated
+          type: string
+          enum:
+            - active
+            - leaveWithBenefits
+            - leaveWithoutBenefits
+            - leaveWithFullPay
+            - leaveWithPartialPay
+            - terminated
+          example: "active"
+          x-lineageReferenceObject: PEBEMPL_EMPL_STATUS
+        firstHiredOn:
+          title: First Hire Date
+          description: The date the employee was first hired.
+          format: date
+          type: string
+          example: 2020-06-30
+          x-lineageReferenceObject: PEBEMPL_FIRST_HIRE_DATE
+        firstWorkedOn:
+          title: First Work Date
+          description: The first day that the employee worked.
+          format: date
+          type: string
+          example: 2020-07-01
+          x-lineageReferenceObject: PEBEMPL_FIRST_WORK_DATE
+        flsaMethod:
+          title: FLSA Method
+          description: >
+            Used for Fair Labor Standards Overtime compensation. 
+            Valid values are:
+              * `cash` Cash
+              * `cashAllHoursDol` Cash, All Hours, DOL
+              * `cashAllHoursNoDol` Cash, All Hours, No DOL
+              * `accrue` Accrue
+              * `accrueAllHours` Accrue, All Hours
+              * `noFlsa` No FLSA
+          type: string
+          enum:
+            - cash
+            - cashAllHoursDol
+            - cashAllHoursNoDol
+            - accrue
+            - accrueAllHours
+            - noFlsa
+          example: cash
+          x-lineageReferenceObject: PEBEMPL_FLSA_IND
+        form1042RecipientCode:
+          title: Form 1042 Recipient Code
+          description: A code that identifies the type of individual who is receiving a 1042 statement.
+          type: string
+          example: 15
+          x-lineageReferenceObject: PEBEMPL_1042_RECIPIENT_CD
+        homeCoasCode:
+          title: Home Chart of Accounts Code
+          description: The Home Chart of Accounts code for the employee.
+          type: string
+          example: A
+          x-lineageReferenceObject: PEBEMPL_COAS_CODE_HOME
+        homeOrganizationCode:
+          title: Home Organization Code
+          description: The Home Organization code of the employee.
+          type: string
+          example: 120160
+          x-lineageReferenceObject: PEBEMPL_ORGN_CODE_HOME
+        i9ReceivedOn:
+          title: I9 Received Date
+          description: The date immigration information was received.
+          format: date
+          type: string
+          example: 2015-08-04
+          x-lineageReferenceObject: PEBEMPL_I9_DATE
+        i9ExpireOn:
+          title: I9 Expire Date
+          description: The date the immigration information expires.
+          format: date
+          type: string
+          example: 2024-12-01
+          x-lineageReferenceObject: PEBEMPL_I9_EXPIRE_DATE
+        i9FormStatus:
+          title: I9 Form Status
+          description: >
+            The status of immigration information. Valid values are:
+              * `received` Received
+              * `notReceived` Not received
+              * `temporary` Temporary
+              * `exempt` Exempt
+          type: string
+          enum:
+            - received
+            - notReceived
+            - temporary
+            - exempt
+          example: received
+          x-lineageReferenceObject: PEBEMPL_I9_FORM_IND
+        ipedsMedicalDentalIndicator:
+          title: IPEDS Medical Dental Indicator
+          description: >
+            Indicator determines where the person is reported for the PERIPED report. 
+            Valid values are:
+              * `Y` Yes and reported under the Medical/Dental section
+              * `N` No and reported under the Non-medical section
+          type: string
+          example: Y
+          x-lineageReferenceObject: PEBEMPL_IPEDS_MED_DENTAL_IND
+        ipedsPrimaryFunctionCode:
+          title: IPEDS Primary Function Code
+          description:  >
+            Indicates whether someone's main responsibility is Instruction, Research, Public Service or Graduate Assistant.
+              Valid values are:
+              * `GAB` GA-Business and Financial Operations
+              * `GAC` GA-Computer, Engineering, and Science
+              * `GAH` GA-Healthcare Practitioners and Technical
+              * `GAI` GA-Library and Instructional Support
+              * `GAL` GA-Community Service, Legal, Arts, and Media
+              * `GAM` GA-Management
+              * `GAO` GA-Other-No Longer Used
+              * `GAR` GA-Research
+              * `GAT` GA-Teaching
+              * `IRP` Instruction combined with Research/Public Service
+              * `N` None
+              * `PI` Primarily Instruction-No Longer Used
+              * `PIB` PI-Combined Credit and Non-Credit
+              * `PIC` PI-Exclusively for Credit
+              * `PIE` PI-Exclusively for Non-Credit
+              * `PR` Primarily Research
+              * `PS` Primarily Public Service
+          type: string
+          example: GAM
+          x-lineageReferenceObject: PEBEMPL_IPEDS_PRIMARY_FUNCTION
+        hasIpedsReportableSoftMoney:
+          title: IPEDS Soft Money Indicator
+          description: Indicates that the employee has IPEDS reportable Soft Money.
+          type: boolean
+          example: false
+          x-lineageReferenceObject: PEBEMPL_IPEDS_SOFT_MONEY_IND
+        jobLocationCode:
+          title: Job Location Code
+          description: The Location code to which the employee belongs.
+          type: string
+          example: CH
+          x-lineageReferenceObject: PEBEMPL_JBLN_CODE
+        lastWorkedOn:
+          title: Last Work Date
+          description: The last day that the employee worked.
+          format: date
+          type: string
+          example: 2024-05-30
+          x-lineageReferenceObject: PEBEMPL_LAST_WORK_DATE
+        leaveCategoryCode:
+          title: Leave Category Code
+          description: The leave category code to which the employee belongs.
+          type: string
+          example: A1
+          x-lineageReferenceObject: PEBEMPL_LCAT_CODE
+        leaveOfAbsenceBeginOn:
+          title: Leave of Absence Begin Date
+          description: The begin date of a leave of absence for the employee.
+          format: date
+          type: string
+          example: 2024-05-30
+          x-lineageReferenceObject: PEBEMPL_LOA_BEG_DATE
+        leaveOfAbsenceEndOn:
+          title: Leave of Absence End Date
+          description: The anticipated end date for an employee's leave of absence.
+          format: date
+          type: string
+          example: 2024-06-30
+          x-lineageReferenceObject: PEBEMPL_LOA_END_DATE
+        leaveReasonCode:
+          title: Leave Reason Code
+          description: A code identifying the reason for the leave of absence of the employee.
+          type: string
+          example: HS
+          x-lineageReferenceObject: PEBEMPL_LREA_CODE
+        isEligibleForNewHireEnrollment:
+          title: New Hire Enrollment
+          description: Indicates that the employee is eligible to enroll in benefits via New Hire Enrollment on the web.
+          type: boolean
+          example: true
+          x-lineageReferenceObject: PEBEMPL_NEW_HIRE_IND
+        persAppointmentId:
+          title: PERS Appointment Id
+          description: 10-digit CalPERS ID for this employee which indicates their association with this employer by CalPERS Member Category.
+          type: string
+          example: G893855551
+          x-lineageReferenceObject: PEBEMPL_PERS_APPT_ID
+        persParticipantId:
+          title: PERS Participant Id
+          description: Unique 10-digit CalPERS ID identifier for participant. Created by the new system during enrollment to replace a Members Social Security Number.
+          type: string
+          example: 9456905469
+          x-lineageReferenceObject: PEBEMPL_PERS_PARTICIPANT_ID
+        seniorityOn:
+          title: Seniority Date
+          description: Date that establishes service and can be used for leave accrual.
+          format: date
+          type: string
+          example: 2020-07-01
+          x-lineageReferenceObject: PEBEMPL_SENIORITY_DATE
+        ssnFirstName:
+          title: SSN First Name
+          description: Social security first name used in reporting.
+          type: string
+          example: Mandy
+          x-lineageReferenceObject: PEBEMPL_SSN_FIRST_NAME
+        ssnLastName:
+          title: SSN Last Name
+          description: Social security last name used in reporting.
+          type: string
+          example: Jones
+          x-lineageReferenceObject: PEBEMPL_SSN_LAST_NAME
+        ssnMiddleInitial:
+          title: SSN Middle Initial
+          description: Social security middle name used in reporting.
+          type: string
+          example: K
+          x-lineageReferenceObject: PEBEMPL_SSN_MI
+        ssnSuffix:
+          title: SSN Suffix
+          description: Social security name suffix used in reporting.
+          type: string
+          example: Jr
+          x-lineageReferenceObject: PEBEMPL_SSN_SUFFIX
+        statisticsCanadaGrouping:
+          title: Statistics Canada Grouping
+          description: A code representing the Statistics Canada Grouping.
+          type: string
+          example: PR
+          x-lineageReferenceObject: PEBEMPL_STGR_CODE
+        strsMemberCode:
+          title: STRS Membership Code
+          description: >
+            Three-digit code that represents the California State Teachers Retirement System Benefit Membership Program of the employee.
+            This value is required for CalSTRS payroll reporting. Valid values are:
+               * `definedBenefitMember` Defined Benefit Member
+               * `definedBenefitNonMember` Defined Benefit Non-Member
+               * `cashBalanceMember` Cash Balance Member
+               * `cashBalanceNonMember` Cash Balance Non-Member
+          type: string
+          enum:
+            - definedBenefitMember
+            - definedBenefitNonMember
+            - cashBalanceMember
+            - cashBalanceNonMember      
+          example: definedBenefitMember
+          x-lineageReferenceObject: PEBEMPL_STRS_MEMBER_CDE
+        terminationOn:
+          title: Termination Date
+          description: Termination date of the employee.
+          format: date
+          type: string
+          example: 2024-07-15
+          x-lineageReferenceObject: PEBEMPL_TERM_DATE
+        terminationReasonCode:
+          title: Termination Reason Code
+          description: The code used to identify the reason of termination.
+          type: string
+          example: UAB
+          x-lineageReferenceObject: PEBEMPL_TREA_CODE
+        workPeriodCode:
+          title: Work Period Code
+          description: The code representing the Work Period.
+          type: string
+          example: BWFL
+          x-lineageReferenceObject: PEBEMPL_WKPR_CODE
+        person:
+          $ref: '#/components/schemas/person' 
+    employee-employments-1.0.0_post_request:
+      type: object
+      properties:
+        bannerId:
+          title: Banner ID
+          type: string
+          description: "Internal Identification Number of the employee."
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: HOP123456
+        adjustedServiceOn:
+          title: Adjusted Service Date
+          description: Date used to determine years of service for leave accrual if the First Hire Date and the Current Hire Date are not equal.
+          format: date
+          type: string
+          example: 2020-07-01
+          x-lineageReferenceObject: PEBEMPL_ADJ_SERVICE_DATE
+        benefitCategoryCode:
+          title: Benefit Category Code
+          description: The benefit category code to which the employee belongs.
+          type: string
+          example: FT
+          x-lineageReferenceObject: PEBEMPL_BCAT_CODE
+        californiaPensionMemberStatus:
+          title: California Pension Member Status
+          description: >
+            California Pension Member Status. Valid values are:
+              * `strsMember` STRS member
+              * `strsRetiree` STRS retiree
+              * `persMember` PERS member
+              * `persRetiree` PERS retiree
+              * `strsPersMember` STRS/PERS member
+              * `strsPersRetiree` STRS/PERS retiree 
+              * `nonMember` Non-member
+          type: string
+          enum:
+            - strsMember
+            - strsMember
+            - strsRetiree
+            - persMember
+            - persRetiree
+            - strsPersMember
+            - strsPersRetiree 
+            - nonMember
+          example: strsMember
+          x-lineageReferenceObject: PEBEMPL_CALIF_PENSION_IND
+        campusCode:
+          title: Campus Code
+          description: The Campus code to which the employee belongs.
+          type: string
+          example: MN
+          x-lineageReferenceObject: PEBEMPL_CAMP_CODE
+        canadianNonResidentServiceIndustry:
+          title: Canadian Non-resident Service Industry
+          description: The non-resident service code.
+          type: string
+          example: 211
+          x-lineageReferenceObject: PEBEMPL_NRSI_CODE
+        collegeCode:
+          title: College Code
+          description: The College code to which the employee belongs.
+          type: string
+          example: MD
+          x-lineageReferenceObject: PEBEMPL_COLL_CODE
+        currentHireOn:
+          title: Current Hire Date
+          description: The employees current date of hire.
+          format: date
+          type: string
+          example: 2020-07-01
+          x-lineageReferenceObject: PEBEMPL_CURRENT_HIRE_DATE
+        daysInCanada:
+          title: Days In Canada
+          description: Number of days the employee worked in Canada.
+          type: integer
+          example: 56
+          x-lineageReferenceObject: PEBEMPL_DAYS_IN_CANADA
+        distributionCoasCode:
+          title: Distribution Chart of Accounts Code
+          description: The Chart of Accounts code to which the employee's documents, such as checks, are distributed.
+          type: string
+          example: A
+          x-lineageReferenceObject: PEBEMPL_COAS_CODE_DIST
+        distributionOrganizationCode:
+          title: Distribution Organization Code
+          description: The organization code used for document distribution.
+          type: string
+          example: 12010
+          x-lineageReferenceObject: PEBEMPL_ORGN_CODE_DIST
+        districtDivisionCode:
+          title: District or Division Code
+          description: The district or division code associated with an employee.
+          type: string
+          example: MNT
+          x-lineageReferenceObject: PEBEMPL_DICD_CODE
+        eeoFullTimePartTime:
+          title: EEO Full Time Part Time
+          description: >
+            Internal Part Time/Full Time indicator, used for EEO reporting. 
+            Valid values are:
+              * `fullTime` Full-time
+              * `partTime` Part-time
+              * `other` Other
+          type: string
+          enum:
+            - fullTime
+            - partTime
+            - other
+          example: fullTime
+          x-lineageReferenceObject: PEBEMPL_INTERNAL_FT_PT_IND'
+        consentedToElectronic1095:
+          title: Electronic 1095 Consent
+          description: Indicates that the employee has consented to receive the 1095 tax form electronically.  
+          type: boolean
+          example: true
+          x-lineageReferenceObject: PEBEMPL_1095TX_CONSENT_IND
+        electronic1095ConsentOn:
+          title: Electronic 1095 Consent Date
+          description: This field identifies the most recent date the 1095 Electronic Tax Form Consent was updated.
+          format: date
+          type: string
+          example: 2020-12-01
+          x-lineageReferenceObject: PEBEMPL_1095TX_CONSENT_DATE
+        electronic1095ConsentUserId:
+          title: Electronic 1095 Consent User Id
+          description: The unique identification of the user who last updated the 1095 Electronic Tax Form Consent Indicator.
+          type: string
+          example: HOP123456
+          x-lineageReferenceObject: PEBEMPL_1095TX_CONSENT_USER_ID
+        consentedToElectronicTaxForms:
+          title: Electronic Tax Consent
+          description: Indicates that the employee has consented to receive the tax form electronically. Canada only.
+          type: boolean
+          example: true
+          x-lineageReferenceObject: PEBEMPL_ETAX_CONSENT_IND
+        electronicTaxConsentOn:
+          title: Electronic Tax Consent Date
+          description: This field identifies the most recent date the Electronic Tax Form Consent Indicator was updated. Canada only.
+          format: date
+          type: string
+          example: 2020-12-01
+          x-lineageReferenceObject: PEBEMPL_ETAX_CONSENT_DATE
+        electronicTaxConsentUserId:
+          title: Electronic Tax Consent User Id
+          description: The unique identification of the user who last updated the Electronic Tax Form Consent Indicator. Canada only.
+          type: string
+          example: HOP123456
+          x-lineageReferenceObject: PEBEMPL_ETAX_CONSENT_USER_ID
+        consentedToElectronicW2:
+          title: Electronic W2 Consent
+          description: Indicates that the employee has consented to receive the W-2 electronically.  
+          type: boolean
+          example: true
+          x-lineageReferenceObject: PEBEMPL_EW2_CONSENT_IND
+        electronicW2ConsentOn:
+          title: Electronic W2 Consent Date
+          description: This field identifies the most recent date the Electronic W-2 Consent Indicator was updated.
+          format: date
+          type: string
+          example: 2020-12-01
+          x-lineageReferenceObject: PEBEMPL_EW2_CONSENT_DATE
+        electronicW2ConsentUserId:
+          title: Electronic W2 Consent User Id
+          description: The unique identification of the user who last updated the Electronic W-2 Consent Indicator.
+          type: string
+          example: HOP123456
+          x-lineageReferenceObject: PEBEMPL_EW2_CONSENT_USER_ID
+        employeeClassCode:
+          title: Employee Class Code Code
+          description: The employee grouping code to which the employee belongs.
+          type: string
+          example: AD
+          x-lineageReferenceObject: PEBEMPL_ECLS_CODE
+        employeeGroup:
+          title: Employee Group
+          description: The employee group code is a sub-category of the Employee Class.
+          type: string
+          example: INTR
+          x-lineageReferenceObject: PEBEMPL_EGRP_CODE
+        employmentStatus:
+          title: Employment Status
+          description: >
+            The status of the employee. 
+            Valid values are:
+              * `active`               Active
+              * `leaveWithBenefits`    Leave without pay and with benefits
+              * `leaveWithoutBenefits` Leave without pay and without benefits
+              * `leaveWithFullPay`     Leave with full pay and with benefits
+              * `leaveWithPartialPay`  Leave with partial pay and with benefits
+              * `terminated`           Terminated
+          type: string
+          enum:
+            - active
+            - leaveWithBenefits
+            - leaveWithoutBenefits
+            - leaveWithFullPay
+            - leaveWithPartialPay
+            - terminated
+          example: "active"
+          x-lineageReferenceObject: PEBEMPL_EMPL_STATUS'
+        firstHiredOn:
+          title: First Hire Date
+          description: The date the employee was first hired.
+          format: date
+          type: string
+          example: 2020-06-30
+          x-lineageReferenceObject: PEBEMPL_FIRST_HIRE_DATE
+        firstWorkedOn:
+          title: First Work Date
+          description: The first day that the employee worked.
+          format: date
+          type: string
+          example: 2020-07-01
+          x-lineageReferenceObject: PEBEMPL_FIRST_WORK_DATE
+        flsaMethod:
+          title: FLSA Method
+          description: >
+            Used for Fair Labor Standards Overtime compensation. 
+            Valid values are:
+              * `cash` Cash
+              * `cashAllHoursDol` Cash, All Hours, DOL
+              * `cashAllHoursNoDol` Cash, All Hours, No DOL
+              * `accrue` Accrue
+              * `accrueAllHours` Accrue, All Hours
+              * `noFlsa` No FLSA
+          type: string
+          enum:
+            - cash
+            - cashAllHoursDol
+            - cashAllHoursNoDol
+            - accrue
+            - accrueAllHours
+            - noFlsa
+          example: cash
+          x-lineageReferenceObject: PEBEMPL_FLSA_IND
+        form1042RecipientCode:
+          title: Form 1042 Recipient Code
+          description: A code that identifies the type of individual who is receiving a 1042 statement.
+          type: string
+          example: 15
+          x-lineageReferenceObject: PEBEMPL_1042_RECIPIENT_CD
+        homeCoasCode:
+          title: Home Chart of Accounts Code
+          description: The Home Chart of Accounts code for the employee.
+          type: string
+          example: A
+          x-lineageReferenceObject: PEBEMPL_COAS_CODE_HOME
+        homeOrganizationCode:
+          title: Home Organization Code
+          description: The Home Organization code of the employee.
+          type: string
+          example: 120160
+          x-lineageReferenceObject: PEBEMPL_ORGN_CODE_HOME
+        i9ReceivedOn:
+          title: I9 Received Date
+          description: The date immigration information was received.
+          format: date
+          type: string
+          example: 2015-08-04
+          x-lineageReferenceObject: PEBEMPL_I9_DATE
+        i9ExpireOn:
+          title: I9 Expire Date
+          description: The date the immigration information expires.
+          format: date
+          type: string
+          example: 2024-12-01
+          x-lineageReferenceObject: PEBEMPL_I9_EXPIRE_DATE
+        i9FormStatus:
+          title: I9 Form Status
+          description: >
+            The status of immigration information. Valid values are:
+              * `received` Received
+              * `notReceived` Not received
+              * `temporary` Temporary
+              * `exempt` Exempt
+          type: string
+          enum:
+            - received
+            - notReceived
+            - temporary
+            - exempt
+          example: received
+          x-lineageReferenceObject: PEBEMPL_I9_FORM_IND
+        ipedsMedicalDentalIndicator:
+          title: IPEDS Medical Dental Indicator
+          description: >
+            Indicator determines where the person is reported for the PERIPED report. 
+            Valid values are:
+              * `Y` Yes and reported under the Medical/Dental section
+              * `N` No and reported under the Non-medical section
+          type: string
+          example: Y
+          x-lineageReferenceObject: PEBEMPL_IPEDS_MED_DENTAL_IND
+        ipedsPrimaryFunctionCode:
+          title: IPEDS Primary Function Code
+          description:  >
+            Indicates whether someone's main responsibility is Instruction, Research, Public Service or Graduate Assistant.
+              Valid values are:
+              * `GAB` GA-Business and Financial Operations
+              * `GAC` GA-Computer, Engineering, and Science
+              * `GAH` GA-Healthcare Practitioners and Technical
+              * `GAI` GA-Library and Instructional Support
+              * `GAL` GA-Community Service, Legal, Arts, and Media
+              * `GAM` GA-Management
+              * `GAO` GA-Other-No Longer Used
+              * `GAR` GA-Research
+              * `GAT` GA-Teaching
+              * `IRP` Instruction combined with Research/Public Service
+              * `N` None
+              * `PI` Primarily Instruction-No Longer Used
+              * `PIB` PI-Combined Credit and Non-Credit
+              * `PIC` PI-Exclusively for Credit
+              * `PIE` PI-Exclusively for Non-Credit
+              * `PR` Primarily Research
+              * `PS` Primarily Public Service
+          type: string
+          example: GAM
+          x-lineageReferenceObject: PEBEMPL_IPEDS_PRIMARY_FUNCTION
+        hasIpedsReportableSoftMoney:
+          title: IPEDS Soft Money
+          description: Indicates that the employee has IPEDS Soft Money.
+          type: boolean
+          example: false
+          x-lineageReferenceObject: PEBEMPL_IPEDS_SOFT_MONEY_IND
+        jobLocationCode:
+          title: Job Location Code
+          description: The Location code to which the employee belongs.
+          type: string
+          example: CH
+          x-lineageReferenceObject: PEBEMPL_JBLN_CODE
+        lastWorkedOn:
+          title: Last Work Date
+          description: The last day that the employee worked.
+          format: date
+          type: string
+          example: 2024-05-30
+          x-lineageReferenceObject: PEBEMPL_LAST_WORK_DATE
+        leaveCategoryCode:
+          title: Leave Category Code
+          description: The leave category code to which the employee belongs.
+          type: string
+          example: A1
+          x-lineageReferenceObject: PEBEMPL_LCAT_CODE
+        leaveOfAbsenceBeginOn:
+          title: Leave of Absence Begin Date
+          description: The begin date of a leave of absence for the employee.
+          format: date
+          type: string
+          example: 2024-05-30
+          x-lineageReferenceObject: PEBEMPL_LOA_BEG_DATE
+        leaveOfAbsenceEndOn:
+          title: Leave of Absence End Date
+          description: The anticipated end date for an employee's leave of absence.
+          format: date
+          type: string
+          example: 2024-06-30
+          x-lineageReferenceObject: PEBEMPL_LOA_END_DATE
+        leaveReasonCode:
+          title: Leave Reason Code
+          description: A code identifying the reason for the leave of absence of the employee.
+          type: string
+          example: HS
+          x-lineageReferenceObject: PEBEMPL_LREA_CODE
+        isEligibleForNewHireEnrollment:
+          title: New Hire Enrollment
+          description: Indicates that the employee is eligible to enroll in benefits via New Hire Enrollment on the web.
+          type: boolean
+          example: true
+          x-lineageReferenceObject: PEBEMPL_NEW_HIRE_IND
+        persAppointmentId:
+          title: PERS Appointment Id
+          description: 10-digit CalPERS ID for this employee which indicates their association with this employer by CalPERS Member Category.
+          type: string
+          example: G893855551
+          x-lineageReferenceObject: PEBEMPL_PERS_APPT_ID
+        persParticipantId:
+          title: PERS Participant Id
+          description: Unique 10-digit CalPERS ID identifier for participant. Created by the new system during enrollment to replace a Members Social Security Number.
+          type: string
+          example: 9456905469
+          x-lineageReferenceObject: PEBEMPL_PERS_PARTICIPANT_ID
+        seniorityOn:
+          title: Seniority Date
+          description: Date that establishes service and can be used for leave accrual.
+          type: string
+          example: 2020-07-01
+          x-lineageReferenceObject: PEBEMPL_SENIORITY_DATE
+        ssnFirstName:
+          title: SSN First Name
+          description: Social security first name used in reporting.
+          type: string
+          example: Mandy
+          x-lineageReferenceObject: PEBEMPL_SSN_FIRST_NAME
+        ssnLastName:
+          title: SSN Last Name
+          description: Social security last name used in reporting.
+          type: string
+          example: Jones
+          x-lineageReferenceObject: PEBEMPL_SSN_LAST_NAME
+        ssnMiddleInitial:
+          title: SSN Middle Initial
+          description: Social security middle name used in reporting.
+          type: string
+          example: K
+          x-lineageReferenceObject: PEBEMPL_SSN_MI
+        ssnSuffix:
+          title: SSN Suffix
+          description: Social security name suffix used in reporting.
+          type: string
+          example: Jr
+          x-lineageReferenceObject: PEBEMPL_SSN_SUFFIX
+        statisticsCanadaGrouping:
+          title: Statistics Canada Grouping
+          description: A code representing the Statistics Canada Grouping.
+          type: string
+          example: PR
+          x-lineageReferenceObject: PEBEMPL_STGR_CODE
+        strsMemberCode:
+          title: STRS Membership Code
+          description: >
+            Three-digit code that represents the California State Teachers Retirement System Benefit Membership Program of the employee.
+            This value is required for CalSTRS payroll reporting. Valid values are:
+               * `definedBenefitMember` Defined Benefit Member
+               * `definedBenefitNonMember` Defined Benefit Non-Member
+               * `cashBalanceMember` Cash Balance Member
+               * `cashBalanceNonMember` Cash Balance Non-Member
+          type: string
+          enum:
+            - definedBenefitMember
+            - definedBenefitNonMember
+            - cashBalanceMember
+            - cashBalanceNonMember      
+          example: definedBenefitMember
+          x-lineageReferenceObject: PEBEMPL_STRS_MEMBER_CDE
+        terminationOn:
+          title: Termination Date
+          description: Termination date of the employee.
+          format: date
+          type: string
+          example: 2024-07-15
+          x-lineageReferenceObject: PEBEMPL_TERM_DATE
+        terminationReasonCode:
+          title: Termination Reason Code
+          description: The code used to identify the reason of termination.
+          type: string
+          example: UAB
+          x-lineageReferenceObject: PEBEMPL_TREA_CODE
+        workPeriodCode:
+          title: Work Period Code
+          description: The code representing the Work Period.
+          type: string
+          example: BWFL
+          x-lineageReferenceObject: PEBEMPL_WKPR_CODE
+      required:
+        - bannerId
+        - homeCoasCode
+        - homeOrganizationCode
+    employee-employments-1.0.0_post_response:
+      $ref: '#/components/schemas/employee-employments-1.0.0_get_response'
+    employee-employments-1.0.0_put_request:
+      type: object
+      properties:
+        adjustedServiceOn:
+          title: Adjusted Service Date
+          description: Date used to determine years of service for leave accrual if the First Hire Date and the Current Hire Date are not equal.
+          format: date
+          type: string
+          example: 2020-07-01
+          x-lineageReferenceObject: PEBEMPL_ADJ_SERVICE_DATE
+        benefitCategoryCode:
+          title: Benefit Category Code
+          description: The benefit category code to which the employee belongs.
+          type: string
+          example: FT
+          x-lineageReferenceObject: PEBEMPL_BCAT_CODE
+        californiaPensionMemberStatus:
+          title: California Pension Member Status
+          description: >
+            California Pension Member Status. Valid values are:
+              * `strsMember` STRS member
+              * `strsRetiree` STRS retiree
+              * `persMember` PERS member
+              * `persRetiree` PERS retiree
+              * `strsPersMember` STRS/PERS member
+              * `strsPersRetiree` STRS/PERS retiree 
+              * `nonMember` Non-member
+          type: string
+          enum:
+            - strsMember
+            - strsMember
+            - strsRetiree
+            - persMember
+            - persRetiree
+            - strsPersMember
+            - strsPersRetiree 
+            - nonMember
+          example: strsMember
+          x-lineageReferenceObject: PEBEMPL_CALIF_PENSION_IND
+        campusCode:
+          title: Campus Code
+          description: The Campus code to which the employee belongs.
+          type: string
+          example: MN
+          x-lineageReferenceObject: PEBEMPL_CAMP_CODE
+        canadianNonResidentServiceIndustry:
+          title: Canadian Non-resident Service Industry
+          description: The non-resident service code.
+          type: string
+          example: 211
+          x-lineageReferenceObject: PEBEMPL_NRSI_CODE
+        collegeCode:
+          title: College Code
+          description: The College code to which the employee belongs.
+          type: string
+          example: MD
+          x-lineageReferenceObject: PEBEMPL_COLL_CODE
+        currentHireOn:
+          title: Current Hire Date
+          description: The employees current date of hire.
+          format: date
+          type: string
+          example: 2020-07-01
+          x-lineageReferenceObject: PEBEMPL_CURRENT_HIRE_DATE
+        daysInCanada:
+          title: Days In Canada
+          description: Number of days the employee worked in Canada.
+          type: integer
+          example: 56
+          x-lineageReferenceObject: PEBEMPL_DAYS_IN_CANADA
+        distributionCoasCode:
+          title: Distribution Chart of Accounts Code
+          description: The Chart of Accounts code to which the employee's documents, such as checks, are distributed.
+          type: string
+          example: A
+          x-lineageReferenceObject: PEBEMPL_COAS_CODE_DIST
+        distributionOrganizationCode:
+          title: Distribution Organization Code
+          description: The organization code used for document distribution.
+          type: string
+          example: 12010
+          x-lineageReferenceObject: PEBEMPL_ORGN_CODE_DIST
+        districtDivisionCode:
+          title: District or Division Code
+          description: The district or division code associated with an employee.
+          type: string
+          example: MNT
+          x-lineageReferenceObject: PEBEMPL_DICD_CODE
+        eeoFullTimePartTime:
+          title: EEO Full Time Part Time
+          description: >
+            Internal Part Time/Full Time indicator, used for EEO reporting. 
+            Valid values are:
+              * `fullTime` Full-time
+              * `partTime` Part-time
+              * `other` Other
+          type: string
+          enum:
+            - fullTime
+            - partTime
+            - other
+          example: fullTime
+          x-lineageReferenceObject: PEBEMPL_INTERNAL_FT_PT_IND
+        electronic1095ConsentOn:
+          title: Electronic 1095 Consent Date
+          description: This field identifies the most recent date the 1095 Electronic Tax Form Consent Indicator was updated.
+          format: date
+          type: string
+          example: 2020-12-01
+          x-lineageReferenceObject: PEBEMPL_1095TX_CONSENT_DATE
+        electronic1095ConsentUserId:
+          title: Electronic 1095 Consent User Id
+          description: The unique identification of the user who last updated the 1095 Electronic Tax Form Consent Indicator.
+          type: string
+          example: HOP123456
+          x-lineageReferenceObject: PEBEMPL_1095TX_CONSENT_USER_ID
+        consentedToElectronicTaxForms:
+          title: Electronic Tax Consent
+          description: Indicates that the employee has consented to receive the tax form electronically. Canada only.
+          type: boolean
+          example: true
+          x-lineageReferenceObject: PEBEMPL_ETAX_CONSENT_IND
+        electronicTaxConsentOn:
+          title: Electronic Tax Consent Date
+          description: This field identifies the most recent date the Electronic Tax Form Consent Indicator was updated. Canada only.
+          format: date
+          type: string
+          example: 2020-12-01
+          x-lineageReferenceObject: PEBEMPL_ETAX_CONSENT_DATE
+        electronicTaxConsentUserId:
+          title: Electronic Tax Consent User Id
+          description: The unique identification of the user who last updated the Electronic Tax Form Consent Indicator. Canada only.
+          type: string
+          example: HOP123456
+          x-lineageReferenceObject: PEBEMPL_ETAX_CONSENT_USER_ID
+        consentedToElectronicW2:
+          title: Electronic W2 Consent
+          description: Indicates that the employee has consented to receive the W-2 electronically.  
+          type: boolean
+          example: true
+          x-lineageReferenceObject: PEBEMPL_EW2_CONSENT_IND
+        electronicW2ConsentOn:
+          title: Electronic W2 Consent Date
+          description: This field identifies the most recent date the Electronic W-2 Consent Indicator was updated.
+          format: date
+          type: string
+          example: 2020-12-01
+          x-lineageReferenceObject: PEBEMPL_EW2_CONSENT_DATE
+        electronicW2ConsentUserId:
+          title: Electronic W2 Consent User Id
+          description: The unique identification of the user who last updated the Electronic W-2 Consent Indicator.
+          type: string
+          example: HOP123456
+          x-lineageReferenceObject: PEBEMPL_EW2_CONSENT_USER_ID
+        employeeClassCode:
+          title: Employee Class Code
+          description: The employee grouping code to which the employee belongs.
+          type: string
+          example: AD
+          x-lineageReferenceObject: PEBEMPL_ECLS_CODE
+        employeeGroup:
+          title: Employee Group
+          description: The employee group code is a sub-category of the Employee Class.
+          type: string
+          example: INTR
+          x-lineageReferenceObject: PEBEMPL_EGRP_CODE
+        employmentStatus:
+          title: Employment Status
+          description: >
+            The status of the employee. 
+            Valid values are:
+              * `active`               Active
+              * `leaveWithBenefits`    Leave without pay and with benefits
+              * `leaveWithoutBenefits` Leave without pay and without benefits
+              * `leaveWithFullPay`     Leave with full pay and with benefits
+              * `leaveWithPartialPay`  Leave with partial pay and with benefits
+              * `terminated`           Terminated
+          type: string
+          enum:
+            - active
+            - leaveWithBenefits
+            - leaveWithoutBenefits
+            - leaveWithFullPay
+            - leaveWithPartialPay
+            - terminated
+          example: "active"
+          x-lineageReferenceObject: PEBEMPL_EMPL_STATUS
+        firstHiredOn:
+          title: First Hire Date
+          description: The date the employee was first hired.
+          format: date
+          type: string
+          example: 2020-06-30
+          x-lineageReferenceObject: PEBEMPL_FIRST_HIRE_DATE
+        firstWorkedOn:
+          title: First Work Date
+          description: The first day that the employee worked.
+          format: date
+          type: string
+          example: 2020-07-01
+          x-lineageReferenceObject: PEBEMPL_FIRST_WORK_DATE
+        flsaMethod:
+          title: FLSA Method
+          description: >
+            Used for Fair Labor Standards Overtime compensation. 
+            Valid values are:
+              * `cash` Cash
+              * `cashAllHoursDol` Cash, All Hours, DOL
+              * `cashAllHoursNoDol` Cash, All Hours, No DOL
+              * `accrue` Accrue
+              * `accrueAllHours` Accrue, All Hours
+              * `noFlsa` No FLSA
+          type: string
+          enum:
+            - cash
+            - cashAllHoursDol
+            - cashAllHoursNoDol
+            - accrue
+            - accrueAllHours
+            - noFlsa
+          example: cash
+          x-lineageReferenceObject: PEBEMPL_FLSA_IND
+        form1042RecipientCode:
+          title: Form 1042-S Recipient Code
+          description: A code that identifies the type of individual who is receiving a 1042 statement.
+          type: string
+          example: 15
+          x-lineageReferenceObject: PEBEMPL_1042_RECIPIENT_CD
+        homeCoasCode:
+          title: Home Chart of Accounts Code
+          description: The Home Chart of Accounts code for the employee.
+          type: string
+          example: A
+          x-lineageReferenceObject: PEBEMPL_COAS_CODE_HOME
+        homeOrganizationCode:
+          title: Home Organization Code
+          description: The Home Organization code of the employee.
+          type: string
+          example: 120160
+          x-lineageReferenceObject: PEBEMPL_ORGN_CODE_HOME
+        i9ReceivedOn:
+          title: I9 Received Date
+          description: The date immigration information was received.
+          format: date
+          type: string
+          example: 2015-08-04
+          x-lineageReferenceObject: PEBEMPL_I9_DATE
+        i9ExpireOn:
+          title: I9 Expire Date
+          description: The date the immigration information expires.
+          format: date
+          type: string
+          example: 2024-12-01
+          x-lineageReferenceObject: PEBEMPL_I9_EXPIRE_DATE
+        i9FormStatus:
+          title: I9 Form Status
+          description: >
+            The status of immigration information. Valid values are:
+              * `received` Received
+              * `notReceived` Not received
+              * `temporary` Temporary
+              * `exempt` Exempt
+          type: string
+          enum:
+            - received
+            - notReceived
+            - temporary
+            - exempt
+          example: received
+          x-lineageReferenceObject: PEBEMPL_I9_FORM_IND
+        ipedsMedicalDentalIndicator:
+          title: IPEDS Medical Dental Indicator
+          description: >
+            Indicator determines where the person is reported for the PERIPED report. 
+            Valid values are:
+              * `Y` Yes and reported under the Medical/Dental section
+              * `N` No and reported under the Non-medical section
+          type: string
+          example: Y
+          x-lineageReferenceObject: PEBEMPL_IPEDS_MED_DENTAL_IND
+        ipedsPrimaryFunctionCode:
+          title: IPEDS Primary Function Code
+          description:  >
+            Indicates whether someone's main responsibility is Instruction, Research, Public Service or Graduate Assistant.
+              Valid values are:
+              * `GAB` GA-Business and Financial Operations
+              * `GAC` GA-Computer, Engineering, and Science
+              * `GAH` GA-Healthcare Practitioners and Technical
+              * `GAI` GA-Library and Instructional Support
+              * `GAL` GA-Community Service, Legal, Arts, and Media
+              * `GAM` GA-Management
+              * `GAO` GA-Other-No Longer Used
+              * `GAR` GA-Research
+              * `GAT` GA-Teaching
+              * `IRP` Instruction combined with Research/Public Service
+              * `N` None
+              * `PI` Primarily Instruction-No Longer Used
+              * `PIB` PI-Combined Credit and Non-Credit
+              * `PIC` PI-Exclusively for Credit
+              * `PIE` PI-Exclusively for Non-Credit
+              * `PR` Primarily Research
+              * `PS` Primarily Public Service
+          type: string
+          example: GAM
+          x-lineageReferenceObject: PEBEMPL_IPEDS_PRIMARY_FUNCTION
+        hasIpedsReportableSoftMoney:
+          title: IPEDS Soft Money
+          description: Indicates that the employee has IPEDS reportable Soft Money.
+          type: boolean
+          example: false
+          x-lineageReferenceObject: PEBEMPL_IPEDS_SOFT_MONEY_IND
+        jobLocationCode:
+          title: Job Location Code
+          description: The Location code to which the employee belongs.
+          type: string
+          example: CH
+          x-lineageReferenceObject: PEBEMPL_JBLN_CODE
+        lastWorkedOn:
+          title: Last Work Date
+          description: The last day that the employee worked.
+          format: date
+          type: string
+          example: 2024-05-30
+          x-lineageReferenceObject: PEBEMPL_LAST_WORK_DATE
+        leaveCategoryCode:
+          title: Leave Category Code
+          description: The leave category code to which the employee belongs.
+          type: string
+          example: A1
+          x-lineageReferenceObject: PEBEMPL_LCAT_CODE
+        leaveOfAbsenceBeginOn:
+          title: Leave of Absence Begin Date
+          description: The begin date of a leave of absence for the employee.
+          format: date
+          type: string
+          example: 2024-05-30
+          x-lineageReferenceObject: PEBEMPL_LOA_BEG_DATE
+        leaveOfAbsenceEndOn:
+          title: Leave of Absence End Date
+          description: The anticipated end date for an employee's leave of absence.
+          format: date
+          type: string
+          example: 2024-06-30
+          x-lineageReferenceObject: PEBEMPL_LOA_END_DATE
+        leaveReasonCode:
+          title: Leave Reason Code
+          description: A code identifying the reason for the leave of absence of the employee.
+          type: string
+          example: HS
+          x-lineageReferenceObject: PEBEMPL_LREA_CODE
+        isEligibleForNewHireEnrollment:
+          title: New Hire Enrollment
+          description: Indicates that the employee is eligible to enroll in benefits via New Hire Enrollment on the web.
+          type: boolean
+          example: true
+          x-lineageReferenceObject: PEBEMPL_NEW_HIRE_IND
+        persAppointmentId:
+          title: PERS Appointment Id
+          description: 10-digit CalPERS ID for this employee which indicates their association with this employer by CalPERS Member Category.
+          type: string
+          example: G893855551
+          x-lineageReferenceObject: PEBEMPL_PERS_APPT_ID
+        persParticipantId:
+          title: PERS Participant Id
+          description: Unique 10-digit CalPERS ID identifier for participant. Created by the new system during enrollment to replace a Members Social Security Number.
+          type: string
+          example: 9456905469
+          x-lineageReferenceObject: PEBEMPL_PERS_PARTICIPANT_ID
+        seniorityOn:
+          title: Seniority Date
+          description: Date that establishes service and can be used for leave accrual.
+          format: date
+          type: string
+          example: 2020-07-01
+          x-lineageReferenceObject: PEBEMPL_SENIORITY_DATE
+        ssnFirstName:
+          title: SSN First Name
+          description: Social security first name used in reporting.
+          type: string
+          example: Mandy
+          x-lineageReferenceObject: PEBEMPL_SSN_FIRST_NAME
+        ssnLastName:
+          title: SSN Last Name
+          description: Social security last name used in reporting.
+          type: string
+          example: Jones
+          x-lineageReferenceObject: PEBEMPL_SSN_LAST_NAME
+        ssnMiddleInitial:
+          title: SSN Middle Initial
+          description: Social security middle name used in reporting.
+          type: string
+          example: K
+          x-lineageReferenceObject: PEBEMPL_SSN_MI
+        ssnSuffix:
+          title: SSN Suffix
+          description: Social security name suffix used in reporting.
+          type: string
+          example: Jr
+          x-lineageReferenceObject: PEBEMPL_SSN_SUFFIX
+        statisticsCanadaGrouping:
+          title: Statistics Canada Grouping
+          description: A code representing the Statistics Canada Grouping.
+          type: string
+          example: PR
+          x-lineageReferenceObject: PEBEMPL_STGR_CODE
+        strsMemberCode:
+          title: STRS Membership Code
+          description: >
+            Three-digit code that represents the California State Teachers Retirement System Benefit Membership Program of the employee.
+            This value is required for CalSTRS payroll reporting. Valid values are:
+               * `definedBenefitMember` Defined Benefit Member
+               * `definedBenefitNonMember` Defined Benefit Non-Member
+               * `cashBalanceMember` Cash Balance Member
+               * `cashBalanceNonMember` Cash Balance Non-Member
+          type: string
+          enum:
+            - definedBenefitMember
+            - definedBenefitNonMember
+            - cashBalanceMember
+            - cashBalanceNonMember      
+          example: definedBenefitMember
+          x-lineageReferenceObject: PEBEMPL_STRS_MEMBER_CDE
+        terminationOn:
+          title: Termination Date
+          description: Termination date of the employee.
+          format: date
+          type: string
+          example: 2024-07-15
+          x-lineageReferenceObject: PEBEMPL_TERM_DATE
+        terminationReasonCode:
+          title: Termination Reason Code
+          description: The code used to identify the reason of termination.
+          type: string
+          example: UAB
+          x-lineageReferenceObject: PEBEMPL_TREA_CODE
+        workPeriodCode:
+          title: Work Period Code
+          description: The code representing the Work Period.
+          type: string
+          example: BWFL
+          x-lineageReferenceObject: PEBEMPL_WKPR_CODE
+    employee-employments-1.0.0_put_request_batch:
+      allOf: # Combines the id with the put request model
+        - type: object
+          required:
+            - id
+          properties:
+            id:
+              title: Id
+              type: string
+              description: "The global identifier of the employee employment resource."
+              x-lineageReferenceObject: PEBEMPL_GUID
+              example: 085df706-ee15-4947-93f8-8c260e64795e
+        - $ref: '#/components/schemas/employee-employments-1.0.0_put_request'
+    employee-employments-1.0.0_put_response:
+      $ref: '#/components/schemas/employee-employments-1.0.0_get_response'
+    employee-employments-batch-1.0.0_post_request:
+      type: object
+      properties:
+        items:
+          title: items
+          description: List of items to be processed.
+          type: array
+          items:
+            type: object
+            oneOf:
+              - $ref: "#/components/schemas/employee-employments-1.0.0_post_request"
+              - $ref: "#/components/schemas/employee-employments-1.0.0_put_request_batch"
+      required:
+        - items
+    employee-employments-batch-1.0.0_post_response:
+      description: 'Returns the list of Ids for those employee employments that were successfully created. For those that did not, it returns the list of error messages.'
+      type: object
+      x-last-modified:
+      properties:
+        id:
+          title: ID
+          description: A globally unique identifier of a batch to be used in all external references.
+          type: string
+          example: 085df706-ee15-4947-93f8-8c260e64795e
+        status:
+          title: status
+          description: status of the batch.
+          type: string
+          enum:
+            - completed
+            - inProgress
+            - aborted
+          example: completed
+        resource:
+          title: Resource
+          description: The affected resource.
+          type: object
+          properties:
+            name:
+              title: Resource Name
+              description: The pluralized name of the affected resource
+              type: string
+              example: employee-employments
+            version:
+              title: Resource version
+              description: The version of the resource
+              type: string
+              example: 1.0.0
+          additionalProperties: false
+          required:
+            - name
+            - version
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+            oneOf:
+              - $ref: '#/components/schemas/employee-employments-1.0.0_get_response'
+              - $ref: '#/components/schemas/errors_2_0_0'
+            required:
+              - items
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+    person:
+      title: Person
+      description: A reference to link the common persons entity for the employee.
+      type: object
+      properties:
+        id:
+          title: ID
+          description: The global identifier for the Person.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageLookupReferenceObject: persons 
+          x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+          x-lineageDerivedLogic: A record from GORGUID where GORGUID_LDM_NAME = 'persons' and GORGUID_DOMAIN_KEY matches the PIDM value

@@ -1,0 +1,176 @@
+openapi: 3.0.0
+info:
+  title: Account Funds Available
+  description: Communicates information about the availability of funds for a
+    specified accounting string.
+  version: "8.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Finance
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/account-funds-available:
+    get:
+      summary: Return all resources
+      description: >
+        The API validates an accounting string for a transaction in progress and
+        optionally confirms that the accounting string has sufficient budget for
+        the amount being entered. 
+
+
+        ### accountingString and amount filters are required in the URL for the GET request to work
+
+        ```
+          /api/account-funds-available?accountSpecification={"accountingString":{accountingString},"amount":{amount}}
+        ```
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_ACCOUNT_FUNDS_AVAILABLE
+      tags:
+        - account-funds-available
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v8+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: accountSpecification
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### accountingString and amount  
+
+            Filter on accountingString and amount is mandatory for the API to return a respone. Following example shows how to invoke the API with the filters needed.
+
+            ```
+              /api/account-funds-available?accountSpecification={"accountingString":"^|B^|LRACC2^|^|126^|5900^|23^|100^|01^|AMRTEST1^|DAXC^|01^|","amount":"50"}
+            ```
+
+            ### balanceOn  
+
+            ```
+              /api/account-funds-available?accountSpecification={"accountingString":"^|B^|LRACC2^|^|126^|5900^|23^|100^|01^|AMRTEST1^|DAXC^|01^|","amount":"50","balanceOn":"2016-11-23T07:18:23Zss"}
+            ```
+
+            ### submittedBy  
+
+            ```
+              /api/account-funds-available?accountSpecification={"accountingString":"^|B^|LRACC2^|^|126^|5900^|23^|100^|01^|AMRTEST1^|DAXC^|01^|","amount":"50","submittedBy":"47858deb-47a2-4d7f-92f3-12bc52a240f8"}
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-account-funds-available.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v8+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-account-funds-available.json:
+      title: Account Funds Available
+      description: Communicates information about the availability of funds for a
+        specified accounting string.
+      type: object
+      properties:
+        accountingString:
+          title: Accounting String
+          description: The full representation of the accounting string in the format
+            specified by the authoritative system.
+          type: string
+          minLength: 1
+          x-lineageReferenceObject: derived
+          x-lineageDerivedLogic: This API validates an accounting string for a transaction in progress and optionally confirms that the accounting string has sufficient budget for the amount being entered. 
+            If date is not sent in the GET URL, system date is considered. An accounting string is a delimited combination of components such as Chart, Index, Fund, Organization, Account, Program, Activity, 
+            Location, Rule class, Bank code. The GET URL expects an accountingString and amount to be sent for the API to return a response. When accounting string and amount validation passes, the API 
+            returns back the accounting-string JSON in the response. If the accounting string validation fails, the API returns appropriate error message.
+        fundsAvailable:
+          title: Funds Available
+          description: Status of the availability of funds.
+          enum:
+            - available
+            - notAvailable
+            - overrideAvailable
+            - invalidAccountingString
+            - notApplicable
+            - warning
+          type: string
+          x-lineageReferenceObject: derived
+          x-lineageDerivedLogic: Status of the availability of funds for an accounting string. The API displays 'available' or 'notAvailable' based on the value returned by NSF package response. 
+            If the submittedBy User was included in the filter, and request User has a FOBPROF record with "NSF Override" authority active, then the response returned should be overrideAvailable 
+            instead of (budget) notAvailable if the NSF package response returned is Insufficient Funds.
+        balanceOn:
+          title: Balance On
+          description: The date for which the availability of funds was evaluated.
+          oneOf:
+            - type: string
+              format: date-time
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+              x-lineageReferenceObject: derived
+              x-lineageDerivedLogic: The date for which the availability of funds was evaluated for an accounting string.
+            - type: string
+              maxLength: 0
+      required:
+        - accountingString
+        - fundsAvailable
+      additionalProperties: false

@@ -1,0 +1,522 @@
+openapi: '3.0.0'
+info:
+  title: duplicate-person-data-cleanup-operations
+  description: > 
+    Duplicate PIDMS data cleanup.
+    
+    
+    Retrieve the data from a pre-defined list of tables for the specified ID.
+    
+    
+    There are three types of actions:
+    
+    - Move – move the record from the source ID to the target ID
+    
+    - Delete – delete the record from the source ID
+
+    - Update - available for the SPRIDEN table to set the last name with the prefix 'DONOTUSE_'
+
+  version: 1.0.0-beta
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: beta
+  x-source-domain: Foundation
+  x-source-title: Duplicate Person Data Cleanup Operations
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/duplicate-person-data-cleanup-operations:
+    get:
+      tags:
+        - duplicate-person-data-cleanup-operations
+      summary: 'Returns potential duplicate data'
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_DUP_PERSON_DATA_CLEANUP
+      parameters: 
+        - name: 'personId'
+          in: 'query'
+          required: true
+          schema:
+            type: 'string'
+          example: 'A12345'
+          description: 'Spriden ID'
+      responses:
+        '200':
+          description: 'Successful response'
+          content:
+             application/vnd.hedtech.integration.v1.0.0-beta+json:
+              schema:
+                type: 'array'
+                items:
+                  $ref: '#/components/schemas/duplicate-person-data-cleanup-operations_1_0_0_get_response'
+    post:
+      tags:
+        - duplicate-person-data-cleanup-operations
+      summary: 'Perform cleanup operations'
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_DUP_PERSON_DATA_CLEANUP
+      requestBody:
+        required: true
+        content:
+           application/vnd.hedtech.integration.v1.0.0-beta+json:
+            schema:
+              $ref: '#/components/schemas/duplicate-person-data-cleanup-operations_1_0_0_post_request'
+            examples:
+              delete_records:
+                summary: "Delete records from personSourceId"
+                value:
+                  operations:
+                    - action: "delete"
+                      table: "saturn.spraddr"
+                      personSourceId: "A99999"
+                      records: [9876, 5432]
+                  mode: "simulate"
+              move_records:
+                summary: "Move records from personSourceId to personTargetId"
+                value:
+                  operations:
+                    - action: "move"
+                      table: "saturn.spraddr"
+                      personSourceId: "A12345"
+                      personTargetId: "A54321"
+                      records: [1135, 2345]
+                  mode: "execute"
+              update_spriden:
+                summary: "Update the last name in the SPRIDEN table with DONOTUSE prefix"
+                value:
+                  operations:
+                    - action: "update"
+                      table: "saturn.spriden"
+                      personSourceId: "A12345"
+                  mode: "simulate"
+      responses:
+        '200':
+          description: 'Successful submission'
+          content:
+             application/vnd.hedtech.integration.v1.0.0-beta+json:
+              schema:
+                $ref: '#/components/schemas/duplicate-person-data-cleanup-operations_1_0_0_post_response'
+              examples:
+                delete_records_response:
+                  summary: "Response for delete operation"
+                  value:
+                    operations:
+                      - personSourceId: "A99999"
+                        table: "saturn.spraddr"
+                        records: [9876, 5432]
+                        recordDetails:
+                          - SurrogateId: 9876
+                            AddressType: "PR"
+                            City: "Rochester"
+                          - SurrogateId: 5432
+                            AddressType: "MA"
+                            City: "Albany"
+                        action: "delete"
+                    mode: "simulate"
+                    overallStatus: "All operations processed successfully."
+                move_records_response:
+                  summary: "Response for move operation"
+                  value:
+                    operations:
+                      - personSourceId: "A12345"
+                        personTargetId: "A54321"
+                        table: "saturn.spraddr"
+                        records: [1135, 2345]
+                        recordDetails:
+                          - SurrogateId: 1135
+                            AddressType: "BI"
+                            City: "Rochester"
+                          - SurrogateId: 2345
+                            AddressType: "MA"
+                            City: "Buffalo"
+                        action: "move"
+                    mode: "execute"
+                    overallStatus: "All operations processed successfully."
+                update_spriden_response:
+                  summary: "Response for SPRIDEN update operation"
+                  value:
+                    operations:
+                      - personSourceId: "A1234"
+                        table: "saturn.spriden"
+                        records: []
+                        recordDetails:
+                          - SurrogateId: 12345
+                            PersonId: A1234
+                            LastName: "DONOTUSE_Miller"
+                            FirstName: "Jan"
+                            ChangeType: null
+                        action: "update"
+                    mode: "execute"
+                    overallStatus: "All operations processed successfully."
+        '400':
+          description: 'Bad Request'
+          content:
+            application/vnd.hedtech.integration.v1.0.0-beta+json:
+              schema:
+                $ref: '#/components/schemas/duplicate-person-data-cleanup-operations_1_0_0_error_response'
+              examples:
+                preferred_email_exists:
+                  summary: "Preferred E-mail already exists (goremal move)"
+                  value: |-
+                    {
+                      "errors": [
+                        {
+                          "code": "Global.SchemaValidation.Error",
+                          "description": "Errors parsing input JSON.",
+                          "message": "Failed to move record from personSourceId A99999 to personTargetId A12345 for the surrogate ID 965 on table goremal. Preferred E-mail already exists."
+                        }
+                      ]
+                    }
+                person_in_financial_aid:
+                  summary: "Person exists in Financial Aid system (spbpers delete)"
+                  value: |-
+                    {
+                      "errors": [
+                        {
+                          "code": "Global.SchemaValidation.Error",
+                          "description": "Errors parsing input JSON.",
+                          "message": "Failed to delete record from personSourceId A99999 for the surrogate ID 1678 on table spbpers. This person exists in the Financial Aid system."
+                        }
+                      ]
+                    }
+                address_has_telephone:
+                  summary: "Address has associated telephone (spraddr delete/move)"
+                  value: |-
+                    {
+                      "errors": [
+                        {
+                          "code": "Global.SchemaValidation.Error",
+                          "description": "Errors parsing input JSON.",
+                          "message": "Failed to delete record from personSourceId A99999 for the surrogate ID A1253 on table spraddr. Telephone found for address."
+                        }
+                      ]
+                    }
+                no_address_for_telephone:
+                  summary: "No address exists for telephone (sprtele move)"
+                  value: |-
+                    {
+                      "errors": [
+                        {
+                          "code": "Global.SchemaValidation.Error",
+                          "description": "Errors parsing input JSON.",
+                          "message": "Failed to move record from personSourceId A99999 to personTargetId A1253 for the surrogate ID 1160 on table sprtele. No address exists for address type and sequence number."
+                        }
+                      ]
+                    }
+                primary_telephone_exists:
+                  summary: "Primary telephone already exists (sprtele move)"
+                  value: |-
+                    {
+                      "errors": [
+                        {
+                          "code": "Global.SchemaValidation.Error",
+                          "description": "Errors parsing input JSON.",
+                          "message": "Failed to move record from personSourceId A99999 to personTargetId A1253 for the surrogate ID 1203 on table sprtele. Primary telephone already exists."
+                        }
+                      ]
+                    }
+                duplicate_key_violation:
+                  summary: "Record already exists"
+                  value: |-
+                    {
+                      "errors": [
+                        {
+                          "code": "Global.SchemaValidation.Error",
+                          "description": "Errors parsing input JSON.",
+                          "message": "Failed to move record from personSourceId A99999 to personTargetId A1253 for the surrogate ID 127 on table spremrg. Record already exists."
+                        }
+                      ]
+                    }
+        "401":
+          description: Failure. Unauthorized
+  /qapi/duplicate-person-data-cleanup-operations:
+    post:
+      tags:
+        - duplicate-person-data-cleanup-operations QAPI (Query by POST)
+      summary: 'Returns potential duplicate data by POST'
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_DUP_PERSON_DATA_CLEANUP
+      requestBody:
+        required: true
+        content:
+           application/vnd.hedtech.integration.v1.0.0-beta+json:
+            schema:
+              type: 'object'
+              properties:
+                persons:
+                  type: 'array'
+                  items:
+                    type: 'object'
+                    properties:
+                      id:
+                        type: 'string'
+              example:
+                persons:
+                  - id: 'A12345'
+                  - id: 'A22222'
+      responses:
+        '200':
+          description: 'Successful response'
+          content:
+             application/vnd.hedtech.integration.v1.0.0-beta+json:
+              schema:
+                type: 'array'
+                items:
+                  $ref: '#/components/schemas/duplicate-person-data-cleanup-operations_1_0_0_qapi_post_response'
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    duplicate-person-data-cleanup-operations_1_0_0_get_response:
+      type: 'object'
+      properties:
+        personId:
+          type: 'string'
+          example: 'A12345'
+        data:
+          type: 'array'
+          items:
+            type: 'object'
+            properties:
+              domain:
+                type: 'string'
+                example: 'Student'
+              description:
+                type: 'string'
+                example: 'Person Identification/Name Repeating Table'
+              table:
+                type: 'string' 
+                example: 'saturn.spriden'
+              records:
+                type: 'array'
+                items:
+                  type: 'number'
+                example: [1135, 2345, 478]
+              recordDetails:
+                type: 'array'
+                items:
+                  type: 'object'
+                  additionalProperties:
+                    oneOf:
+                      - type: 'string'
+                      - type: 'number'
+                      - type: 'boolean'
+                example:
+                  - SurrogateId: 1135
+                    FirstName: 'Ken'
+                    ChangeType: 'N'
+                  - SurrogateId: 2345
+                    FirstName: 'Abby'
+                    ChangeType: 'N'
+                  - SurrogateId: 478
+                    FirstName: 'Zack'
+                    ChangeType: null
+              actions:
+                type: 'array'
+                items:
+                  type: 'object'
+                  properties:
+                    name:
+                      type: 'string'
+                      enum: ['delete', 'move', 'update']
+                    description:
+                      type: 'string'
+                      example: 'Delete records'
+      required:
+        - personId
+        - data
+    duplicate-person-data-cleanup-operations_1_0_0_post_request:
+      type: 'object'
+      properties:
+        operations:
+          type: 'array'
+          items:
+            type: 'object'
+            properties:
+              personSourceId:
+                type: 'string'
+                example: 'A12345'
+              personTargetId:
+                type: 'string'
+                example: 'A654321'
+              table:
+                type: 'string' 
+                example: 'spraddr'
+              records:
+                type: 'array'
+                items:
+                  type: 'number'
+                example: [1135, 2345]
+              action:
+                type: 'string'
+                enum: ['delete', 'move', 'update']
+                example: 'move'
+          required:
+              - personSourceId
+              - table
+              - action
+        mode:
+          type: 'string'
+          enum: ['execute', 'simulate', 'e', 's']
+      required:
+        - operations
+    duplicate-person-data-cleanup-operations_1_0_0_post_response:
+      type: 'object'
+      properties:
+        operations:
+          type: 'array'
+          items:
+            type: 'object'
+            properties:
+              personSourceId:
+                type: 'string'
+                example: 'A12345'
+              personTargetId:
+                type: 'string'
+                example: 'A654321'
+              table:
+                type: 'string' 
+                example: 'saturn.spraddr'
+              records:
+                type: 'array'
+                items:
+                  type: 'array'
+                  items:
+                    type: 'number'
+                example: [1135, 2345]
+              recordDetails:
+                type: 'array'
+                items:
+                  type: 'object'
+                  additionalProperties:
+                    oneOf:
+                      - type: 'string'
+                      - type: 'number'
+                      - type: 'boolean'
+                  example:
+                    - SurrogateId: 1135
+                      FirstName: 'Ken'
+                    - SurrogateId: 2345
+                      FirstName: 'Abby'
+              action:
+                type: 'string'
+                enum: ['delete', 'move', 'update']
+                example: 'move'
+            required:
+              - personSourceId
+              - table
+              - records
+              - recordDetails
+              - action
+        mode:
+          type: 'string'
+          enum: ['execute', 'simulate', 'e', 's']
+        overallStatus:
+          type: 'string'
+          example: 'All operations processed successfully.'
+      required:
+        - operations
+        - mode
+        - overallStatus
+    duplicate-person-data-cleanup-operations_1_0_0_qapi_post_response:
+      type: 'object'
+      properties:
+        personId:
+          type: 'string'
+          example: 'A12345'
+        data:
+          type: 'array'
+          items:
+            type: 'object'
+            properties:
+              domain:
+                type: 'string'
+                example: 'Student'
+              description:
+                type: 'string'
+                example: 'Address Repeating Table'
+              table:
+                type: 'string' 
+                example: 'saturn.spraddr'
+              records:
+                type: 'array'
+                items:
+                  type: 'number'
+                example: [1135, 2345]
+              recordDetails:
+                type: 'array'
+                items:
+                  type: 'object'
+                  additionalProperties:
+                    oneOf:
+                      - type: 'string'
+                      - type: 'number'
+                      - type: 'boolean'
+                example:
+                  - SurrogateId: 1135
+                    AddressType: 'BI'
+                    City: 'Greece'
+                  - SurrogateId: 2345
+                    AddressType: 'AM'
+                    City: 'Rochester'
+              actions:
+                type: 'array'
+                items:
+                  type: 'object'
+                  properties:
+                    name:
+                      type: 'string'
+                      enum: ['delete', 'move', 'update']
+                    description:
+                      type: 'string'
+                example:
+                  - name: 'delete'
+                    description: 'Delete records'
+                  - name: 'move'
+                    description: 'Move records'
+                  - name: 'update'
+                    description: 'Update records'
+      required:
+        - personId
+        - data
+    duplicate-person-data-cleanup-operations_1_0_0_error_response:
+      type: 'object'
+      properties:
+        errors:
+          type: 'array'
+          items:
+            type: 'object'
+            properties:
+              code:
+                type: 'string'
+                example: 'Global.SchemaValidation.Error'
+              description:
+                type: 'string'
+                example: 'Errors parsing input JSON.'
+              message:
+                type: 'string'
+                example: 'Failed to delete record from personSourceId A99999 for the surrogate ID 1678 on table spbpers. This person exists in the Financial Aid system.'
+            required:
+              - code
+              - description
+              - message
+      required:
+        - errors

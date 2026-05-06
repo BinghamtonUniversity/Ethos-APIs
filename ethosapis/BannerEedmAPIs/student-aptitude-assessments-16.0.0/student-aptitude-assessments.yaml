@@ -1,0 +1,627 @@
+openapi: 3.0.0
+info:
+  title: Student Aptitude Assessments
+  description: >
+    The student aptitude assessments entity contains results of standardized
+    tests taken by a student. The entity identifies the student and the
+    assessment taken, when and where it was taken, who administered it, the form
+    used, and any special circumstances associated with the results. It includes
+    the score the student received and the percentile values and types, if
+    applicable. Also it identifies the results are the original results or if
+    they have been updated, if the results should be used over other results and
+    how the results were reported (source,official/unofficial).
+  version: 16.0.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Student
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/student-aptitude-assessments:
+    get:
+      summary: Returns resources from SORTEST
+      description: >
+        Returns the test scores from SORTEST table of all the student for the
+        combination of SORTEST_PIDM, SORTEST_TESC_CODE, SORTEST_TEST_DATE.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STU_APTITUDE_ASSESSMENT
+      tags:
+        - student-aptitude-assessments
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: |
+            ### Student  
+            The student taking the aptitude assessment.
+            ```
+            /student-aptitude-assessments?criteria={"student": {"id": $id}}
+            ```
+            ### Assessments  
+            The aptitude assessment the student took.
+            ```
+            /student-aptitude-assessments?criteria={"assessment": {"id": $id}}
+            ```
+        - name: personFilter
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Person Filter  
+
+            Retrieve information for a specified population.
+
+            ```
+
+            /student-aptitude-assessments?personFilter={"personFilter": {"id": $id}}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-student-aptitude-assessments.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new resource in SORTEST
+      description: >
+        POST requests must include a nil GUID value
+        ("00000000-0000-0000-0000-000000000000") for the root id property.
+
+
+        Creates a test score record in SORTEST table for the student and a record in SORTSPC table for storing the percentile info.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STU_APTITUDE_ASSESSMENT
+      tags:
+        - student-aptitude-assessments
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-student-aptitude-assessments.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v16+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-student-aptitude-assessments.json"
+  /api/student-aptitude-assessments/{id}:
+    get:
+      summary: Return the requested resource from SORTEST
+      description: >
+        Returns the test score record from SARCHKL of the the student for the
+        combination of SORTEST_PIDM, SORTEST_TESC_CODE, SORTEST_TEST_DATE for
+        the passed in identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STU_APTITUDE_ASSESSMENT
+      tags:
+        - student-aptitude-assessments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-student-aptitude-assessments.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    put:
+      summary: Update the requested resource from SORTEST
+      description: >
+        Updates the test score record in SORTEST table for the student.
+
+
+        Properties that are not updatable: id, assessment.id, student.id, score.type, percentiles.type.id
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STU_APTITUDE_ASSESSMENT
+      tags:
+        - student-aptitude-assessments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Student Aptitude Assessments for use in all
+            external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json 
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-student-aptitude-assessments.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v16+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-student-aptitude-assessments.json"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-student-aptitude-assessments.json:
+      title: Student Aptitude Assessments
+      description: The results of aptitude assessments for students.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the student aptitude assessment.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: SORTEST_GUID(SORTEST)
+        student:
+          title: Student
+          description: The student taking the aptitude assessment.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Student.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: SORTEST_PIDM(SORTEST)
+          additionalProperties: false
+          required:
+            - id
+        assessment:
+          title: Assessment
+          description: The aptitude assessment the student took.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Assessment.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: aptitude-assessments 
+              x-lineageReferenceObject: SORTEST_TESC_CODE(SORTEST)
+          additionalProperties: false
+          required:
+            - id
+        assessedOn:
+          title: Assessed On
+          description: The date on which the assessment occurred.
+          type: string
+          format: date
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+          x-lineageReferenceObject: SORTEST_TEST_DATE(SORTEST)
+        score:
+          title: Score
+          description: The score the student received for the assessment.
+          oneOf:
+            - title: Literal
+              description: The literal score the student received for the assessment.
+              type: object
+              properties:
+                type:
+                  title: Type
+                  description: The type of score specified for the assessment.
+                  enum:
+                    - literal
+                  type: string
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: For the assessmet.id record in STVTESC, if STVTESC_DATA_TYPE = 'A' then display 'literal'
+                value:
+                  title: Value
+                  description: The value of the score the student received for the assessment.
+                  type: string
+                  minLength: 1
+                  x-lineageReferenceObject: SORTEST_TEST_SCORE(SORTEST)
+              additionalProperties: false
+              required:
+                - type
+                - value
+            - title: Numeric
+              description: The numeric score the student received for the assessment.
+              type: object
+              properties:
+                type:
+                  title: Type
+                  description: The type of score specified for the assessment.
+                  enum:
+                    - numeric
+                  type: string
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: For the assessmet.id record in STVTESC, if STVTESC_DATA_TYPE = 'N' then display 'numeric'.
+                value:
+                  title: Value
+                  description: The value of the score the student received for the assessment.
+                  type: number
+                  x-lineageReferenceObject: SORTEST_TEST_SCORE(SORTEST)
+              additionalProperties: false
+              required:
+                - type
+                - value
+        percentiles:
+          title: Percentiles
+          description: The percentile values and types associated with the score.
+          type: array
+          items:
+            type: object
+            properties:
+              value:
+                title: Percentile Value
+                description: The percentile calculated for the score.
+                type: number
+                x-lineageReferenceObject: SORTSPC_PERCENTILE(SORTSPC)
+              type:
+                title: Percentile Type
+                description: The user defined type of the percentile.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Percentile Type.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: assessment-percentile-types 
+                    x-lineageReferenceObject: SORTSPC_TSPT_CODE(SORTSPC)
+                additionalProperties: false
+                required:
+                  - id
+            additionalProperties: false
+            required:
+              - value
+              - type
+        form:
+          title: Form
+          description: The name and number of the form used for the assessment for this
+            result.
+          type: object
+          properties:
+            number:
+              title: Number
+              description: The number of the form.
+              type: string
+              x-lineageReferenceObject: SORTEST_TEFR_CODE(SORTEST)
+            name:
+              title: Name
+              description: The name of the form.
+              type: string
+              x-lineageReferenceObject: STVTEFR_DESC(STVTEFR)
+          additionalProperties: false
+        specialCircumstances:
+          title: Special Circumstances
+          description: Special circumstances surrounding the taking of the assessment.
+          type: array
+          items:
+            title: Special Circumstances
+            description: Special circumstances surrounding the taking of the assessment.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Special Circumstances.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: assessment-special-circumstances 
+                x-lineageReferenceObject: SORTEST_TEAC_CODE(SORTEST)
+            additionalProperties: false
+            required:
+              - id
+        update:
+          title: Update
+          description: The update status of the student's assessment result.
+          oneOf:
+            - type: string
+              enum:
+                - original
+                - revised
+                - recentered
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: Displays 'original' if SORTEST_RCRV_IND = null; displays 'revised' if SORTEST_RCRV_IND = 'X' or 'Z' and displays 'recentered' if SORTEST_RCRV_IND = 'R'.
+            - type: string
+              maxLength: 0
+        preference:
+          title: Preference
+          description: An indicator that this result of the assessment are the preferred
+            values for the assessment.
+          oneOf:
+            - type: string
+              enum:
+                - primary
+              x-lineageReferenceObject: SORTESTS_PREFERENCE(SORTESTS)
+            - type: string
+              maxLength: 0
+        source:
+          title: Source
+          description: The sources of the assessment results for the student.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Source.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: sources 
+                  x-lineageReferenceObject: SORTESTS_SOURCE_ID(SORTESTS)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        status:
+          title: Status
+          description: The status of this assessment results for the student.
+          oneOf:
+            - type: string
+              enum:
+                - active
+                - inactive
+                - notational
+              x-lineageReferenceObject: SORTESTS_STATUS(SORTESTS)
+            - type: string
+              maxLength: 0
+        reported:
+          title: Reported
+          description: An indicator of the nature of the assessment results.
+          oneOf:
+            - type: string
+              enum:
+                - official
+                - unofficial
+              x-lineageReferenceObject: SORTESTS_REPORTED(SORTESTS)
+            - type: string
+              maxLength: 0
+      required:
+        - id
+        - student
+        - assessment
+        - assessedOn
+        - score
+      additionalProperties: false

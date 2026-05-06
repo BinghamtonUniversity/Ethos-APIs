@@ -1,0 +1,188 @@
+openapi: 3.0.0
+info:
+  title: Custom Table Configuration Revisions
+  description:  Allows institutions to modify supported metadata attributes of existing custom table. Only specific metadata attributes of an existing custom table can be updated.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Foundation
+
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API (U.S.)
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API (Canada)
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API (Europe)
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API (Asia-Pacific)
+  - url: "{server_url}"
+    description: Custom server URL
+    variables:
+      server_url:
+        default: localhost
+
+paths:
+  /api/custom-table-configuration-revisions/{id}:
+    put:
+      summary: Update metadata attributes for an existing custom table.
+      description: |
+        This API allows updating supported metadata properties of a custom table without deleting or recreating it.
+
+        The request supports:
+
+        - Adding new non-key columns to the table.
+        - Updating supported metadata fields.
+
+        **Rules:**
+        - `attributeDataLength`: Can be increased, not reduced. For numeric columns in Oracle, length may be increased up to 38.
+        - `attributeDataScale`: Can be increased, not reduced.
+        - `attributeDisplay`: Can be updated only if the field is not required.
+        - `attributePrompt`: Can be updated.
+        - `attributeRequired`: Cannot be changed from `false` to `true`.
+        - `attributeDataType`: Cannot be changed.
+        - `columnName`: Cannot be changed.
+        - `columnBaseTable`: Cannot be changed.
+
+        After completion, the custom table API specification and OpenAPI definition are regenerated.
+
+        **Note:** Include only modified or newly added columns in the request payload. Unchanged columns do not need to be included.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_CUST_TAB_CONFIG_REVISIONS
+      tags:
+        - custom-table-configurations
+
+      parameters:
+        - name: Accept
+          in: header
+          required: true
+          description: |
+            Version of the requested resource.
+
+            Use major version format:
+
+            ```
+            application/vnd.hedtech.integration.v1+json
+            ```
+          schema:
+            type: string
+
+        - name: Content-Type
+          in: header
+          required: true
+          description: |
+            Version of the supplied resource payload.
+
+            ```
+            application/vnd.hedtech.integration.v1+json
+            ```
+          schema:
+            type: string
+
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              $ref: "#/components/schemas/custom-table-configuration-revisions"
+
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              schema:
+                type: string
+              description: application/vnd.hedtech.integration.v1.0.0+json
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                $ref: "#/components/schemas/custom-table-configuration-revisions"
+
+        "401":
+          description: Unauthorized
+
+        "404":
+          description: Resource not found
+
+        "500":
+          description: Server error or unexpected configuration violation
+
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+
+  schemas:
+    custom-table-configuration-revisions:
+      title: Custom Table Configuration Revisions
+      description: Details and metadata updates permitted for custom table configurations.
+      type: object
+      required:
+        - id
+        - customTableName
+        - customTableColumns
+      additionalProperties: false
+
+      properties:
+        id:
+          title: ID
+          description: Global identifier of the custom table configuration.
+          type: string
+          format: uuid
+
+        customTableName:
+          title: Custom Table Name
+          description: The name of the custom table.
+          type: string
+
+        customTableColumns:
+          title: Custom Table Columns
+          description: Defines metadata for each configured custom column.
+          type: array
+          items:
+            type: object
+            required:
+              - columnName
+              - attributeKeyColumn
+              - attributeDataType
+              - attributeDisplay
+              - attributePrompt
+            additionalProperties: false
+            properties:
+              columnName:
+                type: string
+                description: Column name.
+              attributeKeyColumn:
+                type: string
+                enum: [true, false]
+                description: Indicates whether the column is a key column.
+              attributeDataType:
+                type: string
+                enum: [varchar2, date, numeric, datetime, large_object]
+              attributeDataLength:
+                type: string
+              attributeDataScale:
+                type: string
+              rangeLow:
+                type: string
+              rangeHigh:
+                type: string
+              attributeDisplay:
+                type: string
+                enum: [true, false]
+              attributeRequired:
+                type: string
+                enum: [true, false]
+              attributePrompt:
+                type: string
+              validationAPIName:
+                type: string
+              validationTable:
+                type: string
+              validationColumn:
+                type: string

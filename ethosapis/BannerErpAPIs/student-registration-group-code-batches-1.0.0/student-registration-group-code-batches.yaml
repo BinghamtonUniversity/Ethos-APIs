@@ -1,0 +1,690 @@
+openapi: 3.0.0
+info:
+  title: student-registration-group-code-batches
+  description: This API returns and does the basic operations for resources from SFBRGRP
+  version: 1.0.0
+  x-source-name: SFBRGRP
+  x-source-title:  Student Registration Group Code Batch
+  x-source-system: banner
+  x-api-type: erp
+  x-audience: all
+  x-release-status: ga
+  x-source-domain: Student
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/student-registration-group-code-batches:
+    get:
+      tags:
+        - student-registration-group-code-batches
+      summary: Provide the list of student registration group code batch.
+      description: Provide the list of student registration group code batch.
+      parameters:
+       - name: accept
+         in: header
+         required: true
+         description: >
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ``` 
+         schema:
+          type: string
+       - name: limit
+         in: query
+         description: |
+            The maximum number of resources requesting for this result set.
+            The default limit is 500 and the maximum limit is 1000.
+         required: false
+         schema:
+            type: integer
+       - name: offset
+         in: query
+         description: The 0 based index for a collection of resources for the page
+           requested.
+         required: false
+         schema:
+            type: integer
+       - name: criteria
+         in: query
+         required: false
+         schema:
+           type: object
+           properties:
+             bannerId:
+               oneOf:
+                 - type: string
+                   description: Single Banner ID
+                 - type: array
+                   description: Array of Banner IDs
+                   items:
+                     type: string
+             termCode:
+               type: string
+               description: Registration term code
+             groupCode:
+               type: string
+               description: Registration time ticketing group code
+         description: >
+            ### Banner Id
+
+            Returns all records for the Banner ID.
+
+            ```
+            
+            /student-registration-group-code-batches?criteria={"bannerId":"231387509"}
+            
+            ```
+            
+            ### Term Code
+
+            Returns all records for the TermCode.
+
+            ```
+            
+            /student-registration-group-code-batches?criteria={"termCode":"202319"}
+
+            ```
+
+            ### Group Code
+
+            Returns all records for the Group Code.
+
+            ```
+
+            /student-registration-group-code-batches?criteria={"groupCode":"P10"}
+
+            ```
+            
+            ### Banner Id and termCode
+
+            Returns all records for the Banner ID and termCode.
+
+            ```
+
+            /student-registration-group-code-batches?criteria={"bannerId":"231387509","termCode":"202319"}
+
+            ```
+            
+            ### Banner Id and groupCode
+
+            Returns all records for the Banner ID and groupCode.
+
+            ```
+
+            /student-registration-group-code-batches?criteria={"bannerId":"231387509","groupCode":"P10"}
+
+            ```
+            
+            ### Banner Id, termCode and groupCode
+
+            Returns all records for the Banner ID.
+
+            ```
+
+            /student-registration-group-code-batches?criteria={"bannerId":"231387509","termCode":"202319","groupCode":"P10"}
+
+            ```
+            
+            ### Multiple Banner IDs with Single Term
+
+            Returns all records for multiple Banner IDs with the same term code.
+
+            ```
+
+            /student-registration-group-code-batches?criteria={"termCode":"213016","bannerId":["231387511","231387510","210009710"]}
+
+            ```
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/student-registration-group-code-batches-v1_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client�s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permission: API_STUDENT_REG_GROUP_BATCHES
+    post:
+      tags:
+        - student-registration-group-code-batches
+      summary: Create a student registration group code batch with given data in the request body.
+      description: Create a student registration group code batch with given data in the request body.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              $ref: '#/components/schemas/student-registration-group-code-batches-v1_post_request'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                $ref: '#/components/schemas/student-registration-group-code-batches-v1_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client�s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permission:
+  /api/student-registration-group-code-batches/batches:  
+    post:
+      tags:
+        - student-registration-group-code-batches
+      summary: Create or update a list of student registration group code batch with given data in the request body.
+      description: Create or update a list of student registration group code batch with given data in the request body.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              $ref: '#/components/schemas/student-registration-group-code-batches-v1-batches_post_request'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                $ref: '#/components/schemas/student-registration-group-code-batches-v1-batches_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client�s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permission:
+  /api/student-registration-group-code-batches/{id}:
+    put:
+      tags:
+        - student-registration-group-code-batches
+      summary: Update a student registration group code batch with given id.
+      description: Update a student registration group code batch with given id.
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              $ref: '#/components/schemas/student-registration-group-code-batches-v1_put_request'
+      parameters: 
+        - name: id
+          in: path
+          description: Unique identifier.
+          required: true
+          schema:
+            type: string
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```     
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                $ref: '#/components/schemas/student-registration-group-code-batches-v1_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client�s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permission:
+components:
+  schemas:
+    student-registration-group-code-batches-v1_put_request:
+      type: object
+      properties:
+        bannerId:
+          "title": "Unique person internal identification number."
+          "description": "ID: Unique person identifier.."
+          "type": string
+          "x-lineageReferenceObject": SFBRGRP.SFBRGRP_PIDM
+        groupCode:
+          "title": "Registration time ticketing group code."
+          "description": "Registration time ticketing group code."
+          "type": string
+          "maxLength": 10
+          "x-lineageReferenceObject": SFBRGRP.SFBRGRP_RGRP_CODE
+        termCode:
+          "title": "Registration term code that group code is to be used"
+          "description": "TERM CODE: Registration term code that group code is to be used."
+          "type": string
+          "maxLength": 6
+          "x-lineageReferenceObject": SFBRGRP.SFBRGRP_TERM_CODE
+    student-registration-group-code-batches-v1_post_request:
+      properties:
+        bannerId:
+          "title": "Unique person internal identification number."
+          "description": "ID: Unique person identifier.."
+          "type": string
+          "x-lineageReferenceObject": SFBRGRP.SFBRGRP_PIDM
+        groupCode:
+          "title": "Registration time ticketing group code."
+          "description": "Registration time ticketing group code."
+          "type": string
+          "maxLength": 10
+          "x-lineageReferenceObject": SFBRGRP.SFBRGRP_RGRP_CODE
+        termCode:
+          "title": "Registration term code that group code is to be used"
+          "description": "TERM CODE: Registration term code that group code is to be used."
+          "type": string
+          "maxLength": 6
+          "x-lineageReferenceObject": SFBRGRP.SFBRGRP_TERM_CODE
+    student-registration-group-code-batches-v1-batches_post_request:
+      type: object
+      properties:
+        items:
+          "title": " List of items to be processed."
+          "description": " List of items to be processed."
+          "type": array
+          "items": 
+            "type": object
+            "properties":
+              termCode:
+                "title": "Registration term code that group code is to be used"
+                "description": "TERM CODE: Registration term code that group code is to be used."
+                "type": string
+                "maxLength": 6
+                "x-lineageReferenceObject": SFBRGRP.SFBRGRP_TERM_CODE
+              pidm:
+                "title": "Unique person internal identification number."
+                "description": "ID: Unique person identifier.."
+                "type": string
+                "x-lineageReferenceObject": SFBRGRP.SFBRGRP_PIDM
+              groupCode:
+                "title": "Registration time ticketing group code."
+                "description": "Registration time ticketing group code."
+                "type": string
+                "maxLength": 10
+                "x-lineageReferenceObject": SFBRGRP.SFBRGRP_RGRP_CODE
+      required:
+        - items
+    student-registration-group-code-batches-v1_response:
+      properties:
+        bannerId:
+          "title": "Unique person internal identification number."
+          "description": "ID: Unique person identifier.."
+          "type": string
+          "x-lineageReferenceObject": SFBRGRP.SFBRGRP_PIDM
+        groupCode:
+          "title": "Registration time ticketing group code."
+          "description": "Registration time ticketing group code."
+          "type": string
+          "maxLength": 10
+          "x-lineageReferenceObject": SFBRGRP.SFBRGRP_RGRP_CODE
+        termCode:
+          "title": "Registration term code that group code is to be used"
+          "description": "TERM CODE: Registration term code that group code is to be used."
+          "type": string
+          "maxLength": 6
+          "x-lineageReferenceObject": SFBRGRP.SFBRGRP_TERM_CODE
+    student-registration-group-code-batches-v1-batches_response:
+      type: object
+      properties:
+        status:
+          title: status
+          description: status of the batch.
+          type: string
+          enum:
+              - completed
+              - inProgress
+              - aborted
+          example: completed
+        resource:
+          title: Resource
+          description: The affected resource.
+          type: object
+          properties:
+            name:
+              title: Resource Name
+              description: The pluralized name of the affected resource
+              type: string
+              example: student-registration-group-code-batches
+            version:
+              title: Resource version
+              description: The version of the resource
+              type: string
+              example: application/vnd.hedtech.integration.v1.0.0+json
+          additionalProperties: false
+          required:
+            - name
+            - version
+        items:
+            type: array
+            items:
+              type: object
+              additionalProperties: true
+              oneOf: 
+                - $ref: '#/components/schemas/student-registration-group-code-batches_posted_records'
+                - $ref: '#/components/schemas/errors_2_0_0'
+            required:
+              - items
+    student-registration-group-code-batches_posted_records:
+      type: object
+      properties:
+        id:
+          title: Id
+          type: string
+          description: Unique identifier for the non year user-defined data.
+          x-lineageReferenceObject: 
+      required:
+        - id
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

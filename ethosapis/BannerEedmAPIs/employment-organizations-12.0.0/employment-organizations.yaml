@@ -1,0 +1,218 @@
+openapi: 3.0.0
+info:
+  title: Employment Organizations
+  description: The valid list of user defined employment organizations.
+  version: "12.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Human Resources
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/employment-organizations:
+    get:
+      summary: Return all resources
+      description: Returns a paged listing of all the resources in the system.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EMPL_ORGANIZATIONS
+      tags:
+        - employment-organizations
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v12+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-employment-organizations.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v12.1.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/employment-organizations/{id}:
+    get:
+      summary: Return the requested resource
+      description: Return the one resource with the passed in identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EMPL_ORGANIZATIONS
+      tags:
+        - employment-organizations
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Employment Organizations for use in all
+            external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v12+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v12.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v12.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-employment-organizations.json"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-employment-organizations.json:
+      title: Employment Organizations
+      description: The valid list of user defined employment organizations.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the employment organization.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: GTVORID_ORGN_GUID(GTVORID)
+          x-lineageDerivedLogic: If Banner Finance module is installed, then a record from GTVORID which correspond to a record in FTVORGN for the most current entry with FTVORGN_COAS_CODE and FTVORGN_ORGN_CODE values. 
+            If Banner Finance module is not installed, then a record from GTVORID which corresponds to a record in PTVORGN with PTVORGN_CODE value.
+        title:
+          title: Title
+          description: The full name of the employment organization.
+          type: string
+          minLength: 1
+          x-lineageReferenceObject: GTVORID_TITLE(GTVORID)
+          x-lineageDerivedLogic: If Banner Finance module is installed, then GTVORID_TITLE populated with FTVORGN_TITLE value. 
+            If Banner Finance module is not installed, then GTVORID_TITLE populated with PTVORGN_DESC value.
+        description:
+          title: Description
+          description: The description of the employment organization.
+          type: string
+          x-lineageReferenceObject: unsupported
+        code:
+          title: Code
+          description: The code used to identify the employment organization.
+          type: string
+          x-lineageReferenceObject: GTVORID_COAS_CODE(GTVORID) or derived
+          x-lineageDerivedLogic: If Banner Finance module is not installed, display the GTVORID_ORGN_CODE value that corresponds to PTVORGN_CODE from PTVORGN table.
+            If Banner Finance module is installed, display the concatenated value of 'GTVORID_COAS_COD and GTVORID_ORGN_CODE' that corresponds FTVORGN_COAS_CODE  and FTVORGN_ORGN_CODE values from FTVORGN table.
+      required:
+        - id
+        - title
+      additionalProperties: false

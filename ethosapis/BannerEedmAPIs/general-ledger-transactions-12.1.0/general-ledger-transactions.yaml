@@ -1,0 +1,821 @@
+openapi: 3.0.0
+info:
+  title: General Ledger Transactions
+  description: >
+    The details of transactions to be entered into the general ledger. All
+    transactions received from external source will be treated as journal
+    vouchers for baseline processing.
+
+
+    Please refer to the section 'API Integration Configuration Settings' in Banner Ethos API Handbook for all the configuration settings needed for this API.
+  version: 12.1.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Finance
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/general-ledger-transactions:
+    get:
+      summary: Returns resources
+      description: |
+        Returns all records of transaction details from GURTRNH table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_GENERAL_LEDGERS
+      tags:
+        - general-ledger-transactions
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v12+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-general-ledger-transactions.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v12.1.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new resource
+      description: >
+        Creates a record in GURFEED or FGBJVCD table based on the processMode
+        value sent in the request.
+
+
+        Note:
+
+
+        • A create request sent with processMode='updateImmediate' supports only single transaction type and with processMode='updateBatch' supports multiple transaction types.
+
+
+        • A create request sent with processMode='validate', the API only validates the request data and returns a 201 created response status upon successful validation.
+
+
+        • A create request sent with processMode='updateBatch', the API validates the request and creates a transaction record in GURFEED and GURTRNH upon successful validation.
+
+
+        • A create request sent with processMode='updateImmediate', the API validates the request and creates a journal voucher transaction record in FGBJVCD and GURTRNH upon successful validation.
+
+         POST requests must include a nil GUID value ("00000000-0000-0000-0000-000000000000") for the root id property.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_GENERAL_LEDGERS
+      tags:
+        - general-ledger-transactions
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v12+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v12+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v12.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v12.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-general-ledger-transactions.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v12+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-general-ledger-transactions.json"
+  /api/general-ledger-transactions/{id}:
+    get:
+      summary: Return the requested resource
+      description: >
+        Returns the detail of a transaction from GURTRNH table for the passed in
+        identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_GENERAL_LEDGERS
+      tags:
+        - general-ledger-transactions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v12+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v12.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v12.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-general-ledger-transactions.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-general-ledger-transactions.json:
+      title: General Ledger Transactions
+      description: The details of transactions to be entered into the general ledger.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the general ledger transaction.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: GURTRNH_GUID(GURTRNH)
+        processMode:
+          title: Process Mode
+          description: An indicator that specifies if the authoritative source should just
+            validate the accounting string or if it should post/update a general
+            ledger transaction.
+          enum:
+            - updateImmediate
+            - validate
+            - updateBatch
+          type: string
+          x-lineageReferenceObject: GURTRNH_PROCESS_MODE(GURTRNH)
+        submittedBy:
+          title: Submitted By
+          description: The person submitting the general ledger transactions.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Submitted By.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: persons 
+                  x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+                  x-lineageDerivedLogic: A record in GORGUID where GORGUID_LDM_NAME='persons' where GORGUID_DOMAIN_KEY=(Select GOBEACC_PIDM from GOBEACC where GOBEACC_USERNAME= FGBJVCH_USER_ID) or  GOBEACC_USERNAME= GURTRNH_USER_ID
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        comment:
+          title: Comment
+          description: The comment associated with the transaction.
+          type: string
+          x-lineageReferenceObject: FOBTEXT_TEXT(FOBTEXT)
+        transactions:
+          title: Transactions
+          description: A list of associated general ledger transactions.
+          type: array
+          minItems: 1
+          items:
+            type: object
+            properties:
+              type:
+                title: Type
+                description: The type of the general ledger transaction (e.g. journal entry,
+                  encumbrance, budget).
+                enum:
+                  - approvedBudget
+                  - contingentBudget
+                  - approvedBudgetAdjustment
+                  - temporaryBudget
+                  - temporaryBudgetAdjustment
+                  - encumbranceOpenBalance
+                  - generalEncumbranceCreate
+                  - generalEncumbranceAdjust
+                  - generalEncumbranceLiquidation
+                  - generalEncumbranceClose
+                  - payrollEncumbranceCreate
+                  - payrollEncumbranceAdjust
+                  - payrollEncumbranceLiquidation
+                  - payrollEncumbranceClose
+                  - travelEncumbranceCreate
+                  - travelEncumbranceAdjust
+                  - travelEncumbranceClose
+                  - donation
+                  - donationEndowed
+                  - pledge
+                  - pledgeEndowed
+                  - financialAidTransmittal
+                  - studentCharge
+                  - studentInvoice
+                  - studentPayment
+                  - grantCharge
+                  - grantInvoice
+                  - grantPayment
+                  - otherCharge
+                  - otherInvoice
+                  - otherPayment
+                  - paymentAllocation
+                  - depositAllocation
+                  - miscCashReceipt
+                  - cashDisbursement
+                  - purchaseCardCharge
+                  - miscGeneralLedgerTransaction
+                  - purchaseJournal
+                  - travelAdvance
+                  - travelExpense
+                  - yearEndCloseEntry
+                  - payroll
+                  - payrollWithLiquidation
+                  - actualOpenBalance
+                type: string
+                x-lineageReferenceObject: GURTRNH_TRANS_TYPE(GURTRNH)
+              referenceNumber:
+                title: Reference Number
+                description: A source reference number/document number for the transaction.
+                type: string
+                x-lineageReferenceObject: FGBJVCD_DOC_REF_NUM(FGBJVCD) or  GURTRNH_DOC_REF_NUM(GURTRNH)
+              transactionNumber:
+                title: Transaction Number
+                description: A sequential number associated with the transaction.
+                type: string
+                x-lineageReferenceObject: FGBJVCH_DOC_NUM(FGBJVCH) or  GURTRNH_DOC_CODE(GURTRNH)
+              ledgerDate:
+                title: Ledger Date
+                description: The date the transaction is credited/debited to the account in the
+                  general ledger (i.e. posting date).
+                type: string
+                format: date-time
+                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                x-lineageReferenceObject: GURTRNH_TRANS_DATE(GURTRNH) or  FGBJVCH_TRANS_DATE(FGBJVCH)
+              transactionTypeReferenceDate:
+                title: Transaction Type Reference Date
+                description: A supplementary date assigned to the transaction based on the
+                  transaction type.
+                oneOf:
+                  - type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    x-lineageReferenceObject: FGBJVCD_GIFT_DATE(FGBJVCD) or  GURTRNH_TRANS_TYPE_REF_DATE(GURTRNH)
+                  - type: string
+                    maxLength: 0
+              externalBatchReference:
+                title: External Batch Reference
+                description: An external reference number that identifies the transaction as
+                  being included in a specified batch.
+                type: string
+                x-lineageReferenceObject: FGBJVCD_DEP_NUM(FGBJVCD) or  GURTRNH_DEP_NUM(GURTRNH)
+              reference:
+                title: Reference
+                description: The person or organization associated with the transaction.
+                oneOf:
+                  - title: Person
+                    description: The person associated with the transaction.
+                    type: object
+                    properties:
+                      person:
+                        title: Person
+                        description: The person associated with the transaction.
+                        type: object
+                        properties:
+                          id:
+                            title: ID
+                            description: The global identifier for the Person.
+                            type: string
+                            format: guid
+                            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                            x-lineageLookupReferenceObject: persons 
+                            x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+                            x-lineageDerivedLogic: A record in GORGUID where GORGUID_LDM_NAME='persons' where GORGUID_DOMAIN_KEY=FGBJVCD_VENDOR_PIDM or GURTRNH_VENDOR_ID
+                        additionalProperties: false
+                        required:
+                          - id
+                    additionalProperties: false
+                    required:
+                      - person
+                  - title: Organization
+                    description: The organization associated with the transaction.
+                    type: object
+                    properties:
+                      organization:
+                        title: Organization
+                        description: The organization associated with the transaction.
+                        type: object
+                        properties:
+                          id:
+                            title: ID
+                            description: The global identifier for the Organization.
+                            type: string
+                            format: guid
+                            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                            x-lineageLookupReferenceObject: organizations 
+                            x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+                            x-lineageDerivedLogic: A record in GORGUID where GORGUID_LDM_NAME='persons' where GORGUID_DOMAIN_KEY=FGBJVCD_VENDOR_PIDM or GURTRNH_VENDOR_ID
+                        additionalProperties: false
+                        required:
+                          - id
+                    additionalProperties: false
+                    required:
+                      - organization
+                  - type: object
+                    maxProperties: 0
+              transactionDetailLines:
+                title: Transaction Detail Lines
+                description: The detailed accounting lines associated with the transaction.
+                type: array
+                minItems: 1
+                items:
+                  type: object
+                  properties:
+                    sequenceNumber:
+                      title: Sequence Number
+                      description: An optional tracking number for the detailed accounting line.
+                      oneOf:
+                        - type: number
+                          x-lineageReferenceObject: GURTRNH_SEQ_NUM(GURTRNH) or  FGBJVCD_SEQ_NUM(FGBJVCD)
+                        - type: string
+                          nullable: true
+                    accountingString:
+                      title: Accounting String
+                      description: The accounting string associated with the transaction detail line.
+                      type: string
+                      minLength: 1
+                      x-lineageReferenceObject: derived  
+                      x-lineageDerivedLogic: Display the concatenated value of GURTRNH_COAS_CODE,GURTRNH_ACCI_CODE,GURTRNH_FUND_CODE,GURTRNH_ORGN_CODE,GURTRNH_ACCT_CODE,GURTRNH_PROG_CODE,GURTRNH_ACTV_CODE,GURTRNH_LOCN_CODE,GURTRNH_PRJD_CODE,GURTRNH_RUCL_CODE,GURTRNH_BANK_CODE, or Display the concatenated value of FGBJVCD_COAS_CODE,FGBJVCD_ACCI_CODE,FGBJVCD_FUND_CODE,FGBJVCD_ORGN_CODE,FGBJVCD_ACCT_CODE,FGBJVCD_PROG_CODE,FGBJVCD_ACTV_CODE,FGBJVCD_LOCN_CODE,FGBJVCD_PRJD_CODE,FGBJVCD_RUCL_CODE,FGBJVCD_BANK_CODE
+                    description:
+                      title: Description
+                      description: The description of the detailed accounting line.
+                      type: string
+                      minLength: 1
+                      x-lineageReferenceObject: FGBJVCD_TRANS_DESC(FGBJVCD) or  GURTRNH_TRANS_DESC(GURTRNH)
+                    type:
+                      title: Type
+                      description: The type of detailed accounting line (credit/debit).
+                      enum:
+                        - credit
+                        - debit
+                      type: string
+                      x-lineageReferenceObject: FGBJVCD_DR_CR_IND(FGBJVCD) or  GURTRNH_DR_CR_IND(GURTRNH)
+                    amount:
+                      title: Amount
+                      description: The amount of the credit or debit.
+                      format: currency
+                      type: object
+                      properties:
+                        value:
+                          title: Value
+                          description: The monetary value
+                          type: number
+                          x-lineageReferenceObject: GURTRNH_TRANS_AMT(GURTRNH) or  FGBJVCD_TRANS_AMT(FGBJVCD)
+                        currency:
+                          title: Currency
+                          description: The ISO 4217 currency code
+                          enum:
+                            - AED
+                            - AFN
+                            - ALL
+                            - AMD
+                            - ANG
+                            - AOA
+                            - ARS
+                            - AUD
+                            - AWG
+                            - AZN
+                            - BAM
+                            - BBD
+                            - BDT
+                            - BGN
+                            - BHD
+                            - BIF
+                            - BMD
+                            - BND
+                            - BOB
+                            - BRL
+                            - BSD
+                            - BTN
+                            - BWP
+                            - BYR
+                            - BZD
+                            - CAD
+                            - CDF
+                            - CHF
+                            - CLP
+                            - CNY
+                            - COP
+                            - CRC
+                            - CUC
+                            - CUP
+                            - CVE
+                            - CZK
+                            - DJF
+                            - DKK
+                            - DOP
+                            - DZD
+                            - EGP
+                            - ERN
+                            - ETB
+                            - EUR
+                            - FJD
+                            - FKP
+                            - GBP
+                            - GEL
+                            - GHS
+                            - GIP
+                            - GMD
+                            - GNF
+                            - GTQ
+                            - GYD
+                            - HKD
+                            - HNL
+                            - HRK
+                            - HTG
+                            - HUF
+                            - IDR
+                            - ILS
+                            - INR
+                            - IQD
+                            - IRR
+                            - ISK
+                            - JMD
+                            - JOD
+                            - JPY
+                            - KES
+                            - KGS
+                            - KHR
+                            - KMF
+                            - KPW
+                            - KRW
+                            - KWD
+                            - KYD
+                            - KZT
+                            - LAK
+                            - LBP
+                            - LKR
+                            - LRD
+                            - LSL
+                            - LYD
+                            - MAD
+                            - MDL
+                            - MGA
+                            - MKD
+                            - MMK
+                            - MNT
+                            - MOP
+                            - MRO
+                            - MUR
+                            - MVR
+                            - MWK
+                            - MXN
+                            - MYR
+                            - MZN
+                            - NAD
+                            - NGN
+                            - NIO
+                            - NOK
+                            - NPR
+                            - NZD
+                            - OMR
+                            - PAB
+                            - PEN
+                            - PGK
+                            - PHP
+                            - PKR
+                            - PLN
+                            - PYG
+                            - QAR
+                            - RON
+                            - RSD
+                            - RUB
+                            - RWF
+                            - SAR
+                            - SBD
+                            - SCR
+                            - SDG
+                            - SEK
+                            - SGD
+                            - SHP
+                            - SLL
+                            - SOS
+                            - SRD
+                            - SSP
+                            - STD
+                            - SVC
+                            - SYP
+                            - SZL
+                            - THB
+                            - TJS
+                            - TMT
+                            - TND
+                            - TOP
+                            - TRY
+                            - TTD
+                            - TWD
+                            - TZS
+                            - UAH
+                            - UGX
+                            - USD
+                            - UYU
+                            - UZS
+                            - VEF
+                            - VND
+                            - VUV
+                            - WST
+                            - XAF
+                            - XCD
+                            - XOF
+                            - XPF
+                            - YER
+                            - ZAR
+                            - ZMW
+                            - ZWL
+                          type: string
+                          x-lineageReferenceObject: GURTRNH_CURR_CODE(GURTRNH) or  FGBJVCD_CURR_CODE(FGBJVCD)
+                      additionalProperties: false
+                      required:
+                        - value
+                        - currency
+                    budgetOverride:
+                      title: Budget Override
+                      description: An indication if the budget was overridden or not.
+                      oneOf:
+                        - type: string
+                          enum:
+                            - override
+                            - noOverride
+                          x-lineageReferenceObject: GURTRNH_ABAL_OVERRIDE(GURTRNH) or  FGBJVCD_ABAL_OVERRIDE(FGBJVCD)
+                        - type: string
+                          maxLength: 0
+                    submittedBy:
+                      title: Submitted By
+                      description: The person submitting the general ledger transaction.
+                      oneOf:
+                        - type: object
+                          properties:
+                            id:
+                              title: ID
+                              description: The global identifier for the Submitted By.
+                              type: string
+                              format: guid
+                              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                              x-lineageLookupReferenceObject: persons 
+                              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+                              x-lineageDerivedLogic: A record in GORGUID where GORGUID_LDM_NAME='persons' where GORGUID_DOMAIN_KEY=FGBJVCH_USER_ID or GURTRNH_USER_ID
+                          additionalProperties: false
+                          required:
+                            - id
+                        - type: object
+                          maxProperties: 0
+                    budgetPeriod:
+                      title: Budget Period
+                      description: The budget period associated with the transaction.
+                      oneOf:
+                        - type: object
+                          properties:
+                            id:
+                              title: ID
+                              description: The global identifier for the Budget Period.
+                              type: string
+                              format: guid
+                              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                              x-lineageLookupReferenceObject: fiscal-periods 
+                              x-lineageReferenceObject: FTVFSPD_GUID(FTVFSPD)
+                          additionalProperties: false
+                          required:
+                            - id
+                        - type: object
+                          maxProperties: 0
+                    giftUnits:
+                      title: Gift Units
+                      description: The number of gift units associated with the transaction.
+                      oneOf:
+                        - type: number
+                          x-lineageReferenceObject: FGBJVCD_EMC_UNITS(FGBJVCD)
+                        - type: string
+                          nullable: true
+                    encumbrance:
+                      title: Encumbrance
+                      description: The encumbrance associated with this transaction.
+                      type: object
+                      properties:
+                        number:
+                          title: Number
+                          description: The encumbrance number.
+                          type: string
+                          x-lineageReferenceObject: FGBJVCD_ENCB_NUM(FGBJVCD) or GURTRNH_ENCB_NUM(GURTRNH)
+                        lineItemNumber:
+                          title: Line Item Number
+                          description: The line item number.
+                          oneOf:
+                            - type: number
+                              x-lineageReferenceObject: FGBJVCD_ENCD_ITEM_NUM(FGBJVCD) or  GURTRNH_ENCD_ITEM_NUM(GURTRNH)
+                            - type: string
+                              nullable: true
+                        sequenceNumber:
+                          title: Sequence Number
+                          description: The sequence number of the accounting string.
+                          oneOf:
+                            - type: number
+                              x-lineageReferenceObject: GURTRNH_SEQ_NUM(GURTRNH) or  FGBJVCD_SEQ_NUM(FGBJVCD)
+                            - type: string
+                              nullable: true
+                        adjustmentType:
+                          title: Adjustment Type
+                          description: The adjustment type for the encumbrance.
+                          oneOf:
+                            - type: string
+                              enum:
+                                - partial
+                                - total
+                                - adjustment
+                              x-lineageReferenceObject: GURTRNH_ENCB_ACTION_IND(GURTRNH) or  FGBJVCD_ENCB_ACTION_IND(FGBJVCD)
+                            - type: string
+                              maxLength: 0
+                        commitmentType:
+                          title: Commitment Type
+                          description: The type of commitment (committed or uncommitted)
+                          oneOf:
+                            - type: string
+                              enum:
+                                - committed
+                                - uncommitted
+                              x-lineageReferenceObject: FGBJVCD_CMT_TYPE(FGBJVCD) or  GURTRNH_CMT_TYPE(GURTRNH)
+                            - type: string
+                              maxLength: 0
+                      additionalProperties: false
+                  additionalProperties: false
+                  required:
+                    - accountingString
+                    - description
+                    - type
+                    - amount
+            additionalProperties: false
+            required:
+              - type
+              - ledgerDate
+              - transactionDetailLines
+      required:
+        - id
+        - processMode
+        - transactions
+      additionalProperties: false

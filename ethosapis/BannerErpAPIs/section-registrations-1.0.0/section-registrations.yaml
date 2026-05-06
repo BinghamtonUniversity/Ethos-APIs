@@ -1,0 +1,258 @@
+openapi: 3.0.0
+info:
+  title: section-registrations
+  description: >
+    This API returns a list of section registrations i.e. students registered in
+    a class along with their enrollment status. It maybe optionally filtered on
+    term(s), section status(es) and/or integration partner(s).
+
+
+    This API is accessible to only those users who has access to security object
+    __API_SECTION_REGISTRATIONS__.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Student
+  x-source-title: Section Registrations
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: section-registrations
+paths:
+  /qapi/section-registrations:
+    post:
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_SECTION_REGISTRATIONS
+      tags:
+        - section-registrations
+      description: >
+        __Pagination__ is supported using parameters __max__ and __offset__.
+        Default value for max is 500 and upper limit is 1000.
+
+          __Sorting__ Allowed values for __sort__ parameter are [‘term’, ‘courseReferenceNumber’].
+
+         __Filtering__ is supported using url parameters [‘term’, ‘sectionStatus’, ‘integrationPartner’].  
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          schema:
+            type: string
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+              application/vnd.hedtech.v1+json
+            ```
+        - name: content-type
+          in: header
+          required: true
+          schema:
+            type: string
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+              application/vnd.hedtech.v1+json
+            ```
+        - name: term
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Code value to identify the term
+        - name: sectionStatus
+          in: query
+          required: false
+          schema:
+            type: string
+          description: The status of the Section, for example, Open or Closed
+        - name: integrationPartner
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Instructional platform code
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/section-registrations"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/section-registrations-response"
+            application/xml:
+              schema:
+                type: object
+                $ref: "#/components/schemas/section-registrations-response"
+          headers:
+            X-Media-Type:
+              description: application/json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/section-registrations:
+    get:
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_SECTION_REGISTRATIONS
+      tags:
+        - section-registrations
+      description: >
+        __Pagination__ is supported using parameters __max__ and __offset__.
+        Default value for max is 500 and upper limit is 1000.
+
+        __Sorting__ Allowed values for __sort__ parameter are ['term',
+        'courseReferenceNumber'].
+
+        __Filtering__ is supported using url parameters ['term',
+        'sectionStatus', 'integrationPartner'].  
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          schema:
+            type: string
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+              application/vnd.hedtech.v1+json
+            ```
+        - name: term
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Code value to identify the term
+        - name: sectionStatus
+          in: query
+          required: false
+          schema:
+            type: string
+          description: The status of the Section, for example, 'Open' or 'Closed'
+        - name: integrationPartner
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Instructional platform code
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/section-registrations-response"
+            application/xml:
+              schema:
+                type: object
+                $ref: "#/components/schemas/section-registrations-response"
+          headers:
+            X-Media-Type:
+              description: application/json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    section-registrations:
+      type: array
+      items:
+        type: object
+        properties:
+          bannerId:
+            type: array
+            items:
+              type: string
+            description: Identification number used to access a person
+          term:
+            type: array
+            items:
+              type: string
+            description: Code value to identify the term
+          integrationPartner:
+            type: array
+            items:
+              type: string
+            description: Instructional platform code
+    section-registrations-response:
+      type: array
+      items:
+        type: object
+        properties:
+          bannerId:
+            type: string
+          courseReferenceNumber:
+            type: string
+          courseRegistrationStatus:
+            type: string
+          externalUser:
+            type: string
+          integrationPartner:
+            type: string
+          sectionStatus:
+            type: string
+          sourcedId:
+            type: string
+          term:
+            type: string

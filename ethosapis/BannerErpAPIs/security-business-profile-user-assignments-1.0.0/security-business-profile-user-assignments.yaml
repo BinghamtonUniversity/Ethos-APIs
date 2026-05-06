@@ -1,0 +1,1156 @@
+openapi: 3.0.0
+info:
+  title: Security Business Profile User Assignments
+  description: >
+    The Security Business Profile User Assignments API is used to create or delete
+    Banner Business Profile User Assignments as shown on the GOAFBPR administrative page in Banner Access Management.
+    In addition, the API supports the option to post business profile user assignments in batches.
+
+    
+    Note: To maintain strict access control, the required security object must be assigned directly to individual users. 
+    Assignment via security classes is not supported for this API.
+  version: 1.0.0
+  x-api-type: erp
+  x-release-status: beta
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Foundation
+  x-source-name: GOAFBPR
+  x-source-title: null
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /api/security-business-profile-user-assignments:
+    get:
+      tags:
+      - security-business-profile-user-assignments
+      summary: Returns business profile user assignment details.
+      description: Returns resources from GORFBPR.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description:  |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object  
+          description: >
+            ### Business Profile
+
+            Returns all records for the Business Profile passed.
+
+            ```
+
+            /security-business-profile-user-assignments?criteria={"businessProfile":"CASHIER"}
+
+            ```    
+
+            ### User ID
+
+            Returns all records for the User ID passed.
+
+            ```
+
+            /security-business-profile-user-assignments?criteria={"userId":"BSMITH"}
+
+            ``` 
+        
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/security-business-profile-user-assignments-1.0.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SEC_BUS_PROF_USER_ASGMTS
+    post:
+      tags:
+      - security-business-profile-user-assignments
+      summary: Creates a new business profile user assignment.
+      description: Creates a new resource on GORFBPR.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/security-business-profile-user-assignments-1.0.0_post_request"                              
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/security-business-profile-user-assignments-1.0.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SEC_BUS_PROF_USER_ASGMTS      
+  /api/security-business-profile-user-assignments/{id}:
+    get:
+      summary: Returns the requested resource from GORFBPR.
+      description: |
+        Returns a record from GORFBPR with the passed in identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_SEC_BUS_PROF_USER_ASGMTS
+      tags:
+        - security-business-profile-user-assignments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external references.
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/security-business-profile-user-assignments-1.0.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+    delete:
+      tags:
+      - security-business-profile-user-assignments
+      summary: Removes the specified resource from GORFBPR.
+      description: Deletes the specified business profile user assignment.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external references.
+          schema:
+            type: number
+            minimum: 1      
+      responses:
+        "204":
+          description: No Content
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SEC_BUS_PROF_USER_ASGMTS   
+  /api/security-business-profile-user-assignments/batches:
+    get:
+      tags:
+      - security-business-profile-user-assignments
+      summary: Returns the batch API status for all the jobs created for this resource.  
+      description: 
+
+         Returns the status for all the jobs created for this resource. Use the /batches/{id} GET API to view the result of each request item.
+         
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description:  |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          #Add into the description an example for each criteria query supported.   
+          description: 
+            |
+            ### ID 
+            Returns all records for the batch request ID passed.
+            ```
+            /batch?criteria={"id":"13371b52-1afc-4a98-8186-90f2219dad01"}
+            ```
+            ### Job ID 
+            Returns all records for the job execution ID passed.
+            ```
+            /batch?criteria={"jobId": 123}
+            ```
+            ### Start Date
+            Returns all records for the start date passed.
+            ```
+            /batch?criteria={"startDate":"2024-09-18 13:46:48"}
+            ```
+            ### Job Status
+            Returns all records for the job status passed.
+            ```
+            /batch?criteria={"status":"completed"}
+            ```          
+                      
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/security-business-profile-user-assignments-batch-1.0.0_get_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SEC_BUS_PROF_USER_ASGMTS    
+    post:
+      tags:
+      - security-business-profile-user-assignments
+      summary: Submit a batch of business profile user assignments to be created.
+      description: Creates new resources on GORFBPR.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/security-business-profile-user-assignments-batch-1.0.0_post_request"                              
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/security-business-profile-user-assignments-batch-1.0.0_post_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SEC_BUS_PROF_USER_ASGMTS                         
+  /api/security-business-profile-user-assignments/batches/{id}:
+    get:
+      tags:
+      - security-business-profile-user-assignments
+      summary: Returns the result of each item in the batch request.  
+      description: >
+
+        Returns the list of IDs for those resources that were successfully created or updated. For those that were not, it returns the list of error messages.
+         
+      parameters:
+        - name: id
+          in: path
+          description: |
+            Unique identifier for the batch API request.
+          required: true
+          schema:
+            type: string
+            minimum: 1      
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/security-business-profile-user-assignments-batch-1.0.0_get_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: UPDATE
+components:
+  schemas:
+    security-business-profile-user-assignments-1.0.0_response:
+      type: object
+      required:
+        - id
+        - businessProfile
+        - userId   
+      properties:
+        id:
+          title: Business Profile User Relationship ID
+          description: "Unique identifier for the Business Profile User Relationship."
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: GORFBPR_GUID
+          example: 4feqfc84-3t37-4036-852c-34tzl9d5501a          
+          maxLength: 36
+        businessProfile:
+          title: Business Profile Code
+          description: "The Business Profile code."
+          type: string
+          x-lineageReferenceObject: GORFBPR_FBPR_CODE
+          example: "CASHIER"
+          maxLength: 30  
+          x-lineageLookupReferenceObject: GTVFBPR 
+        businessProfiledescription:
+          title: Business Profile Description
+          description: "Description of the Business Profile code."
+          type: string
+          x-lineageReferenceObject: GTVFBPR_DESC
+          example: 'Accounts Receivable Clerks'
+          maxLength: 60                 
+        userId:
+          title: User ID
+          description: "The Oracle ID or Principal User ID of the security user."
+          type: string
+          x-lineageReferenceObject: GORFBPR_FGAC_USER_ID
+          example: "BSMITH"
+          maxLength: 30                     
+        modifiedOn:
+          title: Modified On
+          maxLength: 11
+          type: string
+          format: date-time
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+          description: "Most current date the record was created or changed."
+          x-lineageReferenceObject: GORFBPR_ACTIVITY_DATE
+          example: 2024-07-05T04:00:00Z   
+        modifiedBy:
+          title: Modified By User ID
+          maxLength: 30
+          type: string
+          description: "User who inserted or last updated the data."
+          x-lineageReferenceObject: GORFBPR_USER_ID
+          example: SYSTEST08      
+    security-business-profile-user-assignments-1.0.0_post_request:
+      type: object
+      required:
+        - businessProfile
+        - userId   
+      properties:
+        businessProfile:
+          title: Business Profile Code
+          description: "The Business Profile code."
+          type: string
+          x-lineageReferenceObject: GORFBPR_FBPR_CODE
+          example: "CASHIER"
+          maxLength: 30  
+          x-lineageLookupReferenceObject: GTVFBPR                
+        userId:
+          title: User ID
+          description: "The Oracle ID or Principal User ID of the security user."
+          type: string
+          x-lineageReferenceObject: GORFBPR_FGAC_USER_ID
+          example: "BSMITH"
+          maxLength: 30  
+    security-business-profile-user-assignments-batch-1.0.0_post_request:
+      type: object
+      properties:
+        items:
+          title: items
+          description: List of items to be processed.
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/security-business-profile-user-assignments-batch-1.0.0_post_items'
+      required:
+        - items                                     
+    security-business-profile-user-assignments-batch-1.0.0_post_items:
+      $ref: '#/components/schemas/security-business-profile-user-assignments-1.0.0_post_request'
+    security-business-profile-user-assignments-batch-1.0.0_post_response:
+        description: 'Returns batch job details like status, job ID, request ID, resource details, etc. '
+        type: object
+        required:
+        - id
+        - jobId
+        - status
+        - link
+        - resource
+        - createdOn
+        - jobStartOn
+        - jobEndOn
+        properties:
+          id:
+            title: Request ID
+            description: A globally unique identifier of a batch API request to be used in all external references.
+            type: string
+            format: guid
+            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+            example: cf5ff489-e386-43a3-93cf-04d4b1f77216 
+            x-lineageReferenceObject: GOBBREQ_GUID   
+          jobId:
+            title: Job ID
+            description: Batch job execution ID.
+            type: number
+            x-lineageReferenceObject: GOBBREQ_JOB_ID
+            example: 123
+          status:
+            title: Status
+            description: Status of the batch.
+            type: string
+            enum:
+              - completed
+              - inProgress
+              - aborted
+            x-lineageReferenceObject: GOBBREQ_JOB_STATUS
+            example: inProgress
+          link: 
+            title: Status URL
+            description: REST API URL to use to get the status of a specific batch job.
+            type: string
+            example: https://api.example.com/api/security-business-profile-user-assignments/batches/{id}        
+          resource:
+            title: Resource
+            description: The affected resource.
+            type: object
+            properties:
+              name:
+                title: Resource Name
+                description: The pluralized name of the affected resource.
+                type: string
+                x-lineageReferenceObject: GOBBREQ_API_RESOURCE            
+                example: security-business-profile-user-assignments
+              version:
+                title: Resource version
+                description: The version of the resource.
+                type: number
+                x-lineageReferenceObject: GOBBREQ_API_VERSION                
+                example: application/vnd.hedtech.integration.v1.0.0+json
+            additionalProperties: false
+            required:
+              - name
+              - version
+          createdOn:
+            title: Create Date
+            description: Date on which the batch job was created.
+            type: string
+            format: date
+            x-lineageReferenceObject: GOBBREQ_CREATEDTIME
+            example: '2024-01-01'
+          jobStartOn:
+            title: Job Start Time
+            description: Time when the batch job started.
+            type: string
+            format: date-time
+            x-lineageReferenceObject: BATCH_JOB_EXECUTION.START_TIME           
+            example: '2024-09-27 12:46:37.058'
+          jobEndOn:
+            title: Job End Time
+            description: Time when the batch job ended.
+            type: string
+            format: date-time
+            x-lineageReferenceObject: BATCH_JOB_EXECUTION.END_TIME              
+            example: '2024-09-27 12:48:15.976'            
+    security-business-profile-user-assignments-batch-1.0.0_get_response:    
+        description: 'Returns the list of IDs for those business profile user assignments that were successfully created. For those that were not, it returns the list of error messages.'
+        type: object
+        x-last-modified:
+        required:
+        - id
+        - jobId
+        - status
+        - link
+        - resource
+        - startDate
+        - startTime
+        - endTime
+        - lastModifiedBy
+        - lastModified
+        - totalErrorsCount
+        - items                
+        properties:            
+          id:
+            title: Request ID
+            description: A globally unique identifier of a batch API request to be used in all external references.
+            type: string
+            format: guid
+            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+            example: cf5ff489-e386-43a3-93cf-04d4b1f77216 
+            x-lineageReferenceObject: GOBBREQ_GUID  
+          jobId:
+            title: Job ID
+            description: Batch job execution ID.
+            type: number
+            x-lineageReferenceObject: GOBBREQ_JOB_ID
+            example: 123
+          status:
+            title: Status
+            description: Status of the batch.
+            type: string
+            enum:
+              - completed
+              - inProgress
+              - aborted
+            x-lineageReferenceObject: GOBBREQ_JOB_STATUS
+            example: inProgress
+          createdOn:
+            title: Create Date
+            description: Date on which the batch job was created.
+            type: string
+            format: date
+            x-lineageReferenceObject: GOBBREQ_CREATEDTIME
+            example: '2024-01-01'
+          jobStartOn:
+            title: Job Start Time
+            description: Time when the batch job started.
+            type: string
+            format: date-time
+            x-lineageReferenceObject: BATCH_JOB_EXECUTION.START_TIME
+            example: '2024-09-27 12:46:37.058'
+          jobEndOn:
+            title: Job End Time
+            description: Time when the batch job ended.
+            type: string
+            format: date-time
+            x-lineageReferenceObject: BATCH_JOB_EXECUTION.END_TIME               
+            example: '2024-09-27 12:48:15.976'  
+          modifiedBy:
+             title: Modified By
+             description: The user ID of the person who inserted or last updated this record.
+             type: string
+             x-lineageReferenceObject: GOBBREQ_USER_ID
+             example: HRISUSR
+          modifiedOn:
+             title: Modified Date
+             description: Date of last activity of the record.
+             type: string
+             format: date
+             x-lineageReferenceObject: GOBBREQ_ACTIVITY_DATE
+             example: 01-JAN-2024
+          resource:
+            title: Resource
+            description: The affected resource.
+            type: object
+            properties:
+              name:
+                title: Resource Name
+                description: The pluralized name of the affected resource.
+                type: string
+                x-lineageReferenceObject: GOBBREQ_API_RESOURCE            
+                example: security-business-profile-user-assignments
+              version:
+                title: Resource version
+                description: The version of the resource.
+                type: number
+                x-lineageReferenceObject: GOBBREQ_API_VERSION                
+                example: application/vnd.hedtech.integration.v1.0.0+json
+            additionalProperties: false
+            required:
+              - name
+              - version
+          totalErrorsCount:
+             title: Error Count
+             description: Total number of errors that occurred, while processing the collection of items in the request.
+             type: number
+             x-lineageReferenceObject: derived
+             x-lineageDerivedLogic: Computed and saved in GOBBREQ_BATCH_RESPONSE_BODY.                 
+             example: 1
+          items:
+            type: array            
+            items:
+              type: object
+              x-lineageReferenceObject: GOBBREQ_BATCH_RESPONSE_BODY
+              additionalProperties: true
+              oneOf: 
+                - type: object
+                - title: Identifier 
+                  allOf:
+                  - oneOf:
+                    - type: object
+                      title: ID
+                      required:
+                        - id                    
+                      properties:                    
+                        id: 
+                          title: ID
+                          description: The global identifier of the business profile user assignment.
+                          type: string
+                          format: guid
+                          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                          x-lineageReferenceObject: GORFBPR_GUID
+                          example: 4feqfc84-3t37-4036-852c-34tzl9d5501a          
+                          maxLength: 36       
+                - type: object
+                  title: Error Message
+                  required:
+                    - errorMessage                 
+                  properties:
+                    errorMessage:
+                      title: errorMessage
+                      type: string
+                      description: Error message describing the error caused during create or update operation.                                                                                                                      
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

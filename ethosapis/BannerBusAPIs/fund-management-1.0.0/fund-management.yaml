@@ -1,0 +1,704 @@
+openapi: 3.0.0
+info:
+  title: fund-management
+  description: API for RFRMGMT administrative page
+  version: 1.0.0
+  x-audience: all
+  x-release-status: beta
+  x-source-name: RFRMGMT
+  x-source-domain: Financial Aid
+  x-source-title: Fund Management
+  x-source-system: banner
+  x-api-type: bus-poc
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/fund-management:
+    get:
+      tags:
+        - fund-management
+      summary: Return resources from RFRMGMT
+      parameters:
+        - name: X-SDE-Expand
+          in: header
+          description: The comma seperated value list of block names
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: The maximum number of resources requesting for this result set.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          description: The filter criteria as a single URL query parameter. Use this
+            parameter or the individual parameters listed. Must be a JSON
+            representation of the property searching for. This can be any of the
+            properties listed on the URL or QAPI and must be a json
+            representation that can be validated against the GET schema. Limit
+            and Offset are the only supported additional parameters on the URL.
+          required: false
+          schema:
+            type: string
+        - name: yearCode
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: fund
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/fund-management-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+  /qapi/fund-management:
+    post:
+      tags:
+        - fund-management QAPI (Query by POST)
+      summary: Return resources from RFRMGMT
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/fund-management-1.0.0_get_request"
+            example:
+              fund: A03
+              yearCode: 2223
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/fund-management-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+components:
+  schemas:
+    fund-management-1.0.0_qapi_post:
+      required:
+        - fund
+        - yearCode
+      type: object
+      properties:
+        yearCode:
+          type: string
+        fund:
+          type: string
+    fund-management-1.0.0_get_request:
+      type: object
+      properties:
+        fund:
+          title: Fund Code
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : keyblckFundCode"
+          x-lineageReferenceObject: keyblckFundCode
+        yearCode:
+          title: Aid Year
+          maxLength: 4
+          type: string
+          description: "Lineage reference object : keyblckAidyCode, Lookup lineage
+            reference object : robinst"
+          x-lineageReferenceObject: keyblckAidyCode
+          x-lineageLookupReferenceObject: robinst
+      x-lineageReferenceObject: KEY_BLOCK
+    errors-2.0.0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+              description:
+                type: string
+    fund-management-1.0.0_get_response:
+      required:
+        - acceptAwstCode
+        - applMemoInd
+        - budgAllocAmt
+        - cancelAwstCode
+        - changeLoadInd
+        - declineAwstCode
+        - disburseInd
+        - inelAftCutDateInd
+        - inelBefCutDateInd
+        - maxAwardAmt
+        - minAwardAmt
+        - offerAwstCode
+        - priorBalAmt
+        - prorationInd
+        - roundSchedInd
+        - selVerIncInd
+        - transferAmt
+        - webAcceptAwstCode
+        - webAcceptOption
+        - webDeclineAwstCode
+      type: object
+      properties:
+        manualLoanInd:
+          title: Manual Loan Indicator
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RFRASPC_MANUAL_LOAN_IND"
+          x-lineageReferenceObject: RFRASPC_MANUAL_LOAN_IND
+        enrrCode:
+          title: Enrollment Rule
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RFRASPC_ENRR_CODE, Lookup lineage
+            reference object : RORENRR"
+          x-lineageReferenceObject: RFRASPC_ENRR_CODE
+          x-lineageLookupReferenceObject: RORENRR
+        roundAwardAmt:
+          title: Round Award
+          maxLength: 5
+          type: number
+          description: "Lineage reference object : RFRASPC_ROUND_AWARD_AMT"
+          x-lineageReferenceObject: RFRASPC_ROUND_AWARD_AMT
+        pnInstructions:
+          title: Instructions
+          maxLength: 2000
+          type: string
+          description: "Lineage reference object : RFRASPC_PN_INSTRUCTIONS"
+          x-lineageReferenceObject: RFRASPC_PN_INSTRUCTIONS
+        minAwardAmt:
+          maxLength: 14
+          type: number
+          description: "Lineage reference object : RFRASPC_MIN_AWARD_AMT"
+          x-lineageReferenceObject: RFRASPC_MIN_AWARD_AMT
+        rtvawstCancelDesc:
+          type: string
+        enablePeriodAwarding:
+          title: Allow Processing by Period
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_ENABLE_PERIOD_AWARDING"
+          x-lineageReferenceObject: RFRASPC_ENABLE_PERIOD_AWARDING
+        rtvawstMixAcceptDesc:
+          type: string
+        overrideNeedInd:
+          title: Override Need
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_OVERRIDE_NEED_IND"
+          x-lineageReferenceObject: RFRASPC_OVERRIDE_NEED_IND
+        prorationInd:
+          title: If Disbursement Load Code greater than Package Load Code
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_PRORATION_IND"
+          x-lineageReferenceObject: RFRASPC_PRORATION_IND
+        disbNoDays:
+          title: +/- Days for Attending Hours
+          maxLength: 3
+          type: number
+          description: "Lineage reference object : RFRASPC_DISB_NO_DAYS"
+          x-lineageReferenceObject: RFRASPC_DISB_NO_DAYS
+        directLoanInd:
+          title: Direct Loan Indicator
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RFRASPC_DIRECT_LOAN_IND"
+          x-lineageReferenceObject: RFRASPC_DIRECT_LOAN_IND
+        awdChgLtrInd:
+          title: Award Letter
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_AWD_CHG_LTR_IND"
+          x-lineageReferenceObject: RFRASPC_AWD_CHG_LTR_IND
+        loanFeePct:
+          title: Loan Fee Percentage
+          maxLength: 7
+          type: number
+          description: "Lineage reference object : RFRASPC_LOAN_FEE_PCT"
+          x-lineageReferenceObject: RFRASPC_LOAN_FEE_PCT
+        promReqInd:
+          title: Create Promissory Note Requirements when Accepted
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_PROM_REQ_IND"
+          x-lineageReferenceObject: RFRASPC_PROM_REQ_IND
+        webDeclineAwstCode:
+          title: Web Decline
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RFRASPC_WEB_DECLINE_AWST_CODE"
+          x-lineageReferenceObject: RFRASPC_WEB_DECLINE_AWST_CODE
+        enrrCodeDescription:
+          type: string
+        acptPartialAmtInd:
+          title: Allow Partial Amount Acceptance
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_ACPT_PARTIAL_AMT_IND"
+          x-lineageReferenceObject: RFRASPC_ACPT_PARTIAL_AMT_IND
+        declineAwstCode:
+          title: Decline
+          maxLength: 4
+          type: string
+          description: "Lineage reference object : RFRASPC_DECLINE_AWST_CODE"
+          x-lineageReferenceObject: RFRASPC_DECLINE_AWST_CODE
+        transferAmt:
+          title: Transferred
+          maxLength: 23
+          type: number
+          description: "Lineage reference object : RFRASPC_TRANSFER_AMT"
+          x-lineageReferenceObject: RFRASPC_TRANSFER_AMT
+        teachReductionPct:
+          title: TEACH Reduction Percentage
+          maxLength: 7
+          type: number
+          description: "Lineage reference object : RFRASPC_TEACH_REDUCTION_PCT"
+          x-lineageReferenceObject: RFRASPC_TEACH_REDUCTION_PCT
+        inelAftCutDateInd:
+          title: If Ineligible After Cut off Date
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_INEL_AFT_CUT_DATE_IND"
+          x-lineageReferenceObject: RFRASPC_INEL_AFT_CUT_DATE_IND
+        recoupInd:
+          title: Recoup when Award Reduced
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_RECOUP_IND"
+          x-lineageReferenceObject: RFRASPC_RECOUP_IND
+        overrideNeedToCoa:
+          title: Override Need to Cost of Attendance
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_OVERRIDE_NEED_TO_COA"
+          x-lineageReferenceObject: RFRASPC_OVERRIDE_NEED_TO_COA
+        rtvawstWaDeclineDesc:
+          type: string
+        budgAllocAmt:
+          title: Budget Allocated
+          maxLength: 23
+          type: number
+          description: "Lineage reference object : RFRASPC_BUDG_ALLOC_AMT"
+          x-lineageReferenceObject: RFRASPC_BUDG_ALLOC_AMT
+        totalAllocAmt:
+          title: Total Allocated
+          maxLength: 23
+          type: number
+          description: "Lineage reference object : RFRASPC_TOTAL_ALLOC_AMT"
+          x-lineageReferenceObject: RFRASPC_TOTAL_ALLOC_AMT
+        awrdUsingEstEfcInd:
+          title: Award Using Estimated EFC
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_AWRD_USING_EST_EFC_IND"
+          x-lineageReferenceObject: RFRASPC_AWRD_USING_EST_EFC_IND
+        autoPackInd:
+          title: Automatic Packaging
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_AUTO_PACK_IND"
+          x-lineageReferenceObject: RFRASPC_AUTO_PACK_IND
+        displayPnInd:
+          title: Display PN Requirement
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_DISPLAY_PN_IND"
+          x-lineageReferenceObject: RFRASPC_DISPLAY_PN_IND
+        replaceTfcInd:
+          title: Replace EFC
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_REPLACE_TFC_IND"
+          x-lineageReferenceObject: RFRASPC_REPLACE_TFC_IND
+        webAcceptOption:
+          title: Allow Web Accept/Decline by
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RFRASPC_WEB_ACCEPT_OPTION"
+          x-lineageReferenceObject: RFRASPC_WEB_ACCEPT_OPTION
+        rollInd:
+          title: Eligible to Roll
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_ROLL_IND"
+          x-lineageReferenceObject: RFRASPC_ROLL_IND
+        disburseInd:
+          title: Disburse
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RFRASPC_DISBURSE_IND"
+          x-lineageReferenceObject: RFRASPC_DISBURSE_IND
+        3quarterLoadPct:
+          title: Payment Percent for Three Quarter Load
+          maxLength: 8
+          type: number
+          description: "Lineage reference object : RFRASPC_3QUARTER_LOAD_PCT"
+          x-lineageReferenceObject: RFRASPC_3QUARTER_LOAD_PCT
+        roundSchedInd:
+          title: Round Schedule
+          maxLength: 2
+          type: string
+          description: "Lineage reference object : RFRASPC_ROUND_SCHED_IND"
+          x-lineageReferenceObject: RFRASPC_ROUND_SCHED_IND
+        rtvawstMixOfferDesc:
+          type: string
+        webAcceptFlag:
+          title: Allow Accept/Decline
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_WEB_ACCEPT_FLAG"
+          x-lineageReferenceObject: RFRASPC_WEB_ACCEPT_FLAG
+        offerAwstCode:
+          title: Offer
+          maxLength: 4
+          type: string
+          description: "Lineage reference object : RFRASPC_OFFER_AWST_CODE"
+          x-lineageReferenceObject: RFRASPC_OFFER_AWST_CODE
+        overrideSaprInd:
+          title: Override Satisfactory Academic Progress
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_OVERRIDE_SAPR_IND"
+          x-lineageReferenceObject: RFRASPC_OVERRIDE_SAPR_IND
+        equityInd:
+          title: Equity Fund
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_EQUITY_IND"
+          x-lineageReferenceObject: RFRASPC_EQUITY_IND
+        priorBalAmt:
+          title: Prior Balance
+          maxLength: 23
+          type: number
+          description: "Lineage reference object : RFRASPC_PRIOR_BAL_AMT"
+          x-lineageReferenceObject: RFRASPC_PRIOR_BAL_AMT
+        webAcceptAwstCode:
+          title: Web Accept
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RFRASPC_WEB_ACCEPT_AWST_CODE"
+          x-lineageReferenceObject: RFRASPC_WEB_ACCEPT_AWST_CODE
+        selVerIncInd:
+          title: If Selected for Verification but is Not Complete
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RFRASPC_SEL_VER_INC_IND"
+          x-lineageReferenceObject: RFRASPC_SEL_VER_INC_IND
+        reduceNeedInd:
+          title: Reduce Need
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_REDUCE_NEED_IND"
+          x-lineageReferenceObject: RFRASPC_REDUCE_NEED_IND
+        cancelAwstCode:
+          title: Cancel
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RFRASPC_CANCEL_AWST_CODE"
+          x-lineageReferenceObject: RFRASPC_CANCEL_AWST_CODE
+        mixAcceptAwstCode:
+          title: Mixed Accept
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RFRASPC_MIX_ACCEPT_AWST_CODE"
+          x-lineageReferenceObject: RFRASPC_MIX_ACCEPT_AWST_CODE
+        smartYear:
+          title: SMART Grade Level
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RFRASPC_SMART_YEAR"
+          x-lineageReferenceObject: RFRASPC_SMART_YEAR
+        enableBbay:
+          title: Allow Processing by BBAY
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_ENABLE_BBAY"
+          x-lineageReferenceObject: RFRASPC_ENABLE_BBAY
+        rebatePercent:
+          title: Graduate Interest Rate
+          maxLength: 7
+          type: number
+          description: "Lineage reference object : RFRASPC_REBATE_PERCENT"
+          x-lineageReferenceObject: RFRASPC_REBATE_PERCENT
+        availOfferPct:
+          title: Over Commitment Percent
+          maxLength: 8
+          type: number
+          description: "Lineage reference object : RFRASPC_AVAIL_OFFER_PCT"
+          x-lineageReferenceObject: RFRASPC_AVAIL_OFFER_PCT
+        pnUrl:
+          title: PN URL
+          maxLength: 255
+          type: string
+          description: "Lineage reference object : RFRASPC_PN_URL"
+          x-lineageReferenceObject: RFRASPC_PN_URL
+        rtvawstAcceptDesc:
+          type: string
+        autoAcceptInd:
+          title: Automatic Acceptance
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_AUTO_ACCEPT_IND"
+          x-lineageReferenceObject: RFRASPC_AUTO_ACCEPT_IND
+        lessHalfLoadPct:
+          title: Payment Percent for less than Half Load
+          maxLength: 8
+          type: number
+          description: "Lineage reference object : RFRASPC_LESS_HALF_LOAD_PCT"
+          x-lineageReferenceObject: RFRASPC_LESS_HALF_LOAD_PCT
+        rtvawstDeclineDesc:
+          type: string
+        inelBefCutDateInd:
+          title: If Ineligible Before Cut off Date
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_INEL_BEF_CUT_DATE_IND"
+          x-lineageReferenceObject: RFRASPC_INEL_BEF_CUT_DATE_IND
+        maxAwardAmt:
+          title: Award Maximum/Minimum
+          maxLength: 14
+          type: number
+          description: "Lineage reference object : RFRASPC_MAX_AWARD_AMT"
+          x-lineageReferenceObject: RFRASPC_MAX_AWARD_AMT
+        applMemoInd:
+          title: Memo Credit
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RFRASPC_APPL_MEMO_IND"
+          x-lineageReferenceObject: RFRASPC_APPL_MEMO_IND
+        overrideInd:
+          title: Override General Tracking Requirements
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_OVERRIDE_IND"
+          x-lineageReferenceObject: RFRASPC_OVERRIDE_IND
+        interestRate:
+          title: Interest Rate
+          maxLength: 6
+          type: number
+          description: "Lineage reference object : RFRASPC_INTEREST_RATE"
+          x-lineageReferenceObject: RFRASPC_INTEREST_RATE
+        lmsFund:
+          title: CRC Loan Fund
+          maxLength: 6
+          type: string
+          description: "Lineage reference object : RFRASPC_LMS_FUND"
+          x-lineageReferenceObject: RFRASPC_LMS_FUND
+        overrideTreqInd:
+          title: Override Requirement
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_OVERRIDE_TREQ_IND"
+          x-lineageReferenceObject: RFRASPC_OVERRIDE_TREQ_IND
+        pnDesc:
+          title: PN Description
+          maxLength: 60
+          type: string
+          description: "Lineage reference object : RFRASPC_PN_DESC"
+          x-lineageReferenceObject: RFRASPC_PN_DESC
+        acgYear:
+          title: ACG Grade Level
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RFRASPC_ACG_YEAR"
+          x-lineageReferenceObject: RFRASPC_ACG_YEAR
+        availOfferAmt:
+          title: Available to Offer
+          maxLength: 23
+          type: number
+          description: "Lineage reference object : RFRASPC_AVAIL_OFFER_AMT"
+          x-lineageReferenceObject: RFRASPC_AVAIL_OFFER_AMT
+        mixDeclineAwstCode:
+          title: Mixed Decline
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RFRASPC_MIX_DECLINE_AWST_CODE"
+          x-lineageReferenceObject: RFRASPC_MIX_DECLINE_AWST_CODE
+        rtvawstOfferDesc:
+          type: string
+        ncaaInd:
+          title: Count for NCAA
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_NCAA_IND"
+          x-lineageReferenceObject: RFRASPC_NCAA_IND
+        attendingHrInd:
+          title: Use Attending Hours
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_ATTENDING_HR_IND"
+          x-lineageReferenceObject: RFRASPC_ATTENDING_HR_IND
+        mixOfferAwstCode:
+          title: Mixed Offer
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RFRASPC_MIX_OFFER_AWST_CODE"
+          x-lineageReferenceObject: RFRASPC_MIX_OFFER_AWST_CODE
+        loanProcessInd:
+          title: Loan Process
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_LOAN_PROCESS_IND"
+          x-lineageReferenceObject: RFRASPC_LOAN_PROCESS_IND
+        rtvawstMixDeclineDesc:
+          type: string
+        selfHelpRedPct:
+          title: Self Help Reduction Percentage
+          maxLength: 7
+          type: number
+          description: "Lineage reference object : RFRASPC_SELF_HELP_RED_PCT"
+          x-lineageReferenceObject: RFRASPC_SELF_HELP_RED_PCT
+        acceptAwstCode:
+          title: Accept
+          maxLength: 4
+          type: string
+          description: "Lineage reference object : RFRASPC_ACCEPT_AWST_CODE"
+          x-lineageReferenceObject: RFRASPC_ACCEPT_AWST_CODE
+        halfLoadPct:
+          title: Payment Percent for Half Load
+          maxLength: 8
+          type: number
+          description: "Lineage reference object : RFRASPC_HALF_LOAD_PCT"
+          x-lineageReferenceObject: RFRASPC_HALF_LOAD_PCT
+        altLoanProgTypeCde:
+          title: Alternative Loan Program Type
+          maxLength: 3
+          type: string
+          description: "Lineage reference object : RFRASPC_ALT_LOAN_PROG_TYPE_CDE"
+          x-lineageReferenceObject: RFRASPC_ALT_LOAN_PROG_TYPE_CDE
+        teachLevel:
+          title: TEACH Level
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RFRASPC_TEACH_LEVEL"
+          x-lineageReferenceObject: RFRASPC_TEACH_LEVEL
+        rtvawstWaAcceptDesc:
+          type: string
+        elInd:
+          title: Electronic Loan Indicator
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RFRASPC_EL_IND"
+          x-lineageReferenceObject: RFRASPC_EL_IND
+        useDisbEnrlMemoInd:
+          title: Use Disbursement Enrollment Edits for Memo
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_USE_DISB_ENRL_MEMO_IND"
+          x-lineageReferenceObject: RFRASPC_USE_DISB_ENRL_MEMO_IND
+        changeLoadInd:
+          title: Change Load During Period
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_CHANGE_LOAD_IND"
+          x-lineageReferenceObject: RFRASPC_CHANGE_LOAD_IND
+        autoSchedInd:
+          title: Automatic Scheduling
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_AUTO_SCHED_IND"
+          x-lineageReferenceObject: RFRASPC_AUTO_SCHED_IND
+        naReqdInd:
+          title: Need Analysis
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : RFRASPC_NA_REQD_IND"
+          x-lineageReferenceObject: RFRASPC_NA_REQD_IND
+      x-lineageReferenceObject: rfraspc
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EllucianOAuthUserToken:
+      type: http
+      scheme: bearer
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

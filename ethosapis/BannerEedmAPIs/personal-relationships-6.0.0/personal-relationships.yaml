@@ -1,0 +1,462 @@
+openapi: 3.0.0
+info:
+  title: Personal Relationships
+  description: >-
+    **API Deprecation Notice**
+
+
+
+    Deprecated on: 30-Sep-2019
+
+
+
+    Sunset on: 01-Oct-2021
+
+
+
+    Description: V16.0.0 updates structure to provide more flexibility for representing relationships between persons.
+
+
+
+    ----
+
+
+    A kind of relationship between two people.
+  version: "6.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Foundation
+  x-deprecated-on: 2019-09-30
+  x-sunset-on: 2021-10-01
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/personal-relationships:
+    get:
+      summary: Return all resources
+      description: This version of the resource uses a legacy filter format and cannot
+        be displayed as a parameter.  Please refer to the API source
+        documentation for more information.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSONAL_RELATIONSHIPS
+      tags:
+        - personal-relationships
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v6+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-personal-relationships.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v6.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      deprecated: true
+  /api/personal-relationships/{id}:
+    get:
+      summary: Return the requested resource
+      description: Return the one resource with the passed in identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSONAL_RELATIONSHIPS
+      tags:
+        - personal-relationships
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Personal Relationships for use in all
+            external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v6+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v6.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v6.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-personal-relationships.json"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      deprecated: true
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-personal-relationships.json:
+      title: Personal Relationships
+      description: A kind of relationship between two people.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the relationship.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+        subjectPerson:
+          title: Subject Person
+          description: A person, with regards to whom the relationship is considered.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Subject Person.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons
+          additionalProperties: false
+          required:
+            - id
+        relatedPerson:
+          title: Related Person
+          description: A person related to the subject.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Related Person.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons
+          additionalProperties: false
+          required:
+            - id
+        directRelationship:
+          title: Direct Relationship
+          description: The relationship between the subject and related person, going from
+            the latter to the former
+          type: object
+          properties:
+            type:
+              title: Type
+              description: The type of the relationship
+              enum:
+                - parent
+                - stepParent
+                - mother
+                - stepMother
+                - father
+                - stepFather
+                - child
+                - stepChild
+                - daughter
+                - stepDaughter
+                - son
+                - stepSon
+                - sibling
+                - stepSibling
+                - brother
+                - stepBrother
+                - sister
+                - stepSister
+                - spouse
+                - wife
+                - partner
+                - grandParent
+                - grandMother
+                - grandFather
+                - grandChild
+                - grandDaughter
+                - grandSon
+                - parentInLaw
+                - motherInLaw
+                - fatherInLaw
+                - childInLaw
+                - daughterInLaw
+                - sonInLaw
+                - siblingInLaw
+                - sisterInLaw
+                - brotherInLaw
+                - siblingOfParent
+                - aunt
+                - uncle
+                - childOfSibling
+                - niece
+                - nephew
+                - cousin
+                - friend
+                - relative
+                - coworker
+                - neighbor
+                - classmate
+                - caregiver
+                - other
+                - husband
+              type: string
+            detail:
+              title: Detail
+              description: The extension to the type of the relationship
+              oneOf:
+                - type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Detail.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: personal-relationship-types
+                  additionalProperties: false
+                  required:
+                    - id
+                - type: object
+                  maxProperties: 0
+          additionalProperties: false
+          required:
+            - type
+        reciprocalRelationship:
+          title: Reciprocal Relationship
+          description: The reverse relationship between the persons
+          oneOf:
+            - type: object
+              properties:
+                type:
+                  title: Type
+                  description: The type of the relationship
+                  enum:
+                    - parent
+                    - stepParent
+                    - mother
+                    - stepMother
+                    - father
+                    - stepFather
+                    - child
+                    - stepChild
+                    - daughter
+                    - stepDaughter
+                    - son
+                    - stepSon
+                    - sibling
+                    - stepSibling
+                    - brother
+                    - stepBrother
+                    - sister
+                    - stepSister
+                    - spouse
+                    - wife
+                    - partner
+                    - grandParent
+                    - grandMother
+                    - grandFather
+                    - grandChild
+                    - grandDaughter
+                    - grandSon
+                    - parentInLaw
+                    - motherInLaw
+                    - fatherInLaw
+                    - childInLaw
+                    - daughterInLaw
+                    - sonInLaw
+                    - siblingInLaw
+                    - sisterInLaw
+                    - brotherInLaw
+                    - siblingOfParent
+                    - aunt
+                    - uncle
+                    - childOfSibling
+                    - niece
+                    - nephew
+                    - cousin
+                    - friend
+                    - relative
+                    - coworker
+                    - neighbor
+                    - classmate
+                    - caregiver
+                    - other
+                    - husband
+                  type: string
+                detail:
+                  title: Detail
+                  description: The extension to the type of the relationship
+                  oneOf:
+                    - type: object
+                      properties:
+                        id:
+                          title: ID
+                          description: The global identifier for the Detail.
+                          type: string
+                          format: guid
+                          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                          x-lineageLookupReferenceObject: personal-relationship-types
+                      additionalProperties: false
+                      required:
+                        - id
+                    - type: object
+                      maxProperties: 0
+              additionalProperties: false
+              required:
+                - type
+            - type: object
+              maxProperties: 0
+        status:
+          title: Status
+          description: The status of the relationship (where appropriate).
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Status.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: personal-relationship-statuses
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        startOn:
+          title: Start On
+          description: The date when the relationship started
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+            - type: string
+              maxLength: 0
+        endOn:
+          title: End On
+          description: The date when the relationship ended
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+            - type: string
+              maxLength: 0
+        comment:
+          title: Comment
+          description: Comment on the relationship.
+          type: string
+      required:
+        - id
+        - subjectPerson
+        - relatedPerson
+        - directRelationship
+      additionalProperties: false
+

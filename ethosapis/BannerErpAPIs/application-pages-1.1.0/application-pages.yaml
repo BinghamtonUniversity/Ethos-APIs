@@ -1,0 +1,110 @@
+openapi: 3.0.0
+info:
+  title: Application Pages
+  description: >
+    Retrieves the list of all ERP Administrative and Self-Services pages based
+    on the user's role.
+  version: 1.1.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Foundation
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: application-pages
+paths:
+  /api/application-pages:
+    get:
+      description: >
+        Retrieves the list of all ERP Admin and Self-Services pages based on the
+        user's role.
+      security:
+        - EthosIntegrationBearer: []
+      tags:
+        - application-pages
+      parameters:
+        - name: searchInput
+          in: query
+          description: "Search input string\r
+
+            \r
+
+            <b>/api/application-pages?searchInput={searchInput}</b>"
+          required: true
+          schema:
+            type: string
+          example: 'searchInput=GUACONF'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/application-pages"
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/application-pages"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.1.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    application-pages:
+      type: object
+      properties:
+        caption:
+          type: string
+          description: Page description and acronym in case of Administrative pages. Page
+            name in case of Self-Service applications.
+        page:
+          type: string
+          description: Acronym of the page in case of Administrative pages. Page name in
+            case of Self-Service applications.
+        pageCaption:
+          type: string
+          description: Page description for Administrative pages and Self-Service
+            applications.
+        url:
+          type: string
+          description: URL to navigate to the page.
+        type:
+          type: string
+          description: Type of the page.

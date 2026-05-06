@@ -1,0 +1,334 @@
+openapi: 3.0.0
+info:
+  title: student-search
+  description: This API is used to search for student records based on Student Name or Student ID and retrieve all committees that the student is linked to for examination and progression management purposes.
+  version: 1.1.0
+  x-source-name: SVQ_SPGAW_STUDENT_SEARCH_IN_COMMITTEES_LINKED, SVQ_SPGAW_STUDENT_DETAILS
+  x-source-title: Student Search
+  x-source-system: banner
+  x-api-type: erp
+  x-audience: all
+  x-release-status: ga
+  x-source-domain: Student
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/student-search:
+    get:
+      tags:
+        - student-search
+      summary: Search for student records by ID or Name.
+      description: Filter for specific student records based on Student Name or Student ID and retrieve all committees that the student is linked to including committee member information.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.1.0+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description:  |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 10 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page requested.
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: committeeMemberId
+          in: query
+          description: Committee member ID. The member ID logged into the experience. This parameter is required.
+          required: true
+          schema:
+            type: string
+            maxLength: 9
+          example: "A000897"
+        - name: searchType
+          in: query
+          description: Type of search to perform. Must be either 'id' or 'name'. This parameter is required.
+          required: true
+          schema:
+            type: string
+            enum:
+              - id
+              - name
+          example: "name"
+        - name: search
+          in: query
+          description: Search value to filter results by student ID or student name. Minimum 3 characters required. This parameter is required.
+          required: true
+          schema:
+            type: string
+            minLength: 3
+          example: "Nir"
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+                default: 10
+          content:
+            application/vnd.hedtech.integration.v1.1.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/student-search-1.1.0_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client's preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_STUDENT_SEARCH
+components:
+  schemas:
+    student-search-1.1.0_response:
+      type: object
+      required:
+        - studentId
+        - studentGuid
+        - studentName
+        - level
+      properties:
+        studentId:
+          title: Student ID
+          description: Identification number for a student
+          type: string
+          maxLength: 9
+          x-lineageReferenceObject: SVQ_SPGAW_STUDENT_DETAILS.STUDENT_ID
+          example: "A00309425"
+        studentGuid:
+          title: Student GUID
+          description: Global unique identifier for the student
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          maxLength: 36
+          x-lineageReferenceObject: GORGUID.GORGUID_GUID
+          example: "0cfeaf1e-e5bb-47ab-9c0e-af96e5a93c6f"
+        studentName:
+          title: Student Name
+          description: Full name of the student
+          type: string
+          maxLength: 250
+          x-lineageReferenceObject: SVQ_SPGAW_STUDENT_DETAILS.STUDENT_NAME
+          example: "Duncan Newman"
+        program:
+          title: Program Code
+          description: Academic program code associated to a student curriculum record
+          type: string
+          maxLength: 6
+          x-lineageReferenceObject: SVQ_SPGAW_STUDENT_DETAILS.PROGRAM
+          example: "BA-ARTS"
+        programDescription:
+          title: Program Description
+          description: Description of the academic program
+          type: string
+          maxLength: 120
+          x-lineageReferenceObject: SVQ_SPGAW_STUDENT_DETAILS.PROGRAM_DESCRIPTION
+          example: "Bachelors in Fine Arts"
+        level:
+          title: Level Code
+          description: Academic level code associated with the student record
+          type: string
+          maxLength: 2
+          x-lineageReferenceObject: SVQ_SPGAW_STUDENT_DETAILS.LEVEL_CODE
+          x-lineageLookupReferenceObject: STVLEVL
+          example: "UG"
+        levelDescription:
+          title: Level Description
+          description: Description of the academic level
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: SVQ_SPGAW_STUDENT_DETAILS.LEVEL_DESCRIPTION
+          example: "Undergraduate"
+        studyPathNumber:
+          title: Study Path Number
+          description: Study path key sequence number stored against a program
+          type: integer
+          x-lineageReferenceObject: SVQ_SPGAW_STUDENT_DETAILS.STUDY_PATH_NUMBER
+          example: 1
+        stageNumbers:
+          title: Stage Numbers
+          description: Collection of stage numbers for which the student has been evaluated for a program
+          type: array
+          items:
+            type: integer
+          x-lineageReferenceObject: SVQ_STAGE_PROGRESSION.STAGE_NUMBER
+          example: [1, 2]
+        committees:
+          title: Committees
+          description: List of committees that the student is linked to
+          type: array
+          items:
+            type: object
+            required:
+              - committeeCode
+              - examBoardDate
+            properties:
+              committeeCode:
+                title: Committee Code
+                description: Code identifying the exam committee
+                type: string
+                maxLength: 6
+                x-lineageReferenceObject: SVQ_SPGAW_STUDENT_SEARCH_IN_COMMITTEES_LINKED.COMMITTEE_CODE
+                x-lineageLookupReferenceObject: STVCOMT
+                example: "ARTCOM"
+              committeeDescription:
+                title: Committee Description
+                description: Description of the exam committee
+                type: string
+                maxLength: 30
+                x-lineageReferenceObject: SVQ_SPGAW_STUDENT_SEARCH_IN_COMMITTEES_LINKED.COMMITTEE_DESCRIPTION
+                example: "Arts Committee"
+              examBoardDate:
+                title: Exam Board Date
+                description: Date on which the exam board is initiated
+                type: string
+                format: date-time
+                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                x-lineageReferenceObject: SVQ_SPGAW_STUDENT_SEARCH_IN_COMMITTEES_LINKED.EXAM_BOARD_DATE
+                example: "2022-08-19T18:30:00Z"
+              stageNumber:
+                title: Stage Number
+                description: Stage number for which the student has been assessed
+                type: integer
+                x-lineageReferenceObject: SVQ_SPGAW_STUDENT_SEARCH_IN_COMMITTEES_LINKED.STAGE_NUMBER
+                example: 1
+              anonymous:
+                title: Anonymous
+                description: Indicator if the committee code is anonymous or not
+                type: boolean
+                x-lineageReferenceObject: SVQ_SPGAW_STUDENT_SEARCH_IN_COMMITTEES_LINKED.ANONYMOUS_IND
+                example: true
+              isMember:
+                title: Is Member
+                description: Indicator if the logged in committee is a member for the committee code
+                type: boolean
+                x-lineageReferenceObject: SHRCOMM.SHRCOMM_PIDM_MEMBER
+                example: true
+          x-lineageReferenceObject: DERIVED_FIELD (Transient)
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

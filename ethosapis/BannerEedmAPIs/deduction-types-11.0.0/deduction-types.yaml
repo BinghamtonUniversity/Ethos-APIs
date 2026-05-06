@@ -1,0 +1,319 @@
+openapi: 3.0.0
+info:
+  title: Deduction Types
+  description: Information on types of deduction.
+  version: "11.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Human Resources
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/deduction-types:
+    get:
+      summary: Return all resources from PTRBDCA
+      description: Returns a paged listing of all the deduction type records from
+        PTRBDCA table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PAYROLL_DEDUCTION_TYPES
+      tags:
+        - deduction-types
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-deduction-types.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/deduction-types/{id}:
+    get:
+      summary: Return the requested resource from PTRBDCA
+      description: Return the one resource with the passed in identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PAYROLL_DEDUCTION_TYPES
+      tags:
+        - deduction-types
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Deduction Types for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v11+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-deduction-types.json"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-deduction-types.json:
+      title: Deduction Types
+      description: Information on types of deduction.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the deduction type.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: PTRBDCA_GUID(PTRBDCA)
+        title:
+          title: Title
+          description: The full name of the deduction type.
+          type: string
+          minLength: 1
+          x-lineageReferenceObject: PTRBDCA_LONG_DESC(PTRBDCA)
+        description:
+          title: Description
+          description: The description of the deduction type.
+          type: string
+          x-lineageReferenceObject: unsupported
+        code:
+          title: Code
+          description: A code that may be used to identify the deduction type.
+          type: string
+          x-lineageReferenceObject: PTRBDCA_CODE(PTRBDCA)
+        category:
+          title: Category
+          description: The category of deduction associated with the deduction type (e.g.
+            dental plans, garnishments, education plans, etc.).
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Category.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: deduction-categories 
+                  x-lineageReferenceObject: PTRBDCA_BDTY_CODE(PTRBDCA)
+                  x-lineageDerivedLogic: A record in PTVBDTY WHERE PTVBDTY_CODE = PTRBDCA_BDTY_CODE.
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        costCalculationMethod:
+          title: Cost Calculation Method
+          description: The cost calculation method associated with the deduction type
+            (e.g. percentage, fixed amount, etc.).
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Cost Calculation Method.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: cost-calculation-methods 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = cost-calculation-methods) 
+              x-lineageDerivedLogic: A record in GORGUID WHERE GORGUID_LDM_NAME = 'cost-calculation-methods' AND GORGUID_DOMAIN_SURROGATE_ID = PTRBDCA_CALC_RULE.
+          additionalProperties: false
+          required:
+            - id
+        parentType:
+          title: Parent Type
+          description: The deduction type that is one level higher in deduction hierarchy.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Parent Type.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: deduction-types 
+                  x-lineageReferenceObject: unsupported
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        withholdingFrequency:
+          title: Withholding Frequency
+          description: The withholding frequency associated with the deduction type.
+          type: object
+          properties:
+            cyclesPerYear:
+              title: Cycles Per Year
+              description: The number of cycles per year.
+              x-lineageReferenceObject: unsupported
+              oneOf:
+                - type: integer
+                - type: string
+                  nullable: true
+            payrollPeriods:
+              title: Payroll Periods
+              description: The payroll periods in which the deduction type can be withheld.
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: Display an array with list if PTRBDCA_WEEK1_IND = 'Y' then display 'periodOne'. If PTRBDCA_WEEK2_IND = 'Y' then display 'periodTwo'. If PTRBDCA_WEEK3_IND = 'Y' then display 'periodThree'. If PTRBDCA_WEEK4_IND = 'Y' 'then display 'periodFour'. If PTRBDCA_WEEK5_IND = 'Y' then display 'periodFive'.
+              type: array
+              items:
+                enum:
+                  - periodOne
+                  - periodTwo
+                  - periodThree
+                  - periodFour
+                  - periodFive
+                type: string
+          additionalProperties: false
+        taxApplication:
+          title: Tax Application
+          description: An indicator if the deduction should be applied before or after
+            taxes are withheld.
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: Based on the logic Select distinct('preTax'), D.PTRBDCA_CODE from PTRBDCA D, PTRBDCA T, PXRTXCD, PTRBDXD where PTRBDXD_BDCA_CODE = D.PTRBDCA_CODE AND
+            PTRBDXD_CODE = T.PTRBDCA_CODE AND T.PTRBDCA_TXCD_CODE = PXRTXCD_CODE AND PXRTXCD_TAX_TYPE = 'F' and D.PTRBDCA_CODE = :BDCA_CODE of the record being reported; 
+            or Select distinct('postTax'), D.PTRBDCA_CODE from PTRBDCA D, PTRBDCA T, PXRTXCD, PTRBDID where PTRBDID_BDCA_CODE = D.PTRBDCA_CODE AND
+            PTRBDID_CODE = T.PTRBDCA_CODE AND T.PTRBDCA_TXCD_CODE = PXRTXCD_CODE AND PXRTXCD_TAX_TYPE = 'F' and D.PTRBDCA_CODE = :BDCA_CODE of the record being reported.
+            If only preTax is returned then display 'preTax';If only postTax is returned then display 'postTax'.
+            If both preTax and postTax are returned or if neither preTax nor postTax are returned then display no enumeration.
+          oneOf:
+            - type: string
+              enum:
+                - postTax
+                - preTax
+            - type: string
+              maxLength: 0
+      required:
+        - id
+        - title
+        - costCalculationMethod
+      additionalProperties: false

@@ -1,0 +1,739 @@
+openapi: 3.0.0
+info:
+  title: Employees
+  description: >
+    A detailed information about persons employed in the institution. Before a
+    person can be assigned to a position or a job in Banner, they must first be
+    established as an employee.  The employee role for a person record is
+    assigned when information is entered into the PEBEMPL table (through either
+    the PEAHIRE or  PEAEMPL forms).
+  version: "12.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Human Resources
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: employees
+paths:
+  /api/employees:
+    get:
+      summary: Returns resources from PEBEMPL
+      description: Returns all the employee records from PEBEMPL table for
+        PEBEMPL_INTERNAL_FT_PT_IND(Internal Part Time/Full Time Indicator) = 'F'
+        or 'P'. The API excludes the records with PEBEMPL_INTERNAL_FT_PT_IND = O
+        (Other).
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EMPLOYEES
+      tags:
+        - employees
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v12+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Person  
+
+            Returns all employees for the given person
+
+            ```
+
+            /employees?criteria={"person":{"id":"ed3ebe29-e501-4917-92f9-59b202b482aa"}}
+
+            ```
+
+            ### Campus  
+
+            Returns all employees for the given campus
+
+            ```
+
+            /employees?criteria={"campus":{"id":"b1156e7a-cea5-4e24-9fa2-bf8a367f2c61"}}
+
+            ```
+
+            ### Contract Type  
+
+            Returns all employees for the given contract
+
+            ```
+
+            /employees?criteria={"contract":{"type":"fullTime"}}
+
+            ```
+
+            ### Status  
+
+            Returns all employees for the given status
+
+            ```
+
+            /employees?criteria={"status":"terminated"}
+
+            ```
+
+            ### Start On  
+
+            Returns all employees for the given startOn
+
+            ```
+
+            /employees?criteria={"startOn":"2003-04-25"}
+
+            ```
+
+            ### End On  
+
+            Returns all employees for the given endOn
+
+            ```
+
+            /employees?criteria={"endOn":"2019-02-02"}
+
+            ```
+
+            ### Contract Detail  
+
+            Not Supported
+
+            ```
+
+            /employees?criteria={"contract":{"detail":$detail}}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-employees.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v12+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new resource in PEBEMPL
+      description: >
+        POST requests must include a nil GUID value
+        ("00000000-0000-0000-0000-000000000000") for the root id property.
+
+
+        Creates an employee record in PEBEMPL table with a POST request.
+
+
+        Note:
+
+
+        - The API creates an employee record only if the person id sent in request has the following data - At least one address, First name, SSN/SIN, Gender, Date of Birth, Ethnicity
+
+        - For a POST request with contract.type = contractual, the API rejects the request as only contract.type of fullTime and partTime are supported.
+
+        - The API only supports the POST request with status=active to create an employee record.
+
+        - The API does not support leave processing currently and if any POST requests with status=leave is sent will be rejected.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EMPLOYEES
+      tags:
+        - employees
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v12+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v12+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v12+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v12+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-employees.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-employees.json"
+  /api/employees/{id}:
+    get:
+      summary: Return the requested resource from PEBEMPL
+      description: >
+        Returns an employee record from PEBEMPL table with
+        PEBEMPL_INTERNAL_FT_PT_IND(Internal Part Time/Full Time Indicator) = 'F'
+        or 'P' with the passed in identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EMPLOYEES
+      tags:
+        - employees
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v12+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v12+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v12+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-employees.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    put:
+      summary: Update the requested resource from PEBEMPL
+      description: >
+        An employee will be updated in PEBEMPL table with a PUT request with the
+        passed in identifier.
+
+
+        Note:
+
+
+        - The API does not support leave processing currently and if any PUT requests with status=leave is sent will be rejected.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EMPLOYEES
+      tags:
+        - employees
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Employees for use in all external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v12+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v12+json 
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v12+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v12+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-employees.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-employees.json"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-employees.json:
+      title: Employees
+      description: Information about persons employed in the institution.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the employee.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: PEBEMPL_GUID(PEBEMPL)
+        person:
+          title: Person
+          description: A reference to link an employee to the common persons entity.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Person.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+              x-lineageDerivedLogic: A record from GORGUID where GORGUID_LDM_NAME = 'persons' and GORGUID_DOMAIN_KEY matches the PEBEMPL_PIDM value
+          additionalProperties: false
+          required:
+            - id
+        campus:
+          title: Campus
+          description: The physical location assigned to an employee.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Campus.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: sites 
+                  x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = campuses) 
+                  x-lineageDerivedLogic: A record from GORGUID where GORGUID_LDM_NAME = 'campuses' and GORGUID_DOMAIN_KEY matches the PEBEMPL_CAMP_CODE  value
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        homeOrganization:
+          title: Home Organization
+          description: The home organization of the employee.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Home Organization.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: employment-organizations 
+                  x-lineageReferenceObject: PEBEMPL_COAS_CODE_HOME or PEBEMPL_ORGN_CODE_HOME(PEBEMPL)
+                  x-lineageDerivedLogic: If Banner Finance module is installed, fetch the FTVORGN record which corrresponds to PEBEMPL_COAS_CODE_HOME and PEBEMPL_ORGN_CODE_HOME. 
+                    For these codes, fetch the record from GTVORID and then display the GTVORID_ORGN_GUID from the fetched record.
+                    If Banner Finance module is not installed, fetch the PTVORGN record which corrresponds to PEBEMPL_COAS_CODE_HOME. 
+                    For this code, fetch the record from GTVORID and then display the GTVORID_ORGN_GUID from the fetched record."
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        contract:
+          title: Contract
+          description: The detail associated with the contract.
+          type: object
+          properties:
+            type:
+              title: Type
+              description: The type of employment (e.g. full-time, part-time or contractual).
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: Display as 'fullTime' if PEBEMPL_INTERNAL_FT_PT_IND = 'F', if PEBEMPL_INTERNAL_FT_PT_IND = 'P' then display 'partTime' and if PEBEMPL_INTERNAL_FT_PT_IND = 'O' then this record should not displayed.
+              enum:
+                - fullTime
+                - partTime
+                - contractual
+              type: string
+            detail:
+              title: Detail
+              description: The user defined contract of the employee.
+              oneOf:
+                - type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Detail.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: contract-types 
+                      x-lineageReferenceObject: unsupported
+                  additionalProperties: false
+                  required:
+                    - id
+                - type: object
+                  maxProperties: 0
+          additionalProperties: false
+          required:
+            - type
+        payClass:
+          title: Pay Class
+          description: The classification assigned to the employee, or their primary job,
+            that may impact payroll processing such as time entry methods,
+            earning types and pay periods.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Pay Class.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: pay-classes 
+                  x-lineageReferenceObject: PEBEMPL_ECLS_CODE(PEBEPML)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        payStatus:
+          title: Pay Status
+          description: The pay status of the employee (e.g. with pay, without pay or
+            partial pay).
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: If PEBEMPL_EMPL_STATUS in ('A','F') then display as 'withPay', if PEBEMPL_EMPL_STATUS in ('B','L') then display as 'withoutPay' or if PEBEMPL_EMPL_STATUS = 'P' then display as 'partialPay'.
+          oneOf:
+            - type: string
+              enum:
+                - withPay
+                - withoutPay
+                - partialPay
+            - type: string
+              maxLength: 0
+        benefitsStatus:
+          title: Benefits Status
+          description: The benefits status of the employee (e.g. with or without benefits).
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: If PEBEMPL_EMPL_STATUS in ('B','F','P') then display as 'withBenefits', if PEBEMPL_EMPL_STATUS = 'L' then display as 'withoutBenefits' and if PEBEMPL_EMPL_STATUS = 'A' then 'benefitStatus' property is not displayed.
+          oneOf:
+            - type: string
+              enum:
+                - withBenefits
+                - withoutBenefits
+            - type: string
+              maxLength: 0
+        hoursPerPeriod:
+          title: Hours Per Period
+          description: The number of hours worked per period.
+          type: array
+          items:
+            type: object
+            properties:
+              period:
+                title: Period
+                description: The time period for which working hours are considered.
+                x-lineageReferenceObject: unsupported
+                enum:
+                  - day
+                  - week
+                  - month
+                  - year
+                  - payPeriod
+                type: string
+              hours:
+                title: Hours
+                description: The number of hours worked per period.
+                minimum: 0
+                type: number
+                format: positiveNumber
+                x-lineageReferenceObject: unsupported
+            additionalProperties: false
+            required:
+              - period
+              - hours
+        status:
+          title: Status
+          description: The employment status (e.g. active, terminated or on leave).
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: if PEBEMPL_EMPL_STATUS = 'A' then display as 'active', if PEBEMPL_EMPL_STATUS = 'T' then display as 'terminated' and if PEBEMPL_EMPL_STATUS in ('B','L','P','F') then display as 'leave'.
+          enum:
+            - active
+            - terminated
+            - leave
+          type: string
+        startOn:
+          title: Start On
+          description: The first date of employment.
+          type: string
+          format: date
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+          x-lineageReferenceObject: PEBEMPL_CURRENT_HIRE_DATE(PEBEMPL)
+        endOn:
+          title: End On
+          description: The last date of employment.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: PEBEMPL_TERM_DATE(PEBEMPL)
+            - type: string
+              maxLength: 0
+        terminationReason:
+          title: Termination Reason
+          description: The reason for employment termination.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Termination Reason.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: employment-termination-reasons 
+                  x-lineageReferenceObject: PEBEMPL_TREA_CODE(PEAEMPL)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        rehireableStatus:
+          title: Rehireable Status
+          description: The eligibility status for being rehired.
+          oneOf:
+            - type: object
+              properties:
+                eligibility:
+                  title: Eligibility
+                  description: The eligibility status for being rehired.
+                  x-lineageReferenceObject: unsupported
+                  enum:
+                    - eligible
+                    - ineligible
+                  type: string
+                type:
+                  title: Type
+                  description: The type of rehire.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Type.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: rehire-types 
+                      x-lineageReferenceObject: unsupported
+                  additionalProperties: false
+                  required:
+                    - id
+              additionalProperties: false
+              required:
+                - eligibility
+                - type
+            - type: object
+              maxProperties: 0
+        leaveReason:
+          title: Leave Reason
+          description: The reason for leave of absence.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Leave Reason.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: employment-leave-of-absence-reasons 
+                  x-lineageReferenceObject: PEBEMPL_LREA_CODE(PEAEMPL)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+      required:
+        - id
+        - person
+        - contract
+        - status
+        - startOn
+      additionalProperties: false

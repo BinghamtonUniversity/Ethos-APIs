@@ -1,0 +1,768 @@
+openapi: 3.0.0
+info:
+  title: Schedule Term Controls
+  description: >
+  
+      This API returns term-based schedule controls that impact creation and management of course sections.
+
+      
+      Returned controls include last CRN sequence number, instructional method override control, part of term 
+      configurations, part of term final exam dates, open learning registration defaults, open learning 
+      registration status date defaults, open learning extension rule defaults, and open learning registration 
+      refunding rule defaults.
+
+  version: 1.0.0-beta
+  x-api-type: erp
+  x-release-status: beta
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Student
+  x-source-name: SOATERM, SOAFNDT, SOAORUL
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /qapi/schedule-term-controls:
+    post:
+      tags:
+      - schedule-term-controls QAPI
+      summary: Returns resources from SOBTERM, SORRTRO, SOBPTRM, SORFNPT, SOBODTE, SORRSTS, SORRFND, SOREXTN.
+      description: >
+        Queries for the requested resource using a set of attributes provided in the post
+        request body.  Please note the path to the server is overridden to use /qapi/{resource} 
+        in the URL and not /api/{resource}.
+        
+        
+        Returns term-based scheduling controls from SOBTERM, SOBPTRM, SOBODTE, SORRSTS, SOREXTN, and SORRFND.
+          
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string            
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schedule-term-controls-1.0.0_qapi_post_request"
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/schedule-term-controls-1.0.0_qapi_post_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client's preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: "API_SCHEDULE_TERM_CONTROLS"
+components:
+  schemas:
+    schedule-term-controls-1.0.0_qapi_post_request:
+      type: object
+      required:
+        - queryTerm        
+      properties:                    
+        queryTerm:
+          title: Query Term
+          maxLength: 6
+          type: string
+          description: "A user provided value. The query term code is used to retrieve the schedule controls that are equal to the provided value."
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202201    
+    schedule-term-controls-1.0.0_qapi_post_response:
+      type: object
+      required:
+        - queryTerm    
+        - lastCrnSequenceNumber 
+      properties:
+        queryTerm:
+          title: Query Term
+          maxLength: 6
+          type: string
+          description: "A user provided value. The query term code is used to retrieve the schedule controls that are equal to the provided value."
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202201  
+        lastCrnSequenceNumber:
+          title: Last CRN Sequence Number
+          maxLength: 5
+          type: number
+          description: "The last Course Reference Number (CRN) generated by the system."
+          x-lineageReferenceObject: SOBTERM_CRN_ONEUP
+          example: 30003
+        allowInstructionalMethodChange:
+          title: Instructional Method Change Indicator
+          type: boolean
+          description: "Indicates whether the instructional method on sections may be changed when registrations exist."
+          x-lineageReferenceObject: SORRTRO_INSM_REG_OVERRIDE_IND
+          example: true         
+        partofTermConfigurations:
+          title: Part of Term Configurations
+          type: array
+          items:
+            type: object
+            required:
+              - partOfTerm
+              - startOn
+              - endOn               
+            properties:   
+              partOfTerm:
+                title: Part of Term Code
+                type: string
+                maxLength: 3
+                description: "The configured part of term code."
+                x-lineageReferenceObject: SOBPTRM_PTRM_CODE
+                x-lineageReferenceLookUpObject: STVPTRM
+                example: BL 
+              partOfTermDescription:
+                title: Part of Term Code Description
+                type: string
+                maxLength: 30
+                description: "Description of the part of term code."
+                x-lineageReferenceObject: STVPTRM_DESC
+                example: Blended
+              startOn:
+                title: Start Date
+                type: string
+                format: date
+                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                description: "Part of term start date."
+                x-lineageReferenceObject: SOBPTRM_START_DATE
+                example: 2024-09-05    
+              endOn:
+                title: End Date
+                type: string
+                format: date
+                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                description: "Part of term end date."
+                x-lineageReferenceObject: SOBPTRM_END_DATE
+                example: 2024-12-10
+              numberOfWeeks:
+                title: Weeks
+                type: number
+                maxLength: 3
+                description: "Length of the part of term in weeks."
+                x-lineageReferenceObject: SOBPTRM_WEEKS
+                example: 52   
+              censusOneOn:
+                title: Census Date One
+                type: string
+                format: date
+                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                description: "The date that census one enrollment is calculated for the part of term."
+                x-lineageReferenceObject: SOBPTRM_CENSUS_DATE
+                example: 2024-06-01  
+              censusTwoOn:
+                title: Census Date Two
+                type: string
+                format: date
+                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                description: "The date that census two enrollment is calculated for the part of term."
+                x-lineageReferenceObject: SOBPTRM_CENSUS_2_DATE
+                example: 2024-07-01
+              incompleteDefaultGradeAppliedOn:
+                title: Incomplete Default Extension Date 
+                type: string
+                format: date
+                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                description: "The date when incomplete final grades are eligible to replace final grades during automated incomplete grade processing. This date serves as a default date when incomplete grades are assigned to a student."
+                x-lineageReferenceObject: SOBPTRM_INCOMPLETE_EXT_DATE
+                example: 2024-11-07 
+              allowDateOverrideOnSection:
+                title: Section Override Indicator
+                type: boolean
+                description: "Indicates whether the start and end dates and census one and two freeze dates can be updated on the section for the part of term."
+                x-lineageReferenceObject: SOBPTRM_SECT_OVER_IND
+                example: true
+              isFacultyMidTermGradeWorksheetAccessible:
+                title: Mid Term Grade Worksheet 
+                type: boolean
+                description: "Indicates whether mid-term grades are displayed on Web pages in Faculty and Advisors Self-Service."
+                x-lineageReferenceObject: SOBPTRM_MGRD_WEB_UPD_IND
+                example: true
+              isFacultyFinalGradeWorksheetAccessible:
+                title: Final Grade Worksheet 
+                type: boolean
+                description: "Indicates whether final grades are displayed on Web pages in Faculty and Advisors Self-Service."
+                x-lineageReferenceObject: SOBPTRM_FGRD_WEB_UPD_IND
+                example: true
+              isFacultyWaitLstDisplayAccessible:
+                title: Wait List Display 
+                type: boolean
+                description: "Indicates whether waitlist information is displayed on Web pages in Faculty and Advisors Self-Service."
+                x-lineageReferenceObject: SOBPTRM_WAITLST_WEB_DISP_IND
+                example: true
+              enrollmentEndOn:
+                title: Last Date To Enroll 
+                type: string
+                format: date
+                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                description: "Last date on which students can enroll for sections in the part of term."
+                x-lineageReferenceObject: SOBPTRM_ENRL_CUTOFF_DATE
+                example: 2024-12-10
+              refundEndOn:
+                title: Last Date For Refund 
+                type: string
+                format: date
+                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                description: "Last date students can drop and receive a refund on sections in the part of term."
+                x-lineageReferenceObject: SOBPTRM_REFUND_CUTOFF_DATE
+                example: 2024-12-10
+              withdrawalWithoutAcademicHistoryEndOn:
+                title: Last Date To Record Academic History 
+                type: string
+                format: date
+                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                description: "Last date on which a student can withdraw from section without it appearing in academic history."
+                x-lineageReferenceObject: SOBPTRM_ACAD_CUTOFF_DATE
+                example: 2024-12-10     
+              dropWithoutPenaltyEndOn:
+                title: Last Date To Drop Without Penalty 
+                type: string
+                format: date 
+                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                description: "Last date on which a student can drop the section without being assessed a failing grade penalty."
+                x-lineageReferenceObject: SOBPTRM_DROP_CUTOFF_DATE
+                example: 2024-12-10          
+              modifiedOn:
+                title: Modified On
+                maxLength: 11
+                type: string
+                format: date-time
+                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                description: "Most current date the record was created or changed."
+                x-lineageReferenceObject: SOBPTRM_ACTIVITY_DATE
+                example: 2024-05-05T04:00:00Z   
+              modifiedBy:
+                title: Modified By User ID
+                maxLength: 30
+                type: string
+                description: "User who inserted or last updated the data."
+                x-lineageReferenceObject: SOBPTRM_USER_ID
+                example: SYSTEST08
+              finalExam:
+                title: Final Exam Dates
+                type: object
+                required: 
+                  - startOn
+                  - endOn
+                properties:
+                  startOn:
+                    title: Final Exam Start Date
+                    type: string
+                    format: date
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                    description: "Part of term final exam start date."
+                    x-lineageReferenceObject: SORFNPT_START_DATE
+                    example: 2022-12-01
+                  endOn:
+                    title: Final Exam End Date
+                    type: string
+                    format: date
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                    description: "Part of term final exam end date. "
+                    x-lineageReferenceObject: SORFNPT_START_DATE
+                    example: 2022-12-13
+                  modifiedOn:
+                    title: Modified On
+                    type: string
+                    maxLength: 11
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SORFNPT_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z   
+                  modifiedBy:
+                    title: Modified By User ID
+                    type: string
+                    maxLength: 30
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SORFNPT_USER_ID
+                    example: SYSTEST08
+        openLearningDefaults:
+          title: Open Learning Default Rules
+          description: "The rules that default for all sections configured as open learning registration (OLR)."
+          type: array
+          items:
+            type: object
+            required:
+              - registrationDates
+              - startOn
+              - endOn               
+            properties:   
+              sectionRegistrationRules:
+                title: Section Registration Date Default Rules
+                type: array
+                items:
+                  type: object
+                  required: 
+                    - instructionalMethod
+                    - registrationStartOn
+                    - registrationEndOn                
+                  properties:
+                    college:
+                      title: College Code
+                      type: string
+                      maxLength: 2
+                      description: "Course college code for the rule."
+                      x-lineageReferenceObject: SOBODTE_COLL_CODE
+                      x-lineageReferenceLookupObject: STVCOLL
+                      example: AG
+                    collegeDescription:
+                      title: College Code Description
+                      maxLength: 30
+                      type: string
+                      description: "Description of the college code."
+                      x-lineageReferenceObject: STVCOLL_DESC
+                      example: College of Agriculture
+                    campus:
+                      title: Campus Code
+                      type: string
+                      maxLength: 3
+                      description: "Section campus code for the rule."
+                      x-lineageReferenceObject: SOBODTE_CAMP_CODE
+                      x-lineageReferenceLookupObject: STVCAMP
+                      example: M
+                    campusDescription:
+                      title: Campus Code Description
+                      maxLength: 30
+                      type: string
+                      description: "The description of the campus code."
+                      x-lineageReferenceObject: STVCAMP_DESC
+                      example: Main                        
+                    instructionalMethod:
+                      title: Instructional Method
+                      type: string
+                      maxLength: 5
+                      description: "Section instructional method code for the rule."
+                      x-lineageReferenceObject: SOBODTE_INSM_CODE
+                      x-lineageReferenceLookupObject: GTVINSM
+                      example: CLASS
+                    instructionalMethodDescription:
+                      title: Instructional Method Code Description
+                      maxLength: 30
+                      type: string
+                      description: "Description of the instructional method code."
+                      x-lineageReferenceObject: GTVINSM_DESC            
+                      example: Classroom Based                         
+                    department:
+                      title: Department Code
+                      type: string
+                      maxLength: 4
+                      description: "Course department code for the rule."
+                      x-lineageReferenceObject: SOBODTE_DEPT_CODE
+                      x-lineageReferenceLookupObject: STVDEPT
+                      example: ENG
+                    departmentDescription:
+                      title: Department Code Description
+                      maxLength: 30
+                      type: string
+                      description: "Description of the department code."
+                      x-lineageReferenceObject: STVDEPT_DESC
+                      example: English                        
+                    scheduleType:
+                      title: Schedule Type Code
+                      type: string
+                      maxLength: 3
+                      description: "Section schedule type code for the rule."
+                      x-lineageReferenceObject: SOBODTE_SCHD_CODE
+                      x-lineageReferenceLookupObject: STVSCHD
+                      example: LR
+                    scheduleTypeDescription:
+                      title: Schedule Type Code Description
+                      maxLength: 30
+                      type: string
+                      description: "Description of the schedule type code."
+                      x-lineageReferenceObject: STVSCHD_DESC            
+                      example: Lecture with Recitation                         
+                    registrationStartOn:
+                      title: Registration Start Date
+                      type: string
+                      format: date
+                      pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                      description: "First date registration is open to students."
+                      x-lineageReferenceObject: SOBODTE_REG_START_DATE
+                      example: 2024-05-15
+                    registrationEndOn:
+                      title: Registration End Date
+                      type: string
+                      format: date
+                      pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                      description: "Last date registration is open to students."
+                      x-lineageReferenceObject: SOBODTE_REG_END_DATE
+                      example: 2024-06-01
+                    censusOneOn:
+                      title: Census Date One
+                      type: string
+                      format: date
+                      pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                      description: "Census one date for the rule."
+                      x-lineageReferenceObject: SOBODTE_CENSUS_DATE_ONE
+                      example: 2024-10-01
+                    censusTwoOn:
+                      title: Census Date Two
+                      type: string
+                      format: date
+                      pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                      description: "Census two date for the rule."
+                      x-lineageReferenceObject: SOBODTE_CENSUS_DATE_TWO
+                      example: 2024-10-01
+                    allowDateOverrideOnSection:
+                      title: Override Indicator
+                      type: boolean
+                      description: "Indicates wheather a user can override the start and end dates for a section."
+                      x-lineageReferenceObject: SOBODTE_OVERRIDE_IND
+                      example: true
+                    modifiedOn:
+                      title: Modified On
+                      maxLength: 11
+                      type: string
+                      format: date-time
+                      pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                      description: "Most current date the record was created or changed."
+                      x-lineageReferenceObject: SOBODTE_ACTIVITY_DATE
+                      example: 2024-05-05T04:00:00Z   
+                    modifiedBy:
+                      title: Modified By User ID
+                      maxLength: 30
+                      type: string
+                      description: "User who inserted or last updated the data."
+                      x-lineageReferenceObject: SOBODTE_USER_ID
+                      example: SYSTEST08 
+                    registrationStatuses:
+                      title: Registration Status defaults
+                      type: array
+                      items:
+                        type: object
+                        required:
+                          - registrationStatus             
+                        properties:   
+                          registrationStatus:
+                            title: Registration Status Code
+                            type: string
+                            maxLength: 2
+                            description: "Registration status code is associated with the identifying criteria for the rule."
+                            x-lineageReferenceObject: SORRSTS_RSTS_CODE
+                            x-lineageReferenceLookUpObject: STVRSTS
+                            example: 1D
+                          registrationStatusDescription: 
+                            title: Registration Status Code Description
+                            maxLength: 30
+                            type: string
+                            description: "Description of the registration status code."
+                            x-lineageReferenceObject: STVRSTS_DESC
+                            example: Drop/Delete                            
+                          usageCutoffPercentFrom:
+                            title: Usage Cutoff Percent From
+                            type: number
+                            maxLength: 3
+                            description: "Minimum student's completion percentage for use of registration status."
+                            x-lineageReferenceObject: SORRSTS_USAGE_CUTOFF_PCT_FROM
+                            example: 20
+                          usageCutoffPercentTo:
+                            title: Usage Cutoff Percent To
+                            type: number
+                            maxLength: 3
+                            description: "Maximum student's completion percentage for use of registration status."
+                            x-lineageReferenceObject: SORRSTS_USAGE_CUTOFF_PCT_TO
+                            example: 20 
+                          canBeOverwrittenByStudentEnrollmentStatus:
+                            title: Effect by Student Status Indicator
+                            type: boolean
+                            description: "Indicates registration status code can be overwritten by a student enrollment status code."
+                            x-lineageReferenceObject: SORRSTS_EFF_BY_STU_STAT_IND
+                            example: true
+                          modifiedOn:
+                            title: Modified On
+                            maxLength: 11
+                            type: string
+                            format: date-time
+                            pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                            description: "Most current date the record was created or changed."
+                            x-lineageReferenceObject: SORRSTS_ACTIVITY_DATE
+                            example: 2024-05-05T04:00:00Z   
+                          modifiedBy:
+                            title: Modified By User ID
+                            maxLength: 30
+                            type: string
+                            description: "User who inserted or last updated the data."
+                            x-lineageReferenceObject: SORRSTS_USER_ID
+                            example: SYSTEST08    
+                          refundingRules:
+                            title: Refunding Rule Defaults
+                            type: array
+                            items:
+                              type: object
+                              required:
+                                - sectionPercentageComplete 
+                                - allowOverrideOnSection                                          
+                              properties:   
+                                sectionPercentageComplete:
+                                  title: Refund Percentage Complete
+                                  type: number
+                                  maxLength: 3
+                                  description: "Student's completion percentage used to calculate refund."
+                                  x-lineageReferenceObject: SORRFND_REFUND_PCT_COMPLETE
+                                  example: 70          
+                                tuitionRefundPercentage:
+                                  title: Tuition Refund Percentage
+                                  type: number
+                                  maxLength: 3
+                                  description: "Percentage of tuition refund."
+                                  x-lineageReferenceObject: SORRFND_TUITION_REFUND_PCT
+                                  example: 30
+                                feeRefundPercentage:
+                                  title: Fee Refund Percentage
+                                  type: number
+                                  maxLength: 3
+                                  description: "Percentage of fee refund."
+                                  x-lineageReferenceObject: SORRFND_FEE_REFUND_PCT
+                                  example: 30
+                                extensionFeeRefundPercentage:
+                                  title: Extension Refund Percentage
+                                  type: number
+                                  maxLength: 3
+                                  description: "Percentage of extension refund."
+                                  x-lineageReferenceObject: SORRFND_EXTENSION_REFUND_PCT
+                                  example: 30
+                                allowOverrideOnSection:
+                                  title: Override indicator
+                                  type: boolean
+                                  description: "Indicates wheather configuration may be changed at the section level."
+                                  x-lineageReferenceObject: SORRFND_OVERRIDE_IND
+                                  example: true
+                                modifiedOn:
+                                  title: Modified On
+                                  maxLength: 11
+                                  type: string
+                                  format: date-time
+                                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                                  description: "Most current date the record was created or changed."
+                                  x-lineageReferenceObject: SORRFND_ACTIVITY_DATE
+                                  example: 2024-05-05T04:00:00Z   
+                                modifiedBy:
+                                  title: Modified By User ID
+                                  maxLength: 30
+                                  type: string
+                                  description: "User who inserted or last updated the data."
+                                  x-lineageReferenceObject: SORRFND_USER_ID
+                                  example: SYSTEST08 
+                          extensionRules:
+                            title: Extension Processing Defaults 
+                            type: array
+                            items:
+                              type: object
+                              required:
+                                - extensionPercentage
+                                - feeAmount       
+                              properties:   
+                                extensionPercentage:
+                                  title: Extension Percentage
+                                  type: number
+                                  maxLength: 3
+                                  description: "Percentage of  time student's registration will be extended based on the duration and duration unit assigned to the original registration."
+                                  x-lineageReferenceObject: SOREXTN_EXTENSION_PCT
+                                  example: 80 
+                                detailCode:
+                                  title: Detail Code
+                                  type: string
+                                  maxLength: 4
+                                  description: "Detail code used to assess extension fees."
+                                  x-lineageReferenceObject: SOREXTN_DETAIL_CODE
+                                  x-lineageReferenceLookupObject: TBBDETC_DETAIL_CODE
+                                  example: 1001   
+                                detailCodeDescription: 
+                                  title: Detail Code Description
+                                  maxLength: 30
+                                  type: string
+                                  description: "Description of the detail code."
+                                  x-lineageReferenceObject: TBBDETC_DETAIL_CODE
+                                  example: Extension Tuition Fees                                          
+                                feeAmount:
+                                  title: Extension Fee Amount
+                                  type: number
+                                  multipleOf: 0.01                                  
+                                  maxLength: 7
+                                  description: "Extension fee amount."
+                                  x-lineageReferenceObject: SOREXTN_EXTENSION_FEE_AMT
+                                  example: 75.00 
+                                feeType:
+                                  title: Fee Type Code
+                                  type: string
+                                  maxLength: 4
+                                  description: "Fee type code to be used when calculating monies for the extension."
+                                  x-lineageReferenceObject: SOREXTN_FTYP_CODE
+                                  x-lineageReferenceLookUpObject: STVFTYP
+                                  example: CRED 
+                                feeTypeDescription:
+                                  title: Fee Type Code Description
+                                  type: string
+                                  maxLength: 30
+                                  description: "Description of the fee type code."
+                                  x-lineageReferenceObject: STVFTYP_DESC
+                                  example: per Credit Hour fee                                   
+                                allowOverrideOnSection:
+                                  title: Override indicator
+                                  type: boolean
+                                  description: "Indicates wheather configuration may be changed at the section level."
+                                  x-lineageReferenceObject: SOREXTN_OVERRIDE_IND
+                                  example: true
+                                modifiedOn:
+                                  title: Modified On
+                                  maxLength: 11
+                                  type: string
+                                  format: date-time
+                                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                                  description: "Most current date the record was created or changed."
+                                  x-lineageReferenceObject: SOREXTN_ACTIVITY_DATE
+                                  example: 2024-05-05T04:00:00Z   
+                                modifiedBy:
+                                  title: Modified By User ID
+                                  maxLength: 30
+                                  type: string
+                                  description: "User who inserted or last updated the data."
+                                  x-lineageReferenceObject: SOREXTN_USER_ID
+                                  example: SYSTEST08                   
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

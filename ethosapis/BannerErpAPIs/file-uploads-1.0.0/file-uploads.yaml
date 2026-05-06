@@ -1,0 +1,117 @@
+openapi: 3.0.1
+info:
+  title: File Uploads
+  description: API for uploading a file and initiating jobs which mimics the Banner Page GJAJFLU.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Foundation
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+       
+tags:
+  - name: file-uploads
+paths:
+  /api/file-uploads:
+    post:
+      x-method-permissions: API_FILE_UPLOADS
+      tags:
+        - file-uploads
+      summary: Uploads a file to GJRJFLU table and optionally initiate a job to upload the file to the job sub-server.
+      operationId: uploadFiles
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                multipartFile:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: A list of MultipartFile objects containing the file to be uploaded.
+                fileName:
+                  type: string
+                  description: The name of the file to be uploaded. Must not exceed 30 characters when appended with one-up number.
+                processName:
+                  type: string
+                  description: The name of the job.
+                initiateJob:
+                  type: boolean
+                  description: Indicates whether to initiate the job to push the file to the job sub-server. Defaults to true , if not sent in the request.
+                  
+                    
+                    The Integration API has been updated to push files to the Jobsub Product DATA home directory based on the `saveToProductHome` flag.
+                   
+                   
+                    An optional input parameter, `saveToProductHome`, has been introduced.
+
+                    
+                    When `saveToProductHome` is true, the uploaded file is placed in the respective product data home directory, but only if the `InitiateJob` flag is true.
+
+                    
+                    When `saveToProductHome` is false, the uploaded file is placed in the default home directory, again only if `InitiateJob` is true.
+
+                    
+                    
+                    This update ensures files are saved in the appropriate directory, depending on the `saveToProductHome` flag and the `InitiateJob` condition.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fileName:
+                    type: string
+                    description: The name of the uploaded file.
+                  jobProcessName:
+                    type: string
+                    description: The name of the job process.
+                  oneUpNo:
+                    type: string
+                    description: The number for the job submission.
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Name of file may not be greater than 30 characters."
+      parameters:
+        - in: header
+          name: Accept
+          required: true
+          schema:
+            type: string
+            enum:
+              - application/vnd.hedtech.integration.v1.0.0+json
+              - application/vnd.hedtech.integration.v1+json
+              - application/json
+        - in: header
+          name: Content-Type
+          required: true
+          schema:
+            type: string
+            example: multipart/form-data
+

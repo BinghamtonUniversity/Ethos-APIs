@@ -1,0 +1,452 @@
+openapi: 3.0.0
+info:
+  title: Person International Details
+  description: >
+    The Person International Details API is a comprehensive API for all international details like passports, nationality, and other travel-related information. 
+    It will enlist supplemental details for international persons entering the country of the institution.
+  version: 1.0.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Foundation
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/person-international-details:
+    get:
+      summary: Returns resources from GOBINTL
+      description: >
+        Returns a paged listing of supplemental details for international persons entering the country of the institution present within GOBINTL table
+
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSON_INTL_DETAILS
+      tags:
+        - person-international-details
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-person-international-details.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new resource within GOBINTL
+      description: >
+        POST requests must include a nil GUID value
+        ("00000000-0000-0000-0000-000000000000") for the root id property.
+        Creates a new person international details record in GOBINTL table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSON_INTL_DETAILS
+      tags:
+        - person-international-details
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "201":
+          description: Created
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-person-international-details.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-person-international-details.json"
+  /api/person-international-details/{id}:
+    get:
+      summary: Return the requested resource from GOBINTL
+      description: >
+        Retrieve a specific person international details record by ID.Returns the details of a specific person international details record from GOBINTL table
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSON_INTL_DETAILS
+      tags:
+        - person-international-details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-person-international-details.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    put:
+      summary: Update the requested resource within GOBINTL table
+      description: >
+        Update a specific person international details record by ID within GOBINTL
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSON_INTL_DETAILS
+      tags:
+        - person-international-details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The unique identifier of the resource
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json 
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-person-international-details.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-person-international-details.json"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-person-international-details.json:
+      title: Person International Details
+      description: A record of person's international details.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the person-international-details.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: GOBINTL_GUID(GOBINTL)
+        person:
+          title: Person
+          description: The person associated with the details.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Person.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+              x-lineageDerivedLogic: Display the GUID from GORGUID where GORGUID_LDM_NAME is 'persons' and GORGUID_DOMAIN_KEY matches GOBINTL_PIDM
+          additionalProperties: false
+          required:
+            - id
+        nationality:
+          title: Nationality
+          description: Supplemental details about the international person's nationality.
+          type: object
+          properties:
+            employmentType:
+              title: Employment Type
+              description: The type of employment associated with the international person.
+              type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Employment Type.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: visa-employment-types
+                  x-lineageReferenceObject: STVEMPT_GUID
+                  x-lineageDerivedLogic: Display GUID from STVEMPT where STVEMPT_CODE refers to the GOBINTL_EMPT_CODE in GOBINTL
+              additionalProperties: false    
+              required:
+                - id
+            sponsor:
+              title: Sponsor
+              description: The sponsor associated with the international person.
+              type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Sponsor.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: international-sponsor-codes
+                  x-lineageReferenceObject: STVSPON_GUID
+                  x-lineageDerivedLogic: Display GUID from STVSPON where STVSPON_CODE refers to the GOBINTL_SPON_CODE in GOBINTL
+              additionalProperties: false 
+              required:
+                - id
+            family:
+              title: Family
+              description: Details regarding the international person's family.
+              type: object
+              properties:
+                numberOfChildren:
+                  title: Number Of Children
+                  description: The number of children the person brought to the country.
+                  type: number
+                  x-lineageReferenceObject: GOBINTL_CHILD_NUMBER
+                  additionalProperties: false
+                spouse:
+                  title: Spouse
+                  description: Indicator if the spouse accompanied the person.
+                  type: string
+                  enum:
+                    - spouseAccompanied
+                    - spouseNotAccompanied
+                    - notReported
+                  x-lineageReferenceObject: GOBINTL_SPOUSE_IND
+                  additionalProperties: false
+        admissionDeparture:
+          title: Admission and Departure
+          description: Details regarding the person's admission and departure.
+          type: object
+          properties:
+            expirationDate:
+              title: Expiration Date
+              description: The expiration date of the admitting documentation.
+              type: string
+              format: date
+              x-lineageReferenceObject: GOBINTL_I94_DATE
+              additionalProperties: false
+            alienRegistrationNumber:
+              title: Alien Registration Number
+              description: Assigned Alien Registration Number associated with the international person.
+              type: string
+              x-lineageReferenceObject: GOBINTL_REG_NUMBER
+              additionalProperties: false
+      required:
+        - id
+        - person

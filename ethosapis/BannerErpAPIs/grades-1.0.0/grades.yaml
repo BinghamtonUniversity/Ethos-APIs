@@ -1,0 +1,182 @@
+openapi: 3.0.0
+info:
+  title: grades
+  description: >
+    Retrieves the list of all the grade information of the student for all the
+    active courses for the term passed. The following grades of the student will
+    be returned in the response:
+
+      __Mid term grade__
+
+       __Final grade__
+
+       __Grade in Academic History__
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Student
+  x-source-title: Grades
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: grades
+paths:
+  /api/students/{bannerId}/grades:
+    get:
+      description: >
+        The term is optional Url parameter to the API.
+
+          If term is provided, the API fetches academic standing along with the term GPA for the provided term.
+
+
+        If the term is not provided, the API fetches the grade information for
+        each term the student has registered courses.
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: [ ]
+      x-method-permissions: API_GRADES, API_STUDENTS
+      tags:
+        - grades
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          schema:
+            type: string
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+              application/vnd.hedtech.integration.v1.0.0+json
+            ```
+        - name: bannerId
+          in: path
+          required: true
+          schema:
+            type: string
+          example: HOSH293
+        - name: term
+          in: query
+          required: false
+          schema:
+            type: string
+          example: "102896"
+          description: Code value to identify the term
+      responses:
+        "200":
+          description: Success
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/grades"
+            application/vnd.hedtech.integration.v1.0.0+xml:
+              schema:
+                type: object
+                $ref: "#/components/schemas/grades"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    grades:
+      type: array
+      items:
+        type: object
+        properties:
+          courseNumber:
+            type: string
+          courseAlias:
+            type: string
+          courseIdentifierDisplay:
+            type: string
+          courseTitle:
+            type: string
+          creditHour:
+            type: number
+          crn:
+            type: string
+          gradeFinal:
+            type: string
+          gradeInAcadHistory:
+            type: string
+          gradeMidterm:
+            type: string
+          gradeRolled:
+            type: string
+          level:
+            type: object
+            properties:
+              code:
+                type: string
+              description:
+                type: string
+          registrationStatus:
+            type: object
+            properties:
+              code:
+                type: string
+              description:
+                type: string
+          classFormat:
+            type: object
+            properties:
+              code:
+                type: string
+              description:
+                type: string
+          sequenceNumber:
+            type: string
+          subject:
+            type: object
+            properties:
+              code:
+                type: string
+              description:
+                type: string
+          term:
+            type: object
+            properties:
+              code:
+                type: string
+              description:
+                type: string

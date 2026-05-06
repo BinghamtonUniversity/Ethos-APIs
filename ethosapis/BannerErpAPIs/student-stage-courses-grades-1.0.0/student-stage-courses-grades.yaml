@@ -1,0 +1,258 @@
+openapi: 3.0.1
+info:
+  title: student-stage-courses-grades
+  description: Get student courses for stage
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Student
+  x-source-title: Student Stage Courses Grades
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: '{server_url}'
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost    
+paths:              
+  /api/student-stage-courses-grades:
+    get:
+      tags:
+        - student-stage-courses-grades
+      summary: Get student courses for stage by passing committeeCode, studentId and level.
+      x-method-permissions: API_STU_STAGE_COURSES_GRADES
+      parameters:
+        - name: committeeCode
+          required: true
+          in: query
+          schema:
+            type: string
+          example: APTEST
+        - name: studentId
+          required: true
+          in: query
+          schema:
+            type: string
+          example: A0000009
+        - name: level
+          required: true
+          in: query
+          schema:
+            type: string
+          example: UG
+        - name: program
+          in: query
+          schema:
+            type: string
+          example: BA-MATH
+        - name: stageNumber
+          in: query
+          schema:
+            type: number
+          example: 1
+        - name: studyPathNumber
+          in: query
+          schema:
+            type: number
+          example: 1
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/StageCoursesObj'
+              examples:
+                stage-courses:
+                  $ref: '#/components/examples/StageCourses'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                       $ref: '#/components/schemas/ErrorsObj'
+              examples:
+                committeeCodeRequired:
+                  $ref: '#/components/examples/CommitteeCodeRequired' 
+                studentIdRequired:
+                  $ref: '#/components/examples/StudentIdRequired'
+                levelRequired:
+                  $ref: '#/components/examples/LevelRequired'   
+                invalidParams:
+                  $ref: '#/components/examples/InvalidParams'  
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                unauthorizedNoParams:
+                  $ref: '#/components/examples/Unauthorized'
+                unauthorizedNoAuth:
+                  $ref: '#/components/examples/UnauthorizedNoAuth'    
+components:   
+  schemas:
+    StageCoursesObj:
+      type: object
+      properties:
+        area:
+          type: string
+        areaDescription:
+          type: string
+        changeReason:
+          type: string
+        changeReasonDescription:
+          type: string
+        courseCreditsAttempted:
+          type: number
+        courseCreditsEarned:
+          type: number
+        courseNumber:
+          type: string
+        courseTitle:
+          type: string
+        crn:
+          type: string
+        grade:
+          type: string
+        gradeCommentExists:
+          type: string
+        qualityPoints:
+          type: number
+        stageNumber:
+          type: number
+        subject:
+          type: string
+        term:
+          type: string
+        termDescription:
+          type: string
+        program:
+          type: string
+        programDescription:
+          type: string
+        studyPathNumber:
+          type: number
+    ErrorsObj:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        message:
+          type: string
+  examples:
+    Unauthorized:
+      description: If the request send blank params for auth
+      value: "401 - Unauthorized"
+    UnauthorizedNoAuth:
+      description: If the request does not authenticate
+      value: "401 - Full authentication is required to access this resource"        
+    CommitteeCodeRequired:
+      value: |-
+          {
+              "errors": [
+                  {
+                      "code": "Global.SchemaValidation.Error",
+                      "description": "Errors parsing input JSON.",
+                      "message": "Mandatory Field: committeeCode is missing from payload"
+                  }
+              ]
+          }  
+    StudentIdRequired:
+      value: |-
+          {
+              "errors": [
+                  {
+                      "code": "Global.SchemaValidation.Error",
+                      "description": "Errors parsing input JSON.",
+                      "message": "Mandatory Field: studentId is missing from payload"
+                  }
+              ]
+          }
+    LevelRequired:
+      value: |-
+          {
+              "errors": [
+                  {
+                      "code": "Global.SchemaValidation.Error",
+                      "description": "Errors parsing input JSON.",
+                      "message": "Mandatory Field: level is missing from payload"
+                  }
+              ]
+          }      
+    InvalidParams:
+      value: |-
+          {
+              "errors": [
+                  {
+                      "code": "Global.SchemaValidation.Error",
+                      "description": "Errors parsing input JSON.",
+                      "message": "Valid stageNumber value must be entered."
+                  }
+              ]
+          }      
+    StageCourses:
+      value:
+        [
+          {
+              "area": "CIVIL-S1",
+              "areaDescription": "Civil Studied Area Stage1",
+              "changeReason": "OE",
+              "changeReasonDescription": "Original Entry",
+              "courseCreditsAttempted": 20,
+              "courseCreditsEarned": 20,
+              "courseNumber": "205",
+              "courseTitle": "Introduction To Mathematics Th",
+              "crn": "224",
+              "grade": "90",
+              "gradeCommentExists": false,
+              "qualityPoints": 90,
+              "stageNumber": "1",
+              "subject": "MATH",
+              "term": "202101",
+              "termDescription": "2021 - Sem 1",
+              "program": "CIVIL",
+              "programDescription": "Civil Engineering",
+              "studyPathNumber": 1
+          },
+          {
+              "area": "CIVIL-S1",
+              "areaDescription": "Civil Studied Area Stage1",
+              "changeReason": "OE",
+              "changeReasonDescription": "Original Entry",
+              "courseCreditsAttempted": 20,
+              "courseCreditsEarned": 20,
+              "courseNumber": "102",
+              "courseTitle": "Advanced Mathematics",
+              "crn": "221",
+              "grade": "60",
+              "gradeCommentExists": false,
+              "qualityPoints": 60,
+              "stageNumber": "1",
+              "subject": "CIVI",
+              "term": "202101",
+              "termDescription": "2021 - Sem 1",
+              "program": "CIVIL",
+              "programDescription": "Civil Engineering",
+              "studyPathNumber": 1
+          }
+        ]

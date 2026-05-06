@@ -1,0 +1,302 @@
+openapi: 3.0.0
+info:
+  title: Employee Student Hour Rules
+  description: >
+    This API can be used to retrieve employee student hour rules data.
+    This information is used in the Banner process PHPSHRS.
+  version: 1.0.0-beta
+  x-audience: all
+  x-release-status: beta
+  x-source-domain: Human Resources
+  x-source-system: banner
+  x-api-type: erp
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/employee-student-hour-rules:
+    get:
+      tags:
+        - employee-student-hour-rules
+      summary: Get employee student hour rules
+      description: Query and retrieve employee student hour rules data for a given criteria. Data is extracted from SPRIDEN, PTRCALN, NBRBJOB, NBRJOBS, PTRATRM, PTRSTDE.
+      parameters:
+        - name: limit
+          in: query
+          description:
+            The maximum number of resources requesting for this result set.
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/employee-student-hour-rules-1.0.0_get_request_criteria'
+          description: >
+            ### Banner Id
+            
+            Returns the employee student hour rules information for this Banner Id.
+            
+            ```
+
+            /employee-student-hour-rules?criteria={"bannerId": "HOP000001"}
+
+            ```
+
+            ### Term Code
+            
+            Returns the employee student hour rules information for this Term Code.
+            
+            ```
+
+            /employee-student-hour-rules?criteria={"termCode":"202510"}
+            
+            ```
+
+            ### Year
+
+            Returns the employee student hour rules information for this Year.
+
+            ```
+
+            /employee-student-hour-rules?criteria={"year":"2025"}
+
+            ```
+            
+            ### Payroll Identification Code
+
+            Returns the employee student hour time rules information for this payroll identification code.
+
+            ```
+
+            /employee-student-hour-rules?criteria={"payrollIdentificationCode":"MN"}
+
+            ```
+            
+            ### Payroll Number
+
+            Returns the employee student hour rules information for this payroll number.
+            
+            ```
+            
+            /employee-student-hour-rules?criteria={"payrollNumber":1}
+
+
+            ```
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/employee-student-hour-rules-1.0.0_get_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_STU_HOUR_RULES
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    employee-student-hour-rules-1.0.0_get_request_criteria:
+      properties:
+        bannerId:
+          title: Banner Id
+          description: Banner Id.
+          type: string
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: "HOP000001"
+        associatedTermCode:
+          title: Associated Term Code
+          description: The Associated term code.
+          type: string
+          x-lineageReferenceObject: PTRATRM_CODE
+          example: "FALL05"
+        termCode:
+          title: Term Code
+          description: The term code.
+          type: string
+          x-lineageReferenceObject: PTRATRM_TERM_CODE
+          example: "202510"
+        year:
+          title: Year
+          description: Payroll year.
+          type: string
+          x-lineageReferenceObject: PTRCALN_YEAR
+          example: "2025"
+        payrollIdentificationCode:
+          title: Payroll Id
+          description: Payroll Id of the pay event
+          type: string
+          x-lineageReferenceObject: PTRCALN_PICT_CODE
+          example: "MN"
+        payrollNumber:
+          title: Payroll Number
+          description: The payroll number of the pay event
+          type: integer
+          x-lineageReferenceObject: PTRCALN_PAYNO
+          example: "1"
+    employee-student-hour-rules-1.0.0_get_response:
+      properties:
+        bannerId:
+          title: Banner Id
+          description: Banner Id of the entity.
+          type: string
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: "HOP000001"
+        associatedTermCode:
+          title: Associated Term Code
+          description: The term code associated with the time status rule.
+          type: string
+          x-lineageReferenceObject: PTRATRM_CODE
+          example: "FALL05"
+        termCode:
+          title: Term Code
+          description: The effective term of the time status rule.
+          type: string
+          x-lineageReferenceObject: PTRATRM_TERM_CODE
+          example: "202510"
+        year:
+          title: Payroll Year
+          description: The year of the payroll.
+          type: string
+          x-lineageReferenceObject: PTRCALN_YEAR
+          example: "2025"
+        payrollIdentificationCode:
+          title: Payroll Id
+          description: Payroll Id of the pay event.
+          type: string
+          x-lineageReferenceObject: PTRCALN_PICT_CODE
+          example: "MN"
+        payrollNumber:
+          title: Payroll Number
+          description: The payroll number of the pay event.
+          type: number
+          x-lineageReferenceObject: PTRCALN_PAYNO
+          example: 1
+        version:
+          title: Version
+          description: Optimistic lock token.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_VERSION
+          example: 1
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.

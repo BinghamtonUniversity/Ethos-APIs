@@ -1,0 +1,207 @@
+openapi: 3.0.0
+info:
+  title: ca-transcript-academic-record-extensions
+  description: This API retrieves all California User Defined Extensions elements
+    for Grade Scheme and Notation Legend based on the Banner ID and Level Code.
+  version: 1.0.0-beta
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: beta
+  x-source-domain: Student
+  x-source-title: CA Transcript Academic Record Extensions
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/ca-transcript-academic-record-extensions:
+    get:
+      summary: Return User Defined Extensions elements for Grade Scheme and Notation
+        Legend
+      description: Return California User Defined Extensions elements for Grade Scheme
+        and Notation Legend.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_CA_TRANS_ACAD_RECORD_EXT
+      tags:
+        - ca-transcript-academic-record-extensions
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: bannerId
+          in: query
+          required: true
+          schema:
+            title: Banner ID
+            type: string
+            description: Banner ID of the student holding the account.
+            maxLength: 9
+            x-lineageReferenceObject: SPRIDEN_ID
+          description: >
+            ### Banner ID
+
+            Returns the User Defined Extensions elements based on on the Banner
+            ID.
+
+            ```
+
+            /ca-transcript-academic-record-extensions?levlCode=UG&bannerId=A40505078
+
+            ```
+        - name: levlCode
+          in: query
+          required: true
+          schema:
+            type: string
+            title: Level Code
+            maxLength: 2
+            x-lineageReferenceObject: SHRLGPA_LEVL_CODE
+            x-lineageLookupReferenceObject: STVLEVL
+          description: >
+            ### Level Code
+
+            Returns the User Defined Extensions elements based on on the Level
+            Code.
+
+            ```
+
+            /ca-transcript-academic-record-extensions?levlCode=UG&bannerId=A40505078
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-ca-transcript-academic-record-extensions.jso\
+                  n"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-ca-transcript-academic-record-extensions.json:
+      title: Grade Scheme, Notation Legend and Additional Achievements elements
+      description: California User Defined Extensions elements for Grade Scheme and
+        Notation Legend based on the Banner ID and Level Code.
+      type: array
+      items:
+        type: object
+        properties:
+          gradeScheme:
+            title: Grade Scheme
+            description: "Grade Scheme List populates the list of User Defined Extensions
+              elements need to be included in the transcript XML "
+            type: array
+            items:
+              type: object
+              properties:
+                abbreviation:
+                  title: Abbreviation
+                  type: string
+                ediInd:
+                  title: EDI Indicator
+                  type: number
+                attemptedIndicator:
+                  title: Attempted Indicator
+                  type: string
+                code:
+                  title: Grade Code
+                  type: string
+                completedIndicator:
+                  title: Completed Indicator
+                  type: string
+                startDate:
+                  title: Start Date
+                  type: string
+                endDate:
+                  title: End Date
+                  type: string
+                gpaIndicator:
+                  title: GPA Indicator
+                  type: string
+                gradePoints:
+                  title: Quality Point
+                  type: number
+                termCodeEffective:
+                  type: string
+          notationLegend:
+            title: Notation Legend
+            description: Notation Legend populates the list of User Defined Extensions
+              elements need to be included in the transcript XML for the
+              Notation Legend section
+            type: array
+            items:
+              type: object
+              properties:
+                notationCode:
+                  title: NotationCode
+                  type: string
+                notationDescription:
+                  title: NotationDescription
+                  type: string
+                effectiveFromDate:
+                  title: Effective From Date
+                  type: string
+                effectiveToDate:
+                  title: Effective To Date
+                  type: string
+          additionalAchievements:
+            title: Additional Achievements
+            description: Additional Achievements populates the list of User Defined
+              Extensions elements need to be included in the transcript XML for
+              the Additional Achievements section
+            type: array
+            items:
+              type: object
+              properties:
+                description:
+                  title: Description about the achivement
+                  type: string
+                effectiveDate:
+                  title: Effective date of the achivement
+                  type: string
+      additionalProperties: false

@@ -1,0 +1,533 @@
+openapi: 3.0.0
+info:
+  title: Rooms
+  description: >
+    A room within a building on a floor. The API retrieves all rooms with the
+    identified room type (i.e. Classroom, Residence hall room, other)
+
+
+    Please refer to the section 'API Integration Configuration Settings' in Banner Ethos API Handbook for all the configuration settings needed for this API.
+
+
+    This resource supports a query by POST operation. Using the Servers base URL with the QAPI path, a POST operation will perform a query based on the search criteria included in request body.
+  version: "10.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Foundation
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: rooms
+  - name: rooms QAPI
+paths:
+  /api/rooms:
+    get:
+      summary: Returns resources from SLBRDEF
+      description: |
+        Returns all active rooms from SLBRDEF table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_ROOMS
+      tags:
+        - rooms
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: |
+            ### Rooms in Building  
+            The rooms located within the building.
+            ```
+            /rooms?filter={"building:": {"id": $id}}
+            ```
+            ### Room Types  
+            The type or style of a room's layout.
+            ```
+            /rooms?filter={"roomTypes":[{"type":$type}]}
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-rooms.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v10+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/rooms/{id}:
+    get:
+      summary: Return the requested resource from SLBRDEF
+      description: >
+        Returns an active room record from SLBRDEF table with the passed in
+        identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_ROOMS
+      tags:
+        - rooms
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v10+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v10+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-rooms.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /qapi/rooms:
+    post:
+      summary: Returns resources from SLBRDEF
+      description: >
+        Queries for the requested resource using a set of attributes provided in
+        the POST request body. Please note the path to the server is overriden
+        to use /qapi/{resource} in the URL and not /api/{resource}.
+
+
+        This API gets the available rooms based on given search criteria
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_ROOMS
+      tags:
+        - rooms QAPI
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.room-availability.v10+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v10+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v10+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-rooms.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-rooms.json"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-rooms.json:
+      title: Rooms
+      description: A room within a building on a floor.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: A global identifier of a room to be used in all external references
+            to the room.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: GORGUID_GUID(LDM_NAME= rooms) 
+          x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME as 'rooms' will refer to the combination of SLBRDEF_BLDG_CODE, SLBRDEF_ROOM_NUMBER, SLBRDEF_TERM_CODE_EFF  in SLBRDEF
+        title:
+          title: Title
+          description: The full name of a room.
+          type: string
+          x-lineageReferenceObject: SLBRDEF_DESC(SLBRDEF)
+        description:
+          title: Description
+          description: A description of a room.
+          type: string
+          x-lineageReferenceObject: unsupported
+        number:
+          title: Number
+          description: A numbering scheme to distinguish different buildings, floors, and
+            rooms located in the same site. Typically, this is a string.
+          type: string
+          x-lineageReferenceObject: SLBRDEF_ROOM_NUMBER(SLBRDEF)
+        floor:
+          title: Floor
+          description: The name of the floor where a room is located.
+          type: string
+          x-lineageReferenceObject: unsupported
+        roomTypes:
+          title: Room Types
+          description: The type or style of a room's layout. For example, "Classroom" or
+            "Lecture Hall" style. A room may support multiple types of layouts.
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                title: Room Type
+                description: The type or style of a of room's layout, for example, "Classroom"
+                  style, "Lecture Hall" style, etc.
+                enum:
+                  - residencehallroom
+                  - residentialsingleroom
+                  - residentialdoubleroom
+                  - residentialtripleroom
+                  - residentialsuiteroom
+                  - apartment
+                  - house
+                  - classroom
+                  - lecturehall
+                  - seminarroom
+                  - conferenceroom
+                  - sciencelaboratory
+                  - computerlaboratory
+                  - mechanicslab
+                  - audiovisuallab
+                  - artstudio
+                  - musicroom
+                  - performingartsstudio
+                  - ballroom
+                  - office
+                  - studyfacility
+                  - clinic
+                  - animalquarters
+                  - greenhouse
+                  - specialusefacility
+                  - generalusefacility
+                  - foodfacility
+                  - daycare
+                  - lounge
+                  - merchandisingroom
+                  - supportfacility
+                  - healthcarefacility
+                  - atrium
+                  - amphitheater
+                  - auditorium
+                  - booth
+                  - other
+                type: string
+                x-lineageReferenceObject: derived  
+                x-lineageDerivedLogic: if SLBRDEF_ROOM_TYPE = 'C' then publish 'classroom' and if SLBRDEF_ROOM_TYPE = 'D' then publish 'residencehallroom' and if SLBRDEF_ROOM_TYPE = 'O' then publish 'other'
+              detail:
+                title: Detail
+                description: ""
+                oneOf:
+                  - type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the Detail.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                        x-lineageLookupReferenceObject: room-types 
+                        x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = room-types) 
+                        x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME as 'room-types' for the corresponding room type.
+                    additionalProperties: false
+                    required:
+                      - id
+                  - type: object
+                    maxProperties: 0
+            additionalProperties: false
+            required:
+              - type
+        occupancies:
+          title: Occupancies
+          description: For rooms with multiple layouts. For example, a gymnasium can be
+            used for a seminar or a conference, with different maximum
+            occupancies. For rooms with single occupancy type, "Default" can be
+            used.
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                title: Room Layout
+                description: For rooms with multiple layouts, this can be used. For example, a
+                  gymnasium can be used for a seminar or a conference, with
+                  different maximum occupancies. For rooms with single occupancy
+                  type, "Default" can be used.
+                enum:
+                  - banquet
+                  - conference
+                  - sportsevent
+                  - graduationceremony
+                  - seminar
+                  - boardmeeting
+                  - performance
+                  - convention
+                  - convocation
+                  - pressmeet
+                  - workshops
+                  - exam
+                  - classroom
+                  - laboratory
+                  - default
+                type: string
+                x-lineageReferenceObject: derived  
+                x-lineageDerivedLogic: if SLBRDEF_ROOM_TYPE = 'C' then publish 'classroom' and if SLBRDEF_ROOM_TYPE = 'D' or 'O' then publish 'default'
+              maxOccupancy:
+                title: Maximum Occupancy
+                description: The maximum number of persons who may occupy a room arranged in a
+                  given layout.
+                type: number
+                x-lineageReferenceObject: SLBRDEF_CAPACITY(SLBRDEF)
+            additionalProperties: false
+            required:
+              - type
+              - maxOccupancy
+        site:
+          title: Site
+          description: The institution's site.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Site.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: sites 
+                  x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = campuses) 
+                  x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME as 'campuses' will refer for SLBRDEF_BLDG_CODE = SLBBLDG_BLDG_CODE
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        building:
+          title: Building
+          description: A physical structure, usually containing rooms, that is located at
+            a specified physical location.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Building.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: buildings 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = buildings) 
+              x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME as 'buildings' will refer for SLBRDEF_BLDG_CODE = SLBBLDG_BLDG_CODE
+          additionalProperties: false
+          required:
+            - id
+        wing:
+          title: Wing
+          description: The named section of a building in which the resides.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Wing.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: building-wings 
+                  x-lineageReferenceObject: unsupported
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        roomCharacteristics:
+          title: Room Characteristics
+          description: The list of characteristics specified for the room.
+          type: array
+          items:
+            title: Room Characteristics
+            description: The list of characteristics specified for the room.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Room Characteristics.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: room-characteristics 
+                x-lineageReferenceObject: (STVRDEF_GUID)
+            additionalProperties: false
+            required:
+              - id
+      required:
+        - id
+        - building
+      additionalProperties: false
+

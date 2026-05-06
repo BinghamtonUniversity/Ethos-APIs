@@ -1,0 +1,193 @@
+openapi: 3.0.3
+info:
+  title: Student Type Data Transformation
+  description: >
+    Updates the student type in Banner to accurately reflect the student's
+    current status, with this is ensured student's are charged with the
+    appropriate fees.
+  version: 1.0.0
+  x-source-system: banner
+  x-release-status: beta
+  x-api-type: erp
+  x-audience: all
+  x-source-domain: Student
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/studentTypeDataTransformation:
+    put:
+      tags:
+        - student-type-data-transformation
+      summary: Updates the student type in Banner with the current status
+      description: >
+        update the status of student in SGBSTDN (SGBSTDN_STYP_CODE). The
+        following status are recognized:  a) First Time Student in College ->
+        SGBSTDN_STYP_CODE = 1; b) Concurrent Student  -> SGBSTDN_STYP_CODE = Y;
+        c) First-Time Transfer -> SGBSTDN_STYP_CODE = 2; d) Returning
+        Student   -> SGBSTDN_STYP_CODE = 3; e) Continuing Student  ->
+        SGBSTDN_STYP_CODE = 5.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STUDENT_TYPE_DATA_TRANS
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-student-type-data-response.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Failure. Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      requestBody:
+        description: Request body to update the student type
+        $ref: "#/components/requestBodies/studentDataBody"
+        required: true
+components:
+  requestBodies:
+    studentDataBody:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/StudentDataBodySchema"
+  schemas:
+    schema-student-type-data-response.json:
+      title: Student Type Data Transformation Response
+      description: Processed transaction
+      type: object
+      properties:
+        transaction:
+          title: transaction
+          description: External Transaction ID
+          type: object
+          properties:
+            studentData:
+              title: studentData
+              description: Student processed
+              type: array
+              items:
+                type: object
+                properties:
+                  pidm:
+                    title: pidm
+                    description: Student pidm
+                    type: string
+                  studentStatus:
+                    title: studentStatus
+                    description: Student status
+                    type: string
+                  studentType:
+                    title: studentType
+                    description: Student type
+                    type: string
+                  termEffective:
+                    title: termEffective
+                    description: Student effective term
+                    type: string
+            result:
+              title: result
+              description: Response result
+              type: string
+              enum:
+                - Successfully Processed
+                - Create Error
+                - Unexpected Error
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+              description:
+                type: string
+    StudentDataBodySchema:
+      type: object
+      properties:
+        prospectId:
+          type: string
+        termCodeEntry:
+          type: string
+        enrollStatus:
+          type: string
+        hsEduLevel:
+          type: string
+        hsCompDate:
+          type: string
+        higherEduLevel:
+          type: string
+        higherCompDate:
+          type: string
+        colleCds:
+          type: string
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

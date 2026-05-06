@@ -1,0 +1,1093 @@
+openapi: 3.0.0
+info:
+  title: Event Details
+  description: The Event Details API supports creation and maintenance of event details.
+  version: 1.0.0
+  x-source-domain: Foundation
+  x-source-name: SLAEVNT
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-audience: all
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/event-details:
+    get:
+      tags:
+        - event-details
+      summary: Returns event details.
+      description: Returns resources from SLBEVNT and SLRECMT.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: |
+            ### ID
+            Returns all records for the ID (event reference number) passed.
+            ```
+            /event-details?criteria={"eventReferenceNumber":"A0275"}
+            ```
+            ### Event Type
+            Returns all records for the Event Type Code passed.
+            ```
+            /event-details?criteria={"eventType":"DINR"}
+            ```
+                        
+            ### Contact Banner ID
+            Returns all records for the Contact Banner ID passed.
+            ```
+            /event-details?criteria={"contactBannerId":"A0000025"}
+            ```
+                        
+            ### System Type Code
+            Returns all records for the System Type Code passed.
+            ```
+            /event-details?criteria={"systemTypeCode":"A"}
+            ```
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/event-details-v1.0.0_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EVENT_DETAILS
+    post:
+      tags:
+        - event-details
+      summary: Posts event details to the event and event comment tables.
+      description: |
+        Posts resources to SLBEVNT and SLRECMT.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/event-details-v1.0.0_post_request"
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/event-details-v1.0.0_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EVENT_DETAILS
+  /api/event-details/{id}:
+    get:
+      tags:
+        - event-details
+      summary: Returns details for a specified event.
+      description: Returns resources from SLBEVNT and SLRECMT.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: This field is the oneup number that identifies the event to the
+            system.
+          schema:
+            type: string
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/event-details-v1.0.0_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EVENT_DETAILS
+    put:
+      tags:
+        - event-details
+      summary: Updates event details and comments for a specified event.
+      description: Updates resources in SLBEVNT and SLRECMT.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: This field is the oneup number that identifies the event to the
+            system.
+          schema:
+            type: string
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/event-details-v1.0.0_put_request"
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/event-details-v1.0.0_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EVENT_DETAILS
+    delete:
+      tags:
+        - event-details
+      summary: Removes a resource from the event and event comment tables.
+      description: Deletes the existing records from SLBEVNT and SLRECMT with the
+        passed in identifier.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: This field is the oneup number that identifies the event to the
+            system.
+          schema:
+            type: string
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EVENT_DETAILS
+components:
+  schemas:
+    event-details-v1.0.0_put_request:
+      type: object
+      properties:
+        id:
+          title: Event ID
+          maxLength: 5
+          type: string
+          description: This field is the unique identifier for the event.
+          x-lineageReferenceObject: SLBEVNT_CRN
+        eventType:
+          title: Event Type
+          maxLength: 4
+          type: string
+          description: This field defines type associated with the event.
+          x-lineageReferenceObject: SLBEVNT_ETYP_CODE
+        eventDescription:
+          title: Event Description
+          maxLength: 30
+          type: string
+          description: This field identifies the description of the event.
+          x-lineageReferenceObject: SLBEVNT_DESC
+        longDescription:
+          title: Long Description
+          maxLength: 4000
+          type: string
+          description: Long Description for the event.
+          x-lineageReferenceObject: SLBEVNT_LONG_DESCRIPTION
+        agencyBannerId:
+          title: Agency Banner ID
+          maxLength: 9
+          type: string
+          description: This field identifies the agency Banner ID associated with the event
+          x-lineageReferenceObject: SPRIDEN_ID
+        systemTypeCode:
+          title: System Type Code
+          maxLength: 2
+          type: string
+          description: Code indicating the product that created the event.
+          x-lineageReferenceObject: SLBEVNT_SYSI_CODE
+        campusCode:
+          title: Campus Code
+          maxLength: 3
+          type: string
+          description: This field identifies the campus that is associated with the event.
+          x-lineageReferenceObject: SLBEVNT_CAMP_CODE
+        siteCode:
+          title: Site Code
+          maxLength: 3
+          type: string
+          description: This field identifies the site that is associated with the event.
+          x-lineageReferenceObject: SLBEVNT_SITE_CODE
+        collegeCode:
+          title: College Code
+          maxLength: 2
+          type: string
+          description: This field identifies the college that is associated with the event.
+          x-lineageReferenceObject: SLBEVNT_COLL_CODE
+        departmentCode:
+          title: Department Code
+          maxLength: 4
+          type: string
+          description: This field identifies the department that is associated with the
+            event.
+          x-lineageReferenceObject: SLBEVNT_DEPT_CODE
+        contactBannerId:
+          title: Contact Banner ID
+          maxLength: 9
+          type: string
+          description: Banner ID of the Contact assigned to the event.
+          x-lineageReferenceObject: SPRIDEN_ID
+        addressTypeCode:
+          title: Address Type Code
+          maxLength: 2
+          type: string
+          description: Address type of the Contact assigned to the event.  Only populated
+            if Contact Pidm is not null..
+          x-lineageReferenceObject: SLBEVNT_ATYP_CODE
+        districtDivisionCode:
+          title: District/Division Code
+          maxLength: 3
+          type: string
+          description: District/Division Code.
+          x-lineageReferenceObject: SLBEVNT_DICD_CODE
+        restrictedIndicator:
+          title: Restricted Indicator
+          maxLength: 1
+          type: boolean
+          description: Indicates whether the function is private or not. Defaults to 'N'.
+          x-lineageReferenceObject: SLBEVNT_RESTRICTED_IND
+        publishIndicator:
+          title: Publish Indicator
+          maxLength: 1
+          type: boolean
+          description: Indicates whether the function is currently published or not.
+            Defaults to 'N'.
+          x-lineageReferenceObject: SLBEVNT_PUBLISH_IND
+        registrationLimit:
+          title: Registration Limit
+          maxLength: 1
+          type: boolean
+          description: The number of functions an Attendee can register to (1 or no
+            limit). Defaults to 'N'.
+          x-lineageReferenceObject: SLBEVNT_LIMIT_ONE
+        eventComment:
+          title: Event Comments
+          maxLength: 4000
+          type: string
+          description: This field is where the comments for an event are stored.
+          x-lineageReferenceObject: SLRECMT_COMMENTS
+      required:
+        - id
+    event-details-v1.0.0_post_request:
+      type: object
+      properties:
+        eventType:
+          title: Event Type
+          maxLength: 4
+          type: string
+          description: This field defines type associated with the event.
+          x-lineageReferenceObject: SLBEVNT_ETYP_CODE
+        eventDescription:
+          title: Event Description
+          maxLength: 30
+          type: string
+          description: This field identifies the description of the event.
+          x-lineageReferenceObject: SLBEVNT_DESC
+        longDescription:
+          title: Long Description
+          maxLength: 4000
+          type: string
+          description: Long Description for the event.
+          x-lineageReferenceObject: SLBEVNT_LONG_DESCRIPTION
+        agencyBannerId:
+          title: Agency Banner ID
+          maxLength: 9
+          type: string
+          description: This field identifies the agency Banner ID associated with the event
+          x-lineageReferenceObject: SPRIDEN_ID
+        systemTypeCode:
+          title: System Type Code
+          maxLength: 2
+          type: string
+          description: Code indicating the product that created the event.
+          x-lineageReferenceObject: SLBEVNT_SYSI_CODE
+        campusCode:
+          title: Campus Code
+          maxLength: 3
+          type: string
+          description: This field identifies the campus that is associated with the event.
+          x-lineageReferenceObject: SLBEVNT_CAMP_CODE
+        siteCode:
+          title: Site Code
+          maxLength: 3
+          type: string
+          description: This field identifies the site that is associated with the event.
+          x-lineageReferenceObject: SLBEVNT_SITE_CODE
+        collegeCode:
+          title: College Code
+          maxLength: 2
+          type: string
+          description: This field identifies the college that is associated with the event.
+          x-lineageReferenceObject: SLBEVNT_COLL_CODE
+        departmentCode:
+          title: Department Code
+          maxLength: 4
+          type: string
+          description: This field identifies the department that is associated with the
+            event.
+          x-lineageReferenceObject: SLBEVNT_DEPT_CODE
+        contactBannerId:
+          title: Contact Banner ID
+          maxLength: 9
+          type: string
+          description: Banner ID of the Contact assigned to the event.
+          x-lineageReferenceObject: SPRIDEN_ID
+        addressTypeCode:
+          title: Address Type Code
+          maxLength: 2
+          type: string
+          description: Address type of the Contact assigned to the event.  Only populated
+            if Contact Pidm is not null..
+          x-lineageReferenceObject: SLBEVNT_ATYP_CODE
+        districtDivisionCode:
+          title: District/Division Code
+          maxLength: 3
+          type: string
+          description: District/Division Code.
+          x-lineageReferenceObject: SLBEVNT_DICD_CODE
+        restrictedIndicator:
+          title: Restricted Indicator
+          maxLength: 1
+          type: boolean
+          description: Indicates whether the function is private or not. Defaults to 'N'.
+          x-lineageReferenceObject: SLBEVNT_RESTRICTED_IND
+        publishIndicator:
+          title: Publish Indicator
+          maxLength: 1
+          type: boolean
+          description: Indicates whether the function is currently published or not.
+            Defaults to 'N'.
+          x-lineageReferenceObject: SLBEVNT_PUBLISH_IND
+        registrationLimit:
+          title: Registration Limit
+          maxLength: 1
+          type: boolean
+          description: The number of functions an Attendee can register to (1 or no
+            limit). Defaults to 'N'.
+          x-lineageReferenceObject: SLBEVNT_LIMIT_ONE
+        eventComment:
+          title: Event Comments
+          maxLength: 4000
+          type: string
+          description: This field is where the comments for an event are stored.
+          x-lineageReferenceObject: SLRECMT_COMMENTS
+      required:
+        - eventType
+        - eventDescription
+        - systemTypeCode
+    event-details-v1.0.0_response:
+      type: object
+      properties:
+        id:
+          title: Event ID
+          maxLength: 5
+          type: string
+          description: This field is the oneup number that identifies the event to the
+            system.
+          x-lineageReferenceObject: SLBEVNT_CRN
+        eventType:
+          title: Event Type
+          maxLength: 4
+          type: string
+          description: This field defines type associated with the event.
+          x-lineageReferenceObject: SLBEVNT_ETYP_CODE
+        eventDescription:
+          title: Event Description
+          maxLength: 30
+          type: string
+          description: This field identifies the description of the event.
+          x-lineageReferenceObject: SLBEVNT_DESC
+        longDescription:
+          title: Long Description
+          maxLength: 4000
+          type: string
+          description: Long Description for the event.
+          x-lineageReferenceObject: SLBEVNT_LONG_DESCRIPTION
+        agencyBannerId:
+          title: Agency Banner ID
+          maxLength: 9
+          type: string
+          description: This field identifies the agency Banner ID associated with the event
+          x-lineageReferenceObject: SPRIDEN_ID
+        agencyContactName:
+          title: Agency Contact Name
+          maxLength: 230
+          type: string
+          description: This field identifies the name of the person to contact within the
+            agency associated with the event.
+          x-lineageReferenceObject: SLBEVNT_CONTACT_NAME
+        systemTypeCode:
+          title: System Type Code
+          maxLength: 2
+          type: string
+          description: Code indicating the product that created the event.
+          x-lineageReferenceObject: SLBEVNT_SYSI_CODE
+        committeeServiceIndicator:
+          title: Committee/Service Indicator
+          maxLength: 1
+          type: boolean
+          description: Committee/Service Indicator.
+          x-lineageReferenceObject: SLBEVNT_COMM_IND
+        campusCode:
+          title: Campus Code
+          maxLength: 3
+          type: string
+          description: This field identifies the campus that is associated with the event.
+          x-lineageReferenceObject: SLBEVNT_CAMP_CODE
+        siteCode:
+          title: Site Code
+          maxLength: 3
+          type: string
+          description: This field identifies the site that is associated with the event.
+          x-lineageReferenceObject: SLBEVNT_SITE_CODE
+        collegeCode:
+          title: College Code
+          maxLength: 2
+          type: string
+          description: This field identifies the college that is associated with the event.
+          x-lineageReferenceObject: SLBEVNT_COLL_CODE
+        departmentCode:
+          title: Department Code
+          maxLength: 4
+          type: string
+          description: This field identifies the department that is associated with the
+            event.
+          x-lineageReferenceObject: SLBEVNT_DEPT_CODE
+        modifiedOn:
+          title: Activity Date
+          maxLength: 10
+          type: string
+          format: date
+          description: This field identifies the date the record was created or last
+            updated.
+          x-lineageReferenceObject: SLBEVNT_ACTIVITY_DATE
+        contactPhoneArea:
+          title: Contact Phone Area Code
+          maxLength: 6
+          type: string
+          description: This field identifies the area code of the contact or agency
+            associated with the event.
+          x-lineageReferenceObject: SLBEVNT_PHONE_AREA
+        contactPhoneNumber:
+          title: Contact Phone Number
+          maxLength: 12
+          type: string
+          description: This field identifies the phone number of the contact or agency
+            associated with the event.
+          x-lineageReferenceObject: SLBEVNT_PHONE
+        contactPhoneExtension:
+          title: Contact Phone Extension
+          maxLength: 10
+          type: string
+          description: This field identifies the phone extension number of the contact or
+            agency associated with the event.
+          x-lineageReferenceObject: SLBEVNT_PHONE_EXT
+        contactBannerId:
+          title: Contact Banner ID
+          maxLength: 9
+          type: string
+          description: Banner ID of the Contact assigned to the event.
+          x-lineageReferenceObject: SPRIDEN_ID
+        addressTypeCode:
+          title: Address Type Code
+          maxLength: 2
+          type: string
+          description: Address type of the Contact assigned to the event.  Only populated
+            if Contact Pidm is not null..
+          x-lineageReferenceObject: SLBEVNT_ATYP_CODE
+        districtDivisionCode:
+          title: District/Division Code
+          maxLength: 3
+          type: string
+          description: District/Division Code.
+          x-lineageReferenceObject: SLBEVNT_DICD_CODE
+        phoneCountryCode:
+          title: Phone Country Code
+          maxLength: 4
+          type: string
+          description: Telephone code that designates the region and country.
+          x-lineageReferenceObject: SLBEVNT_CTRY_CODE_PHONE
+        contactEmail:
+          title: Contact Email
+          maxLength: 128
+          type: string
+          description: Email address of the contact assigned to the event.
+          x-lineageReferenceObject: SLBEVNT_CONTACT_EMAIL
+        restrictedIndicator:
+          title: Restricted Indicator
+          maxLength: 1
+          type: boolean
+          description: Indicates whether the function is private or not. Defaults to 'N'.
+          x-lineageReferenceObject: SLBEVNT_RESTRICTED_IND
+        publishIndicator:
+          title: Publish Indicator
+          maxLength: 1
+          type: boolean
+          description: Indicates whether the function is currently published or not.
+            Defaults to 'N'.
+          x-lineageReferenceObject: SLBEVNT_PUBLISH_IND
+        registrationLimit:
+          title: Registration Limit
+          maxLength: 1
+          type: boolean
+          description: The number of functions an Attendee can register to (1 or no
+            limit). Defaults to 'N'.
+          x-lineageReferenceObject: SLBEVNT_LIMIT_ONE
+        eventComment:
+          title: Event Comments
+          maxLength: 4000
+          type: string
+          description: This field is where the comments for an event are stored.
+          x-lineageReferenceObject: SLRECMT_COMMENTS
+      required:
+        - id
+        - eventReferenceNumber
+        - eventType
+        - eventDescription
+        - systemTypeCode
+        - committeeServiceIndicator
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary
+                  data entity used to create the resource. This is useful for
+                  referencing the source item through the applications
+                  administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

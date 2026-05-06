@@ -1,0 +1,389 @@
+{
+    "title": "Person Holds",
+    "description": "A customized list of holds that may be applied to a person.",
+    "version": "16.0.0",
+    "type": "object",
+    "properties": {
+        "metadata": {
+            "title": "Metadata",
+            "description": "Metadata about the JSON payload",
+            "type": "object",
+            "properties": {
+                "createdBy": {
+                    "title": "Created By",
+                    "description": "The name of the originator (user or system) of the data. This is informational only, do not use in business logic!",
+                    "type": "string"
+                },
+                "createdOn": {
+                    "title": "Created On",
+                    "description": "The date and time when the entity instance was created",
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$"
+                        },
+                        {
+                            "type": "string",
+                            "maxLength": 0
+                        }
+                    ]
+                },
+                "modifiedBy": {
+                    "title": "Modified By",
+                    "description": "The name of the modifier (user or system) of the data. This is informational only, do not use in business logic!",
+                    "type": "string"
+                },
+                "modifiedOn": {
+                    "title": "Modified On",
+                    "description": "The date and time when the entity instance was last modified",
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$"
+                        },
+                        {
+                            "type": "string",
+                            "maxLength": 0
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false
+        },
+        "id": {
+            "title": "ID",
+            "description": "The global identifier of a person hold",
+            "type": "string",
+            "format": "guid",
+            "pattern": "^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$"
+        },
+        "person": {
+            "title": "Person",
+            "description": "The person, for whom the hold has been recorded",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "title": "ID",
+                    "description": "The global identifier for the Person.",
+                    "type": "string",
+                    "format": "guid",
+                    "pattern": "^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$"
+                }
+            },
+            "links": [
+                {
+                    "rel": "self",
+                    "href": "/persons/{id}",
+                    "targetSchema": {
+                        "$ref": "persons.json#"
+                    }
+                }
+            ],
+            "additionalProperties": false,
+            "required": [
+                "id"
+            ]
+        },
+        "hold": {
+            "title": "Hold",
+            "description": "The hold applied to the person.",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "title": "ID",
+                    "description": "The global identifier for the Hold.",
+                    "type": "string",
+                    "format": "guid",
+                    "pattern": "^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$"
+                }
+            },
+            "links": [
+                {
+                    "rel": "self",
+                    "href": "/person-hold-types/{id}",
+                    "targetSchema": {
+                        "$ref": "person-hold-types.json#"
+                    }
+                }
+            ],
+            "additionalProperties": false,
+            "required": [
+                "id"
+            ]
+        },
+        "holdPeriod": {
+
+            "title": "Hold Period",
+            "description": "The time components applicable to the hold.",
+            "oneOf": [
+                {
+                    "title": "Date Based",
+                    "description": "Date range applied to the person hold.",
+                    "type": "object",
+                    "properties": {
+                        "startOn": {
+                            "title": "Start On",
+                            "description": "The date when the hold goes into effect",
+                            "type": "string",
+                            "format": "date",
+                            "pattern": "^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$"
+                        },
+                        "endOn": {
+                            "title": "End On",
+                            "description": "The date when the hold ends",
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date",
+                                    "pattern": "^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$"
+                                },
+                                {
+                                    "type": "string",
+                                    "maxLength": 0
+                                }
+                            ]
+                        }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                        "startOn"
+                    ]
+                },
+                {
+                    "title": "Period Based",
+                    "description": "Academic period based person hold details",
+                    "type": "object",
+                    "properties": {
+                        "academicPeriod": {
+                            "title": "Academic Period",
+                            "description": "The academic period associated with the person hold.",
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "title": "ID",
+                                    "description": "The global identifier for the Academic Period.",
+                                    "type": "string",
+                                    "format": "guid",
+                                    "pattern": "^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$"
+                                }
+                            },
+                            "links": [
+                                {
+                                    "rel": "self",
+                                    "href": "/academic-periods/{id}",
+                                    "targetSchema": {
+                                        "$ref": "academic-periods.json#"
+                                    }
+                                }
+                            ],
+                            "additionalProperties": false,
+                            "required": [
+                                "id"
+                            ]
+                        },
+                        "startOn": {
+                            "title": "Start On",
+                            "description": "The date when the hold goes into effect",
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date",
+                                    "pattern": "^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$"
+                                },
+                                {
+                                    "type": "string",
+                                    "maxLength": 0
+                                }
+                            ]
+                        },
+                        "endOn": {
+                            "title": "End On",
+                            "description": "The date when the hold ends",
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date",
+                                    "pattern": "^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$"
+                                },
+                                {
+                                    "type": "string",
+                                    "maxLength": 0
+                                }
+                            ]
+                        },
+                        "holdStatus": {
+                            "title": "Hold Status",
+                            "description": "For academic period based holds, indicates if the hold is active for the period or is inactive.",
+                            "enum": [
+                                "activeHold",
+                                "inactiveHold"
+                            ],
+                            "type": "string"
+                        }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                        "academicPeriod"
+                    ]
+                }
+            ]
+        },
+        "notificationIndicator": {
+            "title": "Notification Indicator",
+            "description": "Indicates if the person should be notified of the hold being placed",
+            "oneOf": [
+                {
+                    "type": "string",
+                    "enum": [
+                        "notify",
+                        "watch"
+                    ]
+                },
+                {
+                    "type": "string",
+                    "maxLength": 0
+                }
+            ]
+        },
+        "comment": {
+            "title": "Comment",
+            "description": "A comment for the hold",
+            "type": "string"
+        },
+        "reason": {
+            "title": "Reason",
+            "description": "A brief reason for the person hold.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 30
+        }
+    },
+    "required": [
+        "id",
+        "person",
+        "hold",
+        "holdPeriod"
+    ],
+    "additionalProperties": false,
+    "links": [
+        {
+            "rel": "filter",
+            "encType": "application/x-www-form-urlencoded",
+            "method": "GET",
+            "href": "/person-holds?criteria={\"person\": {\"id\": $id}}",
+            "title": "Person",
+            "description": "The person for whom the hold has been recorded.",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "person": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string",
+                                "format": "guid",
+                                "pattern": "^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$"
+                            }
+                        }
+                    }
+                }
+            },
+            "targetSchema": {
+                "$ref": "person-holds.json#"
+            }
+        },
+        {
+            "rel": "filter",
+            "encType": "application/x-www-form-urlencoded",
+            "method": "GET",
+            "href": "/person-holds?criteria={\"type\": {\"id\": $id}}",
+            "title": "Type",
+            "description": "The type of the hold.",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string",
+                                "format": "guid",
+                                "pattern": "^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$"
+                            }
+                        }
+                    }
+                }
+            },
+            "targetSchema": {
+                "$ref": "person-holds.json#"
+            }
+        },
+        {
+            "rel": "namedQuery",
+            "encType": "application/x-www-form-urlencoded",
+            "method": "GET",
+            "href": "/person-holds?allActiveHolds={\"status\": {$status}}",
+            "name": "allActiveHolds",
+            "title": "All Active Holds",
+            "description": "Filter to return all active holds.",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "enum": [
+                            "active"
+                        ],
+                        "type": "string"
+                    }
+                }
+            },
+            "targetSchema": {
+                "$ref": "person-holds.json#"
+            }
+        },
+        {
+            "rel": "namedQuery",
+            "encType": "application/x-www-form-urlencoded",
+            "method": "GET",
+            "href": "/person-holds?personActiveHolds={\"personActiveHolds\":{\"status\":{$status}, \"person\": {\"id\": $id}}}",
+            "name": "personActiveHolds",
+            "title": "Person Active Holds",
+            "description": "Filter to return all active holds for a person.",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "enum": [
+                                    "active"
+                                ],
+                                "type": "string"
+                            },
+                            "person": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "format": "guid",
+                                        "pattern": "^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$"
+                                    }
+                                }
+                            }
+                        },
+                        "required": [
+                            "status",
+                            "person"
+                        ]
+                    }
+                }
+            },
+            "targetSchema": {
+                "$ref": "person-holds.json#"
+            }
+        }
+    ]
+}

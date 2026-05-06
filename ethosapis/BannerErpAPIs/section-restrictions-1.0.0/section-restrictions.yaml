@@ -1,0 +1,794 @@
+openapi: 3.0.0
+info:
+  title: Section Restrictions
+  description: >
+  
+    The Section Restrictions API returns section registration restriction details for a specified term and crn as seen on the SSARRES administrative page. 
+    
+
+    Section restrictions related to department, field of study, class, level, degree, 
+    program, campus, college, student attribute and cohort associated with the section 
+    are returned in the response.
+
+       
+
+    Section restriction details can be created and maintained using section-restrictions-adjustments-process.
+
+  version: 1.0.0-beta
+  x-api-type: erp
+  x-release-status: beta
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Student
+  x-source-name: SSARRES
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /qapi/section-restrictions:
+    post:
+      tags:
+      - section-restrictions QAPI
+      summary: Returns resources from SSRRDEP, SSRRMAJ, SSRRCLS, SSRRLVL, SSRRDEG, SSRRPRG, SSRRCMP, SSRRCOL, SSRRATT and SSRRCHR.
+      description: >
+        Queries for the requested resource using a set of attributes provided in the post
+        request body.  Please note the path to the server is overridden to use /qapi/{resource} 
+        in the URL and not /api/{resource}.
+        
+        
+        Returns any SSRRDEP, SSRRMAJ, SSRRCLS, SSRRLVL, SSRRDEG, SSRRPRG, SSRRCMP, SSRRCOL, SSRRATT and SSRRCHR records meeting the required submitted criteria. 
+     
+          
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string  
+        - name: limit
+          in: query
+          description:  |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer                      
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/section-restrictions-1.0.0_qapi_post_request"
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/section-restrictions-1.0.0_qapi_post_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the clientâ€™s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SECTION_RESTRICTIONS
+components:
+  schemas:
+    section-restrictions-1.0.0_qapi_post_request:
+      type: object
+      required:
+        - term        
+      properties:              
+        term:
+          title: Term
+          maxLength: 6
+          type: string
+          description: "A user provided value.  The term code is used to retrieve the most current section 
+           restrictions that are equal to the provided value."         
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202201    
+        crn: 
+          title: Course Reference Number
+          maxLength: 5
+          type: string
+          description: "The Course Reference Number (CRN) assigned to this course section."
+          x-lineageReferenceObject: SSBSECT_CRN
+          example: 1001                   
+    section-restrictions-1.0.0_qapi_post_response:
+      type: object
+      required:
+        - term        
+        - crn
+      properties:
+        term:
+          title: Term
+          maxLength: 6
+          type: string
+          description: "The term code for the set of section restriction details."         
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202201    
+        crn: 
+          title: Course Reference Number
+          maxLength: 5
+          type: string
+          description: "The Course Reference Number (CRN) assigned to this course section."
+          x-lineageReferenceObject: SSBSECT_CRN
+          example: 1001       
+        departmentRegistrationRestriction:
+          title: Department Registration Restriction
+          type: object
+          properties:  
+            restrictionType:
+              title: Restriction Type
+              maxLength: 1
+              type: string
+              description: "Indicates whether the restrictions are to be inclusions or exclusions. Values may be compared to student data to control which students may register."
+              x-lineageReferenceObject: SSRRDEP_DEPT_IE_CDE   
+              enum:
+                - includeRestriction
+                - excludeRestriction
+              example: includeRestriction                             
+            departments:
+              title: Departments
+              type: array               
+              items:
+                type: object           
+                properties:            
+                  department:
+                    title: Department Code
+                    maxLength: 4
+                    type: string
+                    description: "The department of students for which section registration restrictions exist. The Include/Exclude field will determine how the department is restricted. An unlimited number of departments may be defined."
+                    x-lineageReferenceObject: SSRRDEP_DEPT_CODE
+                    x-lineageLookupReferenceObject: STVDEPT             
+                    example: NURS
+                  departmentDescription:
+                    title: Department Code Description
+                    maxLength: 30
+                    type: string
+                    description: "The description of the department."
+                    x-lineageReferenceObject: STVDEPT_DESC
+                    example: Nursing     
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SSRRDEP_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z   
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SSRRDEP_USER_ID
+                    example: SYSTEST08                                                                                                                    
+        fieldOfStudyRegistrationRestrictions:
+          title: Field of Study Registration Restrictions
+          type: array
+          items:
+            type: object      
+            properties:   
+              restrictionType:
+                title: Restriction Type
+                maxLength: 1
+                type: string
+                description: "Indicates whether the restrictions are to be inclusions or exclusions. Values may be compared to student data to control which students may register."
+                x-lineageReferenceObject: SSRRMAJ_MAJOR_IND  
+                enum:
+                  - includeRestriction
+                  - excludeRestriction                        
+                example: excludeRestriction                
+              fieldOfStudyType:
+                oneOf:
+                - type: string
+                  title: Field of Study Type Code
+                  maxLength: 15
+                  description: "The field of study type code associated with the field of study."                    
+                  x-lineageReferenceObject: SSRRMAJ_LFST_CODE
+                  x-lineageLookupReferenceObject: GTVLFST             
+                  example: MINOR  
+                - type: string
+                  enum:
+                  - all
+                  maxLength: 0
+              fieldOfStudyTypeDescription:
+                title: "The description of the field of study type code."
+                maxLength: 30
+                type: string
+                description: "The description of the field of study type."
+                x-lineageReferenceObject: GTVLFST_DESC        
+                example: Minor                             
+              fieldsOfStudy:
+                title: Fields of Study
+                type: array               
+                items:
+                  type: object           
+                  properties:            
+                    fieldOfStudy:
+                      title: Field of Study Code
+                      maxLength: 4
+                      type: string
+                      description: "The field of study of students for which registration restrictions exist. The Include/Exclude field will determine how the field of study is restricted. An unlimited number of fields of study may be defined."
+                      x-lineageReferenceObject: SSRRMAJ_MAJR_CODE
+                      x-lineageLookupReferenceObject: STVMAJR             
+                      example: CHEE
+                    fieldOfStudyDescription:
+                      title: Field of Study Code Description
+                      maxLength: 30
+                      type: string
+                      description: "The description of the field of study."
+                      x-lineageReferenceObject: STVMAJR_DESC        
+                      example: Chemical Engineering                  
+                    modifiedOn:
+                      title: Modified On
+                      maxLength: 11
+                      type: string
+                      format: date-time
+                      pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                      description: "Most current date the record was created or changed."
+                      x-lineageReferenceObject: SSRRMAJ_ACTIVITY_DATE
+                      example: 2024-05-05T04:00:00Z   
+                    modifiedBy:
+                      title: Modified By User ID
+                      maxLength: 30
+                      type: string
+                      description: "User who inserted or last updated the data."
+                      x-lineageReferenceObject: SSRRMAJ_USER_ID
+                      example: SYSTEST08 
+        classRegistrationRestriction:
+          title: Class Registration Restriction
+          type: object     
+          properties:  
+            restrictionType:
+              title: Restriction Type
+              maxLength: 1
+              type: string
+              description: "Indicates whether the restrictions are to be inclusions or exclusions. Values may be compared to student data to control which students may register."
+              x-lineageReferenceObject: SSRRCLS_CLASS_IND
+              enum:
+                - includeRestriction
+                - excludeRestriction                 
+              example: excludeRestriction                            
+            classes:
+              title: Classes
+              type: array               
+              items:
+                type: object            
+                properties:            
+                  class:
+                    title: Class Code
+                    maxLength: 2
+                    type: string
+                    description: "The classification of students for which section registration restrictions exist. The Include/Exclude field will determine how the class is restricted. An unlimited number of classes may be defined."
+                    x-lineageReferenceObject: SSRRCLS_CLAS_CODE
+                    x-lineageLookupReferenceObject: STVCLAS             
+                    example: 01
+                  classDescription:
+                    title: Class Code Description
+                    maxLength: 30
+                    type: string
+                    description: "The description of the class."
+                    x-lineageReferenceObject: STVCLAS_DESC           
+                    example: First Year     
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SSRRCLS_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z   
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SSRRCLS_USER_ID
+                    example: SYSTEST08         
+        levelRegistrationRestriction:
+          title: Level Registration Restriction
+          type: object   
+          properties:  
+            restrictionType:
+              title: Restriction Type
+              maxLength: 1
+              type: string
+              description: "Indicates whether the restrictions are to be inclusions or exclusions. Values may be compared to student data to control which students may register."
+              x-lineageReferenceObject: SSRRLVL_LEVL_IND 
+              enum:
+                - includeRestriction
+                - excludeRestriction                         
+              example: includeRestriction                            
+            levels:
+              title: Levels
+              type: array               
+              items:
+                type: object               
+                properties:            
+                  level:
+                    title: Level Code
+                    maxLength: 4
+                    type: string
+                    description: "The level of students for which section registration restrictions exist. The Include/Exclude field will determine how the level is restricted. An unlimited number of levels may be defined."
+                    x-lineageReferenceObject: SSRRLVL_LEVL_CODE
+                    x-lineageLookupReferenceObject: STVLEVL             
+                    example: UG
+                  levelDescription:
+                    title: Level Code Description
+                    maxLength: 30
+                    type: string
+                    description: "The description of the level."
+                    x-lineageReferenceObject: STVLEVL_DESC           
+                    example: Undergraduate     
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SSRRLVL_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z   
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SSRRLVL_USER_ID
+                    example: SYSTEST08  
+        degreeRegistrationRestriction:
+          title: Degree Registration Restriction
+          type: object       
+          properties:  
+            restrictionType:
+              title: Restriction Type
+              maxLength: 1
+              type: string
+              description: "Indicates whether the restrictions are to be inclusions or exclusions. Values may be compared to student data to control which students may register."
+              x-lineageReferenceObject: SSRRDEG_DEGC_IND   
+              enum:
+                - includeRestriction
+                - excludeRestriction                     
+              example: includeRestriction                        
+            degrees:
+              title: Degrees
+              type: array               
+              items:
+                type: object               
+                properties:            
+                  degree:
+                    title: Degree Code
+                    maxLength: 6
+                    type: string
+                    description: "The degree of students for which section registration restrictions exist. The Include/Exclude field will determine how the degree is restricted. An unlimited number of degrees may be defined."
+                    x-lineageReferenceObject: SSRRDEG_DEGC_CODE
+                    x-lineageLookupReferenceObject: STVDEGC             
+                    example: BS
+                  degreeDescription:
+                    title: Degree Code Description
+                    maxLength: 30
+                    type: string
+                    description: "The description of the degree."
+                    x-lineageReferenceObject: STVDEGC_DESC        
+                    example: Bachelor of Science     
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SSRRDEG_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z   
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SSRRDEG_USER_ID
+                    example: SYSTEST08     
+        programRegistrationRestriction:
+          title: Program Registration Restriction
+          type: object      
+          properties:  
+            restrictionType:
+              title: Restriction Type
+              maxLength: 1
+              type: string
+              description: "Indicates whether the restrictions are to be inclusions or exclusions. Values may be compared to student data to control which students may register."
+              x-lineageReferenceObject: SSRRPRG_PROGRAM_IND      
+              enum:
+                - includeRestriction
+                - excludeRestriction                    
+              example: excludeRestriction                            
+            programs:
+              title: Programs
+              type: array               
+              items:
+                type: object              
+                properties:            
+                  program:
+                    title: Program Code
+                    maxLength: 12
+                    type: string
+                    description: "The program of students for which section registration restrictions exist. The Include/Exclude field will determine how the program is restricted. An unlimited number of programs may be defined."
+                    x-lineageReferenceObject: SSRRPRG_PROGRAM
+                    x-lineageLookupReferenceObject: SMRPRLE             
+                    example: BSCE
+                  programDescription:
+                    title: Program Code Description
+                    maxLength: 30
+                    type: string
+                    description: "The description of the program."
+                    x-lineageReferenceObject: SMRPRLE_PROGRAM_DESC           
+                    example: BS in Civil Engineering     
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SSRRPRG_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z   
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SSRRPRG_USER_ID
+                    example: SYSTEST08    
+        campusRegistrationRestriction:
+          title: Campus Registration Restriction
+          type: object      
+          properties:  
+            restrictionType:
+              title: Restriction Type
+              maxLength: 1
+              type: string
+              description: "Indicates whether the restrictions are to be inclusions or exclusions. Values may be compared to student data to control which students may register."
+              x-lineageReferenceObject: SSRRCMP_CAMP_IND     
+              enum:
+                - includeRestriction
+                - excludeRestriction                      
+              example: includeRestriction
+            campuses:
+              title: Campuses
+              type: array               
+              items:
+                type: object            
+                properties:            
+                  campus:
+                    title: Campus Code
+                    maxLength: 3
+                    type: string
+                    description: "The campus of students for which section registration restrictions exist. The Include/Exclude field will determine how the campus is restricted. An unlimited number of campuses may be defined."
+                    x-lineageReferenceObject: SSRRCMP_CAMP_CODE
+                    x-lineageLookupReferenceObject: STVCAMP             
+                    example: D
+                  campusDescription:
+                    title: Campus Code Description
+                    maxLength: 30
+                    type: string
+                    description: "The description of the campus."
+                    x-lineageReferenceObject: STVCAMP_DESC     
+                    example: Downtown     
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SSRRCMP_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z   
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SSRRCMP_USER_ID
+                    example: SYSTEST08      
+        collegeRegistrationRestriction:
+          title: College Registration Restriction
+          type: object    
+          properties:  
+            restrictionType:
+              title: Restriction Type
+              maxLength: 1
+              type: string
+              description: "Indicates whether the restrictions are to be inclusions or exclusions. Values may be compared to student data to control which students may register."
+              x-lineageReferenceObject: SSRRCOL_COLL_IND
+              enum:
+                - includeRestriction
+                - excludeRestriction                 
+              example: includeRestriction
+            colleges:
+              title: Colleges
+              type: array               
+              items:
+                type: object              
+                properties:            
+                  college:
+                    title: College Code
+                    maxLength: 2
+                    type: string
+                    description: "The college of students for which section registration restrictions exist. The Include/Exclude field will determine how the college is restricted. An unlimited number of colleges may be defined."
+                    x-lineageReferenceObject: SSRRCOL_COLL_CODE
+                    x-lineageLookupReferenceObject: STVCOLL             
+                    example: NU
+                  collegeDescription:
+                    title: College Code Description
+                    maxLength: 100
+                    type: string
+                    description: "The description of the college."
+                    x-lineageReferenceObject: STVCOLL_DESC       
+                    example: College of Nursing     
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SSRRCOL_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z   
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SSRRCOL_USER_ID
+                    example: SYSTEST08  
+        studentAttributeRegistrationRestriction:
+          title: Student Attribute Registration Restriction
+          type: object       
+          properties:  
+            restrictionType:
+              title: Restriction Type
+              maxLength: 1
+              type: string
+              description: "Indicates whether the restrictions are to be inclusions or exclusions. Values may be compared to student data to control which students may register."
+              x-lineageReferenceObject: SSRRATT_ATTS_IE_CDE   
+              enum:
+                - includeRestriction
+                - excludeRestriction                     
+              example: excludeRestriction
+            studentAttributes:
+              title: Student Attributes
+              type: array               
+              items:
+                type: object          
+                properties:            
+                  studentAttribute:
+                    title: Student Attribute Code
+                    maxLength: 4
+                    type: string
+                    description: "The student attribute of students for which section registration restrictions exist. The Include/Exclude field will determine how the student attribute is restricted. An unlimited number of student attributes may be defined."
+                    x-lineageReferenceObject: SSRRATT_ATTS_CODE
+                    x-lineageLookupReferenceObject: STVATTS             
+                    example: 30
+                  studentAttributeDescription:
+                    title: Student Attribute Code Description
+                    maxLength: 30
+                    type: string
+                    description: "The description of the student attribute."
+                    x-lineageReferenceObject: STVATTS_DESC          
+                    example: 30 credits per year     
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SSRRATT_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z   
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SSRRATT_USER_ID
+                    example: SYSTEST08  
+        cohortRegistrationRestriction:
+          title: Cohort Registration Restriction
+          type: object    
+          properties:  
+            restrictionType:
+              title: Restriction Type
+              maxLength: 1
+              type: string
+              description: "Indicates whether the restrictions are to be inclusions or exclusions. Values may be compared to student data to control which students may register."
+              x-lineageReferenceObject: SSRRCHR_CHRT_IE_CDE   
+              enum:
+                - includeRestriction
+                - excludeRestriction                     
+              example: excludeRestriction                            
+            cohorts:
+              title: Cohorts
+              type: array               
+              items:
+                type: object           
+                properties:            
+                  cohort:
+                    title: Cohort Code
+                    maxLength: 10
+                    type: string
+                    description: "The cohort of students for which section registration restrictions exist. The Include/Exclude field will determine how the cohort is restricted. An unlimited number of cohorts may be defined."
+                    x-lineageReferenceObject: SSRRCHR_CHRT_CODE
+                    x-lineageLookupReferenceObject: STVCHRT             
+                    example: C4
+                  cohortDescription:
+                    title: Cohort Code Description
+                    maxLength: 30
+                    type: string
+                    description: "The description of the cohort."
+                    x-lineageReferenceObject: STVCHRT_DESC
+                    example: Cohort C4     
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SSRRCHR_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z   
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SSRRCHR_USER_ID
+                    example: SYSTEST08     
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

@@ -1,0 +1,1094 @@
+openapi: 3.0.0
+info:
+  title: applicant-other-awards
+  description: >
+     <p>
+      The Applicant Other Awards API  provides information from KVROTHR table
+      It allows users to retrieve detailed other award information from the <strong>KVROTHR</strong> table, as well as create new other award records.
+      </p>
+
+      <p>
+      <strong>GET API</strong> Retrieves all information from KVROTHR table for applicants.
+      </p>
+
+      <p>
+      <strong>POST API</strong> Creates a new Other Award record. 
+      Upon successful creation, the data is stored in KVROTHR table and the same is displayed on KVAOTHR page.
+      </p>
+
+      <p>
+      <strong>PUT API</strong> Updates an existing Other Award record.  
+      The updated record will be reflected on the KVAOTHR page.
+      </p>
+  
+  version: 1.0.0
+  x-source-domain: Financial Aid
+  x-source-name: KVROTHR
+  x-source-title: Applicant Other Awards (Student Aid)
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-audience: all
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+      server_url:
+        default: localhost
+paths:
+  /api/applicant-other-awards:
+    get:
+      summary: Returns data related to external awards.
+      description: Return all data related to external awards.
+      security:
+        - EthosIntegrationBearer: []
+      tags:
+        - applicant-other-awards
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards for more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### studentId
+
+            Returns data for a specific student based on Student ID.
+
+            ```
+            /applicant-other-awards?criteria={"studentId":123456}
+
+            ```
+            ### Aid Year Code
+
+            Returns data for a specific aid year.
+
+            ```
+            /applicant-other-awards?criteria={"aidyCode":"2025"}
+
+            ```
+            ### Aid Period Code
+
+            Returns data for a specific aid period.
+
+            ```
+            /applicant-other-awards?criteria={"aidpCode":"D-FALL08"}
+
+            ```
+            ### Fund Code
+
+            Returns data for a specific fund code.
+
+            ```
+            /applicant-other-awards?criteria={"fndcCode":"D-OR"}
+
+            ```
+            ### Fund Status Code
+
+            Returns awards with specific status.
+
+            ```
+            /applicant-other-awards?criteria={"fstaStatusCode":"DOIS"}
+
+            ```
+            ### Multiple Criteria
+
+            Returns data for multiple criteria.
+
+            ```
+            /applicant-other-awards?criteria={"studentId":"123456","aidyCode":"2025","fndcCode":"D-OR"}
+
+            ```
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/applicant-other-awards-1.0.0_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the clientâ€™s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      x-method-permissions: API_APLT_OTHR_AWRD 
+    post:
+      summary: Create a new external award record in KVROTHR table.
+      description: |
+        <p>
+        Creates a new External Award Record. Once successfully created, the record will be visible on the <strong>KVAOTHR</strong> page.
+        </p>
+        <p>
+        All date fields must be provided in the <strong>DD-MM-YYYY</strong> format.
+        </p>
+      security:
+        - EthosIntegrationBearer: []
+      tags:
+        - applicant-other-awards
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content-type
+          in: header
+          required: true
+          description: >
+            The media type of the request.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              $ref: "#/components/schemas/applicant-other-awards-1.0.0_post_request"
+      responses:
+        "201":
+          description: Created. The external award record was successfully created.
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            Location:
+              description: The URI of the newly created resource
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                $ref: "#/components/schemas/applicant-other-awards-1.0.0_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "422":
+          description: Unprocessable Entity. The request was well-formed but was unable to be followed due to semantic errors.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      x-method-permissions: API_APLT_OTHR_AWRD 
+  /api/applicant-other-awards/batches:
+    post:
+      tags:
+        - applicant-other-awards
+      summary: Submit a batch of applicant other awards to be posted to KVROTHR.
+      description: 
+        <p>
+         Creates or Updates multiple External Award Records in a single batch operation. Once successfully processed, the records will be visible on the <strong>KVAOTHR</strong> page.
+          </p>
+          <p>
+            The API accepts an array of External Award Records in the request payload, which will be persisted to the appropriate resource tables upon successful submission.
+          </p>
+          <p>
+            <strong>For creating new records:</strong> Submit the record without an <strong>id</strong> field.
+          </p>
+          <p>  
+            <strong>For updating existing records:</strong> Include the composite <strong>id</strong> structure containing studentId, aidyCode, aidpCode, fndcCode, and fndcSeqNo as shown in the example schema.
+          </p>
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/applicant-other-awards-batch-1.0.0_post_request"
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/applicant-other-awards-batch-1.0.0_post_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_APLT_OTHR_AWRD
+  /api/applicant-other-awards/batches/{id}:
+    get:
+      tags:
+      - applicant-other-awards
+      summary: Returns the result of each item in the batch request.  
+      description: >
+
+        Returns the list of IDs for those applicant other awards that were successfully created. For those that were not, it returns the list of error messages.
+         
+      parameters:
+        - name: id
+          in: path
+          description: |
+            Unique identifier for the applicant other award.
+          required: true
+          schema:
+            type: string
+            minimum: 1      
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/applicant-other-awards-batch-1.0.0_get_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_APLT_OTHR_AWRD    
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    applicant-other-awards-1.0.0_response:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          title: Award Identifier
+          description: Composite identifier for the award record.
+          type: object
+          required:
+            - studentId
+            - aidyCode
+            - aidpCode
+            - fndcCode
+          properties:
+            studentId:
+              title: Student ID
+              description: The Banner ID of the student.
+              type: string
+              maxLength: 9
+            aidyCode:
+              title: Aid Year Code
+              description: The aid year in which the Award Fund is being processed.
+              type: string
+              maxLength: 4
+              x-lineageReferenceObject: KVROTHR_AIDY_CODE
+            aidpCode:
+              title: Aid Period Code
+              description: The aid period in which the Award Fund Code is being processed.
+              type: string
+              maxLength: 8
+              x-lineageReferenceObject: KVROTHR_AIDP_CODE
+            fndcCode:
+              title: Aid Fund Code
+              description: The code of the award that is being processed.
+              type: string
+              maxLength: 10
+              x-lineageReferenceObject: KVROTHR_FNDC_CODE
+            fndcSeqNo:
+              title: Aid Fund Code Sequence Number
+              description: It is a one-up number used to differentiate one award from the other when the same Aid Fund Code is used.
+              type: integer
+              x-lineageReferenceObject: KVROTHR_FNDC_SEQ_NO
+        fstaStatusCode:
+          title: Fund Status Code
+          description: The stage in which this aid fund code is when it has been assigned to this applicant as part of the awarding processing.
+          maxLength: 4
+          type: string
+          x-lineageReferenceObject: KVROTHR_FSTA_STATUS_CDE
+        fstaStatusDate:
+          title: Fund Status Code Date 
+          description: The date associated with the fund status code.
+          type: string
+          x-lineageReferenceObject: KVROTHR_FSTA_STATUS_DATE
+        awardAmount:
+          title: Award Amount
+          description: The amount of money that has been awarded to the applicant by an external agency for this aid fund code.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVROTHR_AWARD_AMT
+        remitAmount:
+          title: Remit Amount
+          description: The amount of the award that will be remitted directly to the institution by the awarding agency.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVROTHR_REMIT_AMT
+        refundAmount:
+          title: Refund Amount
+          description: Amount of money sent by the institution to the awarding agency when the student has withdrawn or has not maintained his/her eligibility status anymore.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVROTHR_REFUND_AMT
+        chequeReleaseDate:
+          title: Cheque Release Date
+          description: The date the institution released the cheque to the student for this award.
+          type: string
+          x-lineageReferenceObject: KVROTHR_CHEQUE_RELEASE_DATE
+        continuingEligInd:
+          title: Continuing Eligibility Indicator
+          maxLength:  1
+          type:  string
+          description:   It indicates if the continuing eligibility has been met or not in order to continue getting this award.Values are Y-eligibility is met, N-Eligibility is not met. NULL-no decision about eligibility has been made for this applicant. Default value is NULL.
+          x-lineageReferenceObject: KVROTHR_CONTIN_ELIG_IND  
+        continuingEligOverrideInd:
+          title: Continuing Eligibility Override Indicator
+          description: It indicates if the Continuing Eligibility Output has been overridden when failed.Values are Y-it has been overriden, N-it has not been overriden.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVROTHR_CE_OVRDE_IND
+        startDate:
+          title: Start Date
+          description:  The award tracking start date for this award for this applicant. 
+          type: string
+          x-lineageReferenceObject: KVROTHR_START_DATE
+        endDate:
+          title: End Date
+          description: The award tracking end date for this award for this applicant.
+          type: string
+          x-lineageReferenceObject: KVROTHR_END_DATE
+        webQueryIndicator:
+          title: Web Query Indicator
+          description: Indicates if this award record for this applicant can be displayed or not on the query web page.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVROTHR_WEB_QUERY_IND
+        comment: 
+          title: Comment
+          description: The comment attached to the Aid Fund Code for the applicant.
+          type: string
+          maxLength: 2000
+          x-lineageReferenceObject: KVROTHR_COMMENT
+        dataOrigin:
+          title: Data Origin
+          description: The latest source for the data contained in this record.
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: KVROTHR_DATA_ORIGIN
+        createUserId:
+          title: Create User ID
+          description: The logon ID of the user who created this record.
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: KVROTHR_CREATE_USER_ID
+        createDate:
+          title: Create Date
+          description: The date this record was created.
+          type: string  
+          x-lineageReferenceObject: KVROTHR_CREATE_DATE
+        userId:
+          title: User Id
+          description: The logon ID of the user who created or last updated this record.
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: KVROTHR_USER_ID
+        activityDate:
+          title: Activity Date
+          description: The date of the last update to this record.
+          type: string 
+          x-lineageReferenceObject: KVROTHR_ACTIVITY_DATE
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary
+                  data entity used to create the resource. This is useful for
+                  referencing the source item through the applications
+                  administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.      
+    applicant-other-awards-1.0.0_post_request:
+      type: object
+      required:
+        - studentId
+        - aidyCode
+        - aidpCode
+        - fndcCode
+      properties:
+        studentId:
+          title: Student ID
+          description: The Banner ID of the student.
+          type: string
+          maxLength: 9
+        aidyCode:
+          title: Aid Year Code
+          description: The aid year in which the Award Fund is being processed.
+          type: string
+          maxLength: 4
+          x-lineageReferenceObject: KVROTHR_AIDY_CODE
+        aidpCode:
+          title: Aid Period Code
+          description: The aid period in which the Award Fund Code is being processed.
+          type: string
+          maxLength: 8
+          x-lineageReferenceObject: KVROTHR_AIDP_CODE
+        fndcCode:
+          title: Aid Fund Code
+          description: The code of the award that is being processed.
+          type: string
+          maxLength: 10
+          x-lineageReferenceObject: KVROTHR_FNDC_CODE
+        fstaStatusCode:
+          title: Fund Status Code
+          description: The stage in which this aid fund code is when it has been assigned to this applicant as part of the awarding processing.
+          maxLength: 4
+          type: string
+          x-lineageReferenceObject: KVROTHR_FSTA_STATUS_CDE
+        awardAmount:
+          title: Award Amount
+          description: The amount of money that has been awarded to the applicant by an external agency for this aid fund code.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVROTHR_AWARD_AMT
+        remitAmount:
+          title: Remit Amount
+          description: The amount of the award that will be remitted directly to the institution by the awarding agency.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVROTHR_REMIT_AMT
+        refundAmount:
+          title: Refund Amount
+          description: Amount of money sent by the institution to the awarding agency when the student has withdrawn or has not maintained his/her eligibility status anymore.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVROTHR_REFUND_AMT
+        chequeReleaseDate:
+          title: Cheque Release Date
+          description: The date the institution released the cheque to the student for this award.
+          type: string
+          x-lineageReferenceObject: KVROTHR_CHEQUE_RELEASE_DATE
+        continuingEligInd:
+          title: Continuing Eligibility Indicator
+          maxLength:  1
+          type:  string
+          description:   It indicates if the continuing eligibility has been met or not in order to continue getting this award.Values are Y-eligibility is met, N-Eligibility is not met. NULL-no decision about eligibility has been made for this applicant. Default value is NULL.
+          x-lineageReferenceObject: KVROTHR_CONTIN_ELIG_IND  
+        continuingEligOverrideInd:
+          title: Continuing Eligibility Override Indicator
+          description: It indicates if the Continuing Eligibility Output has been overridden when failed.Values are Y-it has been overriden, N-it has not been overriden.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVROTHR_CE_OVRDE_IND
+        startDate:
+          title: Start Date
+          description:  The award tracking start date for this award for this applicant. 
+          type: string
+          x-lineageReferenceObject: KVROTHR_START_DATE
+        endDate:
+          title: End Date
+          description: The award tracking end date for this award for this applicant.
+          type: string
+          x-lineageReferenceObject: KVROTHR_END_DATE
+        webQueryIndicator:
+          title: Web Query Indicator
+          description: Indicates if this award record for this applicant can be displayed or not on the query web page.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVROTHR_WEB_QUERY_IND
+        comment: 
+          title: Comment
+          description: The comment attached to the Aid Fund Code for the applicant.
+          type: string
+          maxLength: 2000
+          x-lineageReferenceObject: KVROTHR_COMMENT   
+    applicant-other-awards-batch-1.0.0_post_request:
+      type: object
+      title: Applicant Other Awards Batch Request
+      description: Request body for batch processing of applicant other awards
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          description: Array of applicant other award requests to process in batch
+          items:
+            $ref: '#/components/schemas/applicant-other-awards-1.0.0_post_request'
+      example:
+        items:
+          - studentId: "000012345"
+            aidyCode: "2223"
+            aidpCode: "FALL"
+            fndcCode: "OTHR"
+            fndcSeqNo: 1
+            fstaStatusCode: "DOIS"
+            awardAmount: 5500
+            remitAmount: 5500
+            refundAmount: 550
+            chequeReleaseDate: "10-11-2020"
+            continuingEligInd: "N"
+            continuingEligOverrideInd: "N"
+            startDate: "20-06-2019"
+            endDate: "20-06-2020"
+            webQueryIndicator: "Y"
+            comment: "Other Award"
+          - id:
+              studentId: "000012345"
+              aidyCode: "2223"
+              aidpCode: "FALL"
+              fndcCode: "PELLINST"
+              fndcSeqNo: 2
+            fstaStatusCode: "DOCA"
+            awardAmount: 6000
+            remitAmount: 550
+            refundAmount: 100
+            acceptDate: "2023-09-01"
+            comment: "Update Other Award"
+    applicant-other-awards-batch-1.0.0_post_response:
+      type: object
+      title: Applicant Other Awards Batch Response
+      description: Response body for batch processing submission
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the batch request
+        status:
+          type: string
+          description: Current status of the batch job
+          enum: ["pending", "processing", "completed", "failed"]
+        createdOn:
+          type: string
+          format: date-time
+          description: Timestamp when the batch job was created
+        totalRequests:
+          type: integer
+          description: Total number of requests in the batch
+        processedRequests:
+          type: integer
+          description: Number of requests that have been processed
+        successfulRequests:
+          type: integer
+          description: Number of requests that were processed successfully
+        failedRequests:
+          type: integer
+          description: Number of requests that failed during processing
+      example:
+        id: "13371b52-1afc-4a98-8186-90f2219dad01"
+        status: "pending"
+        createdOn: "2024-09-18T13:46:48Z"
+        totalRequests: 2
+        processedRequests: 0
+        successfulRequests: 0
+        failedRequests: 0
+    applicant-other-awards-batch-1.0.0_get_response:
+      type: object
+      title: Applicant Other Awards Batch Status
+      description: Response body for batch status inquiry
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the batch request
+        jobId:
+          type: integer
+          description: Internal job execution ID
+        status:
+          type: string
+          description: Current status of the batch job
+          enum: ["pending", "processing", "completed", "failed"]
+        createdOn:
+          type: string
+          format: date-time
+          description: Timestamp when the batch job was created
+        completedOn:
+          type: string
+          format: date-time
+          description: Timestamp when the batch job completed (if completed)
+        totalRequests:
+          type: integer
+          description: Total number of requests in the batch
+        processedRequests:
+          type: integer
+          description: Number of requests that have been processed
+        successfulRequests:
+          type: integer
+          description: Number of requests that were processed successfully
+        failedRequests:
+          type: integer
+          description: Number of requests that failed during processing
+        results:
+          type: array
+          description: Results for each request in the batch
+          items:
+            type: object
+            properties:
+              index:
+                type: integer
+                description: Index of the request in the original batch
+              status:
+                type: string
+                description: Status of this specific request
+                enum: ["pending", "processing", "successful", "failed"]
+              id:
+                type: object
+                description: Generated ID for successful requests
+                properties:
+                  studentId:
+                    type: string
+                    description: Student identifier
+                  aidyCode:
+                    type: string
+                    description: Aid year code
+                  aidpCode:
+                    type: string
+                    description: Aid period code
+                  fndcCode:
+                    type: string
+                    description: Aid fund code
+                  fndcSeqNo:
+                    type: integer
+                    description: Fund sequence number
+              errors:
+                type: array
+                description: Error messages for failed requests
+                items:
+                  type: object
+                  properties:
+                    code:
+                      type: string
+                      description: Error code
+                    message:
+                      type: string
+                      description: Error message
+      example:
+        id: "13371b52-1afc-4a98-8186-90f2219dad01"
+        jobId: 123
+        status: "completed"
+        createdOn: "2024-09-18T13:46:48Z"
+        completedOn: "2024-09-18T13:47:12Z"
+        totalRequests: 2
+        processedRequests: 2
+        successfulRequests: 1
+        failedRequests: 1
+        results:
+          - index: 0
+            status: "successful"
+            id:
+              studentId: "000012345"
+              aidyCode: "2223"
+              aidpCode: "FALL"
+              fndcCode: "PELLINST"
+              fndcSeqNo: 1
+          - index: 1
+            status: "failed"
+            errors:
+              - code: "VALIDATION_ERROR"
+                message: "Fund code SUPPLINST is not valid for aid year 2223"

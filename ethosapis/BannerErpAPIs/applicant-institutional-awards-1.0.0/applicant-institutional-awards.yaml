@@ -1,0 +1,1794 @@
+openapi: 3.0.0
+info:
+  title: applicant-institutional-awards
+  description: >
+     <p>
+      The Applicant Institutional Awards API provides comprehensive information including awards, disbursements, disbursement history, and disbursement schedules for applicants.  
+      It allows users to retrieve detailed award information from the <strong>KVRAWRD</strong>, <strong>KVRDISB</strong>, <strong>KVRDISH</strong>, and <strong>KVRAPDS</strong> tables, as well as create new award records.
+      </p>
+
+      <p>
+      <strong>GET API</strong> – Retrieves all information from KVRAWRD, KVRDISB, KVRDISH, and KVRAPDS tables for applicants. 
+      </p>
+
+      <p>
+      <strong>POST API</strong> – Creates a new Award record (both discount-based and non-discount based).  
+      Upon successful creation, the data is stored in KVRAWRD table and the same is displayed on KVAAWRD page.
+      </p>
+  
+  version: 1.0.0
+  x-source-domain: Financial Aid
+  x-source-name: KVRAWRD, KVRDISB, KVRDISH, KVRAPDS
+  x-source-title: Applicant Institutional Awards (Student Aid)
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-audience: all
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/applicant-institutional-awards:
+    get:
+      summary: Returns comprehensive information including awards, disbursements, history, and schedules.
+      description: Return all awards, disbursements, disbursement history, and disbursement schedule information for applicants from KVRAWRD, KVRDISB, KVRDISH, and KVRAPDS tables.
+      security:
+        - EthosIntegrationBearer: []
+      tags:
+        - applicant-institutional-awards
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards for more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### studentId
+
+            Returns data for a specific student based on Student ID.
+
+            ```
+
+            /applicant-institutional-awards?criteria={"studentId":123456}
+
+            ```
+
+            ### Aid Year Code
+
+            Returns data for a specific aid year.
+
+            ```
+
+            /applicant-institutional-awards?criteria={"aidyCode":"2025"}
+
+            ```
+
+            ### Aid Period Code
+
+            Returns data for a specific aid period.
+
+            ```
+
+            /applicant-institutional-awards?criteria={"aidpCode":"LGWNTR20"}
+
+            ```
+
+            ### Fund Code
+
+            Returns data for a specific fund code.
+
+            ```
+
+            /applicant-institutional-awards?criteria={"fndcCode":"JA-IA-BUR"}
+
+            ```
+
+            ### Fund Status Code
+
+            Returns awards with specific status.
+
+            ```
+
+            /applicant-institutional-awards?criteria={"fstaStatusCde":"ACPT"}
+
+            ```
+            ### Multiple Criteria
+            Returns data for multiple criteria.
+
+            ```
+            /applicant-institutional-awards?criteria={"studentId":"123456","aidyCode":"2025","fndcCode":"JA-IA-BUR"}
+
+            ```
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/applicant-institutional-awards-1.0.0_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the clientâ€™s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      x-method-permissions: API_APLT_INST_AWRD
+    post:
+      summary: Create a new award record in KVRAWRD table.
+      description: |
+        <p>
+        Creates a new Award Record. Once successfully created, the record will be visible on the <strong>KVAAWRD</strong> page.
+        </p>
+        <p>
+          The API accepts a single Applicant Institutional Award Record in the request payload, which will be persisted to the appropriate resource tables upon successful submission.
+        </p>
+        <p>
+          To create a discount award, set the <strong>discountAward</strong> parameter to 'Y'. Additional parameters are available for fee assessment, amount rounding, award locking, and discount award operations:
+        </p>
+        <ul>
+          <li><strong>discountAward</strong>: Set to 'Y' to create discount-based award</li>
+          <li><strong>feeAssess</strong>: Set to 'Y' to enable fee assessment</li>
+          <li><strong>roundAmt</strong>: Set to 'Y' to enable amount rounding</li>
+          <li><strong>lockAwrd</strong>: Set to 'Y' to lock the award after creation</li>
+          <li><strong>acceptDiscAwrd</strong>: Set to 'Y' to automatically accept discount award</li>
+          <li><strong>cancelDiscAwrd</strong>: Set to 'Y' to cancel discount award</li>
+          <li><strong>declineDiscAwrd</strong>: Set to 'Y' to decline discount award</li>
+          <li><strong>revokeDiscAwrd</strong>: Set to 'Y' to revoke discount award</li>
+        </ul>
+        <p>
+          All date fields must be provided in the <strong>DD-MM-YYYY</strong> format.
+        </p>
+      security:
+        - EthosIntegrationBearer: []
+      tags:
+        - applicant-institutional-awards
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content-type
+          in: header
+          required: true
+          description: >
+            The media type of the request.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              $ref: "#/components/schemas/applicant-award-create-1.0.0_request"
+      responses:
+        "201":
+          description: Created. The award record was successfully created.
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            Location:
+              description: The URI of the newly created resource
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                $ref: "#/components/schemas/applicant-award-1.0.0_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "422":
+          description: Unprocessable Entity. The request was well-formed but was unable to be followed due to semantic errors.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      x-method-permissions: API_APLT_AWARD_CREATE
+  /api/applicant-institutional-awards/batches:
+    post:
+      tags:
+        - applicant-institutional-awards
+      summary: Submit a batch of award records (both discount-based and non-discount based) to be posted to KVRAWRD.
+      description: |
+        <p>
+        Creates or Updates multiple Award Records in a single batch operation. Once successfully processed, the records will be visible on the <strong>KVAAWRD</strong> page.
+        </p>
+        <p>
+          The API accepts an array of Applicant Institutional Award Records in the request payload, which will be persisted to the appropriate resource tables upon successful submission.
+        </p>
+        <p>
+          <strong>For creating new records:</strong> Submit the record without an <strong>id</strong> field.
+        </p>
+        <p>  
+          <strong>For updating existing records:</strong> Include the composite <strong>id</strong> structure containing studentId, aidyCode, aidpCode, fndcCode, and fndcSeqNo as shown in the example schema.
+        </p>
+        <p>
+          To create discount awards, set the <strong>discountAward</strong> parameter to 'Y' for each item. Additional parameters are available for fee assessment, amount rounding, award locking, and discount award operations:
+        </p>
+        <ul>
+          <li><strong>discountAward</strong>: Set to 'Y' to create discount-based award</li>
+          <li><strong>feeAssess</strong>: Set to 'Y' to enable fee assessment</li>
+          <li><strong>roundAmt</strong>: Set to 'Y' to enable amount rounding</li>
+          <li><strong>lockAwrd</strong>: Set to 'Y' to lock the award after creation</li>
+          <li><strong>acceptDiscAwrd</strong>: Set to 'Y' to automatically accept discount award</li>
+          <li><strong>cancelDiscAwrd</strong>: Set to 'Y' to cancel discount award</li>
+          <li><strong>declineDiscAwrd</strong>: Set to 'Y' to decline discount award</li>
+          <li><strong>revokeDiscAwrd</strong>: Set to 'Y' to revoke discount award</li>
+        </ul>
+        <p>
+          All date fields must be provided in the <strong>DD-MM-YYYY</strong> format.
+        </p>
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content-type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/applicant-institutional-awards-batch-1.0.0_post_request"
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/applicant-institutional-awards-batch-1.0.0_post_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client's
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_APLT_AWARD_CREATE
+  /api/applicant-institutional-awards/batches/{id}:
+    get:
+      tags:
+      - applicant-institutional-awards
+      summary: Returns the result of each item in the batch request.  
+      description: >
+
+        Returns the list of IDs for those applicant institutional awards that were successfully created. For those that were not, it returns the list of error messages.
+         
+      parameters:
+        - name: id
+          in: path
+          description: |
+            Unique identifier for the batch request.
+          required: true
+          schema:
+            type: string
+            minimum: 1      
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/applicant-institutional-awards-batch-1.0.0_get_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client's preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_APLT_INST_AWRD
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    applicant-institutional-awards-1.0.0_response:
+      title: applicant-institutional-awards-1.0.0_response
+      description: Comprehensive information including awards with embedded disbursements, history, and schedules.
+      type: object
+      properties:
+        id:
+          title: Award Identifier
+          description: Composite identifier for the award record.
+          type: object
+          properties:
+            studentId:
+              title: Student ID
+              description: The Banner ID of the student.
+              type: string
+              maxLength: 9
+            aidyCode:
+              title: Aid Year Code
+              description: The aid year in which the Award Fund is being processed.
+              type: string
+              maxLength: 4
+            aidpCode:
+              title: Aid Period Code
+              description: The aid period in which the Award Fund Code is being processed.
+              type: string
+              maxLength: 8
+            fndcCode:
+              title: Aid Fund Code
+              description: The aid fund code of the award that is being processed.
+              type: string
+              maxLength: 10
+            fndcSeqNo:
+              title: Fund Sequence Number
+              description: A one-up number used to differentiate one award from another when the same Aid Fund Code is used in the same aid period for the applicant.
+              type: integer
+          required:
+            - studentId
+            - aidyCode
+            - aidpCode
+            - fndcCode
+            - fndcSeqNo
+        award:
+          type: array
+          items:
+            $ref: "#/components/schemas/award-with-disbursements"
+      required:
+        - id
+        - award
+    award-with-disbursements:
+      title: Award with Disbursements
+      description: Award information from KVRAWRD table with embedded disbursements, history, and schedules.
+      type: object
+      properties:
+        fndcCode:
+          title: Aid Fund Code
+          description: The aid fund code of the award that is being processed.
+          type: string
+          maxLength: 10
+          x-lineageReferenceObject: KVRAWRD_FNDC_CODE
+        fndcSeqNo:
+          title: Fund Sequence Number
+          description: A one-up number used to differentiate one award from another when the same Aid Fund Code is used in the same aid period for the applicant.
+          type: integer
+          x-lineageReferenceObject: KVRAWRD_FNDC_SEQ_NO
+        fstaStatusCde:
+          title: Fund Status Code
+          description: The Status Code for this aid fund code award record for this applicant.
+          type: string
+          maxLength: 4
+          x-lineageReferenceObject: KVRAWRD_FSTA_STATUS_CDE
+        fstaStatusDate:
+          title: Fund Status Date
+          description: The Status Date for this aid fund code award record for this applicant.
+          type: string
+          x-lineageReferenceObject: KVRAWRD_FSTA_STATUS_DATE
+        origOfferAmt:
+          title: Original Offer Amount
+          description: The original amount of the award that was offered to the applicant.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVRAWRD_ORIG_OFFER_AMT
+        origOfferDate:
+          title: Original Offer Date
+          description: The original date of the award that was offered to the applicant.
+          type: string
+          x-lineageReferenceObject: KVRAWRD_ORIG_OFFER_DATE
+        offerAmt:
+          title: Offer Amount
+          description: The current amount of the award that is offered to the applicant.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVRAWRD_OFFER_AMT
+        offerDate:
+          title: Offer Date
+          description: The current date of the award that is offered to the applicant.
+          type: string
+          x-lineageReferenceObject: KVRAWRD_OFFER_DATE
+        acceptAmt:
+          title: Accept Amount
+          description: The amount of the award that was accepted by the applicant.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVRAWRD_ACCEPT_AMT
+        acceptDate:
+          title: Accept Date
+          description: The date when the award was accepted by the applicant.
+          type: string
+          x-lineageReferenceObject: KVRAWRD_ACCEPT_DATE
+        declineAmt:
+          title: Decline Amount
+          description: The amount of the award that was declined by the applicant.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVRAWRD_DECLINE_AMT
+        declineDate:
+          title: Decline Date
+          description: The date when the award was declined by the applicant.
+          type: string
+          x-lineageReferenceObject: KVRAWRD_DECLINE_DATE
+        cancelAmt:
+          title: Cancel Amount
+          description: The amount of the award that was cancelled.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVRAWRD_CANCEL_AMT
+        cancelDate:
+          title: Cancel Date
+          description: The date when the award was cancelled.
+          type: string
+          x-lineageReferenceObject: KVRAWRD_CANCEL_DATE
+        memoAmt:
+          title: Memo Amount
+          description: The amount of the award that is currently in memo status.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVRAWRD_MEMO_AMT
+        paidAmt:
+          title: Paid Amount
+          description: The amount of the award that has been paid to the applicant.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVRAWRD_PAID_AMT
+        govRcvdAmt:
+          title: Government Received Amount
+          description: The amount of the award that has been received from the government.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVRAWRD_GOV_RCVD_AMT
+        govRcvdAmtDate:
+          title: Government Received Amount Date
+          description: The date when the award amount was received from the government.
+          type: string
+          x-lineageReferenceObject: KVRAWRD_GOV_RCVD_AMT_DATE
+        disbEligInd:
+          title: Disbursement Eligibility Indicator
+          description: It indicates if the applicant is eligible for disbursement of this fund.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRAWRD_DISB_ELIG_IND
+        newDisbEligInd:
+          title: New Disbursement Eligibility Indicator
+          description: It indicates if the applicant is eligible for disbursement of this fund for new awards.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRAWRD_NEW_DISB_ELIG_IND
+        mtpEligInd:
+          title: MTP Eligibility Indicator
+          description: It indicates if the applicant is eligible for MTP of this fund.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRAWRD_MTP_ELIG_IND
+        newMtpEligInd:
+          title: New MTP Eligibility Indicator
+          description: It indicates if the applicant is eligible for MTP of this fund for new awards.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRAWRD_NEW_MTP_ELIG_IND
+        continEligInd:
+          title: Continuing Eligibility Indicator
+          description: It indicates if the applicant is eligible to continue receiving this fund.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRAWRD_CONTIN_ELIG_IND
+        ceOvrdeInd:
+          title: Continuing Eligibility Override Indicator
+          description: It indicates if the continuing eligibility has been overridden.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRAWRD_CE_OVRDE_IND
+        fundDisbInd:
+          title: Fund Disbursement Indicator
+          description: It indicates if this fund is eligible for disbursement.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRAWRD_FUND_DISB_IND
+        disbHoldInd:
+          title: Disbursement Hold Indicator
+          description: It indicates if disbursement of this fund is on hold.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRAWRD_DISB_HOLD_IND
+        billInd:
+          title: Bill Indicator
+          description: It indicates if this fund should be included in billing.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRAWRD_BILL_IND
+        projDisbSchdInd:
+          title: Projected Disbursement Schedule Indicator
+          description: It indicates if projected disbursement schedules should be created.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRAWRD_PROJ_DISB_SCHD_IND
+        startDate:
+          title: Start Date
+          description: The award tracking start date for this award for this applicant.
+          type: string
+          x-lineageReferenceObject: KVRAWRD_START_DATE
+        endDate:
+          title: End Date
+          description: The award tracking end date for this award for this applicant.
+          type: string
+          x-lineageReferenceObject: KVRAWRD_END_DATE
+        coasCode:
+          title: Chart of Accounts Code
+          description: This is the Finance Chart of Accounts Code where Fund amount is recorded.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRAWRD_COAS_CODE
+        fsyrCode:
+          title: Fiscal Year Code
+          description: The fiscal year to which the accounting transactions will be posted.
+          type: string
+          maxLength: 2
+          x-lineageReferenceObject: KVRAWRD_FSYR_CODE
+        fundCode:
+          title: Finance Fund Code
+          description: The Finance Fund Code where Fund amount is recorded.
+          type: string
+          maxLength: 6
+          x-lineageReferenceObject: KVRAWRD_FUND_CODE
+        orgnCode:
+          title: Finance Organization Code
+          description: The Finance Organization Code where Fund amount is recorded.
+          type: string
+          maxLength: 6
+          x-lineageReferenceObject: KVRAWRD_ORGN_CODE
+        acctCode:
+          title: Finance Account Code
+          description: The Finance Account Code where Fund amount is recorded.
+          type: string
+          maxLength: 6
+          x-lineageReferenceObject: KVRAWRD_ACCT_CODE
+        progCode:
+          title: Finance Program Code
+          description: The Finance Program Code where Fund amount is recorded.
+          type: string
+          maxLength: 6
+          x-lineageReferenceObject: KVRAWRD_PROG_CODE
+        actvCode:
+          title: Finance Activity Code
+          description: The Finance Activity Code where Fund amount is recorded.
+          type: string
+          maxLength: 6
+          x-lineageReferenceObject: KVRAWRD_ACTV_CODE
+        locnCode:
+          title: Finance Location Code
+          description: The Finance Location Code where Fund amount is recorded.
+          type: string
+          maxLength: 6
+          x-lineageReferenceObject: KVRAWRD_LOCN_CODE
+        account:
+          title: Account
+          description: The account used when institution does not have Banner Finance.
+          type: string
+          maxLength: 60
+          x-lineageReferenceObject: KVRAWRD_ACCOUNT
+        webQueryInd:
+          title: Web Query Indicator
+          description: Indicates if this award record for this applicant can be displayed on the query web page.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRAWRD_WEB_QUERY_IND
+        webOriginInd:
+          title: Web Origin Indicator
+          description: It indicates if this award is derived from a web Application.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRAWRD_WEB_ORIGIN_IND
+        srceFndcCode:
+          title: Source Aid Fund Code
+          description: The code of the aid fund code as existed before being converted/split.
+          type: string
+          maxLength: 10
+          x-lineageReferenceObject: KVRAWRD_SRCE_FNDC_CODE
+        srceFndcSeqNo:
+          title: Source Fund Code Sequence Number
+          description: The one-up number associated to the source aid fund code before being converted/split.
+          type: integer
+          x-lineageReferenceObject: KVRAWRD_SRCE_FNDC_SEQ_NO
+        candFndcSeqNo:
+          title: Candidate Aid Fund Code Sequence Number
+          description: The one-up number that identifies the candidate record in KVRIACA.
+          type: integer
+          x-lineageReferenceObject: KVRAWRD_CAND_FNDC_SEQ_NO
+        comment:
+          title: Comment
+          description: The comment attached to the Aid Fund Code for the applicant.
+          type: string
+          maxLength: 2000
+          x-lineageReferenceObject: KVRAWRD_COMMENT
+        userId:
+          title: User ID
+          description: The logon ID of the user who created or last updated this record.
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: KVRAWRD_USER_ID
+        activityDate:
+          title: Activity Date
+          description: The most recent date this record was created or updated.
+          type: string
+          x-lineageReferenceObject: KVRAWRD_ACTIVITY_DATE
+        payOptionInd:
+          title: Payment Option Indicator
+          description: It indicates the mechanism to be used for paying the amount to the applicant.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRAWRD_PAY_OPTION_IND
+        invAtypCode:
+          title: Invoice Address Type Code
+          description: The address type to use when the A/P disbursement record is created.
+          type: string
+          maxLength: 2
+          x-lineageReferenceObject: KVRAWRD_INV_ATYP_CODE
+        typeDiscInd:
+          title: Type Discount Indicator
+          description: It indicates the type of discount.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRAWRD_TYPE_DISC_IND
+        discCode:
+          title: Discount Code
+          description: The code to represent the discount that was used when issuing this institutional award.
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: KVRAWRD_DISC_CODE
+        discTermCode:
+          title: Discount Term Code
+          description: The term code for which the discount code is applicable.
+          type: string
+          maxLength: 6
+          x-lineageReferenceObject: KVRAWRD_DISC_TERM_CODE
+        discCostAmt:
+          title: Discount Cost Amount
+          description: The amount to which the discount (percentage) will be applied.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVRAWRD_DISC_COST_AMT
+        discPerc:
+          title: Discount Percentage
+          description: This is the percentage of discount that would applied to the cost amount.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVRAWRD_DISC_PERC
+        discComment:
+          title: Discount Comment
+          description: Comments regarding the management of this award when issued via a discount.
+          type: string
+          maxLength: 2000
+          x-lineageReferenceObject: KVRAWRD_DISC_COMMENT
+        discSysProcInd:
+          title: Discount System Processed Indicator
+          description: Indicates whether the award amount was calculated for the first time or not.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRAWRD_DISC_SYS_PROC_IND
+        discLog:
+          title: Discount Log
+          description: The log message generated when the award processed via discounts was performed.
+          type: string
+          maxLength: 4000
+          x-lineageReferenceObject: KVRAWRD_DISC_LOG
+        discLockInd:
+          title: Discount Award Amount Lock Indicator
+          description: Indicates if the award amount record that was issued via discount has been locked.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRAWRD_DISC_LOCK_IND
+        newAmt:
+          title: New Award Amount
+          description: The most recent value of the award amount for this record.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVRAWRD_NEW_AMT
+        newAmtDate:
+          title: New Award Amount Date
+          description: The date of the new award amount.
+          type: string
+          x-lineageReferenceObject: KVRAWRD_NEW_AMT_DATE
+        disbursement:
+          type: array
+          items:
+            $ref: "#/components/schemas/disbursement-nested"
+        disbursementHistories:
+          type: array
+          items:
+            $ref: "#/components/schemas/disbursement-history-nested"
+        disbursementSchedule:
+          type: array
+          items:
+            $ref: "#/components/schemas/disbursement-schedule-nested"
+    disbursement-nested:
+      title: Disbursement Information (Nested)
+      description: Disbursement information from KVRDISB table as nested within award.
+      type: object
+      properties:
+        drecSequenceNumber:
+          title: Disbursement Record Sequence Number
+          description: A one-up number used to sequence the disbursement records for a given award.
+          type: integer
+          x-lineageReferenceObject: KVRDISB_DREC_SEQ_NO
+        termCode:
+          title: Term Code
+          description: The term where the amount is being disbursed.
+          type: string
+          maxLength: 6
+          x-lineageReferenceObject: KVRDISB_TERM_CODE
+        origScheduledPaymentDate:
+          title: Original Scheduled Payment Date
+          description: Date when payment of this disbursement was originally scheduled to be paid.
+          type: string
+          x-lineageReferenceObject: KVRDISB_ORIG_SCHED_PAY_DATE
+        origScheduledPaymentAmount:
+          title: Original Scheduled Payment Amount
+          description: The original amount that was scheduled to be paid on the original schedule payment date.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVRDISB_ORIG_SCHED_PAY_AMT
+        scheduledPaymentDate:
+          title: Scheduled Payment Date
+          description: The date when this disbursement is scheduled to be posted on TBRACCD when disbursement was performed via A/R; or FABINVH when performed via A/P.
+          type: string
+          x-lineageReferenceObject: KVRDISB_SCHED_PAY_DATE
+        paymentDate:
+          title: Payment Date
+          description: The date when this disbursement was actually posted on AR or AP. This field is NULL when the transaction is memoed.
+          type: string
+          x-lineageReferenceObject: KVRDISB_PAY_DATE
+        paymentAmount:
+          title: Payment Amount
+          description: The current amount payable to the applicant for this disbursement record.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVRDISB_PAY_AMT
+        postingMethodIndicator:
+          title: Posting Method Indicator
+          description: Indicates if this disbursement record will be posted to Accounts Receivable (A/R) or Accounts Payable (A/P). Valid values are R-Posted to A/R, P-Posted to A/P.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRDISB_POSTING_METHOD_IND
+        postingConditionIndicator:
+          title: Posting Condition Indicator
+          description: Indicates the condition in which the disbursement event finalized when posting the fund to A/R or A/P.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRDISB_POST_COND_IND
+        editCheckIndicator:
+          title: Edit Check Indicator
+          description: Indicates if the edits required for disbursing an amount have been passed for this disbursement record. Y-Applicant passed the edits. N-Applicant did not pass the edits.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRDISB_EDIT_CHECK_IND
+        arHoldOverrideIndicator:
+          title: AR Hold Override Indicator
+          description: Indicates if an existing Accounts Receivable (AR) hold was overridden when the disbursement record was generated for the applicant.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRDISB_AR_HOLD_OVR_IND
+        paymentOptionIndicator:
+          title: Payment Option Indicator
+          description: Indicates the mechanism to be used for paying the amount to the applicant when processing disbursements via Accounts Payable (A/P).
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRDISB_PAY_OPTION_IND
+        invoiceAtypCode:
+          title: Invoice Address Type Code
+          description: The address type associated with the address used on the A/P disbursement record which will be used as INVOICE ADDRESS.
+          type: string
+          maxLength: 2
+          x-lineageReferenceObject: KVRDISB_INV_ATYP_CODE
+        invAtypSequenceNumber:
+          title: Invoice Address Type Sequence Number
+          description: The address type sequence number from SPRADDR that is associated with the address type used on the A/P disbursement record.
+          type: integer
+          x-lineageReferenceObject: KVRDISB_INV_ATYP_SEQNO
+        systemPaymentIndicator:
+          title: System Payment Processing Indicator
+          description: Indicates the type of payment processing that is done in general in the system. C-Client Processing; F-Banner Finance.
+          type: integer
+          x-lineageReferenceObject: KVRDISB_SYS_PAY_IND
+        disbursementAmountDecreaseIndicator:
+          title: Disbursement Amount Decrease Indicator
+          description: Indicates if the disbursement amount has been decreased.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRDISB_DISB_AMT_DECR_IND
+        vendorAtypCode:
+          title: Vendor Address Type Code
+          description: The address type associated with the address used on the A/P disbursement record which will be used as VENDOR INVOICE ADDRESS.
+          type: string
+          maxLength: 4
+          x-lineageReferenceObject: KVRDISB_VEND_ATYP_CODE
+        vendorAtypSequenceNumber:
+          title: Vendor Address Type Sequence Number
+          description: The address type sequence number from SPRADDR that is associated with the vendor address type used on the A/P disbursement record.
+          type: integer
+          x-lineageReferenceObject: KVRDISB_VEND_ATYP_SEQNO
+    disbursement-history-nested:
+      title: Disbursement History Information (Nested)
+      description: Disbursement history information from KVRDISH table as nested within award.
+      type: object
+      properties:
+        drecSeqNo:
+          title: Disbursement Record Sequence Number
+          description: A one-up number used to sequence the disbursement records for a given award. This comes from KVRDISB_DREC_SEQ_NO.
+          type: integer
+          x-lineageReferenceObject: KVRDISH_DREC_SEQ_NO
+        historySeqNo:
+          title: History Sequence Number
+          description: A one-up number used to differentiate one disbursement transaction history record from another one with the same key for the applicant.
+          type: integer
+          x-lineageReferenceObject: KVRDISH_HISTORY_SEQ_NO
+        termCode:
+          title: Term Code
+          description: The term where the amount is being disbursed.
+          type: string
+          maxLength: 6
+          x-lineageReferenceObject: KVRDISH_TERM_CODE
+        transType:
+          title: Transaction Type
+          description: Code to identify the type of disbursement transaction that generated this history record. Valid values are OD-Original disbursement, DC-Date changed, AC-Amount changed, MP-Memo to payment.
+          type: string
+          maxLength: 4
+          x-lineageReferenceObject: KVRDISH_TRANS_TYPE
+        schedPayDate:
+          title: Schedule Payment Date
+          description: The date when this disbursement is scheduled to be posted on TBRACCD when disbursement was performed via A/R; or FABINVH when performed via A/P.
+          type: string
+          x-lineageReferenceObject: KVRDISH_SCHED_PAY_DATE
+        amount:
+          title: Amount
+          description: This amount represents the difference between the amounts of the new and old disbursement records.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVRDISH_AMT
+        payDate:
+          title: Payment Date
+          description: The date when this disbursement attached to this history record was actually posted on AR or AP.
+          type: string
+          x-lineageReferenceObject: KVRDISH_PAY_DATE
+        payAmt:
+          title: Payment Amount
+          description: The current amount payable to the applicant through the disbursement record attached to this history record.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVRDISH_PAY_AMT
+        postCondInd:
+          title: Posting Condition Indicator
+          description: Indicates the condition in which the disbursement event finalized when posting the fund to A/R or A/P.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRDISH_POST_COND_IND
+        tranNum:
+          title: Transaction Number
+          description: When posting method is 'R' (Accounts receivable) this is the number used to identify the A/R transaction.
+          type: integer
+          x-lineageReferenceObject: KVRDISH_TRAN_NUM
+        miscReceiptNum:
+          title: Miscellaneous Receipt Number
+          description: This is the receipt number that is generated when accounting transactions are posted for an aid fund code that is multi-fund detail code based.
+          type: integer
+          x-lineageReferenceObject: KVRDISH_MISC_RECEIPT_NUM
+        invoiceNumber:
+          title: Invoice Number
+          description: The invoice number generated when the disbursement record was paid out via A/P.
+          type: string
+          maxLength: 8
+          x-lineageReferenceObject: KVRDISH_INVOICE_NUMBER
+        comment:
+          title: Comment
+          description: The comment attached to this disbursement transaction history record.
+          type: string
+          maxLength: 2000
+          x-lineageReferenceObject: KVRDISH_COMMENT
+        arHoldOvrInd:
+          title: AR Hold Override Indicator
+          description: Indicates if an existing Accounts Receivable (AR) HOLD was overridden when this disbursement history record was generated for the applicant.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRDISH_AR_HOLD_OVR_IND
+        vendInvNum:
+          title: Vendor Invoice Number
+          description: This is folio associated to the invoice of the applicant (vendor).
+          type: integer
+          x-lineageReferenceObject: KVRDISH_VEND_INV_NUM
+        invoiceText:
+          title: Invoice Text
+          description: This is a value attached to each invoice created in Banner Finance for an A/P disbursement record.
+          type: string
+          maxLength: 50
+          x-lineageReferenceObject: KVRDISH_INVOICE_TEXT
+        payOptionInd:
+          title: Payment Option Indicator
+          description: This is the value for the payment option indicator for this disbursement history record.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRDISH_PAY_OPTION_IND
+        invAtypCode:
+          title: Invoice Address Type Code
+          description: The address type associated with the address used on the A/P disbursement record.
+          type: string
+          maxLength: 2
+          x-lineageReferenceObject: KVRDISH_INV_ATYP_CODE
+        invAtypSeqno:
+          title: Invoice Address Type Sequence Number
+          description: The address type sequence number from SPRADDR that is associated with the address type.
+          type: integer
+          x-lineageReferenceObject: KVRDISH_INV_ATYP_SEQNO
+        sysPayInd:
+          title: System Payment Indicator
+          description: Indicates the type of payment processing that is done in the system.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRDISH_SYS_PAY_IND
+        disbAmtDecrInd:
+          title: Disbursement Amount Decrease Indicator
+          description: Indicates if the disbursement amount has been decreased.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRDISH_DISB_AMT_DECR_IND
+        vendAtypCode:
+          title: Vendor Address Type Code
+          description: The vendor address type code used on the A/P disbursement record.
+          type: string
+          maxLength: 4
+          x-lineageReferenceObject: KVRDISH_VEND_ATYP_CODE
+        vendAtypSeqno:
+          title: Vendor Address Type Sequence Number
+          description: The vendor address type sequence number from SPRADDR.
+          type: integer
+          x-lineageReferenceObject: KVRDISH_VEND_ATYP_SEQNO
+    disbursement-schedule-nested:
+      title: Disbursement Schedule Information (Nested)
+      description: Disbursement schedule information from KVRAPDS table as nested within award.
+      type: object
+      properties:
+        fndcCode:
+          title: Aid Fund Code
+          description: The aid fund code of the award that is being processed.
+          type: string
+          maxLength: 10
+          x-lineageReferenceObject: KVRAPDS_FNDC_CODE
+        fndcSeqNo:
+          title: Fund Sequence Number
+          description: A one-up number used to differentiate one award from another when the same Aid Fund Code is used in the same aid period for the applicant.
+          type: integer
+          x-lineageReferenceObject: KVRAPDS_FNDC_SEQ_NO
+        termCode:
+          title: Term Code
+          description: The term code where the disbursement is scheduled.
+          type: string
+          maxLength: 6
+          x-lineageReferenceObject: KVRAPDS_TERM_CODE
+        disbDate:
+          title: Disbursement Date
+          description: The date when the disbursement is scheduled to occur.
+          type: string
+          x-lineageReferenceObject: KVRAPDS_DISB_DATE
+        postingMethodInd:
+          title: Posting Method Indicator
+          description: Indicates the method to be used for posting the disbursement.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRAPDS_POSTING_METHOD_IND
+        disbPct:
+          title: Disbursement Percentage
+          description: The percentage of the total award amount to be disbursed.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVRAPDS_DISB_PCT
+        disbPctInd:
+          title: Disbursement Percentage Indicator
+          description: Indicates whether the disbursement is based on percentage or amount.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRAPDS_DISB_PCT_IND
+    applicant-award-create-1.0.0_request:
+      title: Create Award Request
+      description: Request body for creating a new award record in KVRAWRD table.
+      type: object
+      required:
+        - studentId
+        - aidyCode
+        - aidpCode
+        - fndcCode
+        - fstaStatusCde
+        - discCode
+        - discTermCode
+      properties:
+        studentId:
+          title: Student ID
+          description: The Banner ID of the student.
+          type: string
+          maxLength: 9
+        aidyCode:
+          title: Aid Year Code
+          description: The aid year in which the Award Fund is being processed.
+          type: string
+          maxLength: 4
+          x-lineageReferenceObject: KVRAWRD_AIDY_CODE
+        aidpCode:
+          title: Aid Period Code
+          description: The aid period in which the Award Fund Code is being processed.
+          type: string
+          maxLength: 8
+          x-lineageReferenceObject: KVRAWRD_AIDP_CODE
+        fndcCode:
+          title: Aid Fund Code
+          description: The aid fund code of the award that is being processed.
+          type: string
+          maxLength: 10
+          x-lineageReferenceObject: KVRAWRD_FNDC_CODE
+        fndcSeqNo:
+          title: Fund Sequence Number
+          description: A one-up number used to differentiate one award from another when the same Aid Fund Code is used in the same aid period for the applicant.
+          type: integer
+          x-lineageReferenceObject: KVRAWRD_FNDC_SEQ_NO
+        fstaStatusCde:
+          title: Fund Status Code
+          description: The Status Code for this aid fund code award record for this applicant.
+          type: string
+          maxLength: 4
+          x-lineageReferenceObject: KVRAWRD_FSTA_STATUS_CDE
+        fstaStatusDate:
+          title: Fund Status Date
+          description: The Status Date for this aid fund code award record for this applicant.
+          type: string
+          x-lineageReferenceObject: KVRAWRD_FSTA_STATUS_DATE
+        origOfferAmt:
+          title: Original Offer Amount
+          description: The original amount of the award that was offered to the applicant.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVRAWRD_ORIG_OFFER_AMT
+        origOfferDate:
+          title: Original Offer Date
+          description: The original date of the award that was offered to the applicant.
+          type: string
+          x-lineageReferenceObject: KVRAWRD_ORIG_OFFER_DATE
+        offerAmt:
+          title: Offer Amount
+          description: The current amount of the award that is offered to the applicant.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVRAWRD_OFFER_AMT
+        offerDate:
+          title: Offer Date
+          description: The current date of the award that is offered to the applicant.
+          type: string
+          x-lineageReferenceObject: KVRAWRD_OFFER_DATE
+        acceptAmt:
+          title: Accept Amount
+          description: The amount of the award that was accepted by the applicant.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVRAWRD_ACCEPT_AMT
+        acceptDate:
+          title: Accept Date
+          description: The date when the award was accepted by the applicant.
+          type: string
+          x-lineageReferenceObject: KVRAWRD_ACCEPT_DATE
+        comment:
+          title: Comment
+          description: The comment attached to the Aid Fund Code for the applicant.
+          type: string
+          maxLength: 2000
+          x-lineageReferenceObject: KVRAWRD_COMMENT
+        dataOrigin:
+          title: Data Origin
+          description: The latest source for the data contained in this record.
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: KVRAWRD_DATA_ORIGIN
+        userId:
+          title: User ID
+          description: The logon ID of the user who created or last updated this record.
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: KVRAWRD_USER_ID
+        discountAward:
+          title: Discount Award Indicator
+          description: Indicates if a discount award should be created. Set to 'Y' to create discount-based award.
+          type: string
+          maxLength: 1
+        feeAssess:
+          title: Fee Assessment Indicator
+          description: Indicates if fee assessment should be performed. Set to 'Y' to enable fee assessment.
+          type: string
+          maxLength: 1
+        roundAmt:
+          title: Round Amount Indicator
+          description: Indicates if award amount should be rounded. Set to 'Y' to enable amount rounding.
+          type: string
+          maxLength: 1
+        lockAwrd:
+          title: Lock Award Indicator
+          description: Indicates if the award should be locked after creation. Set to 'Y' to lock the award.
+          type: string
+          maxLength: 1
+        acceptDiscAwrd:
+          title: Accept Discount Award Indicator
+          description: Indicates if discount award should be automatically accepted. Set to 'Y' to accept discount award.
+          type: string
+          maxLength: 1
+        cancelDiscAwrd:
+          title: Cancel Discount Award Indicator
+          description: Indicates if discount award should be canceled. Set to 'Y' to cancel discount award.
+          type: string
+          maxLength: 1
+        declineDiscAwrd:
+          title: Decline Discount Award Indicator
+          description: Indicates if discount award should be declined. Set to 'Y' to decline discount award.
+          type: string
+          maxLength: 1
+        revokeDiscAwrd:
+          title: Revoke Discount Award Indicator
+          description: Indicates if discount award should be revoked. Set to 'Y' to revoke discount award.
+          type: string
+          maxLength: 1
+        discCode:
+          title: Discount Code
+          description: The code to represent the discount that was used when issuing this institutional award.
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: KVRAWRD_DISC_CODE
+        discTermCode:
+          title: Discount Term Code
+          description: The term code for which the discount code is applicable.
+          type: string
+          maxLength: 6
+          x-lineageReferenceObject: KVRAWRD_DISC_TERM_CODE
+    applicant-award-1.0.0_response:
+      title: Award Response
+      description: Response for a newly created award record.
+      type: object
+      properties:
+        id:
+          title: Award Identifier
+          description: Composite identifier for the award record.
+          type: object
+          properties:
+            studentId:
+              title: Student ID
+              description: The Banner ID of the student.
+              type: string
+              maxLength: 9
+            aidyCode:
+              title: Aid Year Code
+              description: The aid year in which the Award Fund is being processed.
+              type: string
+              maxLength: 4
+              x-lineageReferenceObject: KVRAWRD_AIDY_CODE
+            aidpCode:
+              title: Aid Period Code
+              description: The aid period in which the Award Fund Code is being processed.
+              type: string
+              maxLength: 8
+              x-lineageReferenceObject: KVRAWRD_AIDP_CODE
+            fndcCode:
+              title: Aid Fund Code
+              description: The aid fund code of the award that is being processed.
+              type: string
+              maxLength: 10
+              x-lineageReferenceObject: KVRAWRD_FNDC_CODE
+            fndcSeqNo:
+              title: Fund Sequence Number
+              description: A one-up number used to differentiate one award from another when the same Aid Fund Code is used in the same aid period for the applicant.
+              type: integer
+              x-lineageReferenceObject: KVRAWRD_FNDC_SEQ_NO
+          required:
+            - studentId
+            - aidyCode
+            - aidpCode
+            - fndcCode
+            - fndcSeqNo
+        award:
+          type: array
+          items:
+            $ref: "#/components/schemas/award-with-disbursements"
+      required:
+        - id
+        - award
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary
+                  data entity used to create the resource. This is useful for
+                  referencing the source item through the applications
+                  administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+    applicant-institutional-awards-batch-1.0.0_post_request:
+      type: object
+      title: Applicant Institutional Awards Batch Request
+      description: Request body for batch processing of applicant institutional awards
+      properties:
+        items:
+          type: array
+          description: Array of applicant institutional award requests to process in batch
+          items:
+            $ref: '#/components/schemas/applicant-award-create-1.0.0_request'
+      example:
+        items:
+          - studentId: "000012345"
+            aidyCode: "2223"
+            aidpCode: "FALL"
+            fndcCode: "PELLINST"
+            fndcSeqNo: 1
+            fstaStatusCde: "OFRD"
+            fstaStatusDate: "2023-08-15"
+            origOfferAmt: 5500.00
+            origOfferDate: "2023-08-15"
+            offerAmt: 5500.00
+            offerDate: "2023-08-15"
+            acceptAmt: 5500.00
+            acceptDate: "2023-09-01"
+            comment: "Pell Grant institutional award"
+            userId: "FINAID01"
+          - id:
+              studentId: "000012345"
+              aidyCode: "2223"
+              aidpCode: "FALL"
+              fndcCode: "PELLINST"
+              fndcSeqNo: 2
+            fstaStatusCde: "OFRD"
+            fstaStatusDate: "2023-08-15"
+            origOfferAmt: 5500.00
+            origOfferDate: "2023-08-15"
+            offerAmt: 5500.00
+            offerDate: "2023-08-15"
+            acceptAmt: 5500.00
+            acceptDate: "2023-09-01"
+            comment: "Institutional award with ID structure"
+            userId: "FINAID01"
+    applicant-institutional-awards-batch-1.0.0_post_response:
+      type: object
+      title: Applicant Institutional Awards Batch Response
+      description: Response body for batch processing submission
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the batch request
+        status:
+          type: string
+          description: Current status of the batch job
+          enum: ["pending", "processing", "completed", "failed"]
+        createdOn:
+          type: string
+          format: date-time
+          description: Timestamp when the batch job was created
+        totalRequests:
+          type: integer
+          description: Total number of requests in the batch
+        processedRequests:
+          type: integer
+          description: Number of requests that have been processed
+        successfulRequests:
+          type: integer
+          description: Number of requests that were processed successfully
+        failedRequests:
+          type: integer
+          description: Number of requests that failed during processing
+      example:
+        id: "13371b52-1afc-4a98-8186-90f2219dad01"
+        status: "pending"
+        createdOn: "2024-09-18T13:46:48Z"
+        totalRequests: 2
+        processedRequests: 0
+        successfulRequests: 0
+        failedRequests: 0
+    applicant-institutional-awards-batch-1.0.0_get_response:
+      type: object
+      title: Applicant Institutional Awards Batch Status
+      description: Response body for batch status inquiry
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the batch request
+        jobId:
+          type: integer
+          description: Internal job execution ID
+        status:
+          type: string
+          description: Current status of the batch job
+          enum: ["pending", "processing", "completed", "failed"]
+        createdOn:
+          type: string
+          format: date-time
+          description: Timestamp when the batch job was created
+        completedOn:
+          type: string
+          format: date-time
+          description: Timestamp when the batch job completed (if completed)
+        totalRequests:
+          type: integer
+          description: Total number of requests in the batch
+        processedRequests:
+          type: integer
+          description: Number of requests that have been processed
+        successfulRequests:
+          type: integer
+          description: Number of requests that were processed successfully
+        failedRequests:
+          type: integer
+          description: Number of requests that failed during processing
+        results:
+          type: array
+          description: Results for each request in the batch
+          items:
+            type: object
+            properties:
+              index:
+                type: integer
+                description: Index of the request in the original batch
+              status:
+                type: string
+                description: Status of this specific request
+                enum: ["pending", "processing", "successful", "failed"]
+              id:
+                type: object
+                description: Generated ID for successful requests
+                properties:
+                  studentId:
+                    type: string
+                    description: Student identifier
+                  aidyCode:
+                    type: string
+                    description: Aid year code
+                  aidpCode:
+                    type: string
+                    description: Aid period code
+                  fndcCode:
+                    type: string
+                    description: Aid fund code
+                  fndcSeqNo:
+                    type: integer
+                    description: Fund sequence number
+              errors:
+                type: array
+                description: Error messages for failed requests
+                items:
+                  type: object
+                  properties:
+                    code:
+                      type: string
+                      description: Error code
+                    message:
+                      type: string
+                      description: Error message
+      example:
+        id: "13371b52-1afc-4a98-8186-90f2219dad01"
+        jobId: 123
+        status: "completed"
+        createdOn: "2024-09-18T13:46:48Z"
+        completedOn: "2024-09-18T13:47:12Z"
+        totalRequests: 2
+        processedRequests: 2
+        successfulRequests: 1
+        failedRequests: 1
+        results:
+          - index: 0
+            status: "successful"
+            id:
+              studentId: "000012345"
+              aidyCode: "2223"
+              aidpCode: "FALL"
+              fndcCode: "PELLINST"
+              fndcSeqNo: 1
+          - index: 1
+            status: "failed"
+            errors:
+              - code: "VALIDATION_ERROR"
+                message: "Fund code SUPPLINST is not valid for aid year 2223"

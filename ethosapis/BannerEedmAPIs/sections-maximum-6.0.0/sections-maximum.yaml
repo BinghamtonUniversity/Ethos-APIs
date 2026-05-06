@@ -1,0 +1,1607 @@
+openapi: 3.0.0
+info:
+  title: Sections Maximum
+  description: >-
+    **API Deprecation Notice**
+
+
+
+    Deprecated on: 30-Mar-2019
+
+
+
+    Sunset on: 01-Apr-2021
+
+
+
+    Description: v16.0.0 aligns with v16.0.0 sections.
+
+
+
+    ----
+
+
+    Alternative representation for sections. Includes, additional section information such as term, course, course section, and subject.
+  version: "6.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Student
+  x-deprecated-on: 2018-09-30
+  x-sunset-on: 2021-04-01
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/sections:
+    get:
+      summary: Return all resources
+      description: This version of the resource uses a legacy filter format and cannot
+        be displayed as a parameter.  Please refer to the API source
+        documentation for more information.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_SECTIONS
+      tags:
+        - sections
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.maximum.v6+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-sections-maximum.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.maximum.v6+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/sections/{id}:
+    get:
+      summary: Return the requested resource
+      description: Return the one resource with the passed in identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_SECTIONS
+      tags:
+        - sections
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Sections for use in all external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.maximum.v6+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.maximum.v6+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.maximum.v6+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-sections-maximum.json"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-sections-maximum.json:
+      title: Sections Maximum
+      description: An instance of a course.
+      type: object
+      properties:
+        id:
+          title: ID
+          description: A globally unique identifier of a section maximum to be used in all
+            external references.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+        title:
+          title: Title
+          description: The full name of a section.
+          type: string
+          minLength: 1
+        description:
+          title: Description
+          description: A description of a section.
+          type: string
+        startOn:
+          title: Offering Start Date
+          description: The starting date at which a section may be scheduled to be taken.
+          type: string
+          format: date-time
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+        endOn:
+          title: Offering End Date
+          description: The ending date at which a section may no longer be scheduled to be
+            taken.
+          oneOf:
+            - type: string
+              format: date-time
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+            - type: string
+              maxLength: 0
+        code:
+          title: Section Code
+          description: The human-readable identifier of a section. It is generally unique
+            within an academic period.
+          type: string
+        number:
+          title: Section Number
+          description: A numbering scheme or other mark that distinguishes between
+            multiple sections. It is generally unique within an academic period
+            and course.
+          type: string
+        instructionalPlatform:
+          title: Instructional Platform
+          description: The technology platform used to manage the administration of a
+            section
+          oneOf:
+            - type: object
+              properties:
+                code:
+                  title: Code
+                  description: The code that identifies a Technology Platform.
+                  type: string
+                title:
+                  title: Title
+                  description: The full name of a Technology Platform.
+                  type: string
+                  minLength: 1
+                detail:
+                  title: Instructional Platform
+                  description: The instructional platform used in this section.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Instructional Platform.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: instructional-platforms
+                  additionalProperties: false
+                  required:
+                    - id
+              additionalProperties: false
+              required:
+                - title
+                - detail
+            - type: object
+              maxProperties: 0
+        academicPeriod:
+          title: Academic Period
+          description: The academic time period associated with this section.
+          oneOf:
+            - type: object
+              properties:
+                code:
+                  title: Code
+                  description: The code that identifies an academic time period.
+                  type: string
+                title:
+                  title: Title
+                  description: The full name of an academic time period.
+                  type: string
+                  minLength: 1
+                startOn:
+                  title: Period Start Date
+                  description: The date at which the academic time period begins
+                  type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                endOn:
+                  title: Period End Date
+                  description: The date at which the academic time period ends
+                  type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                detail:
+                  title: Academic Period
+                  description: The academic period used in this section.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Academic Period.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: academic-periods
+                  additionalProperties: false
+                  required:
+                    - id
+              additionalProperties: false
+              required:
+                - title
+                - startOn
+                - endOn
+                - detail
+            - type: object
+              maxProperties: 0
+        administrativePeriod:
+          title: Administrative Time Period
+          description: The administrative time period associated with this section.
+          oneOf:
+            - type: object
+              properties:
+                code:
+                  title: Code
+                  description: The code that identifies an administrative time period.
+                  type: string
+                title:
+                  title: Title
+                  description: The full name of an administrative time period.
+                  type: string
+                  minLength: 1
+                startOn:
+                  title: Period Start Date
+                  description: The date at which the administrative time period begins
+                  type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                endOn:
+                  title: Period End Date
+                  description: The date at which the administrative time period ends
+                  type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                detail:
+                  title: Administrative Period
+                  description: The administrative period used in this section.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Administrative Period.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: administrative-periods
+                  additionalProperties: false
+                  required:
+                    - id
+              additionalProperties: false
+              required:
+                - title
+                - startOn
+                - endOn
+                - detail
+            - type: object
+              maxProperties: 0
+        course:
+          title: Course
+          description: The course associated with this section.
+          type: object
+          properties:
+            title:
+              title: Title
+              description: The full name of a course.
+              type: string
+              minLength: 1
+            subject:
+              title: Subject
+              description: A branch of knowledge typically used as a course of study, such as
+                "Mathematics" or "Biology".
+              type: object
+              properties:
+                abbreviation:
+                  title: Abbreviation
+                  description: The abbreviated name of a subject.
+                  type: string
+                title:
+                  title: Title
+                  description: The full name of a subject.
+                  type: string
+                  minLength: 1
+                detail:
+                  title: Subject
+                  description: The subject associated with this course.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Subject.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: subjects
+                  additionalProperties: false
+                  required:
+                    - id
+              additionalProperties: false
+              required:
+                - title
+                - detail
+            number:
+              title: Course Number
+              description: A numbering scheme to distinguish different Courses. Typically this
+                is an integer, but can be any string.
+              type: string
+              minLength: 1
+            detail:
+              title: Course
+              description: The course associated with this section.
+              type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Course.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: courses
+              additionalProperties: false
+              required:
+                - id
+          additionalProperties: false
+          required:
+            - title
+            - subject
+            - number
+            - detail
+        credits:
+          title: Credits
+          description: ""
+          type: array
+          items:
+            type: object
+            properties:
+              creditCategory:
+                title: Credit Category
+                description: ""
+                type: object
+                properties:
+                  code:
+                    title: Code
+                    description: The code that identifies a credit category.
+                    type: string
+                  title:
+                    title: Title
+                    description: The full name of a credit category.
+                    type: string
+                    minLength: 1
+                  creditType:
+                    title: Credit Type
+                    description: The higher-level category of academic credits.
+                    enum:
+                      - ce
+                      - institution
+                      - transfer
+                      - exchange
+                      - exam
+                      - workLifeExperience
+                      - other
+                      - noCredit
+                    type: string
+                  detail:
+                    title: Credit Category
+                    description: The category of credit earned in this section.
+                    type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the Credit Category.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                        x-lineageLookupReferenceObject: credit-categories
+                    additionalProperties: false
+                    required:
+                      - id
+                additionalProperties: false
+                required:
+                  - title
+                  - detail
+              measure:
+                title: Unit of Measure
+                description: A unit or standard of measurement.
+                enum:
+                  - credit
+                  - ceu
+                  - hours
+                type: string
+              minimum:
+                title: Minimum number
+                description: The lower number, inclusive bound of a numeric range of values.
+                type: number
+              maximum:
+                title: Maximum number
+                description: The upper, inclusive bound of a numeric range of values.
+                oneOf:
+                  - type: number
+                  - type: string
+                    nullable: true
+              increment:
+                title: Increment number
+                description: The multiple by which a numeric range of values can be stepped from
+                  the minimum to the maximum. For example, a range of 1 to 3
+                  with an increment of 1 would evaluate to 1, 2, or 3.
+                  Specifying an increment of 0.5 would evaluate to 1, 1.5, 2,
+                  2.5, or 3
+                oneOf:
+                  - type: number
+                  - type: string
+                    nullable: true
+            additionalProperties: false
+            required:
+              - creditCategory
+              - measure
+              - minimum
+        site:
+          title: Site
+          description: A physical location within the organization where this section
+            events will be held.
+          oneOf:
+            - type: object
+              properties:
+                code:
+                  title: Code
+                  description: The code that identifies the site.
+                  type: string
+                title:
+                  title: Title
+                  description: The full name of the site.
+                  type: string
+                detail:
+                  title: Site
+                  description: The site where this section's events will be held.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Site.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: sites
+                  additionalProperties: false
+                  required:
+                    - id
+              additionalProperties: false
+              required:
+                - detail
+            - type: object
+              maxProperties: 0
+        academicLevels:
+          title: Academic Levels
+          description: ""
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                title: Code
+                description: The code that identifies the academic level.
+                type: string
+              title:
+                title: Title
+                description: The full name of the academic level.
+                type: string
+                minLength: 1
+              detail:
+                title: Academic Level
+                description: The academic level associated with this section.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Academic Level.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: academic-levels
+                additionalProperties: false
+                required:
+                  - id
+            additionalProperties: false
+            required:
+              - code
+              - title
+              - detail
+        awardGradeSchemes:
+          title: Award Grade Schemes
+          description: The grading schemes that may be awarded by an instructor to a
+            student taking this section of the course. Must be a subset of the
+            award grade schemes of the course.
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                title: Code
+                description: The code for the grade scheme that may be used a reference or for
+                  reporting.
+                type: string
+              title:
+                title: Title
+                description: The full name of a grade scheme.
+                type: string
+                minLength: 1
+              academicLevel:
+                title: Academic Level
+                description: A designation of the level of instruction of a course or a program
+                  of study.
+                type: object
+                properties:
+                  code:
+                    title: Code
+                    description: The code that identifies the academic level (e.g. 'UG').
+                    type: string
+                  title:
+                    title: Title
+                    description: The full name of the academic level (e.g. 'Undergraduate').
+                    type: string
+                    minLength: 1
+                  detail:
+                    title: Detail
+                    description: A designation of the level of instruction of a course or a program
+                      of study.
+                    type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the Detail.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                        x-lineageLookupReferenceObject: academic-levels
+                    additionalProperties: false
+                    required:
+                      - id
+                additionalProperties: false
+              startOn:
+                title: Start Date
+                description: The date after which a grade scheme may be used.
+                oneOf:
+                  - type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                  - type: string
+                    maxLength: 0
+              endOn:
+                title: End Date
+                description: The date after which a grade scheme may no longer be used.
+                oneOf:
+                  - type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                  - type: string
+                    maxLength: 0
+              detail:
+                title: Detail
+                description: The scheme to which the grade belongs, such as pass/fail, etc.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Detail.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: grade-schemes
+                additionalProperties: false
+                required:
+                  - id
+            additionalProperties: false
+            required:
+              - title
+              - detail
+        transcriptGradeSchemes:
+          title: Transcript Grade Schemes
+          description: The grading schemes that may be used to record a student's grade on
+            a transcript of this section of the course. Must be a subset of the
+            transcript grade schemes of the course.
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                title: Code
+                description: The code for the grade scheme that may be used a reference or for
+                  reporting.
+                type: string
+              title:
+                title: Title
+                description: The full name of a grade scheme.
+                type: string
+                minLength: 1
+              academicLevel:
+                title: Academic Level
+                description: A designation of the level of instruction of a course or a program
+                  of study.
+                type: object
+                properties:
+                  code:
+                    title: Code
+                    description: The code that identifies the academic level (e.g. 'UG').
+                    type: string
+                  title:
+                    title: Title
+                    description: The full name of the academic level (e.g. 'Undergraduate').
+                    type: string
+                    minLength: 1
+                  detail:
+                    title: Detail
+                    description: A designation of the level of instruction of a course or a program
+                      of study.
+                    type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the Detail.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                        x-lineageLookupReferenceObject: academic-levels
+                    additionalProperties: false
+                    required:
+                      - id
+                additionalProperties: false
+              startOn:
+                title: Start Date
+                description: The date after which a grade scheme may be used.
+                oneOf:
+                  - type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                  - type: string
+                    maxLength: 0
+              endOn:
+                title: End Date
+                description: The date after which a grade scheme may no longer be used.
+                oneOf:
+                  - type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                  - type: string
+                    maxLength: 0
+              detail:
+                title: Detail
+                description: The scheme to which the grade belongs, such as pass/fail, etc.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Detail.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: grade-schemes
+                additionalProperties: false
+                required:
+                  - id
+            additionalProperties: false
+            required:
+              - title
+              - detail
+        courseLevels:
+          title: Course Levels
+          description: ""
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                title: Code
+                description: The code that identifies a course level.
+                type: string
+              title:
+                title: Title
+                description: The full name of a course level.
+                type: string
+                minLength: 1
+              detail:
+                title: Course Level
+                description: The course level associated with this section.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Course Level.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: course-levels
+                additionalProperties: false
+                required:
+                  - id
+            additionalProperties: false
+            required:
+              - title
+              - detail
+        status:
+          title: Status
+          description: The status of a section, for example, "Open" or "Closed".
+          oneOf:
+            - type: string
+              enum:
+                - closed
+                - open
+                - pending
+                - cancelled
+            - type: string
+              maxLength: 0
+        duration:
+          title: Duration
+          description: The scheme for calculating the duration of a section
+          oneOf:
+            - type: object
+              properties:
+                length:
+                  title: Length
+                  description: The duration length, expressed in duration units
+                  type: number
+                unit:
+                  title: Unit
+                  description: The calendar period of time equivalent to 1 unit of duration
+                  enum:
+                    - days
+                    - weeks
+                    - months
+                    - years
+                  type: string
+              additionalProperties: false
+              required:
+                - length
+                - unit
+            - type: object
+              maxProperties: 0
+        maxEnrollment:
+          title: Maximum Enrollment
+          description: The maximum number of persons who are allowed to enroll for a
+            section.
+          oneOf:
+            - type: number
+            - type: string
+              nullable: true
+        instructionalEvents:
+          title: Instructional Events
+          description: ""
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                title: Title
+                description: The full name of an instructional activity that takes place during
+                  a Section.
+                type: string
+              instructionalMethod:
+                title: Instructional Method
+                description: ""
+                type: object
+                properties:
+                  abbreviation:
+                    title: Abbreviation
+                    description: The abbreviated name of an instructional method.
+                    type: string
+                  title:
+                    title: Title
+                    description: The full name of an instructional method.
+                    type: string
+                    minLength: 1
+                  detail:
+                    title: Instructional Method
+                    description: The instructional method used in this instructional event.
+                    type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the Instructional Method.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                        x-lineageLookupReferenceObject: instructional-methods
+                    additionalProperties: false
+                    required:
+                      - id
+                additionalProperties: false
+                required:
+                  - title
+                  - detail
+              recurrence:
+                title: Recurrence
+                description: ""
+                oneOf:
+                  - type: object
+                    format: recurrence
+                    properties:
+                      timePeriod:
+                        title: Time Period
+                        description: The period of time to be repeated.
+                        type: object
+                        properties:
+                          startOn:
+                            title: Start On
+                            description: The beginning of the time period being repeated.
+                            type: string
+                            format: date-time
+                            pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                          endOn:
+                            title: End On
+                            description: The end of the time period being repeated.
+                            oneOf:
+                              - type: string
+                                format: date-time
+                                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                              - type: string
+                                maxLength: 0
+                        additionalProperties: false
+                        required:
+                          - startOn
+                      repeatRule:
+                        title: Repeat Rule
+                        description: The rule that describes how to repeat the time period.
+                        oneOf:
+                          - title: Daily
+                            description: Rules for repeating on a daily basis.
+                            type: object
+                            properties:
+                              type:
+                                title: Type
+                                description: ""
+                                enum:
+                                  - daily
+                                type: string
+                              interval:
+                                title: Interval
+                                description: Number of days between each repetition.
+                                oneOf:
+                                  - type: integer
+                                  - type: string
+                                    nullable: true
+                              ends:
+                                title: Ends
+                                description: When to end the daily repetitions.
+                                oneOf:
+                                  - title: One Of-1
+                                    description: ""
+                                    type: object
+                                    properties:
+                                      repetitions:
+                                        title: Repetitions
+                                        description: Number of times to repeat, then stop.
+                                        type: integer
+                                    additionalProperties: false
+                                    required:
+                                      - repetitions
+                                  - title: One Of-2
+                                    description: ""
+                                    type: object
+                                    properties:
+                                      date:
+                                        title: Date
+                                        description: The date after which to stop repeating.
+                                        type: string
+                                        format: date
+                                        pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                                    additionalProperties: false
+                                    required:
+                                      - date
+                                  - type: object
+                                    maxProperties: 0
+                            additionalProperties: false
+                            required:
+                              - type
+                          - title: Weekly
+                            description: Rules for repeating on a weekly basis.
+                            type: object
+                            properties:
+                              type:
+                                title: Type
+                                description: ""
+                                enum:
+                                  - weekly
+                                type: string
+                              interval:
+                                title: Interval
+                                description: Number of weeks between each repetition.
+                                oneOf:
+                                  - type: integer
+                                  - type: string
+                                    nullable: true
+                              daysOfWeek:
+                                title: Days of Week
+                                description: The days of the week on which to repeat the event.
+                                type: array
+                                items:
+                                  enum:
+                                    - sunday
+                                    - monday
+                                    - tuesday
+                                    - wednesday
+                                    - thursday
+                                    - friday
+                                    - saturday
+                                  type: string
+                              ends:
+                                title: Ends
+                                description: When to end the weekly repetitions.
+                                oneOf:
+                                  - title: One Of-1
+                                    description: ""
+                                    type: object
+                                    properties:
+                                      repetitions:
+                                        title: Repetitions
+                                        description: Number of times to repeat, then stop.
+                                        type: integer
+                                    additionalProperties: false
+                                    required:
+                                      - repetitions
+                                  - title: One Of-2
+                                    description: ""
+                                    type: object
+                                    properties:
+                                      date:
+                                        title: Date
+                                        description: The date after which to stop repeating.
+                                        type: string
+                                        format: date
+                                        pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                                    additionalProperties: false
+                                    required:
+                                      - date
+                                  - type: object
+                                    maxProperties: 0
+                            additionalProperties: false
+                            required:
+                              - type
+                          - title: Monthly
+                            description: Rules for repeating on a monthly basis.
+                            type: object
+                            properties:
+                              type:
+                                title: Type
+                                description: ""
+                                enum:
+                                  - monthly
+                                type: string
+                              interval:
+                                title: Interval
+                                description: Number of months between each repetition.
+                                oneOf:
+                                  - type: integer
+                                  - type: string
+                                    nullable: true
+                              repeatBy:
+                                title: Repeat By
+                                description: How to calculate the day of the month on which to start repeating.
+                                oneOf:
+                                  - title: One Of-1
+                                    description: ""
+                                    type: object
+                                    properties:
+                                      dayOfMonth:
+                                        title: Day of Month
+                                        description: The number of the day in the month on which to start repeating.
+                                        type: integer
+                                    additionalProperties: false
+                                    required:
+                                      - dayOfMonth
+                                  - title: One Of-2
+                                    description: ""
+                                    type: object
+                                    properties:
+                                      dayOfWeek:
+                                        title: Day of Week
+                                        description: The cardinal day of the week (e.g., the first Tuesday, the last
+                                          Friday, etc.) in the month on which to
+                                          start repeating.
+                                        type: object
+                                        properties:
+                                          occurrence:
+                                            title: Occurrence
+                                            description: The nth occurrence of the day of the week in the month. Use a
+                                              positive number to count from the
+                                              start of the month (e.g., 1 =
+                                              first in the month, 2 = second in
+                                              the month), and a negative number
+                                              to count from the end of the month
+                                              (e.g. -1 = last in the month, -2 =
+                                              second from last, etc.).
+                                            type: integer
+                                          day:
+                                            title: Day of Week
+                                            description: A day in a week.
+                                            enum:
+                                              - sunday
+                                              - monday
+                                              - tuesday
+                                              - wednesday
+                                              - thursday
+                                              - friday
+                                              - saturday
+                                            type: string
+                                        additionalProperties: false
+                                        required:
+                                          - occurrence
+                                          - day
+                                    additionalProperties: false
+                                    required:
+                                      - dayOfWeek
+                              ends:
+                                title: Ends
+                                description: When to end the monthly repetitions.
+                                oneOf:
+                                  - title: One Of-1
+                                    description: ""
+                                    type: object
+                                    properties:
+                                      repetitions:
+                                        title: Repetitions
+                                        description: Number of times to repeat, then stop.
+                                        type: integer
+                                    additionalProperties: false
+                                    required:
+                                      - repetitions
+                                  - title: One Of-2
+                                    description: ""
+                                    type: object
+                                    properties:
+                                      date:
+                                        title: Date
+                                        description: The date after which to stop repeating.
+                                        type: string
+                                        format: date
+                                        pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                                    additionalProperties: false
+                                    required:
+                                      - date
+                                  - type: object
+                                    maxProperties: 0
+                            additionalProperties: false
+                            required:
+                              - type
+                              - repeatBy
+                          - title: Yearly
+                            description: Rules for repeating on an annual basis.
+                            type: object
+                            properties:
+                              type:
+                                title: Type
+                                description: ""
+                                enum:
+                                  - yearly
+                                type: string
+                              interval:
+                                title: Interval
+                                description: Number of years between each repetition.
+                                oneOf:
+                                  - type: integer
+                                  - type: string
+                                    nullable: true
+                              ends:
+                                title: Ends
+                                description: When to end the yearly repetitions.
+                                oneOf:
+                                  - title: One Of-1
+                                    description: ""
+                                    type: object
+                                    properties:
+                                      repetitions:
+                                        title: Repetitions
+                                        description: Number of times to repeat, then stop.
+                                        type: integer
+                                    additionalProperties: false
+                                    required:
+                                      - repetitions
+                                  - title: One Of-2
+                                    description: ""
+                                    type: object
+                                    properties:
+                                      date:
+                                        title: Date
+                                        description: The date after which to stop repeating.
+                                        type: string
+                                        format: date
+                                        pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                                    additionalProperties: false
+                                    required:
+                                      - date
+                                  - type: object
+                                    maxProperties: 0
+                            additionalProperties: false
+                            required:
+                              - type
+                    additionalProperties: false
+                    required:
+                      - timePeriod
+                      - repeatRule
+                  - type: object
+                    maxProperties: 0
+              locations:
+                title: Location
+                description: Locations where the instructional event will take place.
+                type: array
+                items:
+                  type: object
+                  properties:
+                    location:
+                      title: Location
+                      description: ""
+                      oneOf:
+                        - title: Site
+                          description: A physical location within the organization.
+                          type: object
+                          properties:
+                            type:
+                              title: Type
+                              description: ""
+                              enum:
+                                - site
+                              type: string
+                            code:
+                              title: Code
+                              description: The code that identifies the site.
+                              type: string
+                            title:
+                              title: Title
+                              description: The full name of the site.
+                              type: string
+                            detail:
+                              title: Site
+                              description: The site where the event will take place.
+                              type: object
+                              properties:
+                                id:
+                                  title: ID
+                                  description: The global identifier for the Site.
+                                  type: string
+                                  format: guid
+                                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                                  x-lineageLookupReferenceObject: sites
+                              additionalProperties: false
+                              required:
+                                - id
+                          additionalProperties: false
+                          required:
+                            - type
+                            - detail
+                        - title: Room
+                          description: A room within a building, on a floor.
+                          type: object
+                          properties:
+                            type:
+                              title: Type
+                              description: ""
+                              enum:
+                                - room
+                              type: string
+                            title:
+                              title: Title
+                              description: The full name of a room.
+                              type: string
+                            number:
+                              title: Number
+                              description: A numbering scheme to distinguish different buildings, floors, and
+                                rooms located in the same site.  Typically this
+                                is a string.
+                              type: string
+                            floor:
+                              title: Floor
+                              description: The name of the floor where a room is located.
+                              type: string
+                            building:
+                              title: building
+                              description: A physical structure, usually containing rooms, which is located at
+                                a specified physical location.
+                              type: object
+                              properties:
+                                title:
+                                  title: Title
+                                  description: The full name of a building.
+                                  type: string
+                                code:
+                                  title: Code
+                                  description: A code that identifies the building.
+                                  type: string
+                                detail:
+                                  title: building
+                                  description: The building used in this instructional event.
+                                  type: object
+                                  properties:
+                                    id:
+                                      title: ID
+                                      description: The global identifier for the building.
+                                      type: string
+                                      format: guid
+                                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                                      x-lineageLookupReferenceObject: buildings
+                                  additionalProperties: false
+                                  required:
+                                    - id
+                              additionalProperties: false
+                              required:
+                                - detail
+                            detail:
+                              title: Room
+                              description: The room where the event will take place.
+                              type: object
+                              properties:
+                                id:
+                                  title: ID
+                                  description: The global identifier for the Room.
+                                  type: string
+                                  format: guid
+                                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                                  x-lineageLookupReferenceObject: rooms
+                              additionalProperties: false
+                              required:
+                                - id
+                          additionalProperties: false
+                          required:
+                            - type
+                            - detail
+                        - title: Online Location
+                          description: A meeting location available via a computer network, such as an
+                            online video conference.
+                          type: object
+                          properties:
+                            type:
+                              title: Type
+                              description: ""
+                              enum:
+                                - online
+                              type: string
+                            phoneNumber:
+                              title: Phone
+                              description: The international telephone number of the location.
+                              type: string
+                            phoneExtension:
+                              title: Extension
+                              description: The telephone extension number of the location's telephone.
+                              type: string
+                            webAddress:
+                              title: Web Address
+                              description: The primary web address (URL) of the online meeting location.
+                              type: string
+                          additionalProperties: false
+                          required:
+                            - type
+                        - title: Other Location
+                          description: A human readable description of a location.
+                          type: object
+                          properties:
+                            type:
+                              title: Type
+                              description: ""
+                              enum:
+                                - other
+                              type: string
+                            title:
+                              title: Title
+                              description: ""
+                              type: string
+                          additionalProperties: false
+                          required:
+                            - type
+                  additionalProperties: false
+                  required:
+                    - location
+              instructorRoster:
+                title: Instructor Roster
+                description: ""
+                type: array
+                items:
+                  type: object
+                  properties:
+                    instructor:
+                      title: Instructor
+                      description: A person assigned to teach an instruction method of a section.
+                      type: object
+                      properties:
+                        names:
+                          title: Name
+                          description: The parts of a particular form of a person's name.
+                          type: array
+                          minItems: 1
+                          items:
+                            type: object
+                            properties:
+                              type:
+                                title: Name Type
+                                description: A type of name being defined. For example, a "Primary" name.
+                                enum:
+                                  - primary
+                                type: string
+                              title:
+                                title: Title
+                                description: A person's title. For example, "Mr.", "Mrs.", "Dr.", etc.
+                                type: string
+                              firstName:
+                                title: First Name
+                                description: A person's first, or given, name.
+                                type: string
+                              middleName:
+                                title: Middle Name
+                                description: A person's middle name.
+                                type: string
+                              lastNamePrefix:
+                                title: Last Name Prefix
+                                description: The article or preposition portion of a person's last name. For
+                                  example, "De la", "Van", "Van der Von", etc.
+                                type: string
+                              lastName:
+                                title: Last Name
+                                description: A person's last, or family, name.
+                                type: string
+                              pedigree:
+                                title: Pedigree/Suffix
+                                description: A person's pedigree, e.g. "Jr.", "Sr.", etc.
+                                type: string
+                              preferredName:
+                                title: Preferred Name
+                                description: A person's preferred, short-hand name, such as a nickname.
+                                type: string
+                            additionalProperties: false
+                            required:
+                              - type
+                              - firstName
+                              - lastName
+                        credentials:
+                          title: Credential
+                          description: The unique information that identifies a user to a system such as a
+                            network or computer.
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              type:
+                                title: Type
+                                description: The type of credential, such as "Person ID", "System ID", etc.
+                                enum:
+                                  - ssn
+                                  - sin
+                                  - bannerId
+                                  - colleaguePersonId
+                                  - elevateID
+                                  - bannerSourcedId
+                                  - bannerUserName
+                                  - bannerUdcId
+                                type: string
+                              value:
+                                title: Credential
+                                description: The credential used in this section.
+                                type: string
+                            additionalProperties: false
+                            required:
+                              - type
+                              - value
+                        detail:
+                          title: Instructor
+                          description: The instructor teaching this section.
+                          type: object
+                          properties:
+                            id:
+                              title: ID
+                              description: The global identifier for the Instructor.
+                              type: string
+                              format: guid
+                              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                              x-lineageLookupReferenceObject: persons
+                          additionalProperties: false
+                          required:
+                            - id
+                      additionalProperties: false
+                      required:
+                        - detail
+                    workLoadPercentage:
+                      title: Load Percentage
+                      description: The rate or proportion per hundred of the instructional method's
+                        work load that is attributable to the instructor.
+                      oneOf:
+                        - type: number
+                        - type: string
+                          nullable: true
+                    responsibilityPercentage:
+                      title: Responsibility Percentage
+                      description: The rate or proportion per hundred of the responsibility for
+                        managing the instructional method's activities that is
+                        attributable to the instructor.
+                      oneOf:
+                        - type: number
+                        - type: string
+                          nullable: true
+                    workStartOn:
+                      title: Work Start Date
+                      description: The date when an instructor is assigned to start teaching the
+                        scheduled event for a Section.
+                      oneOf:
+                        - type: string
+                          format: date-time
+                          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                        - type: string
+                          maxLength: 0
+                    workEndOn:
+                      title: Work End Date
+                      description: The date after which an instructor is no longer assigned to the
+                        scheduled event for a Section.
+                      oneOf:
+                        - type: string
+                          format: date-time
+                          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                        - type: string
+                          maxLength: 0
+                  additionalProperties: false
+                  required:
+                    - instructor
+              detail:
+                title: Instructional Event
+                description: The instructional event associated to this section.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Instructional Event.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: instructional-events
+                additionalProperties: false
+                required:
+                  - id
+            additionalProperties: false
+            required:
+              - detail
+        owningInstitutionUnits:
+          title: Owning Institution Units
+          description: Units (departments) of the educational institution that own, or are
+            responsible for, the course
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                title: Code
+                description: The code that identifies the unit
+                type: string
+              title:
+                title: Title
+                description: The full name of the unit
+                type: string
+              ownershipPercentage:
+                title: Percent Ownership
+                description: The rate or proportion per hundred of ownership that is
+                  attributable to the unit
+                type: number
+              institutionUnit:
+                title: Institution Unit
+                description: The unit (department) primarily responsible for this section
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Institution Unit.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: educational-institution-units
+                additionalProperties: false
+                required:
+                  - id
+            additionalProperties: false
+            required:
+              - ownershipPercentage
+              - institutionUnit
+        gradeTypes:
+          title: Grade Types
+          description: The grade types that can be used in grading a section
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                title: Title
+                description: The full name of grade type
+                type: string
+                minLength: 1
+              details:
+                title: Grade Type
+                description: The grade type that is used in this section
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Grade Type.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: section-grade-types
+                additionalProperties: false
+                required:
+                  - id
+            additionalProperties: false
+            required:
+              - title
+              - details
+      required:
+        - id
+        - title
+        - startOn
+        - course
+      additionalProperties: false

@@ -1,0 +1,405 @@
+openapi: 3.0.0
+info:
+  title: Section Registrations Grade Options
+  description: >
+    Section registration grade options is an alternate representation of
+    section-registrations API that exposes grading options for all the section
+    registration records in SFRSTCR table. The response also includes section
+    from SSBSECT table for which the student has registered, grade scheme from
+    SHRGSCH table and grade options along with any incomplete grades associated
+    from SHRGRDE table
+  version: 1.0.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Student
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: section-registrations-grade-options
+paths:
+  /api/section-registrations:
+    get:
+      summary: Returns resources from SHRGRDE
+      description: >
+        Returns a paged list of section registration grading options from
+        SHRGRDE table for all the section registration records from SFRSTCR
+        table.
+
+
+        Based on the level and grade mode of the registration, all grades applicable for registration grade updates are retrieved.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_SECTION_REGISTRATIONS
+      tags:
+        - section-registrations-grade-options
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.section-registrations-grade-options.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Section  
+
+            Filter to return all section-registrations instances for a section.
+
+            ```
+
+            /section-registrations?criteria={"section":{"id":"cfa09192-7e0b-46ca-aaa3-13b0c659f9cc"}}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-section-registrations-grade-options.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/section-registrations/{id}:
+    get:
+      summary: Return the requested resource from SHRGRDE
+      description: >
+        Returns the section registration grading options from SHRGRDE for the
+        section registration identifier from SFRSTCR table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_SECTION_REGISTRATIONS
+      tags:
+        - section-registrations-grade-options
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.section-registrations-grade-options.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-section-registrations-grade-options.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-section-registrations-grade-options.json:
+      title: Section Registrations Grade Options
+      description: The grading options for the section registration.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the section registration.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: SFRRGID_GUID(SFRRGID)
+        section:
+          title: Section
+          description: An instance of a course for which a person has registered.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Section.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: sections 
+              x-lineageReferenceObject: SSBSGID_GUID(SSBSGID)
+          additionalProperties: false
+          required:
+            - id
+        sectionGradability:
+          title: Section Gradability
+          description: An indicator whether the section is gradable.
+          oneOf:
+            - type: string
+              enum:
+                - notGradable
+                - gradable
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: For the SFRRGID_TERM_CODE  and SFRRGID_CRN, fetch the matching section record from SSBSECT. If SSBSECT_GRADABLE_IND = 'Y' then display as 'gradable' else display as 'nonGradable'
+            - type: string
+              maxLength: 0
+        studentGradeScheme:
+          title: Student Grade Scheme
+          description: The grading scheme used to award the student their grade for the
+            section.
+          oneOf:
+            - type: object
+              properties:
+                detail:
+                  title: Detail
+                  description: The grading scheme used to award the student their grade for the
+                    section.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Detail.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: grade-schemes 
+                      x-lineageReferenceObject: SHRGSCH_GUID(SHRGSCH)
+                  additionalProperties: false
+                  required:
+                    - id
+                title:
+                  title: Title
+                  description: The full name of the grading scheme.
+                  type: string
+                  x-lineageReferenceObject: SHRGSCH_GRADE_SCHEME_DESC(SHRGSCH)
+              additionalProperties: false
+              required:
+                - detail
+            - type: object
+              maxProperties: 0
+        gradeStatus:
+          title: Grade Status
+          description: An indicator whether the student has a verified grade or the
+            section registration.
+          oneOf:
+            - type: string
+              enum:
+                - verified
+                - unverified
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: If SFRSTCR_GRDE_DATE is not null and SFRSTCR_GRDE_CODE is not null then display as 'verified', else if an SFRUGID_GUID exists for this section registration then display as 'unverified', else gradeStatus is not displayed
+            - type: string
+              maxLength: 0
+        grades:
+          title: Grades
+          description: The grade options associated with the section registration.
+          type: array
+          items:
+            type: object
+            properties:
+              grade:
+                title: Grade
+                description: The grade that may be awarded to the student by the instructor.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Grade.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: grade-definitions 
+                    x-lineageReferenceObject: SHRGDID_GUID(SHRGDID)
+                additionalProperties: false
+                required:
+                  - id
+              value:
+                title: Value
+                description: The grade value.
+                type: string
+                x-lineageReferenceObject: SHRGDID_GRDE_CODE(SHRGDID)
+              incompleteGradeDetails:
+                title: Incomplete Grade Details
+                description: The incomplete grade details associated with the grade.
+                type: object
+                properties:
+                  finalGradeDefault:
+                    title: Final Grade Default
+                    description: The default final grade to be assigned to this section registration
+                      when extension date is passed.
+                    oneOf:
+                      - type: object
+                        properties:
+                          id:
+                            title: ID
+                            description: The global identifier for the Final Grade Default.
+                            type: string
+                            format: guid
+                            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                            x-lineageLookupReferenceObject: grade-definitions 
+                            x-lineageReferenceObject: SHRGRDE_GRDE_CODE_INCMP_FINA(SHRGRDE)
+                        additionalProperties: false
+                        required:
+                          - id
+                      - type: object
+                        maxProperties: 0
+                  finalGradeDefaultOverridability:
+                    title: Final Grade Default Overridability
+                    description: An indicator whether the instructor may override the default final
+                      grade.
+                    oneOf:
+                      - type: string
+                        enum:
+                          - overridable
+                          - notOverridable
+                        x-lineageReferenceObject: derived  
+                        x-lineageDerivedLogic: For the SFRSTCR_LEVL_CODE and SFRSTCR_GMOD_CODE, fetch the matching record from SHRGSCH table. Display as 'overridable' if SHRINCG_LEVL_CODE = SHRGSCH_GRADE_SCHEME_LEVEL and SHRINCG_INCMP_GRDE_OVER_IND = 'Y' and the rule is effective for the term SFRSTCR_TERM_CODE. Else display as 'notOverridable'  if SHRINCG_LEVL_CODE = SHRGSCH_GRADE_SCHEME_LEVEL and SHRINCG_INCMP_GRDE_OVER_IND = 'N' and the rule is effective for the term SFRSTCR_TERM_CODE.
+                      - type: string
+                        maxLength: 0
+                  extensionDateDefault:
+                    title: Extension Date Default
+                    description: The default extension date associated with the incomplete grade.
+                    oneOf:
+                      - type: string
+                        format: date
+                        pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                        x-lineageReferenceObject: derived  
+                        x-lineageDerivedLogic: If SFRSTCR_PTRM_CODE is not null, then fetch the corresponding part of term record from SOBPTRM where SFRSTCR_TERM_CODE = SOBPTRM_TERM_CODE and display extension date from SOBPTRM_INCOMPLETE_EXT_DATE if not null. Else if SOBPTRM_INCOMPLETE_EXT_DATE is null then display SOBPTRM_END_DATE. Else, if SFRSTCR_PTRM_CODE is null then display STVTERM_END_DATE  for the SFRSTCR_TERM_CODE If SHRTCKN_PTRM_CODE is not null
+                      - type: string
+                        maxLength: 0
+                additionalProperties: false
+              lastDateOfAttendanceRequiredness:
+                title: Last Date Of Attendance Requiredness
+                description: An indicator whether the last date of attendance is required for
+                  the grade.
+                oneOf:
+                  - type: string
+                    enum:
+                      - required
+                      - notRequired
+                    x-lineageReferenceObject: derived  
+                    x-lineageDerivedLogic: For the gradeScheme GUID published fetch the corresponding grade records from SHRGDID where SHRGSCH_GUID = SHRGDID_GRADE_SCHEME. For the grades from SHRGDID, fetch the corresponding records from SHRGRDE where SHRGRDE_GRDE_STATUS_IND = 'A' and the SFRSTCR_TERM_CODE is in the range of terms defined for the grade on SHRGRDE_TERM_CODE_EFFECTIVE. If SHRGRDE_LAST_DATE_ATTEND_IND = 'Y' then display as 'required', else display as 'notRequired'
+                  - type: string
+                    maxLength: 0
+            additionalProperties: false
+            required:
+              - grade
+      required:
+        - id
+        - section
+      additionalProperties: false

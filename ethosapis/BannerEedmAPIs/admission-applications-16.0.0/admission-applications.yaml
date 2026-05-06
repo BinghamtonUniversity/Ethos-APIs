@@ -1,0 +1,543 @@
+openapi: 3.0.0
+info:
+  title: Admission Applications
+  description: >
+    The admission applications housed in the institutions. A person can have
+    multiple admission records for different terms or for a same term. Includes
+    the application withdrawal related information and the comments associated
+    with the application.
+
+
+    Please refer to the section 'API Integration Configuration Settings' in Banner Ethos API Handbook for all the configuration settings needed for this API.
+  version: 16.0.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Recruitment
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/admission-applications:
+    get:
+      summary: Returns resources from SARADAP
+      description: >
+        Returns all records from SARADAP table. For every SARADAP record, the
+        API retrieves all associated current and active SORLCUR records with
+        SORLCUR_LMOD_CODE='ADMISSIONS'.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_ADM_APPLICATIONS
+      tags:
+        - admission-applications
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Applicant  
+
+            Returns all admission applications for the applicant ID passed.
+
+            ```
+
+            /admission-applications?criteria={"applicant":{"id":"4a0c95f7-0903-408a-8694-77b313809909"}}
+
+            ```
+
+            ### Academic Period  
+
+            Returns all admission applications for the academic period ID passed.
+
+            ```
+
+            /admission-applications?criteria={"academicPeriod":{"id":"3efc95f7-0903-408a-8694-77b313806639"}}
+
+            ```
+        - name: personFilter
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Person Filter  
+
+            Returns all admission applications for personFilter id passed.
+
+            ```
+
+            /admission-applications?personFilter={"personFilter":{"id":"0925960d-3741-43c0-98eb-b12c6bed5820"}}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-admission-applications.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/admission-applications/{id}:
+    get:
+      summary: Return the requested resource from SARADAP
+      description: >
+        Returns the detail of admission application record from SARADAP for the
+        passed in identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_ADM_APPLICATIONS
+      tags:
+        - admission-applications
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-admission-applications.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-admission-applications.json:
+      title: Admission Applications
+      description: Higher education institution admission applications.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the admission application.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: SARADAP_GUID(SARADAP)
+        referenceId:
+          title: Reference ID
+          description: The identifier of the application at its origin
+          type: string
+          x-lineageReferenceObject: SARADAPS_REFERENCE_ID(SARADAPS)
+        applicant:
+          title: Applicant
+          description: The person applying for the admission.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Applicant.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+              x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME as 'persons' and GORGUID_DOMAIN_KEY = SARADAP_PIDM.
+          additionalProperties: false
+          required:
+            - id
+        applicationAcademicPrograms:
+          title: Application Academic Programs
+          description: The identifier of the applicant and the academic programs for which
+            they have applied.
+          type: array
+          items:
+            title: Application Academic Programs
+            description: The identifier of the applicant and the academic programs for which
+              they have applied.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Application Academic Programs.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: student-academic-programs 
+                x-lineageReferenceObject: SORLCUR_GUID(SORLCUR)
+                x-lineageDerivedLogic: A student may have multiple programs on SORLCUR associated with a SARADAP record. Displays all current and active academic programs associated with the application record in an array. 
+            additionalProperties: false
+            required:
+              - id
+        type:
+          title: Type
+          description: The type of the application
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Type.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: admission-application-types 
+                  x-lineageReferenceObject: SARADAP_ADMT_CODE(SARADAP)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        academicPeriod:
+          title: Academic Period
+          description: The starting academic period for the admission
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Academic Period.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: academic-periods 
+                  x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = term) 
+                  x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME as 'term' and GORGUID_DOMAIN_KEY = SARADAP_TERM_CODE_ENTRY.
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        applicationSource:
+          title: Application Source
+          description: The source of information associated with the application.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Application Source.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: sources 
+                  x-lineageReferenceObject: SARADAPS_SOURCE_ID(SARADAPS)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        owner:
+          title: Owner
+          description: The institution representative assigned to manage the application
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Owner.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: persons 
+                  x-lineageReferenceObject: SARADAPS_OWNER_ID(SARADAPS)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        admissionPopulation:
+          title: Admission Population
+          description: The type of admission populations the applicant belongs to
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Admission Population.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: admission-populations 
+                  x-lineageReferenceObject: SARADAP_STYP_CODE(SARADAP)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        site:
+          title: Site
+          description: The institution site (campus) selected by the applicant
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Site.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: sites 
+                  x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = campuses)
+                  x-lineageDerivedLogic: A record in GORGUID_GUID with GORGUID_LDM_NAME ='campuses' and GORGUID_DOMAIN_KEY = SORLCUR_CAMP_CODE for a SORLCUR record with SORLCUR_LMOD_CODE = sb_curricuum_str.f_admissions for the current and active primary ADMISSIONS SORLCUR record.
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        residencyType:
+          title: Residency Type
+          description: The residency type of the applicant (e.g. international).
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Residency Type.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: residency-types 
+                  x-lineageReferenceObject: SARADAP_RESD_CODE(SARADAP)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        academicLoad:
+          title: Academic Load
+          description: The academic load selection, e.g., full- or part-time
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: If SARADAP_FULL_PART_IND = 'P', then display 'partTime';if SARADAP_FULL_PART_IND = 'F', then display 'fullTime' else do not publish.
+          oneOf:
+            - type: string
+              enum:
+                - fullTime
+                - partTime
+            - type: string
+              maxLength: 0
+        appliedOn:
+          title: Applied On
+          description: The date the application was submitted.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: SARADAP_APPL_DATE(SARADAP)
+            - type: string
+              maxLength: 0
+        admittedOn:
+          title: Admitted On
+          description: The earliest admit date for this application.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: The lowest dated(SARAPPD_APDC_DATE) record in SARAPPD with SARAPPD_TERM_CODE_ENTRY=SARADAP_TERM_CODE_ENTRY and SARAPPD_APPL_NO=SARADAP_APPL_NO and SARAPPD_PIDM=SARADAP_PIDM and SARAPPD_APDC_CODE = STVAPDC_CODE and STVAPDC_INST_ACC_IND = 'Y'
+            - type: string
+              maxLength: 0
+        matriculatedOn:
+          title: Matriculated On
+          description: The earliest date for a decision/status that would trigger a move
+            to student for this application.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: The lowest dated(SARAPPD_APDC_DATE) record in SARAPPD with SARAPPD_TERM_CODE_ENTRY=SARADAP_TERM_CODE_ENTRY and SARAPPD_APPL_NO=SARADAP_APPL_NO and SARAPPD_PIDM=SARADAP_PIDM and SARAPPD_APDC_CODE = STVAPDC_CODE and STVAPDC_STDN_ACC_IND = 'Y'
+            - type: string
+              maxLength: 0
+        withdrawal:
+          title: Withdrawal
+          description: Application withdrawal related information.
+          type: object
+          properties:
+            withdrawnOn:
+              title: Withdrawn On
+              description: The date when the application was withdrawn.
+              oneOf:
+                - type: string
+                  format: date
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                  x-lineageReferenceObject: SARADAPS_WITHDRAWN_ON(SARADAPS)
+                - type: string
+                  maxLength: 0
+            reason:
+              title: Reason
+              description: The application withdrawal reason.
+              oneOf:
+                - type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Reason.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: admission-application-withdrawal-reasons 
+                      x-lineageReferenceObject: SARADAP_WRSN_CODE(SARADAP)
+                  additionalProperties: false
+                  required:
+                    - id
+                - type: object
+                  maxProperties: 0
+            institutionAttended:
+              title: Institution Attended
+              description: The institution attended by the applicant.
+              oneOf:
+                - type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Institution Attended.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: educational-institutions 
+                      x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = src-background-inst) 
+                      x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME = 'src-background-inst' and GORGUID_DOMAIN_KEY = SARADAP_SBGI_CODE
+                  additionalProperties: false
+                  required:
+                    - id
+                - type: object
+                  maxProperties: 0
+          additionalProperties: false
+        comment:
+          title: Comment
+          description: The comment associated with the application
+          type: string
+          x-lineageReferenceObject: SARACMT_COMMENT_TEXT(SARACMT)
+      required:
+        - id
+        - applicant
+        - applicationAcademicPrograms
+      additionalProperties: false

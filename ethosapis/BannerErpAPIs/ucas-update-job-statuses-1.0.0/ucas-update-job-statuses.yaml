@@ -1,0 +1,151 @@
+openapi: 3.0.0
+info:
+  title: UCAS Update Job Statuses
+  description: The UCAS Update Job Statuses API updates all UCAS job statuses to
+    'CLOSED' based on the surrogate ID given in the request body.
+  version: 1.0.0
+  x-source-name: null
+  x-source-title: null
+  x-source-domain: Student
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: beta
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/ucas-update-job-statuses:
+    post:
+      summary: Update UCAS jobs details.
+      description: To update resources in SKRUJOB.
+      x-method-permissions: API_UCAS_UPDATE_JOB_STATUSES
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/ucas-update-job-statuses-v1.0.0_request"
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ucas-update-job-statuses-v1.0.0_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    ucas-update-job-statuses-v1.0.0_request:
+      type: object
+      properties:
+        JobStatus:
+          title: Job Status
+          maxLength: 10
+          type: string
+          description: Response from BRIM API Call for the Job.
+          x-lineageReferenceObject: SKRUJOB_JOB_RESPONSE
+        skrujobSurrogateId:
+          title: Skrujob Surrogate Id
+          maxLength: 19
+          type: string
+          description: Unique identifier for each row in the table.
+          x-lineageReferenceObject: SKRUJOB_SURROGATE_ID
+    ucas-update-job-statuses-v1.0.0_response:
+      type: object
+      properties:
+        status:
+          type: string
+          description: The global identifier of the resource in error.
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary
+                  data entity used to create the resource. This is useful for
+                  referencing the source item through the applications
+                  administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.

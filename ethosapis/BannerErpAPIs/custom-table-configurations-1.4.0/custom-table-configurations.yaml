@@ -1,0 +1,629 @@
+openapi: 3.0.0
+info:
+  title: Custom Table Configurations
+  description: The configurations of the custom-table-configurations table
+    definition which resides in the GORCSTT Banner configuration table. Please
+    refer to "Use Schema Designer" section in Schema Designer for
+    more information.
+    
+  version: 1.4.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Foundation
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/custom-table-configurations:
+    get:
+      summary: Return all resources from GORCSTT table.
+      description: Returns a paged listing of all the resources from GORCSTT table in
+        the system.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_CUSTOM_TABLE_CONFIG
+      tags:
+        - custom-table-configurations
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Name  
+
+            The name of the custom table.
+
+            ```
+
+            /custom-table-configurations?criteria={"customTableName":{"$like":"XMATYPE%"}}
+
+            ```
+
+            ### Description  
+
+            The description of the custom table.
+
+            ```
+            
+            /custom-table-configurations?criteria={"customTableDescription":{"$like":"Material Type%"}}
+            
+            ```
+
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/custom-table-configurations.json"
+              example:
+                - id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                  metadata:
+                    createdBy: "admin"
+                    createdOn: "2026-02-19T10:30:00Z"
+                    modifiedBy: "admin"
+                    modifiedOn: "2026-02-19T10:30:00Z"
+                  customTableName: "XMATERIAL"
+                  customTableDescription: "Custom table for material types"
+                  customTableSecurityObject: "API_XMATERIAL"
+                  customTableAPIName: "x-xmaterial"
+                  MEPIndicator: "N"
+                  requiresAutoIncrement: "N"
+                  customTableColumns:
+                    - columnName: "MATERIAL_CODE"
+                      attributeKeyColumn: "true"
+                      attributeDataType: "varchar2"
+                      attributeDataLength: "10"
+                      attributeDisplay: "true"
+                      attributeRequired: "true"
+                      attributePrompt: "Material Code"
+                    - columnName: "MATERIAL_DESC"
+                      attributeKeyColumn: "false"
+                      attributeDataType: "varchar2"
+                      attributeDataLength: "100"
+                      attributeDisplay: "true"
+                      attributeRequired: "false"
+                      attributePrompt: "Material Description"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.4.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new custom table configuration in GORCSTT table.
+      description: >-
+        The POST operation of the custom-table-configurations API is designed to
+        support institutions in extending their database schema to meet unique
+        business requirements by adding new custom table to the BAN_EXTENSIONS
+        schema.
+
+
+
+        • Custom Table Configurations and Creating a Custom Table - The API
+        allows administrators to define the schema of a custom table. It creates
+        custom table configurations within the GORCSTT Banner configuration
+        table and the system automatically creates a custom table in the
+        BAN_EXTENSIONS schema dedicated to storing custom data specified by the
+        administrators.
+        
+        
+        • Business Event Name Support - As part of 1.3.0 new optional 
+        property 'businessEventName' is added which supports with the automatic 
+        creation of Business Events, with all columns selected for data capture.
+        By default, events created will remain in disabled status.
+        
+        
+        • Additional DataType Support - As part of 1.4.0, new datatypes were added those being datatime and large_object
+        
+        
+        • Security Object and Specification based API - This operation
+        facilitates the creation of a security object for the new custom table
+        API and generates a spec-based API that supports standard CRUD
+        operations (GET, POST, PUT, DELETE) with essential validations. The
+        custom table's API definition is stored in the GURASPC Banner
+        configuration table, and a comprehensive api-specification resource is
+        created for interacting with the custom table.
+
+
+        • Custom Table and Custom Table API Naming Conventions - To ensure
+        uniqueness and prevent future conflicts, Ellucian recommends prefixing
+        the names of custom tables with 'x' and their corresponding APIs with
+        'x-'. For tables, this might look like 'xmaterial', and for APIs,
+        'x-xmaterial'. If not provided, the system generates API names by
+        prefixing 'x-' followed by the custom table name.
+
+
+
+        • MEP (Multi-Entity Processing) Support - An optional MEP Indicator can
+        be used to specify if the custom table should support multi-entity
+        processing. Setting this indicator to 'Y' adds a VPDI_CODE column to the
+        custom table for entity differentiation. Without this indicator or set
+        to 'N', the custom table includes a tablename_vpdi_code column, with the
+        MEP Indicator value always set to null.
+
+
+        • Enabling Auto-Increment - This API includes a feature that enables
+        auto-increment for custom tables. Activating this feature by setting the
+        "requiresAutoIncrement" property to true simplifies data management. It
+        does so by adding a column named <TableName>_SEQUENCE_NUM to your custom
+        table, which automatically generates unique identifiers for each record.
+        This ensures each entry is uniquely identified and integrates this
+        column into the primary key configuration of the table, thus enhancing
+        data integrity. Please refer to "Auto-Increment feature in custom
+        tables" in Banner Extensibility - Use for more information.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_CUSTOM_TABLE_CONFIG
+      tags:
+        - custom-table-configurations
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.4.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.4.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/custom-table-configurations.json"
+              example:
+                id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                metadata:
+                  createdBy: "admin"
+                  createdOn: "2026-02-19T10:30:00Z"
+                customTableName: "XMATERIAL"
+                customTableDescription: "Custom table for material types"
+                customTableSecurityObject: "API_XMATERIAL"
+                customTableAPIName: "x-xmaterial"
+                customTableAPISpec: "b2c3d4e5-f6a7-8901-bcde-f12345678901"
+                MEPIndicator: "N"
+                requiresAutoIncrement: "N"
+                customTableColumns:
+                  - columnName: "MATERIAL_CODE"
+                    attributeKeyColumn: "true"
+                    attributeDataType: "varchar2"
+                    attributeDataLength: "10"
+                    attributeDisplay: "true"
+                    attributeRequired: "true"
+                    attributePrompt: "Material Code"
+                  - columnName: "MATERIAL_DESC"
+                    attributeKeyColumn: "false"
+                    attributeDataType: "varchar2"
+                    attributeDataLength: "100"
+                    attributeDisplay: "true"
+                    attributeRequired: "false"
+                    attributePrompt: "Material Description"
+                  - columnName: "CREATED_DATE"
+                    attributeKeyColumn: "false"
+                    attributeDataType: "date"
+                    attributeDisplay: "true"
+                    attributeRequired: "false"
+                    attributePrompt: "Created Date"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/custom-table-configurations.json"
+            example:
+              customTableName: "XMATERIAL"
+              customTableDescription: "Custom table for material types"
+              customTableSecurityObject: "API_XMATERIAL"
+              customTableAPIName: "x-xmaterial"
+              MEPIndicator: "N"
+              requiresAutoIncrement: "N"
+              customTableColumns:
+                - columnName: "MATERIAL_CODE"
+                  attributeKeyColumn: "true"
+                  attributeDataType: "varchar2"
+                  attributeDataLength: "10"
+                  attributeDisplay: "true"
+                  attributeRequired: "true"
+                  attributePrompt: "Material Code"
+                - columnName: "MATERIAL_DESC"
+                  attributeKeyColumn: "false"
+                  attributeDataType: "varchar2"
+                  attributeDataLength: "100"
+                  attributeDisplay: "true"
+                  attributeRequired: "false"
+                  attributePrompt: "Material Description"
+                - columnName: "CREATED_DATE"
+                  attributeKeyColumn: "false"
+                  attributeDataType: "date"
+                  attributeDisplay: "true"
+                  attributeRequired: "false"
+                  attributePrompt: "Created Date"
+  /api/custom-table-configurations/{id}:
+    get:
+      summary: Return the requested resource from GORCSTT table.
+      description: Return the one resource from GORCSTT table with the passed in identifier.
+      
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_CUSTOM_TABLE_CONFIG
+      tags:
+        - custom-table-configurations
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Custom Table Configurations for use in all
+            external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.4.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.4.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/custom-table-configurations.json"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    delete:
+      summary: Removes the requested resource from GORCSTT table.
+      tags:
+        - custom-table-configurations
+      description: >
+        Deletes the existing custom table configuration record from GORCSTT
+        table with the passed in identifier.
+        
+        
+        **NOTE**:
+        
+        - Deleting a custom table configuration requires the user to have access to the security object **API_CUSTOM_TABLE_CONFIG_DELETE**.
+      
+        - If the user has not created the configuration, then the user must have additional access to the security object **BAN_ETHOS_API_OVERRIDE** to delete configurations created by another user.
+ 
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_CUSTOM_TABLE_CONFIG_DELETE
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    custom-table-configurations.json:
+      title: Custom Table Configurations
+      description: The API returns the list of the custom table configurations in
+        GORCSTT table.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the custom-table-configurations.
+          type: string
+          format: guid
+          pattern: ^a-f0-9]8(?:-a-f0-9]4)3-a-f0-9]12$
+        businessEventName:
+          title: businessEventName
+          description: The Business Event Name for the custom table.
+          type: string
+        customTableName:
+          title: Custom Table Name
+          description: The name of the custom-table-configurations table to hold the
+            custom-table-configurations data.
+          type: string
+        customTableDescription:
+          title: Custom Table Description
+          description: The description of the custom-table-configurations table to hold
+            the custom-table-configurations data.
+          type: string
+        customTableSecurityObject:
+          title: Custom Table Security Object
+          description: The security object for the custom-table-configurations table API
+          type: string
+        customTableAPIName:
+          title: Custom Table API Name
+          description: The name of the API that would be generated for the
+            custom-table-configurations table to hold the
+            custom-table-configurations data.
+          type: string
+        customTableAPISpec:
+          title: Custom Table API Specification
+          description: The api-specifications configuration details for the
+            specification-driven custom-table-configurations table API.
+          type: string
+          format: guid
+          pattern: ^a-f0-9]8(?:-a-f0-9]4)3-a-f0-9]12$
+        customTableColumns:
+          title: Custom Table Columns
+          description: The custom-table-configurations column details for configuration.
+          type: array
+          items:
+            type: object
+            properties:
+              columnName:
+                title: Custom Table Column Name
+                description: The name of the custom column.
+                type: string
+              attributeKeyColumn:
+                title: Attribute Key Column
+                description: The column to be considered as key column.
+                type: string
+                enum:
+                  - true
+                  - false
+              attributeDataType:
+                title: Attribute Data Type
+                description: The data type of the custom column.
+                type: string
+                enum:
+                  - varchar2
+                  - date
+                  - numeric
+                  - datetime
+                  - large_object
+              attributeDataLength:
+                title: Attribute Data Length
+                description: The data length of the custom column.
+                type: string
+              attributeDataScale:
+                title: Attribute Data Scale
+                description: The data scale of the custom column.
+                type: string
+              rangeLow:
+                title: Range Low
+                description: The lowest range for the column value
+                type: string
+              rangeHigh:
+                title: Range High
+                description: The highest range for the column value
+                type: string
+              attributeDisplay:
+                title: Attribute Display
+                description: An indicator if the custom column is to be displayed or not.
+                type: string
+                enum:
+                  - true
+                  - false
+              attributeRequired:
+                title: Attribute Required
+                description: An indicator if the custom column is required column or not.
+                type: string
+                enum:
+                  - true
+                  - false
+              attributePrompt:
+                title: Attribute Prompt
+                description: The prompt name of the custom column when displayed.
+                type: string
+              validationAPIName:
+                title: Validation API Name
+                description: The validation table's API for the custom column
+                type: string
+              validationTable:
+                title: Validation Table
+                description: The custom-table-configurations table for which the custom data is
+                  to be validated.
+                type: string
+              validationColumn:
+                title: Validation Column
+                description: The custom-table-configurations table's column for which the custom
+                  data is to be validated.
+            additionalProperties: false
+            required:
+              - columnName
+              - attributeKeyColumn
+              - attributeDataType
+              - attributeDisplay
+              - attributePrompt
+        MEPIndicator:
+          title: MEP Indicator
+          description: An indicator if the custom-table-configurations table is to be MEP
+            enabled
+          type: string
+          enum:
+            - Y
+            - N
+        requiresAutoIncrement:
+          title: AutoIncrement Indicator
+          description: An indicator if the custom-table-configurations table is to be
+            enabled with aauto incremented column.
+          type: string
+          enum:
+            - Y
+            - N
+        apiRegistryDocument:
+          title: API Registry Document identifier
+          description: The document identifier of the endpoint specification registered in API Registry.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the API Registry Document.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+      required:
+        - id
+        - customTableName
+        - customTableDescription
+        - customTableColumns
+      additionalProperties: false

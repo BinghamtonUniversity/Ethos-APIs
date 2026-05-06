@@ -1,0 +1,1697 @@
+openapi: 3.0.0
+info:
+  title: Section Bases Submission Process
+  description: >
+  
+    The Section Bases Submission Process API is used to create or update base section records.  In addition 
+    to the base section (SSBSECT) details, section partition (SSRSPRT) and section room attribute 
+    (SSRSRDF) preference records can also be created or updated.  For Open Learning Registration sections,
+    the registration status codes (SSRRSTS) and associated extension processing (SSREXTN) and refunding 
+    rules (SSRRFND) can be created or updated as well.  The API supports the option to post adjustments to base
+    sections records in batches.
+    
+
+    Base section details can be queried using section-bases.  
+    
+    
+    Section meeting records can be created, updated or deleted using section-meetings.  
+    
+    
+    Instructors for a specific CRN can be managed using section-instructional-assignments-adjustment-process.
+
+
+  version: 1.0.0-beta
+  x-api-type: erp
+  x-release-status: beta
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Student
+  x-source-name: SSASECT, SSARULE
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /api/section-bases-submission-process:
+    post:
+      tags:
+      - section-bases-submission-process
+      summary: Creates or updates resources in SSBSECT, SSRRESV, SSRSPRT, SSRSRDF, SSRRSTS, SSREXTN or SSRRFND. 
+
+      description: >
+
+
+        Creates a base section record or updates an existing base section record in SSBSECT, along 
+        with the associated section partition (SSRSPRT) and section room attribute (SSRSRDF) preference records.  For Open Learning 
+        Registration sections, the registration status codes (SSRRSTS) and associated extension processing (SSREXTN) and refunding 
+        rules (SSRRFND) may also be updated.
+
+
+        API behavior details
+
+
+        * Replace Functionality -  When the POST request is processed, it will replace any existing data associated 
+        with the resource for the specified term and crn with the new data provided in the request. This ensures that the 
+        resource is entirely updated to match the new data set provided.
+
+        
+        * Complete Data Set Required - The POST request must include complete objects or arrays. This means that the data sent must fully represent 
+        the resource being updated. Partial data may result in an incomplete or incorrect update.
+
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string            
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/section-bases-submission-process-1.0.0_post_request"
+      responses:
+        '201':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/section-bases-submission-process-1.0.0_response"
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SEC_BASES_SUB_PROC
+  /api/section-bases-submission-process/batches:
+    get:
+      tags:
+      - section-bases-submission-process
+      summary: Returns batch API status for all the jobs created for this resource.
+      description: >  
+
+         Returns the status for all the jobs created for this resource. Use the /batches/{id} GET API to view the result of each request item.
+         
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description:  |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+            ```
+          required: false
+          schema:
+            type: integer
+
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer   
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          #Add into the description an example for each criteria query supported.   
+          description:                      
+            |
+            ### ID 
+            Returns all records for the batch request ID passed.
+            ```
+            /batch?criteria={"id":"13371b52-1afc-4a98-8186-90f2219dad01"}
+            ```
+            ### Job ID 
+            Returns all records for the job execution ID passed.
+            ```
+            /batch?criteria={"jobId": 123}
+            ```
+            ### Start Date
+            Returns all records for the start date passed.
+            ```
+            /batch?criteria={"startDate":"2024-09-18 13:46:48"}
+            ```
+            ### Job Status
+            Returns all records for the job status passed.
+            ```
+            /batch?criteria={"status":"completed"}
+            ```          
+                    
+      responses:
+        '201':
+          description: Success
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/section-bases-submission-process-batch-1.0.0_get_response'    
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permissions: API_SEC_BASES_SUB_PROC        
+    post:
+      tags:
+      - section-bases-submission-process
+      summary: Submit a batch of section resources to be posted to SSBSECT, SSRRESV, SSRSPRT, SSRSRDF, SSRRSTS, SSREXTN or SSRRFND. 
+
+      description: >
+
+
+        Creates base section records or updates existing base section records in SSBSECT, along 
+        with the associated section partition (SSRSPRT) and section room attribute (SSRSRDF) preference records.  For Open Learning 
+        Registration sections, the registration status codes (SSRRSTS) and associated extension processing (SSREXTN) and refunding 
+        rules (SSRRFND) may also be updated.
+
+
+        API behavior details:
+
+
+        * Replace Functionality -  When the POST request is processed, it will replace any existing data associated 
+        with the resource for the specified term and crn with the new data provided in the request. This ensures that the 
+        resource is entirely updated to match the new data set provided.
+
+        
+        * Complete Data Set Required - The POST request must include complete objects or arrays. This means that the data sent must fully represent 
+        the resource being updated. Partial data may result in an incomplete or incorrect update.
+
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string            
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/section-bases-submission-process-batch-1.0.0_post_request"
+      responses:
+        '201':
+          description: Success
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/section-bases-submission-process-batch-1.0.0_post_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SEC_BASES_SUB_PROC
+  /api/section-bases-submission-process/batches/{id}:
+    get:
+      tags:
+      - section-bases-submission-process
+      summary:         Returns result of each item in the batch request.
+      description: >  
+        Returns the list of IDs for those resources that were successfully created or updated. For those that were not, it returns the list of error messages.
+
+
+      parameters:
+        - name: id
+          in: path
+          description: |
+            Unique identifier for the batch API request.
+          required: true
+          schema:
+            type: string
+            minimum: 1            
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string         
+      responses:
+        '201':
+          description: Success
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/section-bases-submission-process-batch-1.0.0_get_response'    
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permissions: API_SEC_BASES_SUB_PROC            
+components:
+  schemas:
+    section-bases-submission-process-1.0.0_post_request:
+      type: object
+      required:
+        - term  
+        - crn    
+      properties:
+        term:
+          title: Term
+          maxLength: 6
+          type: string
+          description: "The term code for the set of base section details."  
+          x-lineageReferenceObject: SSBSECT_TERM_CODE
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202201    
+        crn: 
+          title: Course Reference Number
+          maxLength: 5
+          type: string
+          description: "The Course Reference Number (CRN) assigned to this course section.  CRN must be provided
+           when updating existing section records. For new section records, ADD should be used."
+          x-lineageReferenceObject: SSBSECT_CRN
+          example: 1001     
+        sectionScheduleDetail:
+          title: Schedule Detail
+          type: object     
+          required:  
+            - classTypeDetails 
+            - sectionEnrollmentDetails
+            - subject
+            - courseNumber
+            - section
+            - campus
+            - status
+            - scheduleType                                       
+          properties:                         
+            subject:
+              title: Subject Code
+              maxLength: 4
+              type: string
+              description: "Subject area of the course section."
+              x-lineageReferenceObject: SSBSECT_SUBJ_CODE
+              x-lineageLookupReferenceObject: STVSUBJ         
+              example: NURS
+            courseNumber:
+              title: Course Number
+              maxLength: 5
+              type: string
+              description: "Course number associated with the subject for the section."
+              x-lineageReferenceObject: SSBSECT_CRSE_NUMB         
+              example: 1001  
+            shortTitle:
+              title: Short Title
+              maxLength: 30
+              type: string
+              description: "Short title of the section."
+              x-lineageReferenceObject: derived    
+              x-lineageDerivedLogic: SSBSECT_CRSE_TITLE if populated, but if SSBSECT_CRSE_TITLE is null then display SCBCRSE_TITLE.
+              example: Intro to Prof Nursing I    
+            section:
+              title: Section Number
+              maxLength: 3
+              type: string
+              description: "Section number associated with a subject/course combination. A section number can be used only one time to identify a subject/course number combination in a term, with the exception of 0 (zero). 0 can be shared by multiple sections."
+              x-lineageReferenceObject: SSBSECT_SEQ_NUMB         
+              example: 1   
+            crosslistGroup:
+              title: Crosslist Group
+              maxLength: 15
+              type: string
+              description: "Identifier of the crosslist group."
+              x-lineageReferenceObject: SSBXLST_XLST_GROUP         
+              example: JF                                                                                    
+            status:
+              title: Status Code
+              maxLength: 1
+              type: string
+              description: "The status of the section."
+              x-lineageReferenceObject: SSBSECT_SSTS_CODE
+              x-lineageLookupReferenceObject: STVSSTS             
+              example: A  
+            campus:
+              title: Campus Code
+              maxLength: 3
+              type: string
+              description: "Campus on which the section is scheduled."
+              x-lineageReferenceObject: SSBSECT_CAMP_CODE
+              x-lineageLookupReferenceObject: STVCAMP             
+              example: M                    
+            scheduleType:
+              title: Schedule Type Code
+              maxLength: 3
+              type: string
+              description: "Schedule type defined for the section."
+              x-lineageReferenceObject: SSBSECT_SCHD_CODE 
+              x-lineageLookupReferenceObject: STVSCHD                              
+              example: LR                
+            instructionalMethod:
+              title: Instructional Method Code
+              maxLength: 5
+              type: string
+              description: "Method used to deliver the course to the learner."
+              x-lineageReferenceObject: SSBSECT_INSM_CODE 
+              x-lineageLookupReferenceObject: GTVINSM                              
+              example: CLASS   
+            integrationPartner:
+              title: Integration Partner System Code
+              maxLength: 5
+              type: string
+              description: "The code used to identify a partner system."
+              x-lineageReferenceObject: SSBSECT_INTG_CDE 
+              x-lineageLookupReferenceObject: GORINTG                              
+              example: B  
+            gradingMode:
+              title: Grading Mode Code
+              maxLength: 1
+              type: string
+              description: "The grading mode defined for the section."
+              x-lineageReferenceObject: SSBSECT_GMOD_CODE
+              x-lineageLookupReferenceObject: STVGMOD             
+              example: D        
+            session:
+              title: Session Code
+              maxLength: 1
+              type: string
+              description: "The session in which the section is scheduled."
+              x-lineageReferenceObject: SSBSECT_SESS_CODE
+              x-lineageLookupReferenceObject: STVSESS             
+              example: 1        
+            specialApproval:
+              title: Special Approval Code
+              maxLength: 2
+              type: string
+              description: "The special approval a student must have to register."
+              x-lineageReferenceObject: SSBSECT_SAPR_CODE
+              x-lineageLookupReferenceObject: STVSAPR             
+              example: A                                                                                                                                                                                                  
+            classTypeDetails:
+              title: Class Type Details
+              type: object         
+              oneOf:
+              - title: Traditional Class
+                type: object
+                properties:
+                  partOfTerm:
+                    title: Part of Term Code
+                    maxLength: 3
+                    type: string
+                    description: "The part of term in which the section is offered."
+                    x-lineageReferenceObject: SSBSECT_PTRM_CODE
+                    x-lineageLookupReferenceObject: STVPTRM             
+                    example: 1         
+                  partOfTermStartOn:
+                    title: Part of Term Start Date
+                    type: string
+                    format: date
+                    description: "The starting date of the part of term. Defaults from SOBPTRM if not included on POST request."
+                    x-lineageReferenceObject: SSBSECT_PTRM_START_DATE
+                    example: 2021-08-15    
+                  partOfTermEndOn:
+                    title: Part of Term End Date
+                    type: string
+                    format: date
+                    description: "The starting date of the part of term. Defaults from SOBPTRM if not included on POST request."
+                    x-lineageReferenceObject: SSBSECT_PTRM_END_DATE
+                    example: 2021-12-20   
+                  partOfTermNumberOfWeeks:
+                    title: Part of Term Number of Weeks
+                    maxLength: 3
+                    multipleOf: 0.001
+                    type: number
+                    description: "Number of weeks in the part of term. Defaults from SOBPTRM if not included on POST request."
+                    x-lineageReferenceObject: SSBSECT_PTRM_WEEKS    
+                    example: 19                      
+              - title: Open Learning Class
+                type: object
+                properties:
+                  registrationStartOn:
+                    title: Registration Start Date
+                    type: string
+                    format: date
+                    description: "First date that registration is open to the learner for this section for an open learning course. Defaults from SOBODTE if not included on POST request."
+                    x-lineageReferenceObject: SSBSECT_REG_FROM_DATE
+                    example: 2021-07-05    
+                  registrationEndOn:
+                    title: Registration End Date
+                    type: string
+                    format: date
+                    description: "Last date that registration is open to the learner for this section for an open learning course. Defaults from SOBODTE if not included on POST request."
+                    x-lineageReferenceObject: SSBSECT_REG_TO_DATE
+                    example: 2021-08-05  
+                  learnerStartOn:
+                    title: Learner Start Date
+                    type: string
+                    format: date
+                    description: "First date that the learner can start taking the course. Defaults from SOBODTE if not included on POST request."
+                    x-lineageReferenceObject: SSBSECT_LEARNER_REGSTART_FDATE
+                    example: 2021-08-15    
+                  learnerEndOn:
+                    title: Learner End Date
+                    type: string
+                    format: date
+                    description: "Last date that the learner can start taking the course. Defaults from SOBODTE if not included on POST request."
+                    x-lineageReferenceObject: SSBSECT_LEARNER_REGSTART_TDATE
+                    example: 2021-09-15                        
+                  maximumExtensions:
+                    title: Maximum Extensions
+                    maxLength: 3
+                    type: number
+                    description: Maximum number of extensions permitted for this open learning section for a learner who is actively registered."
+                    x-lineageReferenceObject: SSBSECT_NUMBER_OF_EXTENSIONS    
+                    example: 3     
+                  durationUnit:
+                    title: Duration Unit Code
+                    maxLength: 4
+                    type: string
+                    description: "The duration for which the section is offered (e.g. week, day, month, etc.)."
+                    x-lineageReferenceObject: SSBSECT_DUNT_CODE
+                    x-lineageLookupReferenceObject: GTVDUNT             
+                    example: Week               
+                  durationNumberOfUnits:
+                    title: Duration Number of Units
+                    maxLength: 7
+                    type: number             
+                    description: "The total number of times the duration unit extends."
+                    x-lineageReferenceObject: SSBSECT_NUMBER_OF_UNITS          
+                    example: 19      
+                  canOverrideDuration:
+                    title: Schedule Duration Override Indicator
+                    type: boolean
+                    description: "Indicates that students are allowed to enter their start and end-dates with a non-fixed duration when registering."
+                    x-lineageReferenceObject: SSBSECT_OVERRIDE_DUR_IND
+                    example: true       
+            creditCeuHours:
+              title: Credit/CEU Hours
+              maxLength: 7
+              type: number
+              description: "The credit/CEU hours specific to this section."
+              x-lineageReferenceObject: SSBSECT_CREDIT_HRS    
+              example: 5  
+            lectureHours:
+              title: Lecture Hours
+              maxLength: 9
+              type: number
+              description: "The lecture hours specific to this section."
+              x-lineageReferenceObject: SSBSECT_LEC_HR    
+              example: 5                 
+            labHours:
+              title: Lab Hours
+              maxLength: 9
+              type: number
+              description: "The lab hours specific to this section."
+              x-lineageReferenceObject: SSBSECT_LAB_HR    
+              example: 5                     
+            otherHours:
+              title: Other Hours
+              maxLength: 9
+              type: number
+              description: "The other hours specific to this section."
+              x-lineageReferenceObject: SSBSECT_OTH_HR    
+              example: 0                                       
+            billingHours:
+              title: Billing Hours
+              maxLength: 7
+              type: number
+              description: "The billing hours specific to this section."
+              x-lineageReferenceObject: SSBSECT_BILL_HRS           
+              example: 5 
+            contactHours:
+              title: Contact Hours
+              maxLength: 9
+              type: number
+              description: "The contact hours specific to this section."
+              x-lineageReferenceObject: SSBSECT_CONT_HR    
+              example: 5                                                                                    
+            linkedSection:
+              title: Linked Section Identifier
+              maxLength: 2
+              type: string
+              description: "User-defined code which links two sections that must be taken concurrently."
+              x-lineageReferenceObject: SSBSECT_LINK_IDENT          
+              example: N1  
+            printableIndicator:
+              title: Printable Indicator
+              maxLength: 1
+              type: string
+              description: "Indicates whether the class is to be printed on the Class Schedule Report."
+              x-lineageReferenceObject: SSBSECT_PRNT_IND          
+              example: Y    
+            gradableIndicator:
+              title: Gradable Indicator
+              maxLength: 1
+              type: string
+              description: "Indicates whether the section is gradable."
+              x-lineageReferenceObject: SSBSECT_GRADABLE_IND          
+              example: Y      
+            exemptFromTuitionAndFeeRules:
+              title: Tuition and Fee Rule Exemption Indicator
+              maxLength: 1
+              type: string
+              description: "Indicates whether the section has the option of being offered for a tuition or fee waiver as defined in the Registration Fee Assessment Rules (SFARGFE) page."
+              x-lineageReferenceObject: SSBSECT_TUIW_IND          
+              example: Y   
+            isAvailableForWebRegistration:
+              title: Web Registration Indicator
+              type: boolean
+              description: "Indicates whether the section should be available on Voice Response and in the Banner Self-Service applications"
+              x-lineageReferenceObject: SSBSECT_VOICE_AVAIL          
+              example: false
+            attendanceAccountingMethod:
+              title: Attendance Accounting Method Code
+              maxLength: 2
+              type: string
+              description: "Code for the attendance accounting method for the section."
+              x-lineageReferenceObject: SSBSECT_ACCT_CODE 
+              x-lineageLookupReferenceObject: STVACCT             
+              example: D                                                                                                                                                                                                                 
+            enrollmentMaximum:
+              title: Enrollment Maximum
+              maxLength: 4
+              type: number
+              description: "Maximum enrollment for the section."
+              x-lineageReferenceObject: SSBSECT_MAX_ENRL
+              example: 25
+            waitListMaximum: 
+              title: Waitlist Maximum
+              maxLength: 4
+              type: number
+              description: "Maximum number of students allowed to be waitlisted for the section."
+              x-lineageReferenceObject: SSBSECT_WAIT_CAPACITY
+              example: 5
+            anticipatedEnrollment:
+              title: Anticipated Enrollment
+              maxLength: 4
+              type: number
+              description: "Anticipated enrollment in the section."
+              x-lineageReferenceObject: SSBSECT_PROJ_ENRL
+              example: 20                   
+            censusOneOn: 
+              title: Census One Freeze Date
+              type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$                        
+              description: "Date the enrollment count will be frozen for use in census one reporting."
+              x-lineageReferenceObject: SSBSECT_CENSUS_ENRL_DATE
+              example: 2021-08-20 
+            censusTwoOn: 
+              title: Census Two Freeze Date
+              type: string
+              format: date
+              description: "Date the enrollment count will be frozen for use in census two reporting."
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$                        
+              x-lineageReferenceObject: SSBSECT_CENSUS_2_DATE
+              example: 2021-09-15                        
+            reservedSeatDetails:
+              title: Reserved Seat Details
+              description:  >
+                Please note special processing for reservedSeatDetails as follows:
+                            
+                  - **Update Operation**: If the `sequenceNumber` is provided along with other fields (e.g. enrollmentMaximum, waitlistMaximum), the operation is treated as an **update** for the existing reserved seat detail.
+                            
+                  - **Delete Operation**: If the `sequenceNumber` is provided without any other fields, the operation is treated as a **delete** for the corresponding reserved seat detail.
+                            
+                  - **Create Operation**: If the `sequenceNumber` is omitted, the operation is treated as a **create** for a new reserved seat detail.
+              type: array  
+              items:
+                type: object                         
+                required:
+                  - enrollmentMaximum    
+                  - waitlistMaximum   
+                properties:
+                  sequenceNumber: 
+                    title: Sequence Number
+                    maxLength: 4
+                    type: number
+                    description: "Reserved seats sequence number."
+                    x-lineageReferenceObject: SSRRESV_SEQ_NO
+                    example: 1                            
+                  level:
+                    title: Level Code
+                    maxLength: 2
+                    type: string
+                    description: "Student level associated with the section for the reserved seats rule."
+                    x-lineageReferenceObject: SSRRESV_LEVL_CODE
+                    x-lineageLookupReferenceObject: STVLEVL             
+                    example: UG  
+                  campus:
+                    title: Campus Code
+                    maxLength: 3
+                    type: string
+                    description: "Campus associated with the section for the reserved seats rule."
+                    x-lineageReferenceObject: SSRRESV_CAMP_CODE
+                    x-lineageLookupReferenceObject: STVCAMP             
+                    example: 999  
+                  college:
+                    title: College Code
+                    maxLength: 2
+                    type: string
+                    description: "College associated with the section for the reserved seats rule."
+                    x-lineageReferenceObject: SSRRESV_COLL_CODE
+                    x-lineageLookupReferenceObject: STVCOLL             
+                    example: NU  
+                  degree:
+                    title: Degree Code
+                    maxLength: 6
+                    type: string
+                    description: "Degree associated with the section for the reserved seats rule."
+                    x-lineageReferenceObject: SSRRESV_DEGC_CODE
+                    x-lineageLookupReferenceObject: STVDEGC         
+                    example: BSN  
+                  program:
+                    title: Program Code
+                    maxLength: 12
+                    type: string
+                    description: "Program associated with the section for the reserved seats rule."
+                    x-lineageReferenceObject: SSRRESV_PROGRAM
+                    x-lineageLookupReferenceObject: STVPROG             
+                    example: BS-N  
+                  fieldOfStudyType:
+                    title: Field of Study Type Code
+                    maxLength: 15
+                    type: string
+                    description: "Field of study type code associated with the section for the reserved seats rule."
+                    x-lineageReferenceObject: SSRRESV_LFST_CODE
+                    x-lineageLookupReferenceObject: GTVLFST
+                    example: MAJOR             
+                  fieldOfStudy:
+                    title: Field of Study Code
+                    maxLength: 4
+                    type: string
+                    description: "Field of study code associated with the section for the reserved seats rule."
+                    x-lineageReferenceObject: SSRRESV_MAJR_CODE
+                    x-lineageLookupReferenceObject: STVMAJR
+                    example: NU                                                
+                  department:
+                    title: Department Code
+                    maxLength: 4
+                    type: string
+                    description: "Department associated with the section for the reserved seats rule."
+                    x-lineageReferenceObject: SSRRESV_DEPT_CODE
+                    x-lineageLookupReferenceObject: STVDEPT             
+                    example: NURS  
+                  curriculum: 
+                    title: Curriculum
+                    maxLength: 1
+                    type: string
+                    description: "Curriculum associated with the section for the reserved seats rule. Valid values are: P (primary), S (secondary), or A (any)."
+                    x-lineageReferenceObject: SSRRESV_PRIM_SEC_CDE
+                    example: A
+                  class:
+                    title: Class Code
+                    maxLength: 2
+                    type: string
+                    description: "Class code associated with the section for the reserved seats rule."
+                    x-lineageReferenceObject: SSRRESV_CLAS_CODE
+                    x-lineageLookupReferenceObject: STVCLAS             
+                    example: 01                                              
+                  attribute:
+                    title: Attribute Code
+                    maxLength: 4
+                    type: string
+                    description: "Student attribute associated with the section for the reserved seats rule."
+                    x-lineageReferenceObject: SSRRESV_ATTS_CODE
+                    x-lineageLookupReferenceObject: STVATTS             
+                    example: 01  
+                  cohort:
+                    title: Cohort Code
+                    maxLength: 10
+                    type: string
+                    description: "Cohort associated with the section for the reserved seats rule."
+                    x-lineageReferenceObject: SSRRESV_CHRT_CODE
+                    x-lineageLookupReferenceObject: STVCHRT             
+                    example: B4  
+                  admitTerm:
+                    title: Admission Term Code
+                    maxLength: 6
+                    type: string
+                    description: "Admission term associated with the section for the reserved seats rule."
+                    x-lineageReferenceObject: SSRRESV_TERM_CODE_ADMIT
+                    x-lineageLookupReferenceObject: STVTERM             
+                    example: 202104  
+                  matriculatedTerm:
+                    title: Matriculation Term Code
+                    maxLength: 6
+                    type: string
+                    description: "Matriculation term associated with the section for the reserved seats rule."
+                    x-lineageReferenceObject: SSRRESV_TERM_CODE_MATRIC
+                    x-lineageLookupReferenceObject: STVTERM    
+                    example: 202504  
+                  graduationTerm:
+                    title: Graduation Term Code
+                    maxLength: 6
+                    type: string
+                    description: "Graduation term associated with the section for the reserved seats rule."
+                    x-lineageReferenceObject: SSRRESV_TERM_CODE_GRAD
+                    x-lineageLookupReferenceObject: STVTERM    
+                    example: 202503  
+                  allowUseOverflowSeating:
+                    title: Overflow Indicator
+                    type: boolean
+                    description: "Indicates whether processing will check unreserved available seats when seats on the reserved rule are full. If set to Y, students who were previously unable to register can now register for those unreserved available seats."
+                    x-lineageReferenceObject: SSRRESV_OVERFLOW_IND
+                    example: true
+                  enrollmentMaximum:
+                    title: Maximum Enrollment
+                    maxLength: 4
+                    type: number
+                    description: "Maximum number of reserved seats for the rule."
+                    x-lineageReferenceObject: SSRRESV_MAX_ENRL
+                    example: 25           
+                  waitlistMaximum:
+                    title: Waitlist Maximum Seats
+                    maxLength: 4
+                    type: number
+                    description: "Maximum number of waitlisted seats for the rule."
+                    x-lineageReferenceObject: SSRRESV_WAIT_CAPACITY
+                    example: 5                                                                                        
+            academicCalendar:
+              title: Academic Calendar Type Code
+              maxLength: 2
+              type: string
+              description: "This field can be used to specify the Academic Calendar Type associated with a section."
+              x-lineageReferenceObject: SSBSECT_ACCL_CODE
+              x-lineageLookupReferenceObject: STVACCL
+              example: SE
+            enrollmentEndOn: 
+              title: Enrollment End Date
+              type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$                     
+              description: "The last date on which students may enroll for the academic calendar type and registration status."
+              x-lineageReferenceObject: SSBSECT_ENRL_CUT_OFF_DATE
+              example: 2021-08-30 
+            withdrawalWithoutAcademicHistoryEndsOn: 
+              title: Last Day to Withdraw Without Appearing on Academic History
+              type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$                     
+              description: "Last date on which a student can withdraw from section without it appearing in academic history."
+              x-lineageReferenceObject: SSBSECT_ACAD_CUT_OFF_DATE
+              example: 2021-09-30  
+            refundEndOn: 
+              title: Last Day to Drop and Receive Refund
+              type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$                     
+              description: "Last date students can drop and receive a refund on sections in the part of term."
+              x-lineageReferenceObject: SSBSECT_REFUND_CUTOFF_DATE
+              example: 2021-09-05 
+            refundEndOnTwo: 
+              title: Last Day to Drop and Receive Refund Two
+              type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$                     
+              description: "Last date students can drop and receive a refund on sections in the part of term. Deprecated. Replaced by refundEndOn property."
+              x-lineageReferenceObject: SSBSECT_REFUND_CUT_OFF_DATE
+              example: null                     
+            dropWithoutPenaltyEndOn: 
+              title: Last Day to Drop Without Penalty
+              type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$                     
+              description: "Last date on which a student can drop the section without being assessed a failing grade penalty."
+              x-lineageReferenceObject: SSBSECT_DROP_CUT_OFF_DATE
+              example: 2021-09-15                                                                                                                    
+        sectionPreference:
+              title: Section Preference
+              type: object
+              properties:             
+                partitionPreferences:
+                  title: Partition Preferences
+                  description: >
+                    Please note special processing for partitionPreferences as follows:
+
+                    - **Create Behavior**: If this is the first time partitionPreferences is sent, the provided list will be created as new records in the database.
+                    
+                    - **Update Behavior**:  When a new list of partitionPreferences is sent in a request, all existing records in the database are deleted, and the new list is recreated. 
+                    
+                     Note: As a result, the database will only retain the records provided in the latest request.
+
+                  type: array
+                  items:
+                    type: object        
+                    properties:
+                      partition:
+                        title: Partition Code
+                        maxLength: 7
+                        type: string
+                        description: "Partition code for the schedule meeting entry."
+                        x-lineageReferenceObject: SSRSPRT_PARS_CODE
+                        x-lineageLookupReferenceObject: GTVPARS
+                        example: PARTONE
+                      preferenceNumber: 
+                        title: Partition Preference Number
+                        maxLength: 2
+                        type: number
+                        description: "Preference number for the partition."
+                        x-lineageReferenceObject: SSRSPRT_PARS_PREF_NUMBER
+                        example: 1   
+                roomAttributePreferences:
+                  title: Room Attribute Preferences
+                  description: >
+                    Please note special processing for roomAttributePreferences as follows:
+
+                    - **Create Behavior**: If this is the first time roomAttributePreferences is sent, the provided list will be created as new records in the database.
+                    
+                    - **Update Behavior**:  When a new list of roomAttributePreferences is sent in a request, all existing records in the database are deleted, and the new list is recreated. 
+                    
+                   
+                    Note: As a result, the database will only retain the records provided in the latest request.
+                    
+                  type: array
+                  items:
+                    type: object           
+                    properties:
+                      roomAttribute:
+                        title: Room Attribute Code
+                        maxLength: 4
+                        type: string
+                        description: "Building/room attribute code for the schedule meeting entry."
+                        x-lineageReferenceObject: SSRSRDF_RDEF_CODE
+                        x-lineageLookupReferenceObject: STVRDEF
+                        example: CONF
+                      preferenceNumber: 
+                        title: Room Attribute Preference Number
+                        maxLength: 2
+                        type: number
+                        description: "Preference number for the room attribute."
+                        x-lineageReferenceObject: SSRSRDF_RDEF_PREF_NUMBER
+                        example: 1                                                                                
+        sectionRegistrationStatusCodes:
+          title: Section Registration Status Codes 
+          description: Section registration status codes for use with open learning registration sections only.
+          type: array
+          items:
+            type: object                      
+            properties: 
+              registrationStatus:
+                title: Registration Status Code
+                maxLength: 2
+                type: string
+                description: "Registration status code for the section."
+                x-lineageReferenceObject: SSRRSTS_RSTS_CODE
+                x-lineageLookupReferenceObject: STVRSTS
+                example: 1D
+              canBeOverwrittenByStudentEnrollmentStatus: 
+                title: Effect by Student Status Indicator
+                type: boolean
+                description: "Indicates registration status code can be overwritten by a student enrollment status code."
+                x-lineageReferenceObject: SSRRSTS_EFF_BY_STU_STAT_IND
+                example: true  
+              usageCutoffPercentageFrom: 
+                title: Usage Cutoff Percent From
+                maxLength: 3
+                type: number
+                description: "Minimum student's completion percentage for use of registration status.  Use either usageCutoffPercentage or usageCutoffDuration."
+                x-lineageReferenceObject: SSRRSTS_USAGE_CUTOFF_PCT_FROM
+                example: 10 
+              usageCutoffPercentageTo: 
+                title: Usage Cutoff Percent To
+                maxLength: 3
+                type: number
+                description: "Maximum student's completion percentage for use of registration status."
+                x-lineageReferenceObject: SSRRSTS_USAGE_CUTOFF_PCT_TO
+                example: 25  
+              usageCutoffDurationFrom: 
+                title: Usage Cutoff Duration From
+                maxLength: 7
+                type: number
+                description: "Minimum student's completion duration for use of registration status."
+                x-lineageReferenceObject: SSRRSTS_USAGE_CUTOFF_DUR_FROM
+                example: 10 
+              usageCutoffDurationTo: 
+                title: Usage Cutoff Duration To
+                maxLength: 7
+                type: number
+                description: "Maximum student's completion duration for use of registration status."
+                x-lineageReferenceObject: SSRRSTS_USAGE_CUTOFF_DUR_TO
+                example: 15                                                                          
+              sectionExtensionProcessingRule:
+                title: Section Extension Processing Rule
+                type: object
+                required:
+                  - extensionFeeAssessmentDetailCode
+                  - feeAmount
+                  - feeType          
+                properties:
+                  extensionPercentage:
+                    title: Extension Percentage
+                    maxLength: 3
+                    type: number
+                    description: "Value used to calculate the allowable extension period based on the duration and duration unit assigned to the original registration."
+                    x-lineageReferenceObject: SSREXTN_EXTENSION_PCT
+                    example: 10
+                  extensionFeeAssessmentDetailCode: 
+                    title: Extension Fee Assessment Detail Code
+                    maxLength: 4
+                    type: string
+                    description: "Detail code used to assess extension fees on the student's accounts receivable account."
+                    x-lineageReferenceObject: SSREXTN_DETAIL_CODE
+                    x-lineageLookupReferenceObject: TBBDETC
+                    example: EXFE                   
+                  feeAmount: 
+                    title: Fee Amount
+                    maxLength: 7
+                    multipleOf: .01
+                    type: number
+                    description: "Extension fee amount."
+                    x-lineageReferenceObject: SSREXTN_EXTENSION_FEE_AMT
+                    example: 75  
+                  feeType: 
+                    title: Fee Type Code
+                    maxLength: 4
+                    type: string
+                    description: "Fee type code to be used when calculating monies for the extension."
+                    x-lineageReferenceObject: SSREXTN_FTYP_CODE
+                    x-lineageLookupReferenceObject: STVFTYP                    
+                    example: FLA1                     
+                  allowOverrideOnSection: 
+                    title: Override On Section Indicator
+                    type: boolean
+                    description: "Indicates wheather configuration may be changed at the section level."
+                    x-lineageReferenceObject: SSREXTN_OVERRIDE_IND
+                    example: true
+              sectionRefundingRules:
+                title: Section Refunding Rules
+                type: array
+                items:
+                  type: object
+                  properties:
+                    extensionFeeRefundPercentage:
+                      title: Extension Fee Refund Percentage
+                      maxLength: 3
+                      type: number
+                      description: "Percentage of extension refund."
+                      x-lineageReferenceObject: SSRRFND_EXTENSION_REFUND_PCT
+                      example: 25
+                    feeRefundPercentage: 
+                      title: Fee Refund Percentage
+                      maxLength: 3
+                      type: number
+                      description: "Percentage of fee refund."
+                      x-lineageReferenceObject: SSRRFND_FEE_REFUND_PCT          
+                      example: 25
+                    tutionRefundPercentage: 
+                      title: Tuition Refund Percentage
+                      maxLength: 3
+                      type: number
+                      description: "Percentage of tuition refund."
+                      x-lineageReferenceObject: SSRRFND_TUITION_REFUND_PCT
+                      example: 25                    
+                    durationUnitsComplete: 
+                      title: Duration Units Complete
+                      maxLength: 7
+                      type: number
+                      description: "Student's duration units expired used to calculate refund."
+                      x-lineageReferenceObject: SSRRFND_DURATION_COMPLETE
+                      example: 5  
+                    sectionPercentageComplete: 
+                      title: Section Percentage Complete
+                      maxLength: 3
+                      type: number
+                      description: "Student's completion percentage used to calculate refund."
+                      x-lineageReferenceObject: SSRRFND_REFUND_PCT_COMPLETE                  
+                      example: 25                    
+                    allowOverrideOnSection: 
+                      title: Override On Section Indicator
+                      type: boolean
+                      description: "Indicates wheather configuration may be changed at the section level."
+                      x-lineageReferenceObject: SSRRFND_OVERRIDE_IND
+                      example: true  
+    section-bases-submission-process-1.0.0_response:
+      type: object     
+      required:
+        - key
+      properties:  
+        key:
+          title: Key
+          type: object     
+          required:
+            - term  
+            - crn    
+          properties:
+            term:
+              title: Term
+              maxLength: 6
+              type: string
+              description: "The term code for the set of base section details."  
+              x-lineageReferenceObject: SSBSECT_TERM_CODE
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202201    
+            crn: 
+              title: Course Reference Number
+              maxLength: 5
+              type: string
+              description: "The Course Reference Number (CRN) assigned to this course section."
+              x-lineageReferenceObject: SSBSECT_CRN
+              example: 1001    
+    section-bases-submission-process-batch-1.0.0_post_request:
+      type: object
+      properties:
+        items:
+          title: items
+          description: List of items to be processed.
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/section-bases-submission-process-batch-1.0.0_post_items'
+      required:
+        - items                                     
+    section-bases-submission-process-batch-1.0.0_post_items:
+      $ref: '#/components/schemas/section-bases-submission-process-1.0.0_post_request'
+    section-bases-submission-process-batch-1.0.0_post_response:
+        description: 'Returns batch job details like status, job ID, request ID, resource details, etc. '
+        type: object
+        required:
+        - id
+        - jobId
+        - status
+        - link
+        - resource
+        - createdOn
+        - jobStartOn
+        - jobEndOn
+        properties:
+          id:
+            title: Request ID
+            description: A globally unique identifier of a batch API request to be used in all external references.
+            type: string
+            format: guid
+            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+            example: cf5ff489-e386-43a3-93cf-04d4b1f77216 
+            x-lineageReferenceObject: GOBBREQ_GUID   
+          jobId:
+            title: Job ID
+            description: Batch job execution ID.
+            type: number
+            x-lineageReferenceObject: GOBBREQ_JOB_ID
+            example: 123
+          status:
+            title: Status
+            description: Status of the batch.
+            type: string
+            enum:
+              - completed
+              - inProgress
+              - aborted
+            x-lineageReferenceObject: GOBBREQ_JOB_STATUS
+            example: inProgress
+          link: 
+            title: Status URL
+            description: REST API URL to use to get the status of a specific batch job.
+            type: string
+            example: https://api.example.com/api/section-bases-submission-process/batches/{id}        
+          resource:
+            title: Resource
+            description: The affected resource.
+            type: object
+            properties:
+              name:
+                title: Resource Name
+                description: The pluralized name of the affected resource.
+                type: string
+                x-lineageReferenceObject: GOBBREQ_API_RESOURCE            
+                example: section-bases-submission-process
+              version:
+                title: Resource version
+                description: The version of the resource.
+                type: number
+                x-lineageReferenceObject: GOBBREQ_API_VERSION                
+                example: application/vnd.hedtech.integration.v1.0.0+json
+            additionalProperties: false
+            required:
+              - name
+              - version
+          createdOn:
+            title: Created Date
+            description: Date on which the batch job was created.
+            type: string
+            format: date
+            x-lineageReferenceObject: GOBBREQ_CREATEDTIME
+            example: '2024-01-01'
+          jobStartOn:
+            title: Job Start Time
+            description: Time when the batch job started.
+            type: string
+            format: date-time
+            x-lineageReferenceObject: BATCH_JOB_EXECUTION.START_TIME           
+            example: '2024-09-27 12:46:37.058'
+          jobEndOn:
+            title: Job End Time
+            description: Time when the batch job ended.
+            type: string
+            format: date-time
+            x-lineageReferenceObject: BATCH_JOB_EXECUTION.END_TIME              
+            example: '2024-09-27 12:48:15.976'              
+    section-bases-submission-process-batch-1.0.0_get_response:
+        description: 'Returns the list of IDs for those resources that were successfully created or updated. For those that were not, it returns the list of error messages.'
+        type: object
+        x-last-modified:
+        required:
+        - id
+        - jobId
+        - status
+        - link
+        - resource
+        - createdOn
+        - jobStartOn
+        - jobEndOn
+        - modifiedBy
+        - modifiedOn
+        - totalErrorsCount
+        - items                
+        properties:            
+          id:
+            title: Request ID
+            description: A globally unique identifier of a batch API request to be used in all external references.
+            type: string
+            format: guid
+            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+            example: cf5ff489-e386-43a3-93cf-04d4b1f77216 
+            x-lineageReferenceObject: GOBBREQ_GUID  
+          jobId:
+            title: Job ID
+            description: Batch job execution ID.
+            type: number
+            x-lineageReferenceObject: GOBBREQ_JOB_ID
+            example: 123
+          status:
+            title: Status
+            description: Status of the batch.
+            type: string
+            enum:
+              - completed
+              - inProgress
+              - aborted
+            x-lineageReferenceObject: GOBBREQ_JOB_STATUS
+            example: inProgress
+          createdOn:
+            title: Create Date
+            description: Date on which the batch job was created.
+            type: string
+            format: date
+            x-lineageReferenceObject: GOBBREQ_CREATEDTIME
+            example: '2024-01-01'
+          jobStartOn:
+            title: Job Start Time
+            description: Time when the batch job started.
+            type: string
+            format: date-time
+            x-lineageReferenceObject: BATCH_JOB_EXECUTION.START_TIME
+            example: '2024-09-27 12:46:37.058'
+          jobEndOn:
+            title: Job End Time
+            description: Time when the batch job ended.
+            type: string
+            format: date-time
+            x-lineageReferenceObject: BATCH_JOB_EXECUTION.END_TIME               
+            example: '2024-09-27 12:48:15.976'  
+          modifiedBy:
+             title: Modified By
+             description: The user ID of the person who inserted or last updated this record.
+             type: string
+             x-lineageReferenceObject: GOBBREQ_USER_ID
+             example: HRISUSR
+          modifiedOn:
+             title: Modified Date
+             description: Date of last activity of the record.
+             type: string
+             format: date
+             x-lineageReferenceObject: GOBBREQ_ACTIVITY_DATE
+             example: 01-JAN-2024
+          resource:
+            title: Resource
+            description: The affected resource.
+            type: object
+            properties:
+              name:
+                title: Resource Name
+                description: The pluralized name of the affected resource.
+                type: string
+                x-lineageReferenceObject: GOBBREQ_API_RESOURCE            
+                example: section-bases-submission-process
+              version:
+                title: Resource version
+                description: The version of the resource.
+                type: number
+                x-lineageReferenceObject: GOBBREQ_API_VERSION                
+                example: application/vnd.hedtech.integration.v1.0.0+json
+            additionalProperties: false
+            required:
+              - name
+              - version
+          totalErrorsCount:
+             title: Error Count
+             description: Total number of errors that occurred, while processing the collection of items in the request.
+             type: number
+             x-lineageReferenceObject: derived
+             x-lineageDerivedLogic: Computed and saved in GOBBREQ_BATCH_RESPONSE_BODY.                 
+             example: 1
+          items:
+            type: array            
+            items:
+              type: object
+              x-lineageReferenceObject: GOBBREQ_BATCH_RESPONSE_BODY
+              additionalProperties: true
+              oneOf: 
+                - type: object
+                  title: Key
+                  required:
+                  - key
+                  properties:
+                    key:
+                      title: Key
+                      type: object     
+                      required:
+                        - term  
+                        - crn    
+                      properties:
+                        term:
+                          title: Term
+                          maxLength: 6
+                          type: string
+                          description: "The term code for the set of base section details."  
+                          x-lineageReferenceObject: SSBSECT_TERM_CODE
+                          x-lineageLookupReferenceObject: STVTERM
+                          example: 202201    
+                        crn: 
+                          title: Course Reference Number
+                          maxLength: 5
+                          type: string
+                          description: "The Course Reference Number (CRN) assigned to this course section."
+                          x-lineageReferenceObject: SSBSECT_CRN
+                          example: 7025           
+                - type: object
+                  title: Error Message
+                  required:
+                    - errorMessage                 
+                  properties:
+                    errorMessage:
+                      title: errorMessage
+                      type: string
+                      description: Error message describing the error caused during create or update operation.                                                                                            
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      scheme: basic
+      type: http

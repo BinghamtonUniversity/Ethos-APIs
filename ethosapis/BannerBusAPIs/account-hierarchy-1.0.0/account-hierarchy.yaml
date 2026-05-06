@@ -1,0 +1,312 @@
+openapi: 3.0.0
+info:
+  title: account-hierarchy
+  description: API for FGQACTH administrative page
+  version: 1.0.0
+  x-audience: all
+  x-release-status: beta
+  x-source-name: FGQACTH
+  x-source-domain: Finance
+  x-source-title: Account Hierarchy
+  x-source-system: banner
+  x-api-type: bus-poc
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/account-hierarchy:
+    get:
+      tags:
+        - account-hierarchy
+      summary: Return resources from FGQACTH
+      parameters:
+        - name: X-SDE-Expand
+          in: header
+          description: The comma seperated value list of block names
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: The maximum number of resources requesting for this result set.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          description: The filter criteria as a single URL query parameter. Use this
+            parameter or the individual parameters listed. Must be a JSON
+            representation of the property searching for. This can be any of the
+            properties listed on the URL or QAPI and must be a json
+            representation that can be validated against the GET schema. Limit
+            and Offset are the only supported additional parameters on the URL.
+          required: false
+          schema:
+            type: string
+        - name: coasCode
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: progCode
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: progTitle
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: effDateYmdhms
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: progCodePredTitle
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: progCodePred
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/account-hierarchy-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+  /qapi/account-hierarchy:
+    post:
+      tags:
+        - account-hierarchy QAPI (Query by POST)
+      summary: Return resources from FGQACTH
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/account-hierarchy-1.0.0_get_request"
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/account-hierarchy-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+components:
+  schemas:
+    errors-2.0.0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+              description:
+                type: string
+    account-hierarchy-1.0.0_qapi_post:
+      type: object
+      properties:
+        coasCode:
+          type: string
+        progCode:
+          type: string
+        progTitle:
+          type: string
+        effDateYmdhms:
+          type: string
+        progCodePredTitle:
+          type: string
+        progCodePred:
+          type: string
+    account-hierarchy-1.0.0_get_response:
+      type: object
+      properties:
+        level4:
+          maxLength: 6
+          type: string
+          description: "Lineage reference object : level4"
+          x-lineageReferenceObject: level4
+        hpAcctCode:
+          title: Account
+          maxLength: 6
+          type: string
+          description: "Lineage reference object : hpAcctCode"
+          x-lineageReferenceObject: hpAcctCode
+        hpTitle:
+          maxLength: 35
+          type: string
+          description: "Lineage reference object : hpTitle"
+          x-lineageReferenceObject: hpTitle
+        hpPredAcctCode:
+          title: Predecessor Account
+          maxLength: 6
+          type: string
+          description: "Lineage reference object : hpPredAcctCode"
+          x-lineageReferenceObject: hpPredAcctCode
+        hpCoasCode:
+          title: Chart of Accounts
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : hpCoasCode"
+          x-lineageReferenceObject: hpCoasCode
+        titl1:
+          maxLength: 35
+          type: string
+          description: "Lineage reference object : titl1"
+          x-lineageReferenceObject: titl1
+        titl2:
+          maxLength: 35
+          type: string
+          description: "Lineage reference object : titl2"
+          x-lineageReferenceObject: titl2
+        titl3:
+          maxLength: 35
+          type: string
+          description: "Lineage reference object : titl3"
+          x-lineageReferenceObject: titl3
+        titl4:
+          maxLength: 35
+          type: string
+          description: "Lineage reference object : titl4"
+          x-lineageReferenceObject: titl4
+        predTitle:
+          maxLength: 35
+          type: string
+          description: "Lineage reference object : predTitle"
+          x-lineageReferenceObject: predTitle
+        head1:
+          maxLength: 20
+          type: string
+          description: "Lineage reference object : head1"
+          x-lineageReferenceObject: head1
+        head2:
+          maxLength: 20
+          type: string
+          description: "Lineage reference object : head2"
+          x-lineageReferenceObject: head2
+        head3:
+          maxLength: 20
+          type: string
+          description: "Lineage reference object : head3"
+          x-lineageReferenceObject: head3
+        head4:
+          maxLength: 20
+          type: string
+          description: "Lineage reference object : head4"
+          x-lineageReferenceObject: head4
+        level1:
+          maxLength: 6
+          type: string
+          description: "Lineage reference object : level1"
+          x-lineageReferenceObject: level1
+        level3:
+          maxLength: 6
+          type: string
+          description: "Lineage reference object : level3"
+          x-lineageReferenceObject: level3
+        level2:
+          maxLength: 6
+          type: string
+          description: "Lineage reference object : level2"
+          x-lineageReferenceObject: level2
+      x-lineageReferenceObject: acct_hierarchy
+    account-hierarchy-1.0.0_get_request:
+      type: object
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EllucianOAuthUserToken:
+      type: http
+      scheme: bearer
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

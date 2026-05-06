@@ -1,0 +1,347 @@
+openapi: 3.0.0
+info:
+  title: ca-calgrant-academic-gpa-records
+  description: >-
+    Student academic records.
+
+
+    Please refer to "API Integration Configuration Settings" section in the
+    Banner Ethos API Handbook for details on API configuration settings that
+    needs to be configured for this API.
+  version: 1.0.0-beta
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: beta
+  x-source-domain: Student
+  x-source-title: CA Calgrant Academic GPA Records
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/ca-calgrant-academic-gpa-records:
+    get:
+      summary: Return student academic records
+      description: Return student academic records.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_CA_CALGRANT_ACADEMIC_GPA_R
+      tags:
+        - ca-calgrant-academic-gpa-records
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: personFilter
+          in: query
+          required: false
+          description: "<h4>Person Filter</h4>\r
+
+            \            Returns all persons for the person filter id passed.\r
+
+            \            <pre>```/ca-calgrant-academic-gpa-records?personFilter\
+            ={\"personFilter\":{\"id\":\"6729a17e-3dfa-4517-95df-acdf160c24ab\"\
+            }}```</pre>"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  personFilter:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-calgrant-academic-gpa-records.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-calgrant-academic-gpa-records.json:
+      title: Student Academic Records
+      description: A student who has an academic record.
+      type: object
+      properties:
+        student:
+          title: student
+          description: Data related to the student’s identification and contact information
+          type: object
+          properties:
+            names:
+              title: names
+              description: The names associated with the student.
+              type: object
+              properties:
+                firstName:
+                  title: firstName
+                  maxLength: 60
+                  type: string
+                  description: The person’s first, or given, name
+                middleName:
+                  title: middleName
+                  maxLength: 60
+                  type: string
+                  description: The person’s middle name
+                lastName:
+                  title: lastName
+                  maxLength: 60
+                  type: string
+                  description: The person’s last, or family, name
+            bannerId:
+              title: bannerId
+              description: The school ID associated with the student
+              type: string
+            dateOfBirth:
+              title: dateOfBirth
+              description: The date when the student was born.
+              type: string
+            gender:
+              title: gender
+              description: The sex or gender of the student as recognized by law.
+              type: string
+            ssn:
+              title: ssn
+              description: The student’s social security number.
+              type: string
+            identification:
+              title: identification
+              description: The list of information that uniquely identifies the student (SSN,
+                CSAC ID, Dreamer SSN, etc.).
+              type: array
+              items:
+                type: object
+                properties:
+                  type:
+                    title: type
+                    description: Additional Identification code.
+                    type: string
+                  value:
+                    title: value
+                    description: Additional Identification value.
+                    type: string
+            addresses:
+              title: addresses
+              description: The physical addresses where the student resides or may be
+                contacted by mail.
+              type: array
+              items:
+                type: object
+                properties:
+                  addressLines:
+                    title: addressLines
+                    description: The address lines of the address.
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        streetLine1:
+                          title: streetLine1
+                          description: The address line 1 of the address.
+                          type: string
+                        streetLine2:
+                          title: streetLine2
+                          description: The address line 2 of the address.
+                          type: string
+                        streetLine3:
+                          title: streetLine3
+                          description: The address line 3 of the address.
+                          type: string
+                  city:
+                    title: city
+                    description: The name of the city or town.
+                    type: string
+                  zipCode:
+                    title: zipCode
+                    description: The mailing postal code.
+                    type: string
+                  addressType:
+                    title: addressType
+                    description: A code used to uniquely identify the address type instance.
+                    type: string
+            phones:
+              title: phones
+              description: The phones and phone-connected devices at which the student can be
+                contacted.
+              type: array
+              items:
+                type: object
+                properties:
+                  type:
+                    title: type
+                    description: Code and description of the phone type.
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          title: code
+                          description: The code of the phone type..
+                          type: string
+                        description:
+                          title: description
+                          description: The description of the phone type..
+                          type: string
+                  areaCode:
+                    title: areaCode
+                    description: The area code of the telephone number.
+                    type: string
+                  phoneNumber:
+                    title: phoneNumber
+                    description: The number assigned to the phone.
+                    type: string
+            emails:
+              title: emails
+              description: The email addresses at which the student can be contacted.
+              type: array
+              items:
+                type: object
+                properties:
+                  type:
+                    title: type
+                    description: Code and description of the phone type.
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          title: code
+                          description: The code of the phone type..
+                          type: string
+                        description:
+                          title: description
+                          description: The description of the phone type..
+                          type: string
+                  address:
+                    title: address
+                    description: An email address for the person.
+                    type: string
+        gradePointAverages:
+          title: gradePointAverages
+          description: The list of all student grade point average records from SHRLGPA
+            (Academic Level GPA)
+          type: object
+          properties:
+            academicLevel:
+              title: academicLevel
+              description: The academic level associated with the calculated grade point
+                average.
+              type: string
+            academicSource:
+              title: academicSource
+              description: An indication of the academic sources that have been included in
+                the grade point average (I, O, or T)
+              type: string
+            value:
+              title: value
+              description: The grade point average.
+              type: number
+            attemptedCredits:
+              title: attemptedCredits
+              description: The number of attempted credits used to compute the grade point
+                average.
+              type: number
+        personalRelationships:
+          title: personalRelationships
+          description: Details about the persons with whom the student has a relationship.
+          type: object
+          properties:
+            lastName:
+              title: lastName
+              description: The person’s last, or family, name.
+              type: string
+            relationshipType:
+              title: relationshipType
+              description: The student’s relationship type with the related person
+              type: object
+              properties:
+                code:
+                  title: code
+                  description: The code of the personal relationship type.
+                  type: string
+                description:
+                  title: description
+                  description: The full name of the personal relationship type.
+                  type: string
+        highSchoolEducation:
+          title: highSchoolEducation
+          description: Information about the student’s high school education
+          type: object
+          properties:
+            graduationDate:
+              title: graduationDate
+              description: The date the student graduated from high school or equivalent
+                institution.
+              type: string
+            gpa:
+              title: gpa
+              description: The student’s GPA at high school or equivalent institution.
+              type: string
+      additionalProperties: false

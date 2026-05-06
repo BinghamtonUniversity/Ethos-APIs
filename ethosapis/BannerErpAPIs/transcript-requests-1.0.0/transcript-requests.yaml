@@ -1,0 +1,1884 @@
+openapi: 3.0.0
+info:
+  title: Transcript Requests
+  description: "This API can be used to retrieve, create, or update the attributes associated with a student's transcript request. This information is displayed in the Banner administrative page SHARQTC. Additionally, the API supports the option to post student transcript request attributes in batches."
+  version: 1.0.0-beta
+  x-api-type: erp
+  x-release-status: beta
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Student
+  x-source-name: SHARQTC
+  x-source-title: Transcript Requests
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /api/transcript-requests:
+    get:
+      tags:
+      - transcript-requests
+      summary: Return transcript request attributes for a given student.
+      description: Return transcript request attributes for a given student. Data is extracted from SHTTRAN and SHTTRNM.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description:  |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          #Add into the description an example for each criteria query supported.   
+          description: >
+            ### Banner Id
+
+            Returns all records for the Banner ID passed.
+
+            ```
+
+            /transcript-requests?criteria={"bannerId":"800004487"}
+
+            ```  
+
+            ### Level Selected
+
+            Returns all records within the level selected
+
+            ```
+
+            /transcript-requests?criteria={"transcriptLevel":"GR"}
+
+            ```    
+
+            ### Transcript Request On     
+
+            Returns all records within the transcript date requested on.
+
+            ```
+
+            /transcript-requests?criteria={"requestedOn":"2024-12-01"}
+
+            ```   
+
+            ### Transcript Print On
+
+            Returns all records within the transcript print date.
+
+            ```
+
+            /transcript-requests?criteria={"printedOn":"2024-12-01"}
+
+            ```   
+
+            ### Transcript Types
+
+            Returns all records within the transcript for all transcript types requested.
+
+            ```
+
+            /transcript-requests?criteria={"transcriptType":"INTL"}
+
+            ``` 
+
+            ### Hold Transcript for Grades
+
+            Returns all records within the transcript for all transcripts with Hold Grades.
+
+            ```
+
+            /transcript-requests?criteria={"isRequestOnGradeHold": true}
+
+            ``` 
+
+            ### Hold Transcript for Degree
+
+            Returns all records within the transcript for all transcripts with Degree Holds.
+
+            ```
+
+            /transcript-requests?criteria={"isRequestOnDegreeHold": false }
+
+            ```                                                                                                
+      #responses are standardized
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            #include only the whole version number, e.g. v1 not v1.0.0
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/transcript-requests-1.0.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      #security is standardized
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_TRANSCRIPT_REQUESTS
+    post:
+      tags:
+        - transcript-requests
+      summary: An insert of transcript request attributes with respect to a student ID.
+      description: An insert of transcript request attributes with respect to a student ID.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.1.0.0+json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/transcript-requests-1.0.0_post_request'
+      #responses are standardized
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            #include only the whole version number, e.g. v1 not v1.0.0
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/transcript-requests-1.0.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      #security is standardized
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permissions: API_TRANSCRIPT_REQUESTS
+  /api/transcript-requests/{id}:
+    get:
+      summary: Return the requested resource from SHTTRAN
+      description: |
+        Returns a single transcript request with the requested identifier from SHTTRAN.
+      tags:
+        - transcript-requests
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            #if the id is a guid include format
+            format: guid
+            minimum: 1
+      responses:
+       '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            #include only the whole version number, e.g. v1 not v1.0.0
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/transcript-requests-1.0.0_response"
+       '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '401':
+          description: Failure. Unauthorized.
+       '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+       '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permissions: API_TRANSCRIPT_REQUESTS
+    put:
+      tags:
+        - transcript-requests
+      summary: Updates student transcript request data fields for a given student.
+      description: Updates an existing resource on SHTTRAN.
+      parameters:
+        - name: id
+          in: path
+          description:  |
+            Unique identifier for the non year user-defined data.
+          required: true
+          schema:
+            type: string
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string                  
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: '#/components/schemas/transcript-requests-1.0.0_put_request'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/transcript-requests-1.0.0_response'
+        '400':
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized
+      security:
+        - EthosIntegrationBearer: []
+          BasicAuth: []
+      x-method-permissions: API_TRANSCRIPT_REQUESTS
+  /api/transcript-requests/batches: 
+    post: 
+      tags: 
+        - transcript-requests
+      summary: Submit a batch of transcript request data for a specified student transcript reqeuest.
+      description: Posts a batch of resources to SHTTRAN.
+      requestBody:
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: "object"
+                $ref: "#/components/schemas/transcript-requests-batch-1.0.0_post_request"
+      responses: 
+          "200": 
+            "description": "OK"
+            "headers": 
+              "X-Media-Type": 
+                "description": "The full semantic version with the media type of the response."
+                "required": true
+                "schema": 
+                  "type": "string"
+              "X-Content-Restricted": 
+                "description": "If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included."
+                "schema": 
+                  "type": "string"
+            "content": 
+              "application/vnd.hedtech.integration.v1+json": 
+                "schema": 
+                  "type": "object"
+                  "$ref": "#/components/schemas/transcript-requests-batch-1.0.0_post_response"
+          "400": 
+            "description": "Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error."
+            "content": 
+              "application/vnd.hedtech.integration.errors.v2+json": 
+                "schema": 
+                  "type": "array"
+                  "items": 
+                    "$ref": "#/components/schemas/errors_2_0_0"
+          "401": 
+            "description": "Failure. Unauthorized."
+          "403": 
+            "description": "Failure. Forbidden. The user does not have the required permissions for the resource."
+            "content": 
+              "application/vnd.hedtech.integration.errors.v2+json": 
+                "schema": 
+                  "type": "array"
+                  "items": 
+                    "$ref": "#/components/schemas/errors_2_0_0"
+          "404": 
+            "description": "Failure. Not Found. Cannot map the URI to a resource."
+          "405": 
+            "description": "Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow."
+            "content": 
+              "application/vnd.hedtech.integration.errors.v2+json": 
+                "schema": 
+                  "type": "array"
+                  "items": 
+                    "$ref": "#/components/schemas/errors_2_0_0"
+          "406":
+            "description": "Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header."
+            "content": 
+              "application/vnd.hedtech.integration.errors.v2+json":
+                "schema": 
+                  "type": "array"
+                  "items":
+                    "$ref": "#/components/schemas/errors_2_0_0"
+          "500": 
+            "description": "Server error. Unexpected configuration or data."
+            "content": 
+              "application/vnd.hedtech.integration.errors.v2+json": 
+                "schema": 
+                  "type": "array"
+                  "items": 
+                    "$ref": "#/components/schemas/errors_2_0_0"
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_TRANSCRIPT_REQUESTS   
+components:
+  #update schema API properties, include lineage for property
+  #and the lookup reference for validated data whenever possible.
+  #x- will not render in some OpenAPI doc editors but will publish 
+  #on the Ellucian documentation site.
+  #Include a schema as needed for supported method requests and responses.
+  schemas:
+    transcript-requests-1.0.0_response:
+      type: object
+      properties:
+        id:
+          title: Id
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$          
+          maxLength: 36
+          description: "The global identifier of the transcript request."
+          x-lineageReferenceObject: SHTTRAN_GUID
+          example: 49eqfc68-3t89-4036-852c-341aa9d8501a      
+        requestNumber:
+          title:  Transcript Request Number
+          description: Sequence Number of the transcript request for the student.
+          maxLength: 3
+          type: number
+          x-lineageReferenceObject: SHTTRAN_SEQ_NO
+          example:  1
+        bannerId:
+          title:  Banner ID
+          description: Student's Identification Number.
+          maxLength: 9
+          type: string
+          x-lineageReferenceObject: SHTTRAN_ID
+          example:  800004487
+        studentInformationTerm:
+          title:  Student Information Term Code
+          description: Identifies the term used to select the student information (e.g. majors, minors, concentrations).
+          maxLength: 6
+          type: string
+          x-lineageReferenceObject: SHTTRAN_TERM
+          x-lineageLookupReferenceObject: STVTERM
+          example:  202410
+        transcriptLevel:
+          title:  Transcript Level
+          description: Identifies the course level (Undergraduate, Graduate, etc.) the transcript was requested for. "AL" designates all levels.
+          maxLength: 2
+          type: string
+          x-lineageReferenceObject: SHTTRAN_LEVL_CODE
+          x-lineageLookupReferenceObject: STVLEVL
+          example:  UG
+        chargeDetail:
+          title:  Charge Detail Code
+          description: Identifies charge detail code to be placed on the students account in billing for requesting a transcript.
+          maxLength: 4
+          type: string
+          x-lineageReferenceObject: SHTTRAN_DETC_DETAIL_CODE
+          example:  TRAN
+        detailDesc:
+          title:  Detail Code Description
+          description: Identifies the description of the charge detail code if it differs from the default on the Detail Code Control Form.
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: SHTTRAN_DETC_DESC
+          example:  Transcript Request
+        chargeAmount:
+          title:  Charge Amount
+          description: The amount to be charged for the transcript request.
+          maxLength: 12
+          type: number
+          x-lineageReferenceObject: SHTTRAN_DETC_AMOUNT
+          example:  15
+        requestedOn:
+          title:  Transcript Requested On Date
+          description: Request Date. Identifies the date the transcript was requested.
+          maxLength: 11
+          type: string
+          format: date
+          x-lineageReferenceObject: SHTTRAN_REQUEST_DATE
+          example:  2024-11-05
+        printedOn:
+          title:  Printed On Date
+          description: The date the transcript was printed.
+          maxLength: 11
+          type: string
+          format: date
+          x-lineageReferenceObject: SHTTRAN_PRINT_DATE
+          example:  2024-11-05
+        transcriptType:
+          title:  Transcript Type
+          description: Transcript type which is to be used for this transcript request
+          maxLength: 4
+          type: string
+          x-lineageReferenceObject: SHTTRAN_TPRT_CODE
+          x-lineageReferenceLookupObject: STVTPRT
+          example:  ADVS
+        numberOfCopies:
+          title:  Number of Copies
+          description: Number of copies of this transcript requested
+          maxLength: 3
+          type: number
+          x-lineageReferenceObject: SHTTRAN_NO_COPIES
+          example:  10
+        isOfficialTranscriptRequest:
+          title:  Transcript Official Indicator
+          description: Indicator denoting whether the transcript is official/unofficial. true=yes, false=no.
+          type: boolean
+          x-lineageReferenceObject: SHTTRAN_OFFICIAL_IND
+          example: true
+        billingTerm:
+          title:  Billing Term Code
+          description: Billing term for transcript charge.
+          maxLength: 6
+          type: string
+          x-lineageReferenceObject: SHTTRAN_TERM_CODE_DETC
+          x-lineageLookupReferenceObject: STVTERM
+          example:  202210
+        receiptNumber:
+          title:  Receipt Number
+          description: Receipt number for the request charge.
+          maxLength: 8
+          type: number
+          x-lineageReferenceObject: SHTTRAN_WPYO_RECEIPT_NUMBER
+          example:  55
+        inProgressCutoffTerm:
+          title:  In-Progress Course Cutoff Term
+          description: Cutoff term for in-progress courses included on the transcript.
+          maxLength: 6
+          type: string
+          x-lineageReferenceObject: SHTTRAN_TERM_CODE_IN_PRG
+          x-lineageLookupReferenceObject: STVTERM
+          example:  202210
+        isRequestOnGradeHold:
+          title:  Hold Transcript for Grades
+          description: Indicator for holding transcript request until after end of term processing. true - hold for grades, false - do not hold
+          type: boolean
+          x-lineageReferenceObject: SHTTRAN_HOLD_GRDE_IND
+          example:  true
+        isRequestOnDegreeHold:
+          title:  Hold Transcript for Degree Indicator
+          description: Indicator for holding transcript request until after degree processing. true - hold for degree, false - do not hold
+          type: boolean
+          x-lineageReferenceObject: SHTTRAN_HOLD_DEGR_IND
+          example:  true
+        sentOn:
+          title:  Transcript Sent Date
+          description: Date the transcript was sent.
+          maxLength: 11
+          type: string
+          format: date
+          x-lineageReferenceObject: SHTTRAN_SENT_DATE
+          example:  2024-11-05
+        recipientDetail:
+          title: Transcript Recipient Detail
+          description: Identification of the transcript recipient and contact information
+          type: object
+          properties:
+            externalInstitution:
+                title:  External Institution
+                description: External Institution Code.  Identifies the institution the student wants the transcript sent to.
+                maxLength: 20
+                type: string
+                x-lineageReferenceObject: SHTTRAN_SBGI_CODE
+                example:  12504
+            outputType:
+              title:  Output Type
+              description: "Indicates if the transcript is to be sent via EDI or printed on paper. Valid values are: E - EDI, P - PESC/XML, D - PDF, blank or Null - printed transcript."
+              maxLength: 1
+              type: string
+              x-lineageReferenceObject: SHTTRAN_TYPE
+              x-lineageLookupReferenceObject: STVTPRT
+              example:  P
+            internalCollege:
+              title:  Internal College
+              description: Identifes the internal college the student wants the transcript sent to.
+              maxLength: 6
+              type: string
+              x-lineageReferenceObject: SHTTRAN_COLL_CODE
+              x-lineageLookupReferenceObject: STVCOLL
+              example:  BU
+            issuedToName:
+              title:  Issued To Name
+              description: Identifies the recipient of the transcript. This may be an institution, college, or person name.
+              maxLength: 185
+              type: string
+              x-lineageReferenceObject: SHTTRAN_ADDR_NAME
+              example:  COLLEGE OF BUSINESS
+            streetLine1:
+              title:  Street line 1
+              description: Street Address Line 1 of transcript address.
+              maxLength: 75
+              type: string
+              x-lineageReferenceObject: SHTTRAN_STREET1
+              example:  PO BOX 54111
+            streetLine2:
+              title:  Street line 2
+              description: Street Address Line 2 of transcript address.
+              maxLength: 75
+              type: string
+              x-lineageReferenceObject: SHTTRAN_STREET2
+              example:  3 APPLE DR
+            streetLine3:
+              title:  Street line 3
+              description: Street Address Line 3 of transcript address.
+              maxLength: 75
+              type: string
+              x-lineageReferenceObject: SHTTRAN_STREET3
+              example:  APT 4
+            streetLine4:
+              title:  Street line 4
+              description: This field maintains line four of the street address.
+              maxLength: 75
+              type: string
+              x-lineageReferenceObject: SHTTRAN_STREET_LINE4
+              example:  APARTMENT 25
+            houseNumber:
+              title:  House Number
+              description: House or building number in a street or area.
+              maxLength: 10
+              type: string
+              x-lineageReferenceObject: SHTTRAN_HOUSE_NUMBER
+              example:  28056          
+            city:
+              title:  City
+              description: City of transcript address.
+              maxLength: 50
+              type: string
+              x-lineageReferenceObject: SHTTRAN_CITY
+              example:  CINCINATTI
+            state:
+              title:  State or Province
+              description: State Code of transcript address.
+              maxLength: 3
+              type: string
+              x-lineageReferenceObject: SHTTRAN_STAT_CODE
+              x-lineageLookupReferenceObject: STVSTAT
+              example:  OH
+            postalCode:
+              title:  Zip or Postal Code
+              description: Zip Code or postal code of address.
+              maxLength: 30
+              type: string
+              x-lineageReferenceObject: SHTTRAN_ZIP
+              x-lineageLookupReferenceObject: GTVZIPC 
+              example:  15444
+            addressNation:
+              title:  Nation
+              description: Code which has been set up to represent designated nation.
+              maxLength: 5
+              type: string
+              x-lineageReferenceObject: SHTTRAN_NATN_CODE
+              x-lineageLookupReferenceObject: STVNATN
+              example:  US
+            phoneArea:
+              title:  Phone Area
+              description: Area code for recipient of request.
+              maxLength: 6
+              type: string
+              x-lineageReferenceObject: SHTTRAN_PHONE_AREA
+              example: 704
+            phoneNumber:
+              title:  Phone Number
+              description: Phone number for recipient of request.
+              maxLength: 12
+              type: string
+              x-lineageReferenceObject: SHTTRAN_PHONE_NUMBER
+              example:  555-555-5555
+            phoneExtension:
+              title:  Phone Extension
+              description: Phone extension for recipient of request.
+              maxLength: 10
+              type: string
+              x-lineageReferenceObject: SHTTRAN_PHONE_EXT
+              example:  55555
+            phoneInternationalAccessNumber:
+              title:  Telephone International Access Number
+              description: International phone number with country and city codes for the intended recipient.
+              maxLength: 16
+              type: string
+              x-lineageReferenceObject: SHTTRAN_INTL_ACCESS
+              example:  555555
+            phoneCountry:
+              title:  Telephone Country
+              description: Code that designates the region and country.
+              maxLength: 4
+              type: string
+              x-lineageReferenceObject: SHTTRAN_CTRY_CODE_PHONE
+              example:  5555
+          required:
+          - issuedToName
+        electronicTranscriptStatusDetail:
+          title: Electronic Transcript Status Detail
+          type: object
+          properties:
+            ediSentOn:
+              title:  EDI sent on Date
+              description: EDI Sent Date.  Identifies the date the transcript was generated for EDI.
+              maxLength: 11
+              type: string
+              format: date
+              x-lineageReferenceObject: SHTTRAN_EDI_SENT_DATE
+              example:  2024-11-01
+            ediStatusReceivedOn:
+              title:  EDI Status Date
+              description: EDI Status Date.  Identifies the date the EDI status was received through the reconciliation process.
+              type: string
+              format: date
+              x-lineageReferenceObject: SHTTRAN_EDI_STATUS_DATE
+              example:  2024-11-01
+            ediStatus:
+              title:  EDI Status
+              description: EDI Status.  Indicates the status of the transfer of the transcript to the receiving institution.  Updated by the reconciliation program SHREDIR.  Valid values are in table STVEDIS.
+              maxLength: 2
+              type: string
+              x-lineageReferenceObject: SHTTRAN_EDIS_CODE
+              example:  P2
+            ediRequestNumber:
+              title:  EDI Reqeust Number
+              description: EDI Request Number.  A sequential number assigned to each EDI transcript request, used for matching in the EDI reconciliation process.
+              maxLength: 8
+              type: string
+              x-lineageReferenceObject: SHTTRAN_EDI_REQUEST_NUM
+              example:  158      
+        selfServiceRequestDetail:
+          title: Self Service Request Detail
+          description: Detail related to requests submitted through Banner Student Self Service
+          type: object
+          properties:
+            webServiceOption:
+              title:  Web Service Option
+              description: Transcript Request Temporary Table web self services option for the request.
+              maxLength: 4
+              type: string
+              x-lineageReferenceObject: SHTTRAN_WSSO_CODE
+              example:  DEPT
+            webPaymentOption:
+              title:  Web Payment Option
+              description: Transcript Request Temporary Table web payment option for the request.
+              maxLength: 4
+              type: string
+              x-lineageReferenceObject: SHTTRAN_WPYO_CODE
+              example:  ARST
+        transcriptNameSelectionHierarchies:
+          title: Name Hierarchy
+          description: Name hierarchy used to select student's name to print on the transcript.
+          type: array
+          items:
+            properties:
+              sequenceNumber:
+                title: Name Hierarchy Sequence Number
+                description: Priority order in which the name sources are to be used.
+                maxLength: 4
+                type: string
+                x-lineageReferenceObject: SHTTRNM_NAME_SEQNO
+                example:  2
+              source:
+                title: Name Hierarchy Source Code
+                description: Source of the name from Banner that is to be printed on the transcript.
+                maxLength: 10
+                type: string
+                x-lineageReferenceObject: SHTTRNM_TRNS_CODE
+                x-lineageLookupReferenceObject: STVTRNS
+                example:  DIPLOMA
+              nameType:
+                title: Name Type Code
+                description: Name type code for sources that require a name type.
+                maxLength: 4
+                type: string
+                x-lineageReferenceObject: SHTTRNM_NTYP_CODE
+                x-lineageLookupReferenceObject: GTVNTYP
+                example:  LEGL
+              degreeSequence:
+                title: Degree Sequence
+                description: Degree sequence for selecting the diploma name.
+                maxLength: 2
+                type: string
+                x-lineageReferenceObject: SHTTRNM_DEGR_SEQ_NO
+                example:  2
+      required:
+        - id
+        - bannerId
+        - requestNumber
+        - requestedOn
+        - transcriptLevel
+        - transcriptType
+        - numberOfCopies
+        - isOfficialTranscriptRequest
+        - isRequestOnGradeHold
+        - isRequestOnDegreeHold
+        - recipientDetail
+    transcript-requests-1.0.0_put_request:
+      type: object
+      properties:
+        studentInformationTerm:
+          title:  Student Information Term Code
+          description: Identifies the term used to select the student information (e.g. majors, minors, concentrations). 
+          maxLength: 6
+          type: string
+          example:  202410
+        transcriptLevel:
+          title:  Transcript Level
+          description: Identifies the course level (Undergraduate, Graduate, etc.) the transcript was requested for. Submit "AL" to indicate all levels should be included on the transcript.
+          maxLength: 2
+          type: string
+          example:  UG
+        chargeDetail:
+          title:  Charge Detail Code
+          description: Identifies charge detail code to be placed on the student's account in billing for requesting a transcript.
+          maxLength: 4
+          type: string
+          example:  TRAN
+        chargeAmount:
+          title:  Charge Amount
+          description: The amount to be charged for the transcript request.
+          maxLength: 12
+          type: number
+          example:  15
+        requestedOn:
+          title:  Transcript Requested On Date
+          description: Identifies the date the transcript was requested. If not submitted, the system date will default.
+          maxLength: 11
+          type: string
+          format: date
+          example:  2024-11-05
+        transcriptType:
+          title:  Transcript Type
+          description: Transcript type which is to be used for this transcript request
+          maxLength: 4
+          type: string
+          example:  ADVS
+        numberOfCopies:
+          title:  Number of Copies
+          description: Number of copies of this transcript requested. Number of transcripts per request cannot exceed the maximum limit set in SHAWTRR.
+          maxLength: 3
+          type: number
+          example:  10
+        isOfficialTranscriptRequest:
+          title:  Transcript Official Indicator
+          description: Indicator denoting whether the transcript is official/unofficial. Only offical transcripts are processed electronically. Valid values are true=yes or false=no. If not submitted, false will default. 
+          type: boolean
+          example:  true
+        billingTerm:
+          title:  Billing Term Code
+          description: Billing term for transcript charge.
+          maxLength: 6
+          type: string
+          example:  202210
+        inProgressCutoffTerm:
+          title:  In-Progress Course Cutoff Term
+          description: Cutoff term for in-progress courses included on the transcript. If not submitted, the value defaults to the maximum term for which the student has courses in registration.
+          maxLength: 6
+          type: string
+          example:  202210
+        isRequestOnGradeHold:
+          title:  Hold Transcript for Grades
+          description: Indicator for holding transcript request until after end of term grade processing. true - hold for grades, false - do not hold. If not submitted, false will default.
+          type: boolean
+          example:  true
+        isRequestOnDegreeHold:
+          title:  Hold Transcript for Degree Indicator
+          description: Indicator for holding transcript request until after degree processing. true - hold for degree, false - do not hold. If not submitted, false will default.
+          type: boolean
+          example:  false
+        sentOn:
+          title:  Transcript Sent Date
+          description: Date the transcript was sent.
+          maxLength: 11
+          type: string
+          format: date
+          x-lineageReferenceObject: SHTTRAN_SENT_DATE
+          example:  2024-11-05
+        recipientDetail:
+          title: Transcript Recipient Details
+          description: Identification of the transcript recipient and destination.
+          oneOf:
+            - type: object
+              title: External Institution
+              description: Recipient is an external institution. If address information is not provided, the address configured for the insitution is defaulted.
+              properties:
+                externalInstitution:
+                    title:  External Institution Code
+                    description: Identifies the institution the student wants the transcript sent to.
+                    maxLength: 20
+                    type: string
+                    example:  12504
+                outputType:
+                  title:  Output Type
+                  description: Indicates if the transcript is to be sent via EDI or printed on paper. Valid values are "E" - EDI, "P" - PESC/XML, "D" - PDF, blank or null - printed transcript.
+                    If not submitted, the configured electronic receipt method for the external instituion will be defaulted.
+                  maxLength: 1
+                  type: string
+                  example:  P
+                houseNumber:
+                  title:  House Number
+                  description: House or building number in a street or area.
+                  maxLength: 10
+                  type: string
+                  x-lineageReferenceObject: SHTTRAN_HOUSE_NUMBER
+                  example:  28056 
+                streetLine1:
+                  title:  Street line 1
+                  description: Street Address Line 1 of recipient address.
+                  maxLength: 75
+                  type: string
+                  example:  PO BOX 54111
+                streetLine2:
+                  title:  Street line 2
+                  description: Street Address Line 2 of recipient address.
+                  maxLength: 75
+                  type: string
+                  example:  3 APPLE DR
+                streetLine3:
+                  title:  Street line 3
+                  description: Street Address Line 3 of transcript address.
+                  maxLength: 75
+                  type: string
+                  example:  APT 4
+                streetLine4:
+                  title:  Street line 4
+                  description: This field maintains line four of the street address.
+                  maxLength: 75
+                  type: string
+                  example:  APARTMENT 25         
+                city:
+                  title:  City
+                  description: City of transcript address.
+                  maxLength: 50
+                  type: string
+                  example:  CINCINATTI
+                state:
+                  title:  State or Province
+                  description: State Code of the recipient address.
+                  maxLength: 3
+                  type: string
+                  example:  OH
+                postalCode:
+                  title:  Zip or Postal Code
+                  description: Zip Code or postal code of address.
+                  maxLength: 30
+                  type: string
+                  example:  15444
+                addressNation:
+                  title:  Nation
+                  description: Code which has been set up to represent designated nation.
+                  maxLength: 5
+                  type: string
+                  example:  US
+                phoneArea:
+                  title:  Phone Area
+                  description: Area code for recipient of request.
+                  maxLength: 6
+                  type: string
+                  example:  704
+                phoneNumber:
+                  title:  Phone Number
+                  description: Phone number for recipient of request.
+                  maxLength: 12
+                  type: string
+                  example:  555-555-5555
+                phoneExtension:
+                  title:  Phone Extension
+                  description: Phone extension for recipient of request.
+                  maxLength: 10
+                  type: string
+                  x-lineageReferenceObject: SHTTRAN_PHONE_EXT
+                  example:  55555
+                phoneInternationalAccessNumber:
+                  title:  Telephone International Access Number
+                  description: International phone number with country and city codes for the intended recipient.
+                  maxLength: 16
+                  type: string
+                  example:  555555
+                phoneCountry:
+                  title:  Telephone Country
+                  description: Code that designates the region and country.
+                  maxLength: 4
+                  type: string
+                  example:  5555
+              required:
+              - externalInstitution
+            - type: object
+              title: Internal College
+              description: An internal college at the home instituion. Address and phone details are optional.
+              properties:
+                internalCollege:
+                  title:  Internal College
+                  description: Identifes the internal college the student wants the transcript sent to.
+                  maxLength: 6
+                  type: string
+                  example:  BU
+                houseNumber:
+                  title:  House Number
+                  description: House or building number in a street or area.
+                  maxLength: 10
+                  type: string
+                  x-lineageReferenceObject: SHTTRAN_HOUSE_NUMBER
+                  example:  28056 
+                streetLine1:
+                  title:  Street line 1
+                  description: Street Address Line 1 of recipient address.
+                  maxLength: 75
+                  type: string
+                  example:  PO BOX 54111
+                streetLine2:
+                  title:  Street line 2
+                  description: Street Address Line 2 of recipient address.
+                  maxLength: 75
+                  type: string
+                  example:  3 APPLE DR
+                streetLine3:
+                  title:  Street line 3
+                  description: Street Address Line 3 of transcript address.
+                  maxLength: 75
+                  type: string
+                  example:  APT 4
+                streetLine4:
+                  title:  Street line 4
+                  description: This field maintains line four of the street address.
+                  maxLength: 75
+                  type: string
+                  example:  APARTMENT 25         
+                city:
+                  title:  City
+                  description: City of transcript address.
+                  maxLength: 50
+                  type: string
+                  example:  CINCINATTI
+                state:
+                  title:  State or Province
+                  description: State Code of the recipient address.
+                  maxLength: 3
+                  type: string
+                  example:  OH
+                postalCode:
+                  title:  Zip or Postal Code
+                  description: Zip Code or postal code of address.
+                  maxLength: 30
+                  type: string
+                  example:  15444
+                addressNation:
+                  title:  Nation
+                  description: Code which has been set up to represent designated nation.
+                  maxLength: 5
+                  type: string
+                  example:  US
+                phoneArea:
+                  title:  Phone Area
+                  description: Area code for recipient of request.
+                  maxLength: 6
+                  type: string
+                  example:  704
+                phoneNumber:
+                  title:  Phone Number
+                  description: Phone number for recipient of request.
+                  maxLength: 12
+                  type: string
+                  example:  555-555-5555
+                phoneExtension:
+                  title:  Phone Extension
+                  description: Phone extension for recipient of request.
+                  maxLength: 10
+                  type: string
+                  x-lineageReferenceObject: SHTTRAN_PHONE_EXT
+                  example:  55555
+                phoneInternationalAccessNumber:
+                  title:  Telephone International Access Number
+                  description: International phone number with country and city codes for the intended recipient.
+                  maxLength: 16
+                  type: string
+                  example:  555555
+                phoneCountry:
+                  title:  Telephone Country
+                  description: Code that designates the region and country.
+                  maxLength: 4
+                  type: string
+                  example:  5555
+              required:
+              - internalCollege
+            - type: object
+              title: Recipient
+              description: Individual the transcript should be sent to.
+              properties:
+                issuedToName:
+                  title:  Issued To Name
+                  description: Identifies the name of the recipient of the transcript.
+                  maxLength: 185
+                  type: string
+                  example:  Samuel Smith
+                houseNumber:
+                  title:  House Number
+                  description: House or building number in a street or area.
+                  maxLength: 10
+                  type: string
+                  x-lineageReferenceObject: SHTTRAN_HOUSE_NUMBER
+                  example:  28056 
+                streetLine1:
+                  title:  Street line 1
+                  description: Street Address Line 1 of recipient address.
+                  maxLength: 75
+                  type: string
+                  example:  PO BOX 54111
+                streetLine2:
+                  title:  Street line 2
+                  description: Street Address Line 2 of recipient address.
+                  maxLength: 75
+                  type: string
+                  example:  3 APPLE DR
+                streetLine3:
+                  title:  Street line 3
+                  description: Street Address Line 3 of transcript address.
+                  maxLength: 75
+                  type: string
+                  example:  APT 4
+                streetLine4:
+                  title:  Street line 4
+                  description: This field maintains line four of the street address.
+                  maxLength: 75
+                  type: string
+                  example:  APARTMENT 25         
+                city:
+                  title:  City
+                  description: City of transcript address.
+                  maxLength: 50
+                  type: string
+                  example:  CINCINATTI
+                state:
+                  title:  State or Province
+                  description: State Code of the recipient address.
+                  maxLength: 3
+                  type: string
+                  example:  OH
+                postalCode:
+                  title:  Zip or Postal Code
+                  description: Zip Code or postal code of address.
+                  maxLength: 30
+                  type: string
+                  example:  15444
+                addressNation:
+                  title: Nation
+                  description: Code which has been set up to represent designated nation.
+                  maxLength: 5
+                  type: string
+                  example:  US
+                phoneArea:
+                  title:  Phone Area
+                  description: Area code for recipient of request.
+                  maxLength: 6
+                  type: string
+                  example:  704
+                phoneNumber:
+                  title:  Phone Number
+                  description: Phone number for recipient of request.
+                  maxLength: 12
+                  type: string
+                  example:  555-555-5555
+                phoneExtension:
+                  title:  Phone Extension
+                  description: Phone extension for recipient of request.
+                  maxLength: 10
+                  type: string
+                  x-lineageReferenceObject: SHTTRAN_PHONE_EXT
+                  example:  55555
+                phoneInternationalAccessNumber:
+                  title:  Telephone International Access Number
+                  description: International phone number with country and city codes for the intended recipient.
+                  maxLength: 16
+                  type: string
+                  example:  555555
+                phoneCountry:
+                  title:  Telephone Country
+                  description: Code that designates the region and country.
+                  maxLength: 4
+                  type: string
+                  example:  5555
+              required:
+              - issuedToName
+    transcript-requests-1.0.0_post_request:
+      type: object
+      properties:
+        bannerId:
+          title:  Banner ID
+          description: Students Identification Number.
+          maxLength: 9
+          type: string
+          example:  800004487
+        holdOverride:
+          title: Transcript Hold Override Indicator
+          description: The hold override indicator is used to submit a transcript request even though the student has an active transcript hold. Submit "Y" to override.
+          maxLength: 1
+          type: string
+          example: Y
+        studentInformationTerm:
+          title:  Student Information Term Code
+          description: Identifies the term used to select the student information (e.g. majors, minors, concentrations). 
+            If property is not submitted the term will default to the maximum effective term of the maximum student record for the transcript level, if available, 
+            or the effective term of the maximum student record which is less than or equal to the term of the maximum academic history term record.
+          maxLength: 6
+          type: string
+          example:  202410
+        transcriptLevel:
+          title:  Transcript Level
+          description: Identifies the course level (Undergraduate, Graduate, etc.) the transcript was requested for. Submit "AL" to indicate all levels should be included on the transcript.
+          maxLength: 2
+          type: string
+          example:  UG
+        chargeDetail:
+          title:  Charge Detail Code
+          description: Identifies charge detail code to be placed on the student's account in billing for requesting a transcript.
+          maxLength: 4
+          type: string
+          example:  TRAN
+        chargeAmount:
+          title:  Charge Amount
+          description: The amount to be charged for the transcript request.
+          maxLength: 12
+          type: number
+          example:  15
+        requestedOn:
+          title:  Transcript Requested On Date
+          description: Identifies the date the transcript was requested. If not submitted, the system date will default.
+          maxLength: 11
+          type: string
+          format: date
+          example:  2024-11-05
+        transcriptType:
+          title:  Transcript Type
+          description: Transcript type which is to be used for this transcript request
+          maxLength: 4
+          type: string
+          example:  ADVS
+        numberOfCopies:
+          title:  Number of Copies
+          description: Number of copies of this transcript requested. If not submitted, 1 will default. Number of transcripts per request cannot exceed the maximum limit set in SHAWTRR.
+          maxLength: 3
+          type: number
+          example:  10
+        isOfficialTranscriptRequest:
+          title:  Transcript Official Indicator
+          description: Indicator denoting whether the transcript is official/unofficial. Only offical transcripts are processed electronically. Valid values are true=yes or false=no. If not submitted, false will default.
+          type: boolean
+          example:  true
+        billingTerm:
+          title:  Billing Term Code
+          description: Billing term for transcript charge.
+          maxLength: 6
+          type: string
+          example:  202210
+        inProgressCutoffTerm:
+          title:  In-Progress Course Cutoff Term
+          description: Cutoff term for in-progress courses included on the transcript. If not submitted, the value defaults to the maximum term for which the student has courses in registration.
+          maxLength: 6
+          type: string
+          example:  202210
+        isRequestOnGradeHold:
+          title:  Hold Transcript for Grades
+          description: Indicator for holding transcript request until after end of term grade processing. true - hold for grades, false - do not hold. If not submitted, false will default.
+          type: boolean
+          example:  true
+        isRequestOnDegreeHold:
+          title:  Hold Transcript for Degree Indicator
+          description: Indicator for holding transcript request until after degree processing. true - hold for degree, false - do not hold. If not submitted, false will default.
+          type: boolean
+          example: false
+        recipientDetail:
+          title: Transcript Recipient Details
+          description: Identification of the transcript recipient and destination.
+          oneOf:
+            - type: object
+              title: External Institution
+              description: Recipient is an external institution. If address information is not provided, the address configured for the insitution is defaulted.
+              properties:
+                externalInstitution:
+                    title:  External Institution Code
+                    description: Identifies the institution the student wants the transcript sent to.
+                    maxLength: 20
+                    type: string
+                    example:  12504
+                outputType:
+                  title:  Output Type
+                  description: Indicates if the transcript is to be sent via EDI or printed on paper. Valid values are "E" - EDI, "P" - PESC/XML, "D" - PDF, blank or null - printed transcript.
+                    If not submitted, the configured electronic receipt method for the external instituion will be defaulted.
+                  maxLength: 1
+                  type: string
+                  example:  P
+                issuedToName:
+                  title:  Issued To Name
+                  description: Identifies the name of the recipient of the transcript.
+                  maxLength: 185
+                  type: string
+                  example:  Samuel Smith
+                houseNumber:
+                  title:  House Number
+                  description: House or building number in a street or area.
+                  maxLength: 10
+                  type: string
+                  x-lineageReferenceObject: SHTTRAN_HOUSE_NUMBER
+                  example:  28056 
+                streetLine1:
+                  title:  Street line 1
+                  description: Street Address Line 1 of recipient address.
+                  maxLength: 75
+                  type: string
+                  example:  PO BOX 54111
+                streetLine2:
+                  title:  Street line 2
+                  description: Street Address Line 2 of recipient address.
+                  maxLength: 75
+                  type: string
+                  example:  3 APPLE DR
+                streetLine3:
+                  title:  Street line 3
+                  description: Street Address Line 3 of transcript address.
+                  maxLength: 75
+                  type: string
+                  example:  APT 4
+                streetLine4:
+                  title:  Street line 4
+                  description: This field maintains line four of the street address.
+                  maxLength: 75
+                  type: string
+                  example:  APARTMENT 25         
+                city:
+                  title:  City
+                  description: City of transcript address.
+                  maxLength: 50
+                  type: string
+                  example:  CINCINATTI
+                state:
+                  title:  State or Province
+                  description: State Code of the recipient address.
+                  maxLength: 3
+                  type: string
+                  example:  OH
+                postalCode:
+                  title:  Zip or Postal Code
+                  description: Zip Code or postal code of address.
+                  maxLength: 30
+                  type: string
+                  example:  15444
+                addressNation:
+                  title:  Nation
+                  description: Code which has been set up to represent designated nation.
+                  maxLength: 5
+                  type: string
+                  example:  US
+                phoneArea:
+                  title:  Phone Area
+                  description: Area code for recipient of request.
+                  maxLength: 6
+                  type: string
+                  example:  704
+                phoneNumber:
+                  title:  Phone Number
+                  description: Phone number for recipient of request.
+                  maxLength: 12
+                  type: string
+                  example:  555-555-5555
+                phoneExtension:
+                  title:  Phone Extension
+                  description: Phone extension for recipient of request.
+                  maxLength: 10
+                  type: string
+                  x-lineageReferenceObject: SHTTRAN_PHONE_EXT
+                  example:  55555
+                phoneInternationalAccessNumber:
+                  title:  Telephone International Access Number
+                  description: International phone number with country and city codes for the intended recipient.
+                  maxLength: 16
+                  type: string
+                  example:  555555
+                phoneCountry:
+                  title:  Telephone Country
+                  description: Code that designates the region and country.
+                  maxLength: 4
+                  type: string
+                  example:  5555
+              required:
+              - externalInstitution
+            - type: object
+              title: Internal College
+              description: An internal college at the home instituion. Address and phone details are optional.
+              properties:
+                internalCollege:
+                  title:  Internal College
+                  description: Identifes the internal college the student wants the transcript sent to.
+                  maxLength: 6
+                  type: string
+                  example:  BU
+                issuedToName:
+                  title:  Issued To Name
+                  description: Identifies the name of the recipient of the transcript.
+                  maxLength: 185
+                  type: string
+                  example:  Samuel Smith
+                houseNumber:
+                  title:  House Number
+                  description: House or building number in a street or area.
+                  maxLength: 10
+                  type: string
+                  x-lineageReferenceObject: SHTTRAN_HOUSE_NUMBER
+                  example:  28056 
+                streetLine1:
+                  title:  Street line 1
+                  description: Street Address Line 1 of recipient address.
+                  maxLength: 75
+                  type: string
+                  example:  PO BOX 54111
+                streetLine2:
+                  title:  Street line 2
+                  description: Street Address Line 2 of recipient address.
+                  maxLength: 75
+                  type: string
+                  example:  3 APPLE DR
+                streetLine3:
+                  title:  Street line 3
+                  description: Street Address Line 3 of transcript address.
+                  maxLength: 75
+                  type: string
+                  example:  APT 4
+                streetLine4:
+                  title:  Street line 4
+                  description: This field maintains line four of the street address.
+                  maxLength: 75
+                  type: string
+                  example:  APARTMENT 25         
+                city:
+                  title:  City
+                  description: City of transcript address.
+                  maxLength: 50
+                  type: string
+                  example:  CINCINATTI
+                state:
+                  title:  State or Province
+                  description: State Code of the recipient address.
+                  maxLength: 3
+                  type: string
+                  example:  OH
+                postalCode:
+                  title:  Zip or Postal Code
+                  description: Zip Code or postal code of address.
+                  maxLength: 30
+                  type: string
+                  example:  15444
+                addressNation:
+                  title:  Nation
+                  description: Code which has been set up to represent designated nation.
+                  maxLength: 5
+                  type: string
+                  example:  US
+                phoneArea:
+                  title:  Phone Area
+                  description: Area code for recipient of request.
+                  maxLength: 6
+                  type: string
+                  example:  704
+                phoneNumber:
+                  title:  Phone Number
+                  description: Phone number for recipient of request.
+                  maxLength: 12
+                  type: string
+                  example:  555-555-5555
+                phoneExtension:
+                  title:  Phone Extension
+                  description: Phone extension for recipient of request.
+                  maxLength: 10
+                  type: string
+                  x-lineageReferenceObject: SHTTRAN_PHONE_EXT
+                  example:  55555
+                phoneInternationalAccessNumber:
+                  title:  Telephone International Access Number
+                  description: International phone number with country and city codes for the intended recipient.
+                  maxLength: 16
+                  type: string
+                  example:  555555
+                phoneCountry:
+                  title:  Telephone Country
+                  description: Code that designates the region and country.
+                  maxLength: 4
+                  type: string
+                  example:  5555
+              required:
+              - internalCollege
+            - type: object
+              title: Recipient
+              description: Individual the transcript should be sent to.
+              properties:
+                issuedToName:
+                  title:  Issued To Name
+                  description: Identifies the name of the recipient of the transcript.
+                  maxLength: 185
+                  type: string
+                  example:  Samuel Smith
+                houseNumber:
+                  title:  House Number
+                  description: House or building number in a street or area.
+                  maxLength: 10
+                  type: string
+                  x-lineageReferenceObject: SHTTRAN_HOUSE_NUMBER
+                  example:  28056 
+                streetLine1:
+                  title:  Street line 1
+                  description: Street Address Line 1 of recipient address.
+                  maxLength: 75
+                  type: string
+                  example:  PO BOX 54111
+                streetLine2:
+                  title:  Street line 2
+                  description: Street Address Line 2 of recipient address.
+                  maxLength: 75
+                  type: string
+                  example:  3 APPLE DR
+                streetLine3:
+                  title:  Street line 3
+                  description: Street Address Line 3 of transcript address.
+                  maxLength: 75
+                  type: string
+                  example:  APT 4
+                streetLine4:
+                  title:  Street line 4
+                  description: This field maintains line four of the street address.
+                  maxLength: 75
+                  type: string
+                  example:  APARTMENT 25         
+                city:
+                  title:  City
+                  description: City of transcript address.
+                  maxLength: 50
+                  type: string
+                  example:  CINCINATTI
+                state:
+                  title:  State or Province
+                  description: State Code of the recipient address.
+                  maxLength: 3
+                  type: string
+                  example:  OH
+                postalCode:
+                  title:  Zip or Postal Code
+                  description: Zip Code or postal code of address.
+                  maxLength: 30
+                  type: string
+                  example:  15444
+                addressNation:
+                  title:  Nation
+                  description: Code which has been set up to represent designated nation.
+                  maxLength: 5
+                  type: string
+                  example:  US
+                phoneArea:
+                  title:  Phone Area
+                  description: Area code for recipient of request.
+                  maxLength: 6
+                  type: string
+                  example:  704
+                phoneNumber:
+                  title:  Phone Number
+                  description: Phone number for recipient of request.
+                  maxLength: 12
+                  type: string
+                  example:  555-555-5555
+                phoneExtension:
+                  title:  Phone Extension
+                  description: Phone extension for recipient of request.
+                  maxLength: 10
+                  type: string
+                  x-lineageReferenceObject: SHTTRAN_PHONE_EXT
+                  example:  55555
+                phoneInternationalAccessNumber:
+                  title:  Telephone International Access Number
+                  description: International phone number with country and city codes for the intended recipient.
+                  maxLength: 16
+                  type: string
+                  example:  555555
+                phoneCountry:
+                  title:  Telephone Country
+                  description: Code that designates the region and country.
+                  maxLength: 4
+                  type: string
+                  example:  5555
+              required:
+              - issuedToName
+      required:
+        - bannerId
+        - transcriptLevel
+        - transcriptType
+        - recipientDetail
+    transcript-requests-batch-1.0.0_post_request:
+      type: object
+      properties:
+        items:
+          title: items
+          description: List of items to be processed.
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/transcript-requests-batch-1.0.0_post_items'
+      required:
+        - items        
+    transcript-requests-batch-1.0.0_post_items:
+      $ref: '#/components/schemas/transcript-requests-1.0.0_post_request'
+    transcript-requests-batch-1.0.0_post_response:
+        description: 'Returns the list of Ids for those transcript requests that were successfully created. For those that did not, it returns the list of error messages. '
+        type: object
+        x-last-modified:
+        properties:
+          id:
+            title: ID
+            description: A globally unique identifier of a batch to be used in all external references.
+            type: string
+            example: 8292
+          status:
+            title: status
+            description: status of the batch.
+            type: string
+            enum:
+              - completed
+              - inProgress
+              - aborted
+            example: completed
+          resource:
+            title: Resource
+            description: The affected resource.
+            type: object
+            properties:
+              name:
+                title: Resource Name
+                description: The pluralized name of the affected resource
+                type: string
+                example: transcript-requests
+              version:
+                title: Resource version
+                description: The version of the resource
+                type: string
+                example: 1.0.0
+            additionalProperties: false
+            required:
+              - name
+              - version
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+            oneOf:
+              - type: object
+                $ref: '#/components/schemas/transcript-requests-1.0.0_response'
+              - type: object
+                $ref: '#/components/schemas/errors_2_0_0'
+          required:
+            - items        
+    #The errors schema is standardized - no updates should be needed
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  #security schemes are standardized
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic
+#final check - search for UPDATE all references should have been replaced during editing.
+#remove comment lines from file before submission of .yaml for publication.

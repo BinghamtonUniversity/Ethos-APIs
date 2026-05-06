@@ -1,0 +1,158 @@
+openapi: 3.0.1
+info:
+  title: assigned-committees
+  description: Get a list of assigned committees for a user
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Student
+  x-source-title: Assigned Committees
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: '{server_url}'
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost  
+paths:
+  /api/assigned-committees:
+    get:
+      tags:
+        - assigned-committees
+      summary: Get a list of assigned committees for a user by passing committeeMemberId.
+      x-method-permissions: API_ASSIGNED_COMMITTEES
+      parameters:
+        - name: committeeMemberId
+          in: query
+          required: true
+          schema:
+            type: string
+          example: APTEST
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/AssignedCommitteesObj'
+              examples:
+                assigned-committees:
+                  $ref: '#/components/examples/AssignedCommittees'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                       $ref: '#/components/schemas/ErrorsObj'
+              examples:
+                CommitteeMemberIdRequired:
+                  $ref: '#/components/examples/CommitteeMemberIdRequired'          
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                unauthorizedNoParams:
+                  $ref: '#/components/examples/Unauthorized'
+                unauthorizedNoAuth:
+                  $ref: '#/components/examples/UnauthorizedNoAuth'               
+components:
+  schemas:
+    AssignedCommitteesObj:
+      type: object
+      properties:
+        committeeMemberId:
+          type: string
+        committeeMemberName:
+          type: string  
+        committeeCode:
+          type: string
+        anonymous:
+          type: string  
+        committeeDescription:
+          type: string
+        committeeStatus:
+          type: string
+        examBoardDate:
+          type: string
+        stageNumbers:
+          type: array
+          items:
+            type: number
+    ErrorsObj:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        message:
+          type: string
+  examples:
+    Unauthorized:
+      description: If the request send blank params for auth
+      value: "401 - Unauthorized"
+    UnauthorizedNoAuth:
+      description: If the request does not authenticate
+      value: "401 - Full authentication is required to access this resource"  
+    AssignedCommittees:
+      value: |-
+          [
+            {
+                "committeeMemberId": "A00087965",
+                "committeeMemberName": "Brian Bond",
+                "committeeCode": "ENGCOM",
+                "anonymous": true,
+                "committeeDescription": "English Committee",
+                "committeeStatus": "PARTIALLY CALCULATED",
+                "examBoardDate": "2022-08-17T18:30:00Z",
+                "stageNumbers": [
+                    1,
+                    2,
+                    3
+                ]
+            },
+            {
+                "committeeMemberId": "A00087965",
+                "committeeMemberName": "Brian Bond",
+                "committeeCode": "ARTCOM",
+                "anonymous": false,
+                "committeeDescription": "Arts Committee",
+                "committeeStatus": "CALCULATED",
+                "examBoardDate": "2022-08-19T18:30:00Z",
+                "stageNumbers": [
+                    1,
+                    2,
+                    3
+                ]
+            }
+          ]
+    CommitteeMemberIdRequired:
+      value: |-
+          {
+              "errors": [
+                  {
+                      "code": "Global.SchemaValidation.Error",
+                      "description": "Errors parsing input JSON.",
+                      "message": "Mandatory Field: committeeMemberId is missing from payload"
+                  }
+              ]
+          }      

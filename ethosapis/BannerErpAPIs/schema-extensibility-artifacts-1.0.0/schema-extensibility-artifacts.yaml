@@ -1,0 +1,118 @@
+openapi: 3.0.1
+info:
+  title: Schema Extensibility Artifacts
+  version: 1.0.0
+  description: >
+    Exports schema extensibility configurations (custom-table-configurations, 
+    extension-configurations, extension-mappings, and api-specifications) as 
+    portable artifact payloads for reuse in deployment pipelines.
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Foundation
+
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: '{server_url}'
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+
+paths:
+  /schema-extensibility-artifacts:
+    post:
+      summary: Export artifacts for the specified configuration type
+      operationId: exportArtifacts
+      tags:
+        - Schema Extensibility
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_SCHEMA_EXT_ARTIFACTS
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/schema-extensibility-artifacts.json'
+            examples:
+              custom-tables:
+                summary: Export custom table configurations
+                value:
+                  type: custom-table-configurations
+                  identifiers:
+                    - bdbf462f-43b1-4f50-ba3e-4b19d5fb0f32
+                    - d83a6574-0be5-4e89-bafe-667f8fcac016
+              extension-configs:
+                summary: Export extension configurations
+                value:
+                  type: extension-configurations
+                  identifiers:
+                    - 31e3f2c1-abc9-4fc6-94e1-15f032210312
+              extension-mappings:
+                summary: Export extension mappings
+                value:
+                  type: extension-mappings
+                  identifiers:
+                    - a81e5023-ecc1-42c3-b153-097d6db78f92
+              api-specs:
+                summary: Export API specifications
+                value:
+                  type: api-specifications
+                  identifiers:
+                    - 0e3fcbb2-4787-4a87-abe3-2215fc4489f0
+                    - 5e2f68fc-3cbe-4905-8017-d9a01f2035f3
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-extensibility-artifacts.json"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-extensibility-artifacts.json:
+      title: Schema Extensibility Artifacts
+      type: object
+      required:
+        - type
+        - identifiers
+      properties:
+        type:
+          type: string
+          description: Type of configuration to export
+          enum:
+            - custom-table-configurations
+            - extension-configurations
+            - extension-mappings
+            - api-specifications
+        identifiers:
+          type: array
+          description: List of GUIDs representing the configuration records to export
+          items:
+            type: string
+            format: uuid

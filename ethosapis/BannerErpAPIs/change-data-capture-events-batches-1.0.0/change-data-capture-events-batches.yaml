@@ -1,0 +1,377 @@
+openapi: 3.0.0
+info:
+  title: change-data-capture-events-batches
+  description: |
+    This API imports and exports the Banner Event Publisher events based on the event metadata specified. Both the export and import calls are POST requests to the same endpoint. They are differentiated based on the JSON body passed to it.
+    
+      Note: The payload from the exported events must be used as-is for importing the events.
+  version: "1.0.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Foundation
+servers:
+  - url: https://[server]/BannerEventPublisher
+    description: Banner Event Publisher application url of corresponding environments
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: change-data-capture-events-batches
+paths:
+  /api/change-data-capture-events-batches:
+    post:
+      description: >
+        Imports or exports a list of events with their corresponding metadata based on the provided event list.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/events-list"
+                - $ref: "#/components/schemas/export-criteria"
+      tags:
+        - change-data-capture-events-batches
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/events-list"
+                  - $ref: "#/components/schemas/import-response"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/server-error-response"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/server-error-response"
+components:
+  schemas :
+    events-list:
+      title: Events List
+      description: Payload to import a batch of event items, each defining event metadata or the response of Export events
+      type: object
+      properties:
+        batch:
+          type: object
+          title: Batch
+          description: Contains a collection of event items to process.
+          properties:
+            items:
+              type: array
+              description: List of event items in the batch.
+              items:
+                type: object
+                title: EventItem
+                properties:
+                  effectiveDate:
+                    type: string
+                    title: "Effective Date"
+                    description: "The date when the event becomes effective."
+                    example: "07/19/2022"
+                  createdDate:
+                    type: string
+                    title: "Created Date"
+                    description: "The date when the event was created."
+                    example: "02/06/2024"
+                  expirationDate:
+                    type: string
+                    title: "Expiration Date"
+                    description: "The date when the event expires."
+                    example: "06/22/2027"
+                  modifiedDate:
+                    type: string
+                    title: "Modified Date"
+                    description: "The date when the event was last modified."
+                    example: "04/08/2025"
+                  status:
+                    type: string
+                    title: "Status"
+                    description: "The status of the event."
+                    example: "Enabled"
+                  name:
+                    type: string
+                    title: "Event Name"
+                    description: "The unique name of the event."
+                    example: "Test.Event"
+                  type:
+                    type: string
+                    title: "Event Type"
+                    description: "The classification of the event."
+                    example: "Regular Event"
+                  description:
+                    type: string
+                    title: "Event Description"
+                    description: "A description providing details about the event."
+                    example: "Test update column name."
+                  messageFormat:
+                    type: string
+                    title: "Message Format"
+                    description: "The format in which the message is published."
+                    example: "JSON"
+                  integrationType:
+                    type: integer
+                    title: "Integration Type"
+                    description: "Represents the integration type for the event."
+                    example: 1
+                  messagingProtocol:
+                    type: string
+                    title: "Messaging Protocol"
+                    description: "Protocol used for messaging."
+                    example: "AMQP/JMS"
+                  eventOrigin:
+                    type: string
+                    title: "Event Origin"
+                    description: "Indicates the source of the event."
+                    example: "CUSTOM"
+                  captureData:
+                    type: array
+                    title: "Capture Data"
+                    description: "List of database tables and columns being monitored for this event."
+                    items:
+                      type: object
+                      properties:
+                        tableName:
+                          type: string
+                          title: "Table Name"
+                          description: "Name of the table involved."
+                          example: "STVTERM"
+                        tableOwner:
+                          type: string
+                          title: "Table Owner"
+                          description: "Owner of the table."
+                          example: "SATURN"
+                        referenceColumn:
+                          type: object
+                          title: "Reference Column"
+                          description: "Primary column used to reference records."
+                          properties:
+                            columnName:
+                              type: string
+                              title: "Column Name"
+                              description: "Name of the reference column."
+                              example: "STVTERM_GUID"
+                            columnDataType:
+                              type: integer
+                              title: "Column Data Type"
+                              description: "Data type code of the reference column."
+                              example: 12
+                        captureColumns:
+                          type: array
+                          title: "Capture Columns"
+                          description: "Columns monitored for changes."
+                          items:
+                            type: object
+                            properties:
+                              columnName:
+                                type: string
+                                title: "Column Name"
+                                description: "Name of the captured column."
+                                example: "STVTERM_CODE"
+                              columnDataType:
+                                type: integer
+                                title: "Column Data Type"
+                                description: "Data type code of the captured column."
+                                example: 12
+                  additionalData:
+                    type: array
+                    title: "Additional Data"
+                    description: "Optional additional database columns for the event."
+                    items:
+                      type: object
+                      properties:
+                        tableName:
+                          type: string
+                          title: "Table Name"
+                          description: "Name of the additional table."
+                          example: "STVTERM"
+                        tableOwner:
+                          type: string
+                          title: "Table Owner"
+                          description: "Owner of the additional table."
+                          example: "SATURN"
+                        userDefinedCondition:
+                          type: string
+                          title: "User Defined Condition"
+                          description: "Custom condition defined by the user."
+                          example: ""
+                        referenceColumn:
+                          type: object
+                          title: "Reference Column"
+                          description: "Primary column for this additional data table."
+                          properties:
+                            columnName:
+                              type: string
+                              title: "Column Name"
+                              description: "Name of the reference column."
+                              example: "STVTERM_GUID"
+                            columnDataType:
+                              type: integer
+                              title: "Column Data Type"
+                              description: "Data type code."
+                              example: 12
+                        additionalColumns:
+                          type: array
+                          title: "Additional Columns"
+                          description: "Additional columns to capture."
+                          items:
+                            type: object
+                            properties:
+                              columnName:
+                                type: string
+                                title: "Column Name"
+                                description: "Name of the additional column."
+                                example: "STVTERM_ACTIVITY_DATE"
+                              columnDataType:
+                                type: integer
+                                title: "Column Data Type"
+                                description: "Data type code."
+                                example: 93
+                  publishRules:
+                    type: array
+                    title: "Publish Rules"
+                    description: "Set of rules for publishing the event."
+                    items:
+                      type: object
+                      properties:
+                        keyColumn:
+                          type: object
+                          title: "Key Column"
+                          description: "The key column involved in the publish rule."
+                          properties:
+                            columnName:
+                              type: string
+                              title: "Column Name"
+                              description: "Name of the key column."
+                              example: "STVTERM_FA_END_PERIOD"
+                            columnDataType:
+                              type: integer
+                              title: "Column Data Type"
+                              description: "Data type code."
+                              example: 2
+                        value:
+                          type: string
+                          title: "Value"
+                          description: "Value used for evaluation in the rule."
+                          example: ""
+                        operator:
+                          type: string
+                          title: "Operator"
+                          description: "Comparison operator used in the rule."
+                          example: "IS_NULL"
+                        userDefinedCondition:
+                          type: string
+                          title: "User Defined Condition"
+                          description: "Custom condition string."
+                          example: ""
+                        logicOperation:
+                          type: string
+                          title: "Logic Operation"
+                          description: "Logical operation used to chain rules."
+                          example: "OR"
+                        insertInd:
+                          type: string
+                          title: "Insert Indicator"
+                          description: "Whether insert operations are monitored."
+                          example: "Enabled"
+                        updateInd:
+                          type: string
+                          title: "Update Indicator"
+                          description: "Whether update operations are monitored."
+                          example: "Disabled"
+                        deleteInd:
+                          type: string
+                          title: "Delete Indicator"
+                          description: "Whether delete operations are monitored."
+                          example: "Enabled"
+    export-criteria:
+      title: Export Criteria
+      description: Payload to filter events to be exported based on eventName, eventPrefix, or results.
+      type: object
+      properties:
+        criteria:
+          type: object
+          description: Criteria to filter events.
+          properties:
+            eventName:
+              type: string
+              description: Name of a specific event to filter.
+              example: "TEST.EVENT"
+            eventPrefix:
+              type: string
+              description: Prefix of event names to filter matching events.
+              example: "EEDM"
+            results:
+              type: string
+              description: Set to "all" to fetch all events.
+              enum:
+                - all
+          oneOf:
+            - required: [eventName]
+            - required: [eventPrefix]
+            - required: [results]
+    import-response:
+      title: Import Response
+      description: Response received on a successful import.
+      type: array
+      items:
+        type: object
+        properties:
+          Status:
+            type: object
+            properties:
+              Message:
+                type: string
+                example: "Business event metadata imported successfully"
+    server-error-response:
+      title: Error Response
+      description: Standard API error response returned when a request fails validation or encounters an error.
+      type: object
+      properties:
+        errors:
+          type: array
+          title: Errors
+          description: List containing one or more error detail objects.
+          items:
+            type: object
+            title: ErrorItem
+            description: Detailed information about a specific error that occurred.
+            properties:
+              type:
+                type: string
+                title: ErrorType
+                description: The type or category of the error.
+                example: "validation"
+              messageCode:
+                type: string
+                title: MessageCode
+                description: Unique code identifying the type of error.
+                example: "invalid.parameter"
+              message:
+                type: string
+                title: ErrorMessage
+                description: Human-readable explanation of the error.
+                example: "Invalid parameter: eventNaame. Export failed"
+              errorProperties:
+                type: object
+                title: ErrorProperties
+                nullable: true
+                description: Optional additional details for debugging or troubleshooting.
+                example: null

@@ -1,0 +1,198 @@
+openapi: 3.0.0
+info:
+  title: External Admissions Application Decision Statuses
+  description: >
+    This POST API creates the decision status for each decision applied, where
+    the request body is the payload from the dfe-admission-decision-api.
+  version: 1.0.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Recruitment
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/external-admissions-application-decision-statuses:
+    post:
+      summary: Create a new resource in SARSADE table
+      description: |
+        
+        Creates a new record in SARSADE table for each decision guid
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_DFE_DECISION_STATUSES
+      tags:
+        - External Admissions Application Decision Statuses
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-external-admissions-application-decision-sta\
+                  tuses.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-external-admissions-application-decision-sta\
+                tuses.json"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-external-admissions-application-decision-statuses.json:
+      title: External Admissions Application Decision Statuses
+      description: Status of the decisions made on the Applications
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        admissionDecision:
+          title: Admission Decision
+          description: Decisions made on admission applications.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Admission Decision.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          additionalProperties: false
+          required:
+            - id
+        dfeApplicationId:
+          title: Dfe Application Id
+          description: The unique DfE ID of the application on which this decision was made.
+          type: string
+        status:
+          title: Status
+          description: Status of the decision
+          enum:
+            - Success
+            - Failure
+          type: string
+        jobRunId:
+          title: Job Run Id
+          description: Correlation id of the job run
+          type: string
+        errorDetail:
+          title: Error Detail
+          description: Details of the Error occurred
+          type: string
+        errorDescription:
+          title: Error Description
+          description: Description of the error occurred
+          type: string
+        responseCode:
+          title: Response Code
+          description: Response code received while sending information to 3rd Party
+          type: string
+        jobRunDate:
+          title: Job Run Date
+          description: Pipeline Job run date and time
+          type: string
+          format: date-time
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+      required:
+        - admissionDecision
+        - status
+        - jobRunId
+      additionalProperties: false

@@ -1,0 +1,1087 @@
+openapi: 3.0.0
+info:
+  title: Employee Deductions
+  description: >
+    This API can be used to retrieve employee base deduction records, update existing base deduction data or
+    create new deduction records with both base (PDRBDED) and detail (PDRDEDN) data.
+    This information is displayed in the Banner administrative page PDADEDN.
+    Additionally, the API supports the option to create or update employee deductions data in batches.
+  version: 1.0.0-beta
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: PDRBDED
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/employee-deductions:
+    get:
+      summary: Get base employee deduction records.
+      description: Query and retrieve base employee deduction data for a given criteria. Data is extracted from PDRBDED.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EMP_DEDUCTIONS
+      tags:
+        - employee-deductions
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: string            
+        - name: criteria
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/employee-deductions-1.0.0_get_request_criteria'
+          description: >
+            ### Person ID
+            
+            Returns the employee deduction information for this Person ID.  This filter should not be used if a Banner ID filter is used.
+            
+            ```
+
+            /employee-deductions?criteria={"personId": "085df706-ee15-4947-93f8-8c260e64795e"}
+
+            ```
+
+            ### Banner ID
+            
+            Returns the employee deduction information for this Banner ID.   This filter should not be used if a Person ID filter is used.
+            
+            ```
+
+            /employee-deductions?criteria={bannerId":"123456789"}
+            
+            ```
+
+            ### BenefitDeductionCode
+
+            Returns the employee deduction information for this Deduction.
+
+            ```
+
+            /employee-deductions?criteria={"benefitDeductionCode":"LIF"}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object 
+                $ref: "#/components/schemas/schema-extension-employee-deductions.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ErrorsObj"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+          
+  /api/employee-deductions/{id}:
+    get:
+      summary: Get base employee deduction record by GUID.
+      description: Returns a single base employee deduction record with the requested global identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EMP_DEDUCTIONS
+      tags:
+        - employee-deductions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the employee deduction resource.
+          schema:
+            type: string
+            minimum: 1
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object 
+                $ref: "#/components/schemas/schema-extension-employee-deductions.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ErrorsObj"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+ 
+    put:
+      summary: Updates an existing PDRBDED resource.
+      description: Update the base employee deduction resource for an employee.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EMP_DEDUCTIONS
+      tags:
+        - employee-deductions
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json 
+
+            ```
+        
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the employee deduction resource.
+          schema:
+            type: string
+            minimum: 1
+            
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-extension-employee-deductions.json"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ErrorsObj"
+          
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/schema-extension-employee-deductions-put-request.json"
+      
+  /api/employee-deductions/:
+    post:
+      summary: Creates a new resource in PDRBDED.
+      description: >
+        Creates a new deduction for an employee including data for PDRBDED (base), and PDRDEDN (detail) resources.
+      
+
+
+        POST requests must include a nil GUID value
+        ("00000000-0000-0000-0000-000000000000") for the root id property.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EMP_DEDUCTIONS
+      tags:
+        - employee-deductions
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json 
+
+            ```
+        
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-extension-employee-deductions.json"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ErrorsObj"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/schema-extension-employee-deductions-post-request.json"
+  /api/employee-deductions/batches:
+    post:
+      summary: Submit a batch of employee deductions to be created or updated
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EMP_DEDUCTIONS
+      tags:
+        - employee-deductions
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json 
+
+            ```
+        
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-extension-employee-batch-deductions.json"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ErrorsObj"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/employee-deductions-batch-1.0.0_post_request"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    employee-deductions-batch-1.0.0_post_request:
+     type: object
+     properties:
+        items:
+          title: items
+          description: List of items to be processed.
+          type: array
+          items:
+            type: object
+            oneOf:
+              - $ref: "#/components/schemas/schema-extension-employee-deductions-post-request.json"
+              - $ref: "#/components/schemas/schema-extension-employee-deductions-put-batch-request.json"
+     required:
+        - items
+    person:
+      title: Person
+      description: A reference to link an employee deduction to the common persons entity.
+      type: object
+      properties:
+        id:
+          title: ID
+          description: The global identifier for the Person.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageLookupReferenceObject: persons 
+          x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+          x-lineageDerivedLogic: A record from GORGUID where GORGUID_LDM_NAME = 'persons' and GORGUID_DOMAIN_KEY matches the PIDM value
+    employee-deductions-1.0.0_get_request_criteria:
+      type: object
+      properties:
+        personId:
+          title: Person ID
+          description: The global identifier for the Person.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageLookupReferenceObject: persons 
+          x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+          x-lineageDerivedLogic: A record from GORGUID where GORGUID_LDM_NAME = 'persons' and GORGUID_DOMAIN_KEY matches the PIDM value 
+        bannerId:
+          title: Banner ID
+          description: Banner ID of the employee.
+          type: string
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: "123456789"      
+        benefitDeductionCode:
+          title: BENEFIT/DEDUCTION CODE
+          description:  The code assigned to the benefit/deduction.
+          type: string
+          example: LIF
+          maxLength: 3
+          x-LineageReferenceObject:  PDRBDED_BDCA_CODE
+    schema-extension-employee-deductions.json:
+      title: employee-deductions-1.0.0_response
+      description: Returns Deductions information. Null values are not shown
+      type: object
+      properties:
+      
+        id:
+          title: Id
+          type: string
+          maxLength: 19
+          description: "The global identifier of the employee deduction."
+          x-lineageReferenceObject: PDRBDED_GUID
+          example: 085df706-ee15-4947-93f8-8c260e64795e
+        bannerId:
+          title: Banner ID
+          description: Banner ID (PIDM Identifier).
+          type: string
+          example: HOP510001
+          x-LineageReferenceObject: SPRIDEN_ID
+          maxLength: 9
+        benefitDeductionCode:
+          title: BENEFIT/DEDUCTION CODE
+          description:  The code assigned to the benefit/deduction.
+          type: string
+          example: LIF
+          maxLength: 3
+          x-LineageReferenceObject:  PDRBDED_BDCA_CODE
+        addOrReplaceAmount:
+          title: ADD/REPLACE INDICATOR
+          description: >
+             IRIndicates whether the amount is to be added to the employees normal deduction or replaces the employees normal. Valid values are:
+              * `add`
+              * `replace` 
+          type: string
+          enum:
+            - add
+            - replace
+          example: replace
+          x-LineageReferenceObject: PDRBDED_ADD_REPL_IND
+        
+        addReplaceEmployee:
+          title: ADD/REPLACE EMPLOYEE
+          description: The employe amount to either add to the normal deduction or replace the normal deduction.
+          type: number
+          format: float
+          example: 1.1
+          x-LineageReferenceObject: PDRBDED_ADD_REPL_EMPL
+        
+        addReplaceEmployer:
+          title: ADD/REPLACE EMPLOYER
+          description: The employer amount to either add to the normal deduction or replace the normal deduction.
+          type: number
+          format: float
+          example: 1.1
+          x-LineageReferenceObject: PDRBDED_ADD_REPL_EMPR
+          
+        addReplaceTaxBase:
+          title: APPLICABLE GROSS
+          description: The applicable gross to be used with the add/replace amount.
+          type: number
+          format: float
+          example: 1.1
+          x-LineageReferenceObject: PDRBDED_ADD_REPL_TAX_BASE
+        
+        hasArrears:
+          title: ARREARS STATUS
+          description: The status of the arrears.
+          type: boolean
+          example: true
+          x-LineageReferenceObject: PDRBDED_ARR_STATUS
+        
+        arrearsBalance:
+          title: ARREARS BALANCE
+          description: The arrears balance due the employer.
+          type: number
+          format: float
+          example: 3
+          x-LineageReferenceObject: PDRBDED_ARR_BALANCE
+          
+        bondBalance:
+          title: BOND BALANCE
+          description:  If the deduction is for savings bonds this field contains the balance available toward the purchase of a bond.
+          type: number
+          format: float
+          example: 1.1
+          x-LineageReferenceObject: PDRBDED_BOND_BALANCE
+        
+        startOn:
+          title: BENEFIT/DEDUCTION BEGIN DATE
+          description:  The date the benefit/deduction begins.
+          type: string
+          format: date-time
+          example: 2019-12-29
+          x-LineageReferenceObject: PDRBDED_BEGIN_DATE
+          
+          
+        endOn:
+          title: BENEFIT/DEDUCTION END DATE
+          description: The date the benefit/deduction ends.
+          type: string
+          format: date-time
+          example: 2020-01-11
+          x-LineageReferenceObject: PDRBDED_END_DATE
+          
+        arrearsRecoverMax:
+          title: MAXIMUM ARREARS RECOVERY
+          description:  The maximum amount of arrears allowed to be recovered in a pay event.
+          type: number
+          format: float
+          example: 1.1
+          x-LineageReferenceObject: PDRBDED_ARR_RECOVER_MAX
+        
+        addReplacePictCode:
+          title: PAY ID
+          description: The Payroll ID where this benefit/deduction override should be applied.
+          type: string
+          example: XM
+          maxLength: 2
+          x-LineageReferenceObject: PDRBDED_ADD_REPL_PICT_CODE
+          
+        activityOn:
+          title: ACTIVITY DATE
+          description: Date when the record was inserted or last modified.
+          type: string
+          format: date-time
+          example: 2019-12-29
+          maxLength: 2
+          x-LineageReferenceObject: PDRDEDN_ACTIVITY_DATE
+          
+        person:
+          $ref: '#/components/schemas/person'
+          
+    schema-extension-employee-batch-deductions.json:
+      description: >
+        Returns the list of Ids for those employee deductions that were successfully created.
+        For those that did not, it returns the list of error messages.
+      type: object
+      x-last-modified:
+      properties:
+        id:
+          title: ID
+          description: A globally unique identifier of a batch to be used in all external references.
+          type: string
+          example: 085df706-ee15-4947-93f8-8c260e64795e
+        status:
+          title: status
+          description: status of the batch.
+          type: string
+          enum:
+            - completed
+            - inProgress
+            - aborted
+          example: completed
+        resource:
+          title: Resource
+          description: The affected resource.
+          type: object
+          properties:
+            name:
+              title: Resource Name
+              description: The pluralized name of the affected resource
+              type: string
+              example: employee-deductions
+            version:
+              title: Resource version
+              description: The version of the resource
+              type: string
+              example: 2.0.0
+          additionalProperties: false
+          required:
+            - name
+            - version
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+            oneOf:
+              -  $ref: "#/components/schemas/schema-extension-employee-deductions.json"
+              -  $ref: '#/components/schemas/errors_2_0_0'
+            required:
+              - items
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+        
+    schema-extension-employee-deductions-put-request.json:
+      title: employee-deductions-1.0.0-put-request
+      type: object
+      properties:
+      
+        addOrReplaceAmount:
+          title: ADD/REPLACE INDICATOR
+          description: >
+             IRIndicates whether the amount is to be added to the employees normal deduction or replaces the employees normal. Valid values are:
+              * `add`
+              * `replace` 
+          type: string
+          enum:
+            - add
+            - replace
+          example: replace
+          x-LineageReferenceObject: PDRBDED_ADD_REPL_IND
+        
+        addReplaceEmployee:
+          title: ADD/REPLACE EMPLOYEE
+          description: The employe amount to either add to the normal deduction or replace the normal deduction.
+          type: number
+          format: float
+          example: 1.1
+          x-LineageReferenceObject: PDRBDED_ADD_REPL_EMPL
+        
+        addReplaceEmployer:
+          title: ADD/REPLACE EMPLOYER
+          description: The employer amount to either add to the normal deduction or replace the normal deduction.
+          type: number
+          format: float
+          example: 1.1
+          x-LineageReferenceObject: PDRBDED_ADD_REPL_EMPR
+          
+        addReplaceTaxBase:
+          title: APPLICABLE GROSS
+          description: The applicable gross to be used with the add/replace amount.
+          type: number
+          format: float
+          example: 1.1
+          x-LineageReferenceObject: PDRBDED_ADD_REPL_TAX_BASE
+        
+        hasArrears:
+          title: ARREARS STATUS
+          description: The status of the arrears.
+          type: boolean
+          example: true
+          x-LineageReferenceObject: PDRBDED_ARR_STATUS
+        
+        arrearsBalance:
+          title: ARREARS BALANCE
+          description: The arrears balance due the employer.
+          type: number
+          format: float
+          example: 3
+          x-LineageReferenceObject: PDRBDED_ARR_BALANCE
+          
+        bondBalance:
+          title: BOND BALANCE
+          description:  If the deduction is for savings bonds this field contains the balance available toward the purchase of a bond.
+          type: number
+          format: float
+          example: 1.1
+          x-LineageReferenceObject: PDRBDED_BOND_BALANCE
+          
+        arrearsRecoverMax:
+          title: MAXIMUM ARREARS RECOVERY
+          description:  The maximum amount of arrears allowed to be recovered in a pay event.
+          type: number
+          format: float
+          example: 1.1
+          x-LineageReferenceObject: PDRBDED_ARR_RECOVER_MAX
+        
+        addReplacePictCode:
+          title: PAY ID
+          description: The Payroll ID where this benefit/deduction override should be applied.
+          type: string
+          example: XM
+          maxLength: 2
+          x-LineageReferenceObject: PDRBDED_ADD_REPL_PICT_CODE
+          
+            
+      required:
+        - id
+      additionalProperties: false
+      
+    schema-extension-employee-deductions-put-batch-request.json:
+      title: employee-deductions-1.0.0-put-request
+      type: object
+      properties:
+        id:
+          title: Id
+          type: string
+          maxLength: 19
+          description: "The global identifier of the employee deduction."
+          x-lineageReferenceObject: PDRBDED_GUID
+          example: 085df706-ee15-4947-93f8-8c260e64795e
+      
+        addOrReplaceAmount:
+          title: ADD/REPLACE INDICATOR
+          description: >
+             IRIndicates whether the amount is to be added to the employees normal deduction or replaces the employees normal. Valid values are:
+              * `add`
+              * `replace` 
+          type: string
+          enum:
+            - add
+            - replace
+          example: replace
+          x-LineageReferenceObject: PDRBDED_ADD_REPL_IND
+        
+        addReplaceEmployee:
+          title: ADD/REPLACE EMPLOYEE
+          description: The employe amount to either add to the normal deduction or replace the normal deduction.
+          type: number
+          format: float
+          example: 1.1
+          x-LineageReferenceObject: PDRBDED_ADD_REPL_EMPL
+        
+        addReplaceEmployer:
+          title: ADD/REPLACE EMPLOYER
+          description: The employer amount to either add to the normal deduction or replace the normal deduction.
+          type: number
+          format: float
+          example: 1.1
+          x-LineageReferenceObject: PDRBDED_ADD_REPL_EMPR
+          
+        addReplaceTaxBase:
+          title: APPLICABLE GROSS
+          description: The applicable gross to be used with the add/replace amount.
+          type: number
+          format: float
+          example: 1.1
+          x-LineageReferenceObject: PDRBDED_ADD_REPL_TAX_BASE
+        
+        hasArrears:
+          title: ARREARS STATUS
+          description: The status of the arrears.
+          type: boolean
+          example: true
+          x-LineageReferenceObject: PDRBDED_ARR_STATUS
+        
+        arrearsBalance:
+          title: ARREARS BALANCE
+          description: The arrears balance due the employer.
+          type: number
+          format: float
+          example: 3
+          x-LineageReferenceObject: PDRBDED_ARR_BALANCE
+          
+        bondBalance:
+          title: BOND BALANCE
+          description:  If the deduction is for savings bonds this field contains the balance available toward the purchase of a bond.
+          type: number
+          format: float
+          example: 1.1
+          x-LineageReferenceObject: PDRBDED_BOND_BALANCE
+        
+        startOn:
+          title: BENEFIT/DEDUCTION BEGIN DATE
+          description:  The date the benefit/deduction begins.
+          type: string
+          format: date-time
+          example: 2019-12-29
+          x-LineageReferenceObject: PDRBDED_BEGIN_DATE
+          
+        arrearsRecoverMax:
+          title: MAXIMUM ARREARS RECOVERY
+          description:  The maximum amount of arrears allowed to be recovered in a pay event.
+          type: number
+          format: float
+          example: 1.1
+          x-LineageReferenceObject: PDRBDED_ARR_RECOVER_MAX
+        
+        addReplacePictCode:
+          title: PAY ID
+          description: The Payroll ID where this benefit/deduction override should be applied.
+          type: string
+          example: XM
+          maxLength: 2
+          x-LineageReferenceObject: PDRBDED_ADD_REPL_PICT_CODE
+          
+            
+      required:
+        - id
+      additionalProperties: false
+    schema-extension-employee-deductions-post-request.json:
+      title: employee-deductions-1.0.0-post-request
+      type: object
+      properties:
+        id:
+          title: Id
+          type: string
+          maxLength: 19
+          description: "The global identifier of the employee deduction."
+          x-lineageReferenceObject: PDRBDED_GUID
+          example: 00000000-0000-0000-0000-000000000000
+        bannerId:
+          title: Banner ID
+          description: Banner ID (PIDM Identifier).
+          type: string
+          example: HOP510001
+          x-LineageReferenceObject: SPRIDEN_ID
+          maxLength: 9
+        benefitDeductionCode:
+          title: BENEFIT/DEDUCTION CODE
+          description:  The code assigned to the benefit/deduction.
+          type: string
+          example: LIF
+          maxLength: 3
+          x-LineageReferenceObject:  PDRBDED_BDCA_CODE
+        
+        addOrReplaceAmount:
+          title: ADD/REPLACE INDICATOR
+          description: >
+             IRIndicates whether the amount is to be added to the employees normal deduction or replaces the employees normal. Valid values are:
+              * `add`
+              * `replace` 
+          type: string
+          enum:
+            - add
+            - replace
+          example: replace
+          x-LineageReferenceObject: PDRBDED_ADD_REPL_IND
+        
+        addReplaceEmployee:
+          title: ADD/REPLACE EMPLOYEE
+          description: The employe amount to either add to the normal deduction or replace the normal deduction.
+          type: number
+          format: float
+          example: 1.1
+          x-LineageReferenceObject: PDRBDED_ADD_REPL_EMPL
+        
+        addReplaceEmployer:
+          title: ADD/REPLACE EMPLOYER
+          description: The employer amount to either add to the normal deduction or replace the normal deduction.
+          type: number
+          format: float
+          example: 1.1
+          x-LineageReferenceObject: PDRBDED_ADD_REPL_EMPR
+          
+        addReplaceTaxBase:
+          title: APPLICABLE GROSS
+          description: The applicable gross to be used with the add/replace amount.
+          type: number
+          format: float
+          example: 1.1
+          x-LineageReferenceObject: PDRBDED_ADD_REPL_TAX_BASE
+        
+        hasArrears:
+          title: ARREARS STATUS
+          description: The status of the arrears.
+          type: boolean
+          example: true
+          x-LineageReferenceObject: PDRBDED_ARR_STATUS
+        
+        arrearsBalance:
+          title: ARREARS BALANCE
+          description: The arrears balance due the employer.
+          type: number
+          format: float
+          example: 3
+          x-LineageReferenceObject: PDRBDED_ARR_BALANCE
+          
+        bondBalance:
+          title: BOND BALANCE
+          description:  If the deduction is for savings bonds this field contains the balance available toward the purchase of a bond.
+          type: number
+          format: float
+          example: 1.1
+          x-LineageReferenceObject: PDRBDED_BOND_BALANCE
+        
+        startOn:
+          title: BENEFIT/DEDUCTION BEGIN DATE
+          description:  The date the benefit/deduction begins.
+          type: string
+          format: date-time
+          example: 2019-12-29
+          x-LineageReferenceObject: PDRBDED_BEGIN_DATE
+          
+        arrearsRecoverMax:
+          title: MAXIMUM ARREARS RECOVERY
+          description:  The maximum amount of arrears allowed to be recovered in a pay event.
+          type: number
+          format: float
+          example: 1.1
+          x-LineageReferenceObject: PDRBDED_ARR_RECOVER_MAX
+        
+        addReplacePictCode:
+          title: PAY ID
+          description: The Payroll ID where this benefit/deduction override should be applied.
+          type: string
+          example: XM
+          maxLength: 2
+          x-LineageReferenceObject: PDRBDED_ADD_REPL_PICT_CODE
+          
+        amount1:
+          title: Amount 1
+          description: The first amount field for the benefit/deduction.
+          type: number
+          format: float
+          example: 100.50
+          x-LineageReferenceObject: PDRDEDN_AMOUNT1
+        
+        amount2:
+          title: Amount 2
+          description: The second amount field for the benefit/deduction.
+          type: number
+          format: float
+          example: 150.75
+          x-LineageReferenceObject: PDRDEDN_AMOUNT2
+        
+        amount3:
+          title: Amount 3
+          description: The third amount field for the benefit/deduction.
+          type: number
+          format: float
+          example: 75.25
+          x-LineageReferenceObject: PDRDEDN_AMOUNT3
+        
+        amount4:
+          title: Amount 4
+          description: The fourth amount field for the benefit/deduction.
+          type: number
+          format: float
+          example: 200.00
+          x-LineageReferenceObject: PDRDEDN_AMOUNT4
+        
+        amount5:
+          title: Amount 5
+          description: The fifth amount field for the benefit/deduction.
+          type: number
+          format: float
+          example: 250.00
+          x-LineageReferenceObject: PDRDEDN_AMOUNT5
+        
+        amount6:
+          title: Amount 6
+          description: The sixth amount field for the benefit/deduction.
+          type: number
+          format: float
+          example: 300.00
+          x-LineageReferenceObject: PDRDEDN_AMOUNT6
+        
+        amount7:
+          title: Amount 7
+          description: The seventh amount field for the benefit/deduction.
+          type: number
+          format: float
+          example: 350.00
+          x-LineageReferenceObject: PDRDEDN_AMOUNT7
+        
+        optionCode1:
+          title: Option Code 1
+          description: The first option code for the benefit/deduction code.
+          type: string
+          example: RE
+          maxLength: 2
+          x-LineageReferenceObject: PDRDEDN_OPT_CODE1
+        
+        optionCode2:
+          title: Option Code 2
+          description: The second option code for the benefit/deduction code.
+          type: string
+          example: RE
+          maxLength: 2
+          x-LineageReferenceObject: PDRDEDN_OPT_CODE2
+        
+        optionCode3:
+          title: Option Code 3
+          description: The third option code for the benefit/deduction code.
+          type: string
+          example: RE
+          maxLength: 2
+          x-LineageReferenceObject: PDRDEDN_OPT_CODE3
+        
+        optionCode4:
+          title: Option Code 4
+          description: The fourth option code for the benefit/deduction code.
+          type: string
+          example: RE
+          maxLength: 2
+          x-LineageReferenceObject: PDRDEDN_OPT_CODE4
+        
+        optionCode5:
+          title: Option Code 5
+          description: The fifth option code for the benefit/deduction code.
+          type: string
+          example: RE
+          maxLength: 2
+          x-LineageReferenceObject: PDRDEDN_OPT_CODE5
+ 
+      required:
+        - id
+      additionalProperties: false
+    ErrorsObj:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        message:
+          type: string

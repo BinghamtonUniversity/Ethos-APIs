@@ -1,0 +1,856 @@
+openapi: 3.0.0
+info:
+  title: Ledger Activities
+  description: The detailed activity that is posted against the ledger.
+  version: 11.1.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Finance
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/ledger-activities:
+    get:
+      summary: Return all resources from FGBTRND and FGRBAKO
+      description: >
+        Returns all posted and unposted transactions in Banner so that external
+        systems can consume these activities for reporting, to build ledgers,
+        different statements. Operating and general ledger transactions are
+        retrieved from FGBTRND table and unposted transactions are retrieved
+        from FGRBAKO table.
+
+
+        ### Paginated Load
+          - If the offset is not provided OR offset = ‘0’, the API returns the records for current fiscal year with count information.
+          - If any other offset other than ‘0’ is provided, the API does not return the count information.
+          - Only operating and general ledger transactions from FGBTRND are displayed.
+          - If the API configuration setting LEDGER.EXCLUDE_CONTROL_ACCT = Y, the API will exclude the posted (FGBTRND) transactions that have control accounts associated i.e. internal account type = 30.
+          - This API references ‘accounting-string-component-values v15 API’ for accounting string component value GUIDs. 
+          - Records with FGBTRND_LEDGER_IND = E are excluded
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_LEDGER_ACTIVITIES
+      tags:
+        - ledger-activities
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Period  
+
+            Filter by fiscal period.
+
+            ```
+
+            /ledger-activities?criteria={"fiscalPeriod":{"id":"a32c8e4d-a989-495b-a471-102bbd72d971"}}
+
+            ```
+
+            ### Reporting Segment  
+
+            Filter by reporting segment.
+
+            ```
+
+            /ledger-activities?criteria={"reportingSegment":"B"}
+
+            ```
+
+            ### Transaction Date  
+
+            Filter by transaction date.
+
+            ```
+
+            /ledger-activities?criteria={"transactionDate":"2020-07-20"}
+
+            ```
+
+            ### Fiscal Year 
+
+            Filter by fiscal year.
+
+            ```
+
+            /ledger-activities?criteria={"fiscalYear":"a1f7d059-82f7-4ce4-b9cf-e622c651b451"}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-ledger-activities.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11.1.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/ledger-activities/{id}:
+    get:
+      summary: Return the requested resource
+      description: Return the one resource with the passed in identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_LEDGER_ACTIVITIES
+      tags:
+        - ledger-activities
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Ledger Activities for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v11.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-ledger-activities.json"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /qapi/ledger-activities: 
+    post:
+      summary: Return all resources from FGBTRND and FGRBAKO
+      description: >
+        Returns all posted and unposted transactions in Banner so that external
+        systems can consume these activities for reporting, to build ledgers,
+        different statements. Operating and general ledger transactions are
+        retrieved from FGBTRND table and unposted transactions are retrieved
+        from FGRBAKO table.
+
+          ### Bulk Load
+          - If you are loading the data using bulk load feature set up in Data Access, this API returns all posted and unposted transactions for last 5 fiscal years.
+          - Posted transactions from FGBTRND table of operating and general ledger type are displayed and unposted transactions from FGRBAKO are displayed.
+          - Records with FGBTRND_LEDGER_IND = E are excluded
+          - This API references ‘accounting-string-component-values v15 API’ for accounting string component value GUIDs.
+          - If the API configuration setting LEDGER.EXCLUDE_CONTROL_ACCT = Y, the API excludes posted (FGBTRND) transactions that have control accounts associated i.e., internal account type = 30.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_LEDGER_ACTIVITIES
+      tags:
+        - ledger-activities
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          schema:
+            type: string
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.bulk-requests.v1.0.0+json
+
+            ```
+        - name: content-type
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.bulk-requests.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v11+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-ledger-activities-v1.0.0_post_request.json"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-ledger-activities-v1.0.0_post_response.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11.1.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-ledger-activities.json:
+      title: Ledger Activities
+      description: The detailed activity that is posted against the ledger.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the ledger activity.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: FGBTRID_GUID(FGBTRID)
+        title:
+          title: Title
+          description: The full name of the ledger activity.
+          type: string
+          minLength: 1
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: If the the transaction is posted, display FGBTRNH_TRANS_DESC if FGBTRNH_TRANS_DESC is not null, else display default description from LEDGER.TITLE.DEFAULT setting. If the transaction is pending posting display the default description from LEDGER.TITLE.DEFAULT setting.
+        reportingSegment:
+          title: Reporting Segment
+          description: The reporting segment with which the ledger activity is associated
+            (e.g. chart, campus, institution, etc.).
+          type: string
+          minLength: 1
+          x-lineageReferenceObject: FGBTRND_COAS_CODE(FGBTRND) or  FGRBAKO_COAS_CODE(FGRBAKO)
+        ledgerType:
+          title: Ledger Type
+          description: The ledger type associated with the activity (general or operating).
+          oneOf:
+            - type: string
+              enum:
+                - general
+                - operating
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: If FGBTRND_LEDGER_IND = 'G', display as 'general'; If FGBTRND_LEDGER_IND = 'O', display as 'operating'
+            - type: string
+              maxLength: 0
+        ledgerCategory:
+          title: Ledger Category
+          description: The ledger category associated with the activity.
+          enum:
+            - originalBudget
+            - budgetAdjustment
+            - actuals
+            - encumbrance
+            - reservation
+            - accountedBudget
+            - temporaryBudget
+          type: string
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: Display 'originalBudget' WHEN FGRBAKO_ADOP_AMT <> 0, 'budgetAdjustment' WHEN FGRBAKO_ADJT_AMT <> 0, 'actuals' WHEN FGRBAKO_YTD_AMT <> 0, 'encumbrance' WHEN FGRBAKO_ENCB_AMT <> 0, 'reservation' WHEN FGRBAKO_RSRV_AMT <> 0. IF all AMTs = 0, FGRBAKO_DOC_TYPE field is used to derive the values. If FGRBAKO_DOC_TYPE = 1, display as 'reservation'. If FGRBAKO_DOC_TYPE = 2, 25 OR 90, display as 'encumbrance'. If FGRBAKO_DOC_TYPE = 3, 5, 8, 21, 60, 80, display as 'actuals'. If FGRBAKO_DOC_TYPE = something other than above, display as 'originalBudget'. If FGBTRND_LEDGER_IND = 'G', display as actuals; If FGBTRND_LEDGER_IND = 'O', AND If FGBTRND_FIELD_CODE = 01, display as originalBudget; If FGBTRND_FIELD_CODE = 02, display as budgetAdjustment; If FGBTRND_FIELD_CODE = 03, display as actuals; If FGBTRND_FIELD_CODE = 04, display as encumbrance; If FGBTRND_FIELD_CODE = 05, display as reservation; If FGBTRND_FIELD_CODE = 06, display as accountedBudget; If FGBTRND_FIELD_CODE = 07, display as temporaryBudget;
+        documentType:
+          title: Document Type
+          description: The type of financial document associated with the activity.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Document Type.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: financial-document-types 
+                  x-lineageReferenceObject: FGRBAKO_DOC_TYPE(FGRBAKO) or  FGBTRND_DOC_SEQ_CODE(FGBTRND)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        adjustmentType:
+          title: Adjustment Type
+          description: The type of adjustment (opening balance or year-end adjustment).
+          oneOf:
+            - type: string
+              enum:
+                - openingBalance
+                - yearEndAdjustment
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: For FGBTRND record, display openingBalance if FGBTRND_POSTING_PERIOD =00, Display yearEndAdjustment if FGBTRND_POSTING_PERIOD =14.  Adjustment types will not be displayed for posting periods other than 00 and 14. For FGRBAKO record, this property is not applicable.
+            - type: string
+              maxLength: 0
+        period:
+          title: Period
+          description: The fiscal period during which the activity is posted to the ledger.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Period.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: fiscal-periods 
+              x-lineageReferenceObject: FGRBAKO_FSPD_CODE(FGRBAKO) or FGBTRND_POSTING_PERIOD(FGBTRND)
+          additionalProperties: false
+          required:
+            - id
+        transactionDate:
+          title: Transaction Date
+          description: The date the activity is posted to the account in the ledger.
+          type: string
+          format: date
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: IF FGBTRND_FIELD_CODE IN ('01','02','07') AND FGBTRND_LEDGER_IND = 'O' AND FGBTRNH.FGBTRNH_BUDGET_PERIOD IS NOT NULL, then display FTVFSPD_PRD_START_DATE as transaction date where FTVFSPD_COAS_CODE=FGBTRND_COAS_CODE AND FTVFSPD_FSPD_CODE =FGBTRNH.FGBTRNH_BUDGET_PERIOD AND FTVFSPD_FSYR_CODE =FGBTRND.FGBTRND_FSYR_CODE otherwise display FGBTRNH_TRANS_DATE as transaction date.
+        enteredOn:
+          title: Entered On
+          description: The date the activity occurred.
+          type: string
+          format: date
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: FGBTRND_ACTIVITY_DATE(FGBTRND) or Display the fiscal period start from FTVFSPD WHERE FTVFSPD_COAS_CODE=FGRBAKO_COAS_CODE AND FTVFSPD_FSPD_CODE =FGRBAKO_FSPD_CODE AND FTVFSPD_FSYR_CODE =FGRBAKO_FSYR_CODE
+        accountingString:
+          title: Accounting String
+          description: The accounting string associated with the activity.
+          type: string
+          minLength: 1
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: Display the concatenated values of FGRBAKO_FUND_TRAN,FGRBAKO_ORGN_TRAN,FGRBAKO_ACCT_TRAN,FGRBAKO_PROG_TRAN,FGRBAKO_COAS_CODE -or- Display the concatented values of FGBTRND_ACCI_CODE,FGBTRND_FUND_CODE,FGBTRND_ORGN_CODE,FGBTRND_ACCT_CODE,FGBTRND_PROG_CODE,FGBTRND_ACTV_CODE,FGBTRND_LOCN_CODE,FGBTRND_RUCL_CODE,FGBTRND_PRJD_CODE,FGBTRNH_BANK_CODE,FGBTRND_COAS_CODE
+        accountingStringComponentValues:
+          title: Accounting String Component Values
+          description: The accounting string component values associated with the activity.
+          type: array
+          minItems: 1
+          items:
+            title: Accounting String Component Values
+            description: The accounting string component values associated with the
+              activity.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Accounting String Component Values.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: accounting-string-component-values
+            additionalProperties: false
+            required:
+              - id
+        referenceDocumentNumber:
+          title: Reference Document Number
+          description: The reference document number associated with the activity.
+          type: string
+          x-lineageReferenceObject: FGBTRND_DOC_CODE(FGBTRND) or  FGRBAKO_DOC_NUM(FGRBAKO)
+        reference:
+          title: Reference
+          description: The person, organization, or institution associated with the
+            activity.
+          oneOf:
+            - title: person
+              description: The person associated with the activity.
+              type: object
+              properties:
+                person:
+                  title: Person
+                  description: The person associated with the activity.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Person.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: persons 
+                      x-lineageReferenceObject: FGBTRNH_VENDOR_PIDM(FGBTRNH)
+                  additionalProperties: false
+                  required:
+                    - id
+              additionalProperties: false
+              required:
+                - person
+            - title: Organization
+              description: The organization associated with the activity.
+              type: object
+              properties:
+                organization:
+                  title: Organization
+                  description: The organization associated with the activity.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Organization.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: organizations 
+                      x-lineageReferenceObject: FGBTRNH_VENDOR_PIDM(FGBTRNH)
+                  additionalProperties: false
+                  required:
+                    - id
+              additionalProperties: false
+              required:
+                - organization
+            - title: Institution
+              description: The institution associated with the activity.
+              type: object
+              properties:
+                institution:
+                  title: Institution
+                  description: The institution associated with the activity.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Institution.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: educational-institutions 
+                      x-lineageReferenceObject: unsupported
+                  additionalProperties: false
+                  required:
+                    - id
+              additionalProperties: false
+              required:
+                - institution
+            - type: object
+              maxProperties: 0
+        type:
+          title: Type
+          description: The type of activity.
+          oneOf:
+            - type: string
+              enum:
+                - credit
+                - debit
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: If FGBTRND_LEDGER_IND = 'G' AND FGBTRND_FIELD_CODE ='01' AND FGBTRND_RUCL_CODE <>'J020', check FGBTRND_TRANS_AMT and if FGBTRND_TRANS_AMT < 0, display as 'credit', and if FGBTRND_TRANS_AMT >= 0, display as 'debit'; If FGBTRND_LEDGER_IND = 'G' AND FGBTRND_FIELD_CODE ='02' AND FGBTRND_RUCL_CODE <>'J020', check FGBTRND_TRANS_AMT and if FGBTRND_TRANS_AMT < 0 display as 'debit', and if FGBTRND_TRANS_AMT > 0, display as 'credit'.  ELSE If FGBTRND_LEDGER_IND = 'O' AND {FTVATYP_NORMAL_BAL from Level 1 ATYP} in ('D', '0') AND FGBTRND_RUCL_CODE <>'J020', check FGBTRND_TRANS_AMT and if FGBTRND_TRANS_AMT < 0, display as 'credit', and if FGBTRND_TRANS_AMT > 0, display 'debit'.  ELSE If FGBTRND_LEDGER_IND = 'O' AND {FTVATYP_NORMAL_BAL from Level 1 ATYP} ='C' AND FGBTRND_RUCL_CODE <>'J020', check FGBTRND_TRANS_AMT and if FGBTRND_TRANS_AMT < 0, display as 'debit', and if FGBTRND_TRANS_AMT > 0, display as 'credit'. ELSE If the value (FGRBAKO_ADOP_AMT+ FGRBAKO_ADJT_AMT+FGRBAKO_YTD_AMT+FGRBAKO_ENCB_AMT+FGRBAKO_RSRV_AMT)  is > 0 then display debit else credit.
+            - type: string
+              maxLength: 0
+        amount:
+          title: Amount
+          description: The amount associated with the activity.
+          format: currency
+          type: object
+          properties:
+            value:
+              title: Value
+              description: The monetary value
+              type: number
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: Sum of all amounts FGRBAKO_ADOP_AMT+ FGRBAKO_ADJT_AMT+FGRBAKO_YTD_AMT+FGRBAKO_ENCB_AMT+FGRBAKO_RSRV_AMT. OR  FGBTRND_TRANS_AMT(FGBTRND)
+            currency:
+              title: Currency
+              description: The ISO 4217 currency code
+              enum:
+                - AED
+                - AFN
+                - ALL
+                - AMD
+                - ANG
+                - AOA
+                - ARS
+                - AUD
+                - AWG
+                - AZN
+                - BAM
+                - BBD
+                - BDT
+                - BGN
+                - BHD
+                - BIF
+                - BMD
+                - BND
+                - BOB
+                - BRL
+                - BSD
+                - BTN
+                - BWP
+                - BYR
+                - BZD
+                - CAD
+                - CDF
+                - CHF
+                - CLP
+                - CNY
+                - COP
+                - CRC
+                - CUC
+                - CUP
+                - CVE
+                - CZK
+                - DJF
+                - DKK
+                - DOP
+                - DZD
+                - EGP
+                - ERN
+                - ETB
+                - EUR
+                - FJD
+                - FKP
+                - GBP
+                - GEL
+                - GHS
+                - GIP
+                - GMD
+                - GNF
+                - GTQ
+                - GYD
+                - HKD
+                - HNL
+                - HRK
+                - HTG
+                - HUF
+                - IDR
+                - ILS
+                - INR
+                - IQD
+                - IRR
+                - ISK
+                - JMD
+                - JOD
+                - JPY
+                - KES
+                - KGS
+                - KHR
+                - KMF
+                - KPW
+                - KRW
+                - KWD
+                - KYD
+                - KZT
+                - LAK
+                - LBP
+                - LKR
+                - LRD
+                - LSL
+                - LYD
+                - MAD
+                - MDL
+                - MGA
+                - MKD
+                - MMK
+                - MNT
+                - MOP
+                - MRO
+                - MUR
+                - MVR
+                - MWK
+                - MXN
+                - MYR
+                - MZN
+                - NAD
+                - NGN
+                - NIO
+                - NOK
+                - NPR
+                - NZD
+                - OMR
+                - PAB
+                - PEN
+                - PGK
+                - PHP
+                - PKR
+                - PLN
+                - PYG
+                - QAR
+                - RON
+                - RSD
+                - RUB
+                - RWF
+                - SAR
+                - SBD
+                - SCR
+                - SDG
+                - SEK
+                - SGD
+                - SHP
+                - SLL
+                - SOS
+                - SRD
+                - SSP
+                - STD
+                - SVC
+                - SYP
+                - SZL
+                - THB
+                - TJS
+                - TMT
+                - TND
+                - TOP
+                - TRY
+                - TTD
+                - TWD
+                - TZS
+                - UAH
+                - UGX
+                - USD
+                - UYU
+                - UZS
+                - VEF
+                - VND
+                - VUV
+                - WST
+                - XAF
+                - XCD
+                - XOF
+                - XPF
+                - YER
+                - ZAR
+                - ZMW
+                - ZWL
+              type: string
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: Display ISO code for GUBINST base currency
+          additionalProperties: false
+          required:
+            - value
+            - currency
+        status:
+          title: Status
+          description: The status associated with the activity (posted or pending posting).
+          oneOf:
+            - type: string
+              enum:
+                - posted
+                - pendingPosting
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: Display posted for FGBTRND records else display 'pendingPosting' for FGRBAKO records.
+            - type: string
+              maxLength: 0
+        billingStatus:
+          title: Billing Status
+          description: The billing status of the expenditure activity (billed or unbilled).
+          oneOf:
+            - type: string
+              enum:
+                - billed
+                - unbilled
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: Display 'billed' if FRRBDET_BILL_STATUS = B  Display 'unbilled' if FRRBDET_BILL_STATUS = U. Not supported for FGRBAKO records"
+            - type: string
+              maxLength: 0
+        grant:
+          title: Grant
+          description: The grant with which the activity is associated.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Grant.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: grants 
+                  x-lineageReferenceObject: FRBGRNT_GUID(FRBGRNT)
+                  x-lineageDerivedLogic: Display the FRBGRNT_GUID For the fund code GUID identified in accounting string component values property, FGRBAKO_FUND_TRAN = FTVFUND_FUND_CODE, check if the fund code has grant code (FTVFUND_GRNT_CODE) associated.  Display the FRBGRNT_GUID for the fund code GUID identified in accounting string component values property, FGBTRND_FUND_CODE = FTVFUND_FUND_CODE, check if the fund code has grant code (FTVFUND_GRNT_CODE) associated.
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+      required:
+        - id
+        - title
+        - reportingSegment
+        - ledgerCategory
+        - period
+        - transactionDate
+        - enteredOn
+        - accountingString
+        - accountingStringComponentValues
+        - amount
+      additionalProperties: false
+    schema-ledger-activities-v1.0.0_post_request.json:
+      type: object
+      properties:
+        applicationId:
+          "title": "Application Id"
+          "description": "An identifier for a bulk loading option."
+          "type": string
+          "example": '4001003b-6822-4cfc-82ca-4413e9d225ee'
+          "x-lineageReferenceObject": GURBOPT.GURBOPT_OPTION
+          "x-lineageLookupReferenceObject": GURBOPT
+        representation:
+          "title": "Representation"
+          "description": "An array of all valid media types related to the API supported versions."
+          "example": 'application/vnd.hedtech.integration.v15+json'
+          "type": string
+          "maxLength": 4000
+          "x-lineageReferenceObject": GURBRUL.GURBRUL_KNOWN_MEDIA_TYPES
+          "x-lineageLookupReferenceObject": GURBRUL
+        requestorTrackingId:
+          "title": "Request Tracking Id"
+          "description": "User defined tracking Id."
+          "type": string
+          "example": 'LAV1'
+      required:
+        - representation
+        - requestorTrackingId
+    schema-ledger-activities-v1.0.0_post_response.json:
+      type: object
+      properties:
+        resourceName:
+          "title": "Resource Name"
+          "description": "Name of the resource."
+          "type": string
+          "example": 'ledger-activities'
+        representation:
+          "title": "Representation"
+          "description": "An array of all valid media types related to the API supported versions."
+          "example": 'application/vnd.hedtech.integration.v15+json'
+          "type": string
+          "maxLength": 4000
+          "x-lineageReferenceObject": GURBRUL.GURBRUL_KNOWN_MEDIA_TYPES
+          "x-lineageLookupReferenceObject": GURBRUL
+        state:
+          "title": "Status"
+          "description": "Status of the requested resource."
+          "example": 'In Progress'
+          "type": string
+        jobIdentifier:
+          "title": "Job Identifier"
+          "description": "Job unique one up number."
+          "example": '445566'
+          "type": number
+        applicationId:
+          "title": "Application Id"
+          "description": "An identifier for a bulk loading option."
+          "type": string
+          "example": '4001003b-6822-4cfc-82ca-4413e9d225ee'
+          "x-lineageReferenceObject": GURBOPT.GURBOPT_OPTION
+          "x-lineageLookupReferenceObject": GURBOPT
+        requestorTrackingId:
+          "title": "Request Tracking Id"
+          "description": "User defined tracking Id."
+          "type": string
+          "example": 'LAV1'

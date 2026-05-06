@@ -1,0 +1,472 @@
+openapi: 3.0.0
+info:
+  title: Admission Decisions
+  description: >
+    Decisions made on admission applications. Decision codes are frequently used
+    to provide the means to track the application along the procedural path
+    established by the institution.
+  version: 11.1.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Recruitment
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/admission-decisions:
+    get:
+      summary: Returns resources from SARAPPD
+      description: >
+        Returns all records from SARAPPD table for every SARADAP record. 
+
+
+        The API retrieves all associated decision records from SARAPPD for combination of the applicant, term and application number of the admission application in SARADAP table.        
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_ADM_DECISIONS
+      tags:
+        - admission-decisions
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Application  
+
+            Returns all admission decisions for the given application
+
+            ```
+
+            /admission-decisions?criteria={"application":{"id":"42f304c5-4447-4cb0-903d-555a051df1cd"}}
+
+            ```
+
+            ### Decided On  
+
+            Supported operators are $gte, $lte, or the default of equals if operator is not specified.
+
+
+            Returns all admission decisions for the given date/time.
+
+            ```
+
+            /admission-decisions?criteria={"decidedOn":"2019-04-22T10:03:07+00:00"}
+
+            ```
+
+            ```
+
+            /admission-decisions?criteria={"decidedOn":{"$eq":"2019-04-22T10:03:07+00:00"}}
+
+            ```
+
+            Returns all admission decisions past the given date/time.
+
+            ```
+
+            /admission-decisions?criteria={"decidedOn":{"$gte":"2019-04-22T10:03:07+00:00"}}
+
+            ```
+
+            Returns all admission decisions before the given date/time.
+
+            ```
+
+            /admission-decisions?criteria={"decidedOn":{"$lte":"2019-04-22T10:03:07+00:00"}}
+
+            ```
+        - name: personFilter
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Person Filter  
+
+            Returns all student-academic-periods for personFilter id passed.
+
+            ```
+
+            /admission-decisions?personFilter={"personFilter":{"id":"0925960d-3741-43c0-98eb-b12c6bed5820"}}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-admission-decisions.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11.1.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new resource in SARAPPD
+      description: >
+        Creates an admission decision record in SARAPPD table for an application
+        record.
+
+
+        POST requests must include a nil GUID value ("00000000-0000-0000-0000-000000000000") for the root id property.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_ADM_DECISIONS
+      tags:
+        - admission-decisions
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v11.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-admission-decisions.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v11+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-admission-decisions.json"
+  /api/admission-decisions/{id}:
+    get:
+      summary: Return the requested resource from SARAPPD
+      description: >
+        Returns an admission decision record from SARAPPD table for the passed
+        in identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_ADM_DECISIONS
+      tags:
+        - admission-decisions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v11.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-admission-decisions.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    put:
+      summary: Update the requested resource from SARAPPD
+      description: >
+        Updates an admission decision in SARAPPD table for the passed in
+        idenitifier. Update is allowed only for decidedOn property.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_ADM_DECISIONS
+      tags:
+        - admission-decisions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Admission Decisions for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json 
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v11.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-admission-decisions.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v11+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-admission-decisions.json"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-admission-decisions.json:
+      title: Admission Decisions
+      description: Decisions made on admission applications.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the decision for the admission application.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: SARAPPD_GUID(SARAPPD)
+        application:
+          title: Application
+          description: The admission application on which this decision was made.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Application.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: admission-applications 
+              x-lineageReferenceObject: SARAPPD_APPL_NO(SARAPPD)
+          additionalProperties: false
+          required:
+            - id
+        decisionType:
+          title: Decision Type
+          description: The type of decision on the admission application.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Decision Type.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: admission-decision-types 
+              x-lineageReferenceObject: SARAPPD_APDC_CODE(SARAPPD)
+          additionalProperties: false
+          required:
+            - id
+        decidedOn:
+          title: Decided On
+          description: The date of the decision on the admission application.
+          type: string
+          format: date-time
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+          x-lineageReferenceObject: SARAPPD_APDC_DATE(SARAPPD)
+      required:
+        - id
+        - application
+        - decisionType
+        - decidedOn
+      additionalProperties: false

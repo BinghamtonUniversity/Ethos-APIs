@@ -1,0 +1,270 @@
+openapi: 3.0.1
+info:
+  title: student-search
+  description: Filter for specific student records based on Student Name or Student ID.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Student
+  x-source-title: Student Search
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: '{server_url}'
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost  
+paths:
+  /api/student-search:
+    get:
+      tags:
+        - student-search
+      summary: Filter for specific student records based on Student Name or Student ID and get all the Committees that the student is linked.
+      x-method-permissions: API_STUDENT_SEARCH
+      parameters:
+        - name: committeeMemberId
+          in: query
+          required: true
+          schema:
+            type: string
+          example: A000897
+        - name: searchType
+          in: query
+          required: true
+          schema:
+            type: string
+          example: Name
+        - name: search
+          in: query
+          required: true
+          schema:
+            type: string
+          example: Nir  
+        - name: offset
+          in: query
+          schema:
+            type: number
+        - name: limit
+          in: query
+          schema:
+            type: number    
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/StudentSearchObj'
+              examples:
+                student-search:
+                  $ref: '#/components/examples/StudentSearch'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                       $ref: '#/components/schemas/ErrorsObj'
+              examples:
+                CommitteeMemberIdRequired:
+                  $ref: '#/components/examples/CommitteeMemberIdRequired' 
+                SearchTypeRequired:
+                  $ref: '#/components/examples/SearchTypeRequired'
+                SearchRequired:
+                  $ref: '#/components/examples/SearchRequired'    
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                unauthorizedNoParams:
+                  $ref: '#/components/examples/Unauthorized'
+                unauthorizedNoAuth:
+                  $ref: '#/components/examples/UnauthorizedNoAuth'               
+components:
+  schemas:
+    StudentSearchObj:
+      type: object
+      properties:
+        studentId:
+          type: string
+        studentName:
+          type: string
+        program:
+          type: string
+        programDescription:
+          type: string
+        pidm:
+          type: number  
+        studyPathNumber:
+          type: number   
+        level:
+          type: string
+        levelDescription:
+          type: string   
+        studentGuid:
+          type: string  
+        stageNumbers:
+          type: array
+          items:
+            type: number
+        committees:
+          type: array
+          items:
+            type: object
+            properties:
+              committeeCode:
+                type: string
+              committeeDescription:
+                type: string    
+              examBoardDate:
+                type: string
+              anonymous:
+                type: boolean
+              isMember:
+                type: boolean      
+    ErrorsObj:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        message:
+          type: string
+  examples:
+    Unauthorized:
+      description: If the request send blank params for auth
+      value: "401 - Unauthorized"
+    UnauthorizedNoAuth:
+      description: If the request does not authenticate
+      value: "401 - Full authentication is required to access this resource"  
+    StudentSearch:
+      value: |-
+          [
+            {
+                "studentId": "51908484",
+                "studentGuid": "ab0cf251-2b5f-4b1c-bed7-146b35fcec1b",
+                "studentName": "Duncan Newman",
+                "program": "BA-ARTS",
+                "programDescription": "Bachelors in Fine Arts",
+                "level": "UG",
+                "levelDescription": "Undergraduate",
+                "studyPathNumber": 1,
+                "stageNumbers": [
+                    1,
+                    2
+                ],
+                "committees": [
+                    {
+                        "committeeCode": "ARTCOM",
+                        "committeeDescription": "Arts Committee",
+                        "examBoardDate": "2022-08-19T18:30:00Z",
+                        "anonymous": true,
+                        "isMember": true
+                    },
+                    {
+                        "committeeCode": "ARTRE",
+                        "committeeDescription": "Arts Resit",
+                        "examBoardDate": "2022-08-19T18:30:00Z",
+                        "anonymous": false,
+                        "isMember": true
+                    },
+                    {
+                        "committeeCode": "BIOCOMM",
+                        "committeeDescription": "Biology Committee",
+                        "examBoardDate": "2022-08-19T18:30:00Z",
+                        "anonymous": true,
+                        "isMember": false
+                    }
+                ]
+            },
+            {
+                "studentId": "51908999",
+                "studentGuid": "ab0cf251-2b5f-4b1c-bed7-146b35fcec1z",
+                "studentName": "Mark Boehner",
+                "program": "BA-ARTS",
+                "programDescription": "Bachelors in Fine Arts",
+                "level": "UG",
+                "levelDescription": "Undergraduate",
+                "studyPathNumber": 1,
+                "stageNumbers": [
+                    1,
+                    2,
+                    3
+                ],
+                "committees": [
+                    {
+                        "committeeCode": "ARTCOM",
+                        "committeeDescription": "Arts Committee",
+                        "examBoardDate": "2022-08-19T18:30:00Z",
+                        "anonymous": false,
+                        "isMember": true
+                    },
+                    {
+                        "committeeCode": "ARTRE",
+                        "committeeDescription": "Arts Resit",
+                        "examBoardDate": "2022-08-19T18:30:00Z",
+                        "anonymous": true,
+                        "isMember": true
+                    },
+                    {
+                        "committeeCode": "BIOCOMM",
+                        "committeeDescription": "Biology Committee",
+                        "examBoardDate": "2022-08-19T18:30:00Z",
+                        "anonymous": false,
+                        "isMember": false
+                    }
+                ]
+            }
+          ]
+    CommitteeMemberIdRequired:
+      value: |-
+          {
+              "errors": [
+                  {
+                      "code": "Global.SchemaValidation.Error",
+                      "description": "Errors parsing input JSON.",
+                      "message": "Mandatory Field: committeeMemberId is missing from payload"
+                  }
+              ]
+          }    
+    SearchTypeRequired:
+      value: |-
+          {
+              "errors": [
+                  {
+                      "code": "Global.SchemaValidation.Error",
+                      "description": "Errors parsing input JSON.",
+                      "message": "Mandatory Field: searchType is missing from payload"
+                  }
+              ]
+          }
+    SearchRequired:
+      value: |-
+          {
+              "errors": [
+                  {
+                      "code": "Global.SchemaValidation.Error",
+                      "description": "Errors parsing input JSON.",
+                      "message": "Mandatory Field: search is missing from payload"
+                  }
+              ]
+          }      

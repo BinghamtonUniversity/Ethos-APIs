@@ -1,0 +1,369 @@
+openapi: 3.0.0
+info:
+  title: period-base-data
+  description: API for RORPRDS administrative page
+  version: 1.0.0
+  x-audience: all
+  x-release-status: beta
+  x-source-name: RORPRDS
+  x-source-domain: Financial Aid
+  x-source-title: Period Base Data
+  x-source-system: banner
+  x-api-type: bus-poc
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/period-base-data:
+    get:
+      tags:
+        - period-base-data
+      summary: Return resources from RORPRDS
+      parameters:
+        - name: X-SDE-Expand
+          in: header
+          description: The comma seperated value list of block names
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: The maximum number of resources requesting for this result set.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          description: The filter criteria as a single URL query parameter. Use this
+            parameter or the individual parameters listed. Must be a JSON
+            representation of the property searching for. This can be any of the
+            properties listed on the URL or QAPI and must be a json
+            representation that can be validated against the GET schema. Limit
+            and Offset are the only supported additional parameters on the URL.
+          required: false
+          schema:
+            type: string
+        - name: keyblckPeriod
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: keyblckTermCode
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: arInd
+          in: query
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: RORPRDS_AR_IND
+        - name: studentInd
+          in: query
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: RORPRDS_STUDENT_IND
+        - name: sapInd
+          in: query
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: RORPRDS_SAP_IND
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/period-base-data-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+  /qapi/period-base-data:
+    post:
+      tags:
+        - period-base-data QAPI (Query by POST)
+      summary: Return resources from RORPRDS
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/period-base-data-1.0.0_get_request"
+            example:
+              keyblckPeriod: 202110
+              keyblckTermCode: 202110
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/period-base-data-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+components:
+  schemas:
+    errors-2.0.0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+              description:
+                type: string
+    period-base-data-1.0.0_get_response:
+      type: object
+      properties:
+        robprds:
+          type: array
+          items:
+            type: object
+            properties:
+              crossoverInd:
+                title: Crossover
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : ROBPRDS_CROSSOVER_IND"
+                x-lineageReferenceObject: ROBPRDS_CROSSOVER_IND
+              weeks:
+                title: Number of Weeks
+                maxLength: 3
+                type: number
+                description: "Lineage reference object : ROBPRDS_WEEKS"
+                x-lineageReferenceObject: ROBPRDS_WEEKS
+              aidyCode:
+                title: Aid Year
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : ROBPRDS_AIDY_CODE, Lookup lineage
+                  reference object : robinst"
+                x-lineageReferenceObject: ROBPRDS_AIDY_CODE
+                x-lineageLookupReferenceObject: robinst
+              seqNo:
+                title: Sequence Number
+                maxLength: 8
+                type: number
+                description: "Lineage reference object : ROBPRDS_SEQ_NO"
+                x-lineageReferenceObject: ROBPRDS_SEQ_NO
+              endDate:
+                title: End Date
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : ROBPRDS_END_DATE"
+                format: date-time
+                x-lineageReferenceObject: ROBPRDS_END_DATE
+              activeInd:
+                title: Active
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : ROBPRDS_ACTIVE_IND"
+                x-lineageReferenceObject: ROBPRDS_ACTIVE_IND
+              comment:
+                title: Comment
+                maxLength: 240
+                type: string
+                description: "Lineage reference object : ROBPRDS_COMMENT"
+                x-lineageReferenceObject: ROBPRDS_COMMENT
+              acadYear:
+                title: Academic Year
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : ROBPRDS_ACAD_YEAR"
+                x-lineageReferenceObject: ROBPRDS_ACAD_YEAR
+              aidyCodeCross:
+                title: Crossover Aid Year
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : ROBPRDS_AIDY_CODE_CROSS, Lookup lineage
+                  reference object : robinst"
+                x-lineageReferenceObject: ROBPRDS_AIDY_CODE_CROSS
+                x-lineageLookupReferenceObject: robinst
+              startDate:
+                title: Start Date
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : ROBPRDS_START_DATE"
+                format: date-time
+                x-lineageReferenceObject: ROBPRDS_START_DATE
+              desc:
+                title: Description
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : ROBPRDS_DESC"
+                x-lineageReferenceObject: ROBPRDS_DESC
+            x-lineageReferenceObject: robprds
+        rorprds:
+          type: array
+          items:
+            type: object
+            properties:
+              studentInd:
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : RORPRDS_STUDENT_IND"
+                x-lineageReferenceObject: RORPRDS_STUDENT_IND
+              arInd:
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : RORPRDS_AR_IND"
+                x-lineageReferenceObject: RORPRDS_AR_IND
+              sapInd:
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : RORPRDS_SAP_IND"
+                x-lineageReferenceObject: RORPRDS_SAP_IND
+              termCode:
+                title: Term
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : RORPRDS_TERM_CODE, Lookup lineage
+                  reference object : stvterm"
+                x-lineageReferenceObject: RORPRDS_TERM_CODE
+                x-lineageLookupReferenceObject: stvterm
+            x-lineageReferenceObject: rorprds
+    period-base-data-1.0.0_get_request:
+      type: object
+      properties:
+        studentInd:
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORPRDS_STUDENT_IND"
+          x-lineageReferenceObject: RORPRDS_STUDENT_IND
+        keyblckPeriod:
+          title: Period
+          maxLength: 15
+          type: string
+          description: "Lineage reference object : keyblckPeriod"
+          x-lineageReferenceObject: keyblckPeriod
+        arInd:
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORPRDS_AR_IND"
+          x-lineageReferenceObject: RORPRDS_AR_IND
+        sapInd:
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORPRDS_SAP_IND"
+          x-lineageReferenceObject: RORPRDS_SAP_IND
+        keyblckTermCode:
+          title: Term Code
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : keyblckTermCode, Lookup lineage
+            reference object : stvterm"
+          x-lineageReferenceObject: keyblckTermCode
+          x-lineageLookupReferenceObject: stvterm
+      x-lineageReferenceObject: RORPRDS
+    period-base-data-1.0.0_qapi_post:
+      type: object
+      properties:
+        keyblckPeriod:
+          type: string
+        keyblckTermCode:
+          type: string
+        arInd:
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORPRDS_AR_IND"
+          x-lineageReferenceObject: RORPRDS_AR_IND
+        studentInd:
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORPRDS_STUDENT_IND"
+          x-lineageReferenceObject: RORPRDS_STUDENT_IND
+        sapInd:
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : RORPRDS_SAP_IND"
+          x-lineageReferenceObject: RORPRDS_SAP_IND
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EllucianOAuthUserToken:
+      type: http
+      scheme: bearer
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

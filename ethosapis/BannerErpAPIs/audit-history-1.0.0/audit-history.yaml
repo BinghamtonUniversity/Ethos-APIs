@@ -1,0 +1,373 @@
+openapi: 3.0.1
+info:
+  title: audit-history
+  description: Get a audit history details for the progression and award classification results to show the previous calculation information for a stage in Experience portal
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Student
+  x-source-title: Audit History
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: '{server_url}'
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost   
+paths:
+  /api/audit-history:
+    get:
+      tags:
+        - audit-history
+      summary: Get a audit history details for the progression and award classification results by passing committeeCode, studentId and level.
+      x-method-permissions: API_AUDIT_HISTORY
+      parameters:
+        - name: committeeCode
+          required: true
+          in: query
+          schema:
+            type: string
+          example: PATEST
+        - name: studentId
+          required: true
+          in: query
+          schema:
+            type: string
+          example: A00085200
+        - name: level
+          required: true
+          in: query
+          schema:
+            type: string
+          example: UG
+        - name: program
+          in: query
+          schema:
+            type: string
+          example: BE - COMP
+        - name: stageNumber
+          in: query
+          schema:
+            type: number
+          example: 1
+        - name: studyPathNumber
+          in: query
+          schema:
+            type: number
+          example: 1
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/AuditHistoryObj'
+              examples:
+                award-data:
+                  $ref: '#/components/examples/AuditHistory'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                       $ref: '#/components/schemas/ErrorsObj'
+              examples:
+                committeeCodeRequired:
+                  $ref: '#/components/examples/CommitteeCodeRequired'
+                studentIdRequired:
+                  $ref: '#/components/examples/StudentIdRequired'
+                levelRequired:
+                  $ref: '#/components/examples/LevelRequired'
+                invalidParams:
+                  $ref: '#/components/examples/InvalidParams'  
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                unauthorizedNoParams:
+                  $ref: '#/components/examples/Unauthorized'
+                unauthorizedNoAuth:
+                  $ref: '#/components/examples/UnauthorizedNoAuth'                    
+components:
+  schemas:
+    AuditHistoryObj:
+      type: object
+      properties:
+        studentId:
+          type: number
+        classification:
+          type: array
+          items:
+            type: object
+            properties:
+              borderlineIndicator:
+                type: string
+              classificationTerm:
+                type: string
+              classificationTermDescription:
+                type: string
+              classificationRuleNumber:
+                type: number
+              classificationStatus:
+                type: string
+              classificationCalculationSummary:
+                type: string              
+              classificationActivityDate:
+                type: string
+              classificationCommitteeCode:
+                type: string
+              classificationUpdatedUserId:
+                type: string
+              classificationUpdatedUserName:
+                type: string
+              overallGpa:
+                type: number 
+              programCreditAttempted:
+                type: number      
+              programCreditEarned:
+                type: number  
+              programCreditRequired:
+                type: number 
+              proposedClassification:
+                type: string  
+              proposedClassificationDescription:
+                type: string
+              proposedFinalProgressionOutcome:
+                type: string
+              proposedFinalProgressionOutcomeDescription:
+                type: string  
+        progression:
+          type: array
+          items:
+            type: object
+            properties:        
+              compensatedCreditsEarned:
+                type: number
+              condonedCreditsEarned:
+                type: number
+              deferredCreditsEarned:
+                type: number
+              level:
+                type: string
+              levelDescription:
+                type: string
+              mode:
+                type: string
+              modeDescription:
+                type: string
+              passedAtFirstAttemptCredits:
+                type: number
+              program:
+                type: string
+              programDescription:
+                type: string
+              progressionTerm:
+                type: string
+              progressionTermDescription:
+                type: string
+              progressionCalculationSummary:
+                type: string
+              progressionRuleNumber:
+                type: number
+              progressionStatus:
+                type: string
+              progressionActivityDate:
+                type: string
+              progressionCommitteeCode:
+                type: string
+              progressionUpdatedUserId:
+                type: string
+              progressionUpdatedUserName:
+                type: string
+              proposedProgressionOutcome:
+                type: string
+              proposedProgressionOutcomeDescription:
+                type: string
+              stageCreditAttempted:
+                type: number
+              stageCreditEarned:
+                type: number
+              stageCreditRequired:
+                type: number
+              stageGpa:
+                type: string
+              stageNumber:
+                type: number
+              studyPathNumber:
+                type: number
+    ErrorsObj:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        message:
+          type: string
+  examples:
+    Unauthorized:
+      description: If the request send blank params for auth
+      value: "401 - Unauthorized"
+    UnauthorizedNoAuth:
+      description: If the request does not authenticate
+      value: "401 - Full authentication is required to access this resource"  
+    CommitteeCodeRequired:
+      value: |-
+          {
+              "errors": [
+                  {
+                      "code": "Global.SchemaValidation.Error",
+                      "description": "Errors parsing input JSON.",
+                      "message": "Mandatory Field: committeeCode is missing from payload"
+                  }
+              ]
+          }  
+    StudentIdRequired:
+      value: |-
+          {
+              "errors": [
+                  {
+                      "code": "Global.SchemaValidation.Error",
+                      "description": "Errors parsing input JSON.",
+                      "message": "Mandatory Field: studentId is missing from payload"
+                  }
+              ]
+          }
+    LevelRequired:
+      value: |-
+          {
+              "errors": [
+                  {
+                      "code": "Global.SchemaValidation.Error",
+                      "description": "Errors parsing input JSON.",
+                      "message": "Mandatory Field: level is missing from payload"
+                  }
+              ]
+          }      
+    InvalidParams:
+      value: |-
+          {
+              "errors": [
+                  {
+                      "code": "Global.SchemaValidation.Error",
+                      "description": "Errors parsing input JSON.",
+                      "message": "Valid stageNumber value must be entered."
+                  }
+              ]
+          }      
+    AuditHistory:
+      value:
+        {  
+          "studentId": "A00085200", 
+          "classification": [
+              {
+                "borderlineIndicator": "N",
+                "classificationActivityDate": "2022-11-28T09:15:00Z",
+                "classificationCommitteeCode": "EPC001",
+                "classificationRuleNumber": 92,
+                "classificationStatus": "APPROVED",
+                "classificationTerm": "202414",
+                "classificationTermDescription": "2024 - Term 3",
+                "classificationUpdatedUserId": "SAISUSR",
+                "classificationUpdatedUserName": "SAISUSR",
+                "overallGpa": 68.52,
+                "programCreditAttempted": 120,
+                "programCreditEarned": 120,
+                "programCreditRequired": 120,
+                "proposedClassification": "I",
+                "proposedClassificationDescription": "First Class Honors",
+                "proposedFinalProgressionOutcome": "PS",
+                "proposedFinalProgressionOutcomeDescription": "Pass Stage"
+              },
+              {
+                "borderlineIndicator": "N",
+                "classificationActivityDate": "2022-12-19T09:17:45Z",
+                "classificationCommitteeCode": "ΖΜΆΡΝΠ",
+                "classificationRuleNumber": 8,
+                "classificationStatus": "CALCULATED",
+                "classificationTerm": "202414",
+                "classificationTermDescription": "2024 - Term 3",
+                "classificationUpdatedUserId": "SAISUSR",
+                "classificationUpdatedUserName": "SAISUSR",
+                "overallGpa": 10,
+                "programCreditAttempted": 3,
+                "programCreditEarned": 3,
+                "programCreditRequired": 1,
+                "proposedClassification": "M",
+                "proposedClassificationDescription": "magna cum laude"
+              }
+          ],
+          "progression": [
+              {
+                "compensatedCreditsEarned": 0,
+                "condonedCreditsEarned": 0,
+                "deferredCreditsEarned": 0,
+                "level": "UG",
+                "levelDescription": "Undergraduate",
+                "passedAtFirstAttemptCredits": 120,
+                "program": "BE - COMP",
+                "programDescription": "Bachelors in Computer Science",
+                "progressionActivityDate": "2022-10-18T17:33:08Z",
+                "progressionCalculationSummary": "< 2022-10-18 Job No: 491164:\n             Stage Academic Standing Evaluated. Stage Academic Standing: PS - Pass Stage\n             Stage GPA calculated. Stage GPA: 65.5\n             Compliance request successful. Compliance Request No: 1\n >",
+                "progressionRuleNumber": 67,
+                "progressionStatus": "CALCULATED",
+                "progressionTerm": "202314",
+                "progressionTermDescription": "2023 - Term 3",
+                "progressionUpdatedUserId": "SAISUSR",
+                "progressionUpdatedUserName": "Banner-JOBPROCESS-SHPPGAW",
+                "proposedProgressionOutcome": "PS",
+                "proposedProgressionOutcomeDescription": "Pass Stage",
+                "stageCreditAttempted": 120,
+                "stageCreditEarned": 120,
+                "stageCreditRequired": 120,
+                "stageGpa": 65.5,
+                "stageNumber": 1,
+                "studyPathNumber": 1
+              },
+              {
+                "compensatedCreditsEarned": 0,
+                "condonedCreditsEarned": 0,
+                "deferredCreditsEarned": 0,
+                "level": "UG",
+                "levelDescription": "Undergraduate",
+                "passedAtFirstAttemptCredits": 120,
+                "program": "BE - COMP",
+                "programDescription": "Bachelors in Computer Science",
+                "progressionActivityDate": "2022-10-18T17:34:09Z",
+                "progressionCalculationSummary": "< 2022-10-18 Job No: 491166:\n             Stage Academic Standing Evaluated. Stage Academic Standing: PS - Pass Stage\n             Stage GPA calculated. Stage GPA: 65.5\n             Compliance request successful. Compliance Request No: 2\n >",
+                "progressionRuleNumber": 67,
+                "progressionStatus": "CALCULATED",
+                "progressionTerm": "202314",
+                "progressionTermDescription": "2023 - Term 3",
+                "progressionUpdatedUserId": "SAISUSR",
+                "progressionUpdatedUserName": "Banner-JOBPROCESS-SHPPGAW",
+                "proposedProgressionOutcome": "PS",
+                "proposedProgressionOutcomeDescription": "Pass Stage",
+                "stageCreditAttempted": 120,
+                "stageCreditEarned": 120,
+                "stageCreditRequired": 120,
+                "stageGpa": 65.5,
+                "stageNumber": 1,
+                "studyPathNumber": 1
+              }
+          ]   
+        }

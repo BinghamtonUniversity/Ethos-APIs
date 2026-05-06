@@ -1,0 +1,788 @@
+openapi: 3.0.0
+info:
+  title: Institution Positions
+  description: >
+    A detailed description of the positions at an institution. Positions are
+    defined within a position classification (defined on NTRPCLS). Associated
+    position budgets are created on the Position Budget (NBAPBUD) page by fiscal
+    year. Positions are associated with employees to create jobs on the Employee
+    Jobs (NBAJOBS) page.
+
+
+    ISO code configurations for currency should be configured appropriately to retrieve the appropriate currency code. Please refer to "ISO 4217 Currency code configuration for GUBINST base currency" section in Banner Ethos API handbook.
+  version: "12.0.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Human Resources
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/institution-positions:
+    get:
+      summary: Returns resources from NBBPOSN
+      description: >
+        Returns all the institution position records from NBBPOSN including the
+        ones with inactive status.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_INSTITUTION_POSITIONS
+      tags:
+        - institution-positions
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v12+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Code  
+
+            Returns all institution positions for the given position code.
+
+            ```
+
+            /institution-positions?criteria={"code":"BT123"}
+
+            ```
+
+            ### Status  
+
+            The status of the position (e.g. active, frozen, cancelled, inactive).
+
+            ```
+
+            /institution-positions?criteria={"status":"active"}
+
+            ```
+
+            ### Bargaining Unit  
+
+            The group or union associated with the position.
+
+            ```
+
+            /institution-positions?criteria={"bargainingUnit":{"id":"47bffac4-202a-4835-a657-773763adf1fr"}}
+
+            ```
+
+            ### Position  
+
+            The position to which this position reports.
+
+            ```
+
+            /institution-positions?criteria={"reportsTo":[{"position":{"id":"47bffac4-202a-4835-a657-773763adf1f8"}}]}
+
+            ```
+
+            ### Exemption Type  
+
+            An indicator if the position is exempt or non-exempt.
+
+            ```
+
+            /institution-positions?criteria={"exemptionType":"exempt"}
+
+            ```
+
+            ### startOn  
+
+            The date when the position is first available.
+
+            ```
+
+            /institution-positions?criteria={"startOn":"1993-07-01"}
+
+            ```
+
+            ### endOn  
+
+            The date when the position is last available.
+
+            ```
+
+            /institution-positions?criteria={"endOn":"1993-08-01"}
+
+            ```
+
+            ### Compensation   
+
+            Returns all institution positions for the given compensation type
+
+            ```
+
+            /institution-positions?criteria={"compensation":{"type":"wages"}}
+
+            ```
+            
+            ### payClass   
+
+            Returns all institution positions for the given pay class guid
+
+            ```
+
+            /institution-positions?criteria={"payClass":{"id":"85551f1a-3edb-44bf-8961-91d95a94c32e"}}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-institution-positions.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v12+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/institution-positions/{id}:
+    get:
+      summary: Return the requested resource from NBBPOSN
+      description: >
+        Returns a institution position record from NBBPOSN with the passed in
+        identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_INSTITUTION_POSITIONS
+      tags:
+        - institution-positions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v12+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v12+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v12+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-institution-positions.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-institution-positions.json:
+      title: Institution Positions
+      description: A detailed description of the positions at an institution.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the institution position.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: NBBPOSN_GUID(NBBPOSN)
+        title:
+          title: Title
+          description: The title of the institution position.
+          type: string
+          minLength: 1
+          x-lineageReferenceObject: NBBPOSN_TITLE(NBBPOSN)
+        description:
+          title: Description
+          description: The description of the institution position.
+          type: string
+          x-lineageReferenceObject: unsupported
+        code:
+          title: Code
+          description: A code that may be used to identify the institution position.
+          type: string
+          x-lineageReferenceObject: NBBPOSN_POSN(NBBPOSN)
+        campus:
+          title: Campus
+          description: The physical location of the institution position.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Campus.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: sites 
+                  x-lineageReferenceObject: unsupported
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        departments:
+          title: Departments
+          description: The departments or organizations of the institution to which the
+            position belongs.
+          type: array
+          items:
+            title: Departments
+            description: The departments or organizations of the institution to which the
+              position belongs.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Departments.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: employment-departments 
+                x-lineageReferenceObject: NBBPOSN_POSN(NBBPOSN)
+                x-lineageDerivedLogic: If Banner Finance module is installed, then for the NBBPOSN_POSN code, fetch the organisation code = NBRPTOT_ORGN_CODE and chart of account code = NBRPTOT_COAS_CODE where the NBRPTOT_STATUS is Approved. for this NBRPTOT organization code and chart of account code combination, fetch the corresponding GTVORID_DEPT_GUID from GTVORID table and display. If Banner Finance module is not Installed, then for the NBBPOSN_POSN code, fetch the organisation code = NBRPTOT_ORGN_CODE where the NBRPTOT_STATUS is Approved. For this NBRPTOT organization code, fetch the corresponding GTVORID_DEPT_GUID from GTVORID table and display.
+            additionalProperties: false
+            required:
+              - id
+        accountingStringAllocations:
+          title: Accounting String Allocations
+          description: The accounting strings with allocated percentages associated with
+            the position.
+          type: array
+          items:
+            type: object
+            properties:
+              accountingString:
+                title: Accounting String
+                description: An accounting string associated with the position.
+                type: string
+                minLength: 1
+                x-lineageReferenceObject: derived  
+                x-lineageDerivedLogic: If Banner Finance module is installed, then for a NBBPOSN_POSN code, display the accountingString details from NBRPLBD table else if Banner Finance is not installed  NBRPLBD_ACCT_CODE_EXTERNAL(NBRPLBD)
+              allocatedPercentage:
+                title: Allocated Percentage
+                description: The percentage allocation of the position's expenses to the
+                  accounting string.
+                type: number
+                x-lineageReferenceObject: NBRPLBD_PERCENT(NBRPLBD)
+            additionalProperties: false
+            required:
+              - accountingString
+              - allocatedPercentage
+        status:
+          title: Status
+          description: The status of the position (e.g. active, frozen, cancelled,
+            inactive).
+          enum:
+            - active
+            - frozen
+            - cancelled
+            - inactive
+          type: string
+          x-lineageReferenceObject: NBBPOSN_STATUS(NBBPOSN)
+        hoursPerPeriod:
+          title: Hours Per Period
+          description: The number of hours of work in specified time periods.
+          type: array
+          items:
+            type: object
+            properties:
+              period:
+                title: Period
+                description: The defined time period (e.g. day, week, month, etc).
+                enum:
+                  - day
+                  - week
+                  - month
+                  - year
+                  - payPeriod
+                type: string
+                x-lineageReferenceObject: derived  
+                x-lineageDerivedLogic: For the NBBPOSN_ECLS_CODE, if PTRECLS_HOURS_PER_PAY is populated then display as 'payPeriod' or if PTRECLS_HOURS_PER_DAY is populated then display as 'day'
+              hours:
+                title: Hours
+                description: The number of hours of work in the specified time period.
+                minimum: 0
+                type: number
+                format: positiveNumber
+                x-lineageReferenceObject: PTRECLS_HOURS_PER_PAY(PTRECLS) or  PTRECLS_HOURS_PER_DAY(PTRECLS)
+            additionalProperties: false
+            required:
+              - period
+              - hours
+        fullTimeEquivalent:
+          title: Full Time Equivalent
+          description: The ratio of hours of work for the position to the hours of work
+            expected of a full-time employee.
+          oneOf:
+            - type: number
+              minimum: 0
+              format: positiveNumber
+              x-lineageReferenceObject: NBRPTOT_FTE(NBRPTOT)
+            - type: string
+              nullable: true
+        bargainingUnit:
+          title: Bargaining Unit
+          description: The group or union associated with the position.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Bargaining Unit.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: bargaining-units 
+                  x-lineageReferenceObject: NBBPOSN_BARG_CODE(NBBPOSN)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        reportsTo:
+          title: Reports To
+          description: The positions to which this position reports.
+          type: array
+          items:
+            type: object
+            properties:
+              position:
+                title: Position
+                description: The position to which this position reports.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Position.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: institution-positions 
+                    x-lineageReferenceObject: NBBPOSN_POSN_REPORTS(NBBPOSN)
+                additionalProperties: false
+                required:
+                  - id
+              type:
+                title: Type
+                description: The type of reporting position (e.g. primary, alternate, etc).
+                enum:
+                  - primary
+                  - alternate
+                type: string
+                x-lineageReferenceObject: derived  
+                x-lineageDerivedLogic: If 'reportsTo.position' is published then 'type' will always be 'primary'
+            additionalProperties: false
+            required:
+              - position
+              - type
+        exemptionType:
+          title: Exemption Type
+          description: An indicator if the position is exempt or non-exempt.
+          oneOf:
+            - type: string
+              enum:
+                - exempt
+                - nonExempt
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: If NBBPOSN_EXEMPT_IND  = 'Y' then display as 'exempt', if NBBPOSN_EXEMPT_IND = 'N' then display as 'nonExempt'
+            - type: string
+              maxLength: 0
+        compensation:
+          title: Compensation
+          description: The salary or wages awarded for the position.
+          oneOf:
+            - type: object
+              properties:
+                type:
+                  title: Type
+                  description: The type of compensation awarded (e.g. salary, wages, etc).
+                  enum:
+                    - salary
+                    - wages
+                  type: string
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: If NTRSALB_IND  = 'S' then display as 'salary', if NTRSALB_IND = 'H' then display as 'wages'
+                range:
+                  title: Range
+                  description: The range of compensation awarded for the position.
+                  type: object
+                  properties:
+                    lowerBound:
+                      title: Lower Bound
+                      description: The lower bound of compensation offered for the position.
+                      minimum: 0
+                      type: number
+                      format: positiveNumber
+                      x-lineageReferenceObject: NTRSALB_LOW(NTRSALB)
+                    upperBound:
+                      title: Upper Bound
+                      description: The upper bound of compensation offered for the position.
+                      minimum: 0
+                      type: number
+                      format: positiveNumber
+                      x-lineageReferenceObject: NTRSALB_HIGH(NTRSALB)
+                    currencyCode:
+                      title: Currency Code
+                      description: The ISO 4217 currency code.
+                      enum:
+                        - AED
+                        - AFN
+                        - ALL
+                        - AMD
+                        - ANG
+                        - AOA
+                        - ARS
+                        - AUD
+                        - AWG
+                        - AZN
+                        - BAM
+                        - BBD
+                        - BDT
+                        - BGN
+                        - BHD
+                        - BIF
+                        - BMD
+                        - BND
+                        - BOB
+                        - BRL
+                        - BSD
+                        - BTN
+                        - BWP
+                        - BYR
+                        - BZD
+                        - CAD
+                        - CDF
+                        - CHF
+                        - CLP
+                        - CNY
+                        - COP
+                        - CRC
+                        - CUC
+                        - CUP
+                        - CVE
+                        - CZK
+                        - DJF
+                        - DKK
+                        - DOP
+                        - DZD
+                        - EGP
+                        - ERN
+                        - ETB
+                        - EUR
+                        - FJD
+                        - FKP
+                        - GBP
+                        - GEL
+                        - GHS
+                        - GIP
+                        - GMD
+                        - GNF
+                        - GTQ
+                        - GYD
+                        - HKD
+                        - HNL
+                        - HRK
+                        - HTG
+                        - HUF
+                        - IDR
+                        - ILS
+                        - INR
+                        - IQD
+                        - IRR
+                        - ISK
+                        - JMD
+                        - JOD
+                        - JPY
+                        - KES
+                        - KGS
+                        - KHR
+                        - KMF
+                        - KPW
+                        - KRW
+                        - KWD
+                        - KYD
+                        - KZT
+                        - LAK
+                        - LBP
+                        - LKR
+                        - LRD
+                        - LSL
+                        - LYD
+                        - MAD
+                        - MDL
+                        - MGA
+                        - MKD
+                        - MMK
+                        - MNT
+                        - MOP
+                        - MRO
+                        - MUR
+                        - MVR
+                        - MWK
+                        - MXN
+                        - MYR
+                        - MZN
+                        - NAD
+                        - NGN
+                        - NIO
+                        - NOK
+                        - NPR
+                        - NZD
+                        - OMR
+                        - PAB
+                        - PEN
+                        - PGK
+                        - PHP
+                        - PKR
+                        - PLN
+                        - PYG
+                        - QAR
+                        - RON
+                        - RSD
+                        - RUB
+                        - RWF
+                        - SAR
+                        - SBD
+                        - SCR
+                        - SDG
+                        - SEK
+                        - SGD
+                        - SHP
+                        - SLL
+                        - SOS
+                        - SRD
+                        - SSP
+                        - STD
+                        - SVC
+                        - SYP
+                        - SZL
+                        - THB
+                        - TJS
+                        - TMT
+                        - TND
+                        - TOP
+                        - TRY
+                        - TTD
+                        - TWD
+                        - TZS
+                        - UAH
+                        - UGX
+                        - USD
+                        - UYU
+                        - UZS
+                        - VEF
+                        - VND
+                        - VUV
+                        - WST
+                        - XAF
+                        - XCD
+                        - XOF
+                        - XPF
+                        - YER
+                        - ZAR
+                        - ZMW
+                        - ZWL
+                      type: string
+                      x-lineageReferenceObject: GUBINST_BASE_CURR_CODE(GUBINST)
+                  additionalProperties: false
+                  required:
+                    - lowerBound
+                    - upperBound
+                    - currencyCode
+              additionalProperties: false
+              required:
+                - type
+                - range
+            - type: object
+              maxProperties: 0
+        startOn:
+          title: Start On
+          description: The date when the position is first available.
+          type: string
+          format: date
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+          x-lineageReferenceObject: NBBPOSN_BEGIN_DATE(NBBPOSN)
+        endOn:
+          title: End On
+          description: The date when the position is last available.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: NBBPOSN_END_DATE(NBBPOSN)
+            - type: string
+              maxLength: 0
+        authorizedOn:
+          title: Authorized On
+          description: The date when the position is authorized.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: unsupported
+            - type: string
+              maxLength: 0
+        classification:
+          title: Classification
+          description: The classification associated with the position.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Classification.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: position-classifications 
+                  x-lineageReferenceObject: NBBPOSN_PCLS_CODE(NBBPOSN)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        payClass:
+          title: Pay Class
+          description: The pay class associated with the position.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the pay class.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageReferenceObject: PTRECLS_PAY_CLASS_GUID(PTRECLS)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0      
+      required:
+        - id
+        - title
+        - status
+        - startOn
+      additionalProperties: false

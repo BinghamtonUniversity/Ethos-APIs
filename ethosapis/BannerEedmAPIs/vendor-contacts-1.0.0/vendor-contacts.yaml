@@ -1,0 +1,351 @@
+openapi: 3.0.0
+info:
+  title: Vendor Contacts
+  description: The contacts associated with a vendor.
+  version: 1.0.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Finance
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/vendor-contacts:
+    get:
+      summary: Return all resources from FTVVEND
+      description: Returns a paged listing of all the vendor contact records from
+        FTVVEND table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_VENDOR_CONTACTS
+      tags:
+        - vendor-contacts
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Vendor  
+
+            The vendor associated with the contact.
+
+            ```
+
+            /vendor-contacts?criteria={"vendor":{"id":"d417069d-f856-4847-9938-dafc8b14383e"}}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-vendor-contacts.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/vendor-contacts/{id}:
+    get:
+      summary: Return the requested resource from FTVVEND
+      description: Return the one resource with the passed in identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_VENDOR_CONTACTS
+      tags:
+        - vendor-contacts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Vendor Contacts for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-vendor-contacts.json"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-vendor-contacts.json:
+      title: Vendor Contacts
+      description: The contacts associated with a vendor.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the vendor contact.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: FTVVEND_CONTACT_GUID(FTVVEND)
+        vendor:
+          title: Vendor
+          description: The vendor associated with the contact.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Vendor.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: vendors 
+              x-lineageReferenceObject: FTVVEND_GUID(FTVVEND)
+          additionalProperties: false
+          required:
+            - id
+        contact:
+          title: Contact
+          description: The details for the vendor contact.
+          type: object
+          properties:
+            relationshipType:
+              title: Relationship Type
+              description: The type of relationship between the vendor and the contact.
+              oneOf:
+                - type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Relationship Type.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: relationship-types 
+                      x-lineageReferenceObject: unsupported
+                  additionalProperties: false
+                  required:
+                    - id
+                - type: object
+                  maxProperties: 0
+            person:
+              title: Person
+              description: The person who is the vendor contact.
+              type: object
+              properties:
+                detail:
+                  title: Detail
+                  description: The detail of the person who is the contact.
+                  oneOf:
+                    - type: object
+                      properties:
+                        id:
+                          title: ID
+                          description: The global identifier for the Detail.
+                          type: string
+                          format: guid
+                          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                          x-lineageLookupReferenceObject: persons 
+                          x-lineageReferenceObject: unsupported
+                      additionalProperties: false
+                      required:
+                        - id
+                    - type: object
+                      maxProperties: 0
+                name:
+                  title: Name
+                  description: The name of the person who is the contact.
+                  type: string
+                  minLength: 1
+                  x-lineageReferenceObject: FTVVEND_CONTACT(FTVVEND)
+              additionalProperties: false
+              required:
+                - name
+            phones:
+              title: Phones
+              description: The phone type, number and extension of the contact person.
+              type: array
+              items:
+                type: object
+                properties:
+                  type:
+                    title: Type
+                    description: The type of phone.
+                    oneOf:
+                      - type: object
+                        properties:
+                          id:
+                            title: ID
+                            description: The global identifier for the Type.
+                            type: string
+                            format: guid
+                            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                            x-lineageLookupReferenceObject: phone-types 
+                            x-lineageReferenceObject: unsupported
+                        additionalProperties: false
+                        required:
+                          - id
+                      - type: object
+                        maxProperties: 0
+                  number:
+                    title: Number
+                    description: The number assigned to the phone.
+                    type: string
+                    x-lineageReferenceObject: derived  
+                    x-lineageDerivedLogic: Display the concatenated value of FTVVEND_PHONE_AREA and FTVVEND_PHONE_NUMBER column values.
+                  extension:
+                    title: Extension
+                    description: The extension used to connect to the phone when multiple phones
+                      share the same primary number.
+                    type: string
+                    x-lineageReferenceObject: FTVVEND_PHONE_EXT(FTVVEND)
+                additionalProperties: false
+                required:
+                  - number
+            startOn:
+              title: Start On
+              description: The earliest date when the contact is active.
+              oneOf:
+                - type: string
+                  format: date
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                  x-lineageReferenceObject: unsupported
+                - type: string
+                  maxLength: 0
+            endOn:
+              title: End On
+              description: The last date when the contact was active.
+              oneOf:
+                - type: string
+                  format: date
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                  x-lineageReferenceObject: unsupported
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+          required:
+            - person
+      required:
+        - id
+        - vendor
+        - contact
+      additionalProperties: false

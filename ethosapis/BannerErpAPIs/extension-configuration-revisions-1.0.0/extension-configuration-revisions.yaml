@@ -1,0 +1,195 @@
+openapi: 3.0.0
+info:
+  title: Extension Configuration Revisions
+  description: >
+    Allows institutions to modify supported metadata attributes of existing extended table. Only specific metadata attributes of an existing extended table can be updated.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Foundation
+
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server URL
+    variables:
+      server_url:
+        default: localhost
+
+paths:
+  /api/extension-configuration-revisions/{id}:
+    put:
+      summary: Update extension configuration
+      description: |
+        Updates allowed metadata properties for an extended table. This includes:
+
+        - Adding new non-key columns to an existing extended table.
+        - Updates only the supported metadata attributes of the extended table.
+        
+          - `attributeDataLength`: Can be increased but not reduced. For numeric data types in Oracle, the length can be increased up to 38.  
+          - `attributeDataScale`: Can be increased but not reduced.  
+          - `attributeDisplay`: Can be updated only if the column is not required.  
+          - `attributePrompt`: Can be updated.  
+          - `attributeRequired`: Cannot be changed from `false` to `true`.  
+          - `attributeDataType`: Cannot be changed.  
+          - `columnName`: Cannot be changed.  
+          - `columnBaseTable`: Cannot be changed.  
+
+        After updates, the extended table API specification and OpenAPI definition are regenerated.
+
+        **Note**: Include only modified or newly added columns in the request payload. Sending unchanged columns is not required.
+
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EXT_CONFIG_REVISIONS
+      tags:
+        - extension-configuration-revisions
+
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Global identifier for the extension configuration.
+          schema:
+            type: string
+            format: uuid
+
+        - name: Accept
+          in: header
+          required: true
+          description: |
+            The requested resource version. Use major version only.
+
+            Example:
+            ```
+            application/vnd.hedtech.integration.v1+json
+            ```
+          schema:
+            type: string
+
+        - name: Content-Type
+          in: header
+          required: true
+          description: |
+            The supplied resource version. Use major version only.
+
+            Example:
+            ```
+            application/vnd.hedtech.integration.v1+json
+            ```
+          schema:
+            type: string
+
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              $ref: "#/components/schemas/schema-extension-configuration-revisions"
+
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              schema:
+                type: string
+              description: application/vnd.hedtech.integration.v1.0.0+json
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                $ref: "#/components/schemas/schema-extension-configuration-revisions"
+
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "500":
+          description: Server Error or unexpected data condition
+
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+
+  schemas:
+    schema-extension-configuration-revisions:
+      title: Extension Configuration Revisions
+      description: Updates extended table configuration records stored in GORRSDE.
+      type: object
+      required:
+        - id
+        - extendedTableName
+        - extendedColumns
+      additionalProperties: false
+
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Global identifier for the record
+        extendedTableName:
+          title: Extended Table Name
+          description: The name of the extended table to hold the extended data.
+          type: string
+          x-lineageReferenceObject: GORRSDE_EXT_TABLE(GORRSDE)
+        extendedColumns:
+          type: array
+          description: Extended column definitions
+          items:
+            type: object
+            required:
+              - columnName
+              - attributeDataType
+              - attributePrompt
+              - attributeDisplay
+            additionalProperties: false
+            properties:
+              columnName:
+                type: string
+              columnBaseTable:
+                type: string
+              attributeDataType:
+                type: string
+                enum: [varchar2, date, numeric, datetime, large_object]
+              attributeDataLength:
+                type: string
+              attributeDataScale:
+                type: string
+              rangeLow:
+                type: string
+              rangeHigh:
+                type: string
+              attributeDisplay:
+                type: string
+                enum: [true, false]
+              attributeRequired:
+                type: string
+                enum: [true, false]
+              attributePrompt:
+                type: string
+              validationTable:
+                type: string
+              validationColumn:
+                type: string
+              validationCodeDesc:
+                type: string
+              LOVAPIName:
+                type: string
+              LOVAPICode:
+                type: string
+              LOVAPIDescription:
+                type: string
+

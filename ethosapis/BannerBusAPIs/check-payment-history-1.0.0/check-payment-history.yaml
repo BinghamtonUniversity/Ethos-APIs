@@ -1,0 +1,483 @@
+openapi: 3.0.0
+info:
+  title: check-payment-history
+  description: API for FAICHKH administrative page
+  version: 1.0.0
+  x-audience: all
+  x-release-status: beta
+  x-source-name: FAICHKH
+  x-source-domain: Finance
+  x-source-title: Check Payment History
+  x-source-system: banner
+  x-api-type: bus-poc
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /api/check-payment-history:
+    get:
+      tags:
+      - check-payment-history
+      summary: Return resources from FAICHKH
+      parameters:
+      - name: X-SDE-Expand
+        in: header
+        description: The comma separated value list of block names
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        description: The maximum number of resources requesting for this result set.
+        required: false
+        schema:
+          type: integer
+      - name: offset
+        in: query
+        description: The 0 based index for a collection of resources for the page
+          requested.
+        required: false
+        schema:
+          type: integer
+      - name: criteria
+        in: query
+        description: The filter criteria as a single URL query parameter. Use this
+          parameter or the individual parameters listed. Must be a JSON representation
+          of the property searching for. This can be any of the properties listed
+          on the URL or QAPI and must be a json representation that can be validated
+          against the GET schema. Limit and Offset are the only supported additional
+          parameters on the URL.
+        required: false
+        schema:
+          type: string
+      - name: faachkhCheckNum
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: faachkhBankCode
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/check-payment-history-1.0.0_get_response"
+        "401":
+          description: Failure. Unauthorized
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+      security:
+      - BasicAuth: []
+        EllucianOAuthUserToken: []
+  /qapi/check-payment-history:
+    post:
+      tags:
+      - check-payment-history QAPI (Query by POST)
+      summary: Return resources from FAICHKH
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/check-payment-history-1.0.0_qapi_post_request"
+            example:
+              faachkhBankCode: A1
+              faachkhCheckNum: A0000001
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/check-payment-history-1.0.0_qapi_post_response"
+        "401":
+          description: Failure. Unauthorized
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+      security:
+      - BasicAuth: []
+        EllucianOAuthUserToken: []
+components:
+  schemas:
+    check-payment-history-1.0.0_qapi_post_request:
+      type: object
+      properties:
+        faachkhBankCode:
+          title: Bank
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : faachkhBankCode, Lookup lineage\
+            \ reference object : gxvbank"
+          x-lineageReferenceObject: faachkhBankCode
+          x-lineageLookupReferenceObject: gxvbank
+        faachkhCheckNum:
+          title: Check Number
+          maxLength: 8
+          type: string
+          description: "Lineage reference object : faachkhCheckNum"
+          x-lineageReferenceObject: faachkhCheckNum
+      x-lineageReferenceObject: KEY_BLOCK
+    check-payment-history-1.0.0_qapi_post_response:
+      type: object
+      properties:
+        key_block:
+          type: array
+          items:
+            type: object
+            properties:
+              cancelDate:
+                title: Cancel Date
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : cancelDate"
+                format: date-time
+                x-lineageReferenceObject: cancelDate
+              checkTypeDesc:
+                title: Check Type
+                maxLength: 14
+                type: string
+                description: "Lineage reference object : checkTypeDesc"
+                x-lineageReferenceObject: checkTypeDesc
+              faachkhBankCode:
+                title: Bank
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : faachkhBankCode, Lookup lineage\
+                  \ reference object : gxvbank"
+                x-lineageReferenceObject: faachkhBankCode
+                x-lineageLookupReferenceObject: gxvbank
+              checkDate:
+                title: Check Date
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : checkDate"
+                format: date-time
+                x-lineageReferenceObject: checkDate
+              displayVendName:
+                maxLength: 230
+                type: string
+                description: "Lineage reference object : displayVendName"
+                x-lineageReferenceObject: displayVendName
+              faachkhCheckNum:
+                title: Check Number
+                maxLength: 8
+                type: string
+                description: "Lineage reference object : faachkhCheckNum"
+                x-lineageReferenceObject: faachkhCheckNum
+              displayVendCode:
+                title: Vendor
+                maxLength: 9
+                type: string
+                description: "Lineage reference object : displayVendCode, Lookup lineage\
+                  \ reference object : ftvvend"
+                x-lineageReferenceObject: displayVendCode
+                x-lineageLookupReferenceObject: ftvvend
+              crsnCode:
+                title: Cancel Reason
+                maxLength: 4
+                type: string
+                description: "Lineage reference object : crsnCode"
+                x-lineageReferenceObject: crsnCode
+              faachkhBankName:
+                type: string
+                description: "Lineage reference object : faachkhBankName"
+                x-lineageReferenceObject: faachkhBankName
+              payType:
+                title: Pay Type
+                maxLength: 13
+                type: string
+                description: "Lineage reference object : payType"
+                x-lineageReferenceObject: payType
+              displayVendCheckName:
+                maxLength: 230
+                type: string
+                description: "Lineage reference object : displayVendCheckName"
+                x-lineageReferenceObject: displayVendCheckName
+              checkAmt:
+                title: Check Amount
+                maxLength: 25
+                type: number
+                description: "Lineage reference object : checkAmt"
+                x-lineageReferenceObject: checkAmt
+              crsnDesc:
+                type: string
+                description: "Lineage reference object : crsnDesc"
+                x-lineageReferenceObject: crsnDesc
+              displayVendCheckCode:
+                title: Check Vendor
+                maxLength: 9
+                type: string
+                description: "Lineage reference object : displayVendCheckCode"
+                x-lineageReferenceObject: displayVendCheckCode
+            x-lineageReferenceObject: key_block
+        fabinck:
+          type: array
+          items:
+            type: object
+            properties:
+              netAmt:
+                title: Net Amount
+                maxLength: 25
+                type: number
+                description: "Lineage reference object : FABINCK_NET_AMT"
+                x-lineageReferenceObject: FABINCK_NET_AMT
+              withholdTaxAmt:
+                title: Taxes Held
+                maxLength: 25
+                type: number
+              invhCode:
+                title: Document Number
+                maxLength: 8
+                type: string
+                description: "Lineage reference object : FABINCK_INVH_CODE"
+                x-lineageReferenceObject: FABINCK_INVH_CODE
+              docTypeDesc:
+                title: Document Type
+                maxLength: 11
+                type: string
+            x-lineageReferenceObject: fabinck
+        favvic1:
+          type: array
+          items:
+            type: object
+            properties:
+              vendInvCode:
+                title: Invoice Code
+                maxLength: 35
+                type: string
+                description: "Lineage reference object : FAVVIC1_VEND_INV_CODE"
+                x-lineageReferenceObject: FAVVIC1_VEND_INV_CODE
+              displayVendInvTotal:
+                title: Invoice Amount
+                maxLength: 25
+                type: number
+            x-lineageReferenceObject: favvic1
+    errors-2.0.0:
+      required:
+      - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for
+                  the primary data entity used to create the resource. This is useful
+                  for referencing the source item through the applications administrative
+                  user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: 'The detailed actionable error message. '
+    check-payment-history-1.0.0_get_response:
+      type: object
+      properties:
+        key_block:
+          type: array
+          items:
+            type: object
+            properties:
+              cancelDate:
+                title: Cancel Date
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : cancelDate"
+                format: date-time
+                x-lineageReferenceObject: cancelDate
+              checkTypeDesc:
+                title: Check Type
+                maxLength: 14
+                type: string
+                description: "Lineage reference object : checkTypeDesc"
+                x-lineageReferenceObject: checkTypeDesc
+              faachkhBankCode:
+                title: Bank
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : faachkhBankCode, Lookup lineage\
+                  \ reference object : gxvbank"
+                x-lineageReferenceObject: faachkhBankCode
+                x-lineageLookupReferenceObject: gxvbank
+              checkDate:
+                title: Check Date
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : checkDate"
+                format: date-time
+                x-lineageReferenceObject: checkDate
+              displayVendName:
+                maxLength: 230
+                type: string
+                description: "Lineage reference object : displayVendName"
+                x-lineageReferenceObject: displayVendName
+              faachkhCheckNum:
+                title: Check Number
+                maxLength: 8
+                type: string
+                description: "Lineage reference object : faachkhCheckNum"
+                x-lineageReferenceObject: faachkhCheckNum
+              displayVendCode:
+                title: Vendor
+                maxLength: 9
+                type: string
+                description: "Lineage reference object : displayVendCode, Lookup lineage\
+                  \ reference object : ftvvend"
+                x-lineageReferenceObject: displayVendCode
+                x-lineageLookupReferenceObject: ftvvend
+              crsnCode:
+                title: Cancel Reason
+                maxLength: 4
+                type: string
+                description: "Lineage reference object : crsnCode"
+                x-lineageReferenceObject: crsnCode
+              faachkhBankName:
+                type: string
+                description: "Lineage reference object : faachkhBankName"
+                x-lineageReferenceObject: faachkhBankName
+              payType:
+                title: Pay Type
+                maxLength: 13
+                type: string
+                description: "Lineage reference object : payType"
+                x-lineageReferenceObject: payType
+              displayVendCheckName:
+                maxLength: 230
+                type: string
+                description: "Lineage reference object : displayVendCheckName"
+                x-lineageReferenceObject: displayVendCheckName
+              checkAmt:
+                title: Check Amount
+                maxLength: 25
+                type: number
+                description: "Lineage reference object : checkAmt"
+                x-lineageReferenceObject: checkAmt
+              crsnDesc:
+                type: string
+                description: "Lineage reference object : crsnDesc"
+                x-lineageReferenceObject: crsnDesc
+              displayVendCheckCode:
+                title: Check Vendor
+                maxLength: 9
+                type: string
+                description: "Lineage reference object : displayVendCheckCode"
+                x-lineageReferenceObject: displayVendCheckCode
+            x-lineageReferenceObject: key_block
+        fabinck:
+          type: array
+          items:
+            type: object
+            properties:
+              netAmt:
+                title: Net Amount
+                maxLength: 25
+                type: number
+                description: "Lineage reference object : FABINCK_NET_AMT"
+                x-lineageReferenceObject: FABINCK_NET_AMT
+              withholdTaxAmt:
+                title: Taxes Held
+                maxLength: 25
+                type: number
+              invhCode:
+                title: Document Number
+                maxLength: 8
+                type: string
+                description: "Lineage reference object : FABINCK_INVH_CODE"
+                x-lineageReferenceObject: FABINCK_INVH_CODE
+              docTypeDesc:
+                title: Document Type
+                maxLength: 11
+                type: string
+            x-lineageReferenceObject: fabinck
+        favvic1:
+          type: array
+          items:
+            type: object
+            properties:
+              vendInvCode:
+                title: Invoice Code
+                maxLength: 35
+                type: string
+                description: "Lineage reference object : FAVVIC1_VEND_INV_CODE"
+                x-lineageReferenceObject: FAVVIC1_VEND_INV_CODE
+              displayVendInvTotal:
+                title: Invoice Amount
+                maxLength: 25
+                type: number
+            x-lineageReferenceObject: favvic1
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EllucianOAuthUserToken:
+      type: http
+      scheme: bearer

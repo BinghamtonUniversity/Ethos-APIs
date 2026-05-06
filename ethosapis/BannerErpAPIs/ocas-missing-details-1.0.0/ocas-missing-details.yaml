@@ -1,0 +1,186 @@
+openapi: 3.0.0
+info:
+  title: ocas-missing-details
+  description: 'This is an API to fetch OCAS Applicant Missing Requirements or Institutional Test Results. '
+  version: 1.0.0
+  x-source-domain: Student
+  x-api-type: erp
+  x-release-status: ga
+  x-audience: all
+  x-source-title: OCAS Missing Details
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+paths:
+  /ocas-missing-details:
+    get:
+      summary: Missing Details API
+      description: "Returns missing requirement details or institutional test results based on supplied criteria.  \n- If only `year` or `year + applicationNumber` are provided → **MissingReqResponse**.\n\n- If `ptype` is provided (with either year or applicationNumber or both) → **InstTestResultsResponse**.\n\nResponse body will be **an array of one of the two schemas**.\n"
+      parameters:
+      - name: year
+        in: query
+        required: false
+        schema:
+          type: string
+        example: "2025"
+      - name: applicationNumber
+        in: query
+        required: false
+        schema:
+          type: string
+        example: "260005646"
+      - name: ptype
+        in: query
+        required: false
+        schema:
+          type: string
+        example: TFL
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  oneOf:
+                  - $ref: "#/components/schemas/MissingReqResponse"
+                  - $ref: "#/components/schemas/InstTestResultsResponse"
+              examples:
+                missingReqResponse:
+                  summary: Example for MissingReqResponse
+                  value:
+                  - id: "260005606"
+                    sapMissReq: |
+                      1. [020122^-2^-1^-2026-09-08^-CC^-202615]::TEST_CODE:-tlc 01, TEST_DESC:-SECTION 1
+                InstTestResultsResponse:
+                  summary: Example for InstTestResultsResponse
+                  value:
+                  - applicationNumber: "240016997"
+                    normalizedScore: "56"
+                    otscCode: TFL
+                    otscDesc: TEST OF WRITTEN ENGLISH
+                    person: "132742"
+                    rawScore: "56"
+                    subTestCode: "05"
+                    testDate: 23-OCT-24
+        "400":
+          description: Invalid query parameters
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+      - BasicAuth: []
+        EthosIntegrationBearer: []
+components:
+  schemas:
+    MissingReqResponse:
+      required:
+      - id
+      type: object
+      properties:
+        id:
+          type: string
+          example: "260005606"
+        fapMissReq:
+          type: string
+          example: string
+        sapMissReq:
+          type: string
+          example: |
+            1. [020122^-2^-1^-2026-09-08^-CC^-202615]::TEST_CODE:-tlc 01, TEST_DESC:-SECTION 1
+        tapMissReq:
+          type: string
+          example: string
+        falpMissReq:
+          type: string
+          example: string
+        salpMissReq:
+          type: string
+          example: string
+        talpMissReq:
+          type: string
+          example: string
+        person:
+          type: string
+          example: string
+        applicationNumber:
+          type: string
+          example: "260005606"
+    InstTestResultsResponse:
+      required:
+      - id
+      type: object
+      properties:
+        person:
+          type: string
+          example: "132742"
+        applicationNumber:
+          type: string
+          example: "240016997"
+        otscCode:
+          type: string
+          example: TFL
+        subTestCode:
+          type: string
+          example: "05"
+        otscDesc:
+          type: string
+          example: TEST OF WRITTEN ENGLISH
+        testDate:
+          type: string
+          example: 23-OCT-24
+        rawScore:
+          type: string
+          example: "56"
+        normalizedScore:
+          type: string
+          example: "56"
+    errors_2_0_0:
+      required:
+      - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/errors_2_0_0_errors"
+    errors_2_0_0_errors:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The global identifier of the resource in error.
+        code:
+          type: string
+          description: The error message code used to describe the error details.
+        description:
+          type: string
+          description: The error description used to describe the error details.
+        message:
+          type: string
+          description: The detailed actionable error message.
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

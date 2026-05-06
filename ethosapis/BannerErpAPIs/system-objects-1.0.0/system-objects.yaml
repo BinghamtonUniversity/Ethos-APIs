@@ -1,0 +1,112 @@
+openapi: 3.0.3
+info:
+  title: System Objects
+  description: Retrieves a list of system objects (Banner pages) integrated with the menu (excluding
+    those names starting with API_) from the GUBOBJS table.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Foundation
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: '{server_url}'
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /system-objects:
+    get:
+      summary: Get list of system objects (Banner page) from GUBOBJS table.
+      description: Returns objects with type code 'FORM', integrated with the menu,
+        and whose names do not start with 'API_'. Supports optional filtering by object
+        name.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_SYSTEM_OBJECTS
+      tags:
+        - system-objects
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/system-objects.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    system-objects.json:
+      title: System Objects
+      description: The API returns the list of system objects (Banner page) from GUBOBJS table.
+      type: object
+      properties:
+        objectName:
+          type: string
+          description: The name of the system object
+          example: "ATVMLVL"
+        objectDescription:
+          type: string
+          description: The description of the system object
+          example: "Matching Gift Institution Level Validation"
+      required:
+        - objectName
+        - objectDescription

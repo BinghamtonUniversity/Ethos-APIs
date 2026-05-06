@@ -1,0 +1,720 @@
+openapi: 3.0.0
+info:
+  title: Faculty Advisor Details
+  description: >
+  
+    This API returns faculty and advisor details using a 
+    combination of Banner Id and term as seen on the SIAINST administrative page. 
+
+    In addition to the faculty and advisor details (SIBINST), contract rules (SIRICNT), department and college details (SIRDPCL), attributes (SIRATTR) and comments (SIRCMNT)
+    are returned in the response.
+
+  version: 1.0.0-beta
+  x-api-type: erp
+  x-release-status: beta
+  x-source-system: Banner
+  x-audience: all
+  x-source-domain: Student
+  x-source-name: SIAINST
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /qapi/faculty-advisor-details:
+    post:
+      tags:
+      - faculty-advisor-details QAPI
+      summary: Returns resources from SIBINST, SIRICNT, SIRDPCL, SIRATTR and SIRCMNT.
+      description: >
+        Queries for the requested resource using a set of attributes provided in the post
+        request body.  Please note the path to the server is overridden to use /qapi/{resource} 
+        in the URL and not /api/{resource}.
+        
+        Returns the SIBINST record meeting the required submitted criteria of Banner Id 
+        and query term. Any SIRICNT, SIRDPCL, SIATTR or SIRCMNT records associated 
+        with the base faculty and advisor details are also returned in the response.        
+          
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string            
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/faculty-advisor-details-1.0.0_qapi_post_request"
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/faculty-advisor-details-1.0.0_qapi_post_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: "API_FACULTY_ADVISOR_DETAILS"
+components:
+  schemas:
+    faculty-advisor-details-1.0.0_qapi_post_request:
+      type: object
+      required:
+        - queryTerm        
+      properties:              
+        bannerId:
+          title: Banner ID
+          maxLength: 9
+          type: string
+          description: "Faculty/Advisor member Id"
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: 21009506
+        queryTerm:
+          title: Query Term
+          maxLength: 6
+          type: string
+          description: "A user provided value.  The query term code is used to retrieve the most current faculty/advisor details that are less than, or equal to, the provided value."         
+          x-lineageLookupReferenceObject: STVTERM
+          example: 199510 
+        status:
+          title: Faculty Member Status Code
+          maxLength: 2
+          type: string
+          description: "Faculty member status."
+          x-lineageReferenceObject: SIBINST_FCST_CODE
+          x-lineageLookupReferenceObject: STVFCST
+          example: AC           
+        statusType:
+          title: Status of Faculty Member Status Code
+          maxLength: 1
+          description: "The status type associated with the faculty member status code. Valid values: A = active, I = inactive."                    
+          x-lineageReferenceObject: STVFCST_ACTIVE_IND           
+          example: A               
+        facultyRole:
+          title: Faculty Schedule Indicator
+          maxLength: 1
+          type: string
+          description: "Avaliable to assign as an instructor."
+          x-lineageReferenceObject: SIBINST_SCHD_IND
+          example: Y 
+        advisorRole:
+          title: Advisor Schedule Indicator
+          maxLength: 1
+          type: string
+          description: "Available to assign as an advisor."
+          x-lineageReferenceObject: SIBINST_ADVR_IND
+          example: Y             
+    faculty-advisor-details-1.0.0_qapi_post_response:
+      type: object
+      required:
+        - bannerId
+        - queryTerm
+      properties:
+        bannerId:
+          title: Banner ID
+          maxLength: 9
+          type: string
+          description: "Faculty/Advisor member Id"
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: 21009506
+        queryTerm:
+          title: Query Term
+          maxLength: 6
+          type: string
+          description: "A user provided value.  The query term code is used to retrieve the most current faculty/Advisor details that are less than, or equal to, the provided value."         
+          x-lineageLookupReferenceObject: STVTERM
+          example: 199510   
+        facultyAdvisorBaseInformation:
+          title: Faculty Advisor Base Information
+          type: object
+          required:
+            - fromTerm
+            - status
+            - statusEffectiveOn 
+          properties:
+            fromTerm:
+              title: Effective Term
+              maxLength: 6
+              type: string
+              description: "The starting term code for a set of faculty and advisor base details."
+              x-lineageReferenceObject: SIBINST_TERM_CODE_EFF
+              x-lineageLookupReferenceObject: STVTERM
+              example: 199510    
+            toTerm:
+              title: Ending Term
+              maxLength: 6
+              type: string
+              description: "The ending term code for a set of faculty/advisor base details."
+              x-lineageReferenceObject: derived
+              x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+              x-lineageLookupReferenceObject: STVTERM
+              example: 999999
+            facultyAdvisorBase:
+              type: object
+              required:
+              - status
+              - statusEffectiveOn
+              - statusType
+              properties:
+                status:
+                  title: Faculty Member Status Code
+                  maxLength: 2
+                  type: string
+                  description: "Faculty member status."
+                  x-lineageReferenceObject: SIBINST_FCST_CODE
+                  x-lineageLookupReferenceObject: STVFCST
+                  example: AC
+                statusDescription:
+                  title: Staus Code Description
+                  maxLength: 30
+                  type: string
+                  description: "Faculty member status code description."
+                  x-linegeReferenceObject: STVFCST
+                  example: Active 
+                statusEffectiveOn: 
+                  title: Faculty Member Status Date
+                  type: string
+                  format: date
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                  description: "Faculty member status date."
+                  x-lineageReferenceObject: SIBINST_FCST_DATE
+                  example: 1995-09-01    
+                statusType:
+                  title: Status of Faculty Member Status Code
+                  maxLength: 1
+                  description: "The status type associated with the faculty member status code. Valid values: A = active, I = inactive."                    
+                  x-lineageReferenceObject: STVFCST_ACTIVE_IND           
+                  example: A           
+                facultyRole:
+                  title: Faculty Schedule Indicator
+                  maxLength: 1
+                  type: string
+                  description: "Avaliable to assign as an instructor."
+                  x-lineageReferenceObject: SIBINST_SCHD_IND
+                  example: Y 
+                advisorRole:
+                  title: Advisor Schedule Indicator
+                  maxLength: 1
+                  type: string
+                  description: "Available to assign as an advisor."
+                  x-lineageReferenceObject: SIBINST_ADVR_IND
+                  example: Y 
+                hasSelfServiceSecurityOverride:
+                  title: Self-service Rule Exception 
+                  type: boolean
+                  description: "Self-service rule exception granted."
+                  x-lineageReferenceObject: SIBINST_OVERRIDE_PROCESS_IND
+                  example: true   
+                appointedOn:
+                  title: Appointment Date
+                  type: string
+                  format: date
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                  description: "The date the appointment was awarded."
+                  x-lineageReferenceObject: SIBINST_APPOINT_DATE
+                  example: 2022-01-20
+                category:
+                  title: Category Code
+                  maxLength: 6
+                  type: string
+                  description: "Faculty member category."
+                  x-lineageReferenceObject: SIBINST_FCTG_CODE
+                  x-lineageLookupReferenceObject: STVFCTG             
+                  example: ASPROF 
+                categoryDescription:
+                  title: Category Code Description
+                  maxLength: 30
+                  type: string
+                  description: "Description of faculty member category code."
+                  x-lineageReferenceObject: STVFCTG_DESC
+                  example: Associate Professor  
+                staffType:
+                  title: Staff Type Code
+                  maxLength: 4
+                  type: string
+                  description: "Faculty member staff type which is required for workload calculation."
+                  x-lineageReferenceObject: SIBINST_FSTP_CODE
+                  x-lineageLookupReferenceObject: STVFSTP             
+                  example: FT 
+                staffTypeDescription:
+                  title: Staff Type Code Description
+                  maxLength: 30
+                  type: string
+                  description: "Description of faculty member staff type code."
+                  x-lineageReferenceObject: STVFSTP_DESC
+                  example: Full Time
+                workloadRule:
+                  title: Workload Rule Code
+                  maxLength: 4
+                  type: string
+                  description: "Faculty member workload rule code."
+                  x-lineageReferenceObject: SIBINST_WKLD_CODE
+                  x-lineageLookupReferenceObject: STVWKLD             
+                  example: CE
+                workloadRuleDescription:
+                  title: Worload Rule Code Description
+                  maxLength: 30
+                  type: string
+                  description: "Description of Workload Rules Code."
+                  x-lineageReferenceObject: STVWKLD_DESC
+                  example: Continuing Education 
+                modifiedOn:
+                  title: Modified On
+                  maxLength: 11
+                  type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                  description: "Most current date the record was created or changed."
+                  x-lineageReferenceObject: SIBINST_ACTIVITY_DATE
+                  example: 2024-05-05T04:00:00Z   
+                modifiedBy:
+                  title: Modified By User ID
+                  maxLength: 30
+                  type: string
+                  description: "User who inserted or last updated the data."
+                  x-lineageReferenceObject: SIBINST_USER_ID
+                  example: SYSTEST08
+        facultyContract:
+          title: Faculty Contract
+          type: object   
+          required:
+              - fromTerm                       
+          properties:
+              fromTerm:
+                title: Effective Term
+                maxLength: 6
+                type: string
+                description: "The starting term code for a set of faculty contracts."
+                x-lineageReferenceObject: SIRICNT_TERM_CODE_EFF
+                x-lineageLookupReferenceObject: STVTERM
+                example: 199510    
+              toTerm:
+                title: Ending Term
+                maxLength: 6
+                type: string
+                description: "The ending term code for a set of faculty contracts."
+                x-lineageReferenceObject: derived
+                x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+                x-lineageLookupReferenceObject: STVTERM
+                example: 999999
+              contractTypes:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - contractType
+                    - contractDefaultIndicator
+                  properties:
+                    contractType:
+                      title: Contract Type Code
+                      maxLength: 2
+                      type: string
+                      description: "The contract type(s) that are associated with a faculty member."
+                      x-lineageReferenceObject: SIRICNT_FCNT_CODE
+                      x-lineageLookupReferenceObject: STVFCNT
+                      example: F 
+                    contractTypeDescription:
+                      title: Contract Type Code Description
+                      maxLength: 30
+                      type: string
+                      description: "Description of faculty member contract type code."
+                      x-lineageReferenceObject: STVFCNT_DESC
+                      example: Fall Only             
+                    contractRule: 
+                      title: Contract Rule
+                      maxLength: 6
+                      type: string
+                      description: "The contract rule code(s) that are associated with a faculty member."
+                      x-lineageReferenceObject: SIRICNT_CNTR_CODE
+                      x-lineageLookupReferenceObject: STVCNTR
+                      example: CHAIR 
+                    contractRuleDescription:
+                      title: Contract Rule Code Description
+                      maxLength: 30
+                      type: string
+                      description: "Description of Contract Rules Code."
+                      x-lineageReferenceObject: STVCNTR_DESC
+                      example: Chairperson
+                    contractDefaultIndicator:
+                      title: Contract Default Indicator
+                      maxLength: 1
+                      type: string
+                      description: "Default indicator shows which of the contract types is defined as the default for assignments.Valid values are D for the default and N for not the default."
+                      x-lineageReferenceObject: SIRICNT_DEF_IND     
+                      example: N  
+                    modifiedOn:
+                      title: Modified On
+                      maxLength: 11
+                      type: string
+                      format: date-time
+                      pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                      description: "Most current date the record was created or changed."
+                      x-lineageReferenceObject: SIRICNT_ACTIVITY_DATE
+                      example: 2024-05-05T04:00:00Z   
+                    modifiedBy:
+                      title: Modified By User ID
+                      maxLength: 30
+                      type: string
+                      description: "User who inserted or last updated the data."
+                      x-lineageReferenceObject: SIRICNT_USER_ID
+                      example: SYSTEST08                                                                                                                                                                           
+        departmentAndCollege:
+          title: Department and College 
+          type: object
+          required:
+              - fromTerm
+          properties:
+              fromTerm:
+                title: Effective Term
+                maxLength: 6
+                type: string
+                format: string              
+                description: "The starting term code for a set of department and college details."
+                x-lineageReferenceObject: SIRDPCL_TERM_CODE_EFF
+                x-lineageLookupReferenceObject: STVTERM
+                example: 199510    
+              toTerm:
+                title: Ending Term
+                maxLength: 6
+                type: string
+                description: "The ending term code for a set of department and college details."
+                x-lineageReferenceObject: derived
+                x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+                x-lineageLookupReferenceObject: STVTERM
+                example: 999999 
+              departmentsAndColleges:
+                type: array
+                items: 
+                  type: object
+                  properties:
+                    isHomeDepartmentOrCollege:
+                      title: Home Department or College Indicator
+                      type: boolean
+                      description: "The home administrative department and college indicator. Valid values are Y for the home college/department or N for not home for the college/department."
+                      x-lineageReferenceObject: SIRDPCL_HOME_IND    
+                      example: true  
+                    college:
+                      title: College Code
+                      maxLength: 2
+                      type: string
+                      description: "The college to which the faculty member is assigned."
+                      x-lineageReferenceObject: SIRDPCL_COLL_CODE
+                      x-lineageLookupReferenceObject: STVCOLL
+                      example: 01
+                    collegeDescription: 
+                      title: College Code Description
+                      maxLength: 30
+                      type: string
+                      description: "The college or school associated with the college code."
+                      x-lineageReferenceObject: STVCOLL_DESC
+                      example: School of Behavioral Sciences
+                    department:
+                      title: Department Code
+                      maxLength: 2
+                      type: string
+                      description: "The department to which the faculty member is assigned."
+                      x-lineageReferenceObject: SIRDPCL_DEPT_CODE
+                      x-lineageLookupReferenceObject: STVDEPT
+                      example: 2410
+                    departmentDescription: 
+                      title: Department Code Description
+                      maxLength: 30
+                      type: string
+                      description: "The department associated with the department code."
+                      x-lineageReferenceObject: STVDEPT_DESC
+                      example: Biological Sciences
+                    responsibilityPercentage: 
+                      title: Faculty Responsibility percentage
+                      maxLength: 3
+                      type: number
+                      description: "The faculty members percentage of responsibility to the department and college."
+                      x-lineageReferenceObject: SIRDPCL_PERCENTAGE
+                      example: 75
+                    modifiedOn:
+                      title: Modified On
+                      maxLength: 11
+                      type: string
+                      format: date-time
+                      pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                      description: "Most current date the record was created or changed."
+                      x-lineageReferenceObject: SIRDPCL_ACTIVITY_DATE
+                      example: 2024-05-05T04:00:00Z   
+                    modifiedBy:
+                      title: Modified By User ID
+                      maxLength: 30
+                      type: string
+                      description: "User who inserted or last updated the data."
+                      x-lineageReferenceObject: SIRDPCL_USER_ID
+                      example: SYSTEST08 
+        attribute:
+          title: Attribute
+          type: object     
+          required:
+              - fromTerm                       
+          properties:
+              fromTerm:
+                title: Effective Term
+                maxLength: 6
+                type: string
+                format: string              
+                description: "The starting term code for a set of attributes."
+                x-lineageReferenceObject: SIRATTR_TERM_CODE_EFF
+                x-lineageLookupReferenceObject: STVTERM
+                example: 199510    
+              toTerm:
+                title: Ending Term
+                maxLength: 6
+                type: string
+                description: "The ending term code for a set of attributes."
+                x-lineageReferenceObject: derived
+                x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+                x-lineageLookupReferenceObject: STVTERM
+                example: 999999
+              attributes:
+                type: array
+                items: 
+                  type: object
+                  required:
+                    - attribute
+                  properties:
+                      attribute:
+                          title: Attribute Code
+                          maxLength: 4
+                          type: string
+                          description: "The faculty/Advisor attribute."
+                          x-lineageReferenceObject: SIRATTR_FATT_CODE
+                          x-lineageLookupReferenceObject: STVFATT
+                          example: CERT
+                      attributeDescription: 
+                          title: Attribute Code Description
+                          maxLength: 30
+                          type: string
+                          description: "Description of the attribute code."
+                          x-lineageReferenceObject: STVFATT_DESC
+                          example: Teaching Certification
+                      modifiedOn:
+                          title: Modified On
+                          maxLength: 11
+                          type: string
+                          format: date-time
+                          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                          description: "Most current date the record was created or changed."
+                          x-lineageReferenceObject: SIRATTR_ACTIVITY_DATE
+                          example: 2024-05-05T04:00:00Z                     
+                      modifiedBy:
+                          title: Modified By User ID
+                          maxLength: 30
+                          type: string
+                          description: "User who inserted or last update the data."
+                          x-lineageReferenceObject: SIRATTR_USER_ID
+                          example: SAISUSR                          
+        comment:
+          title: Comment
+          type: object
+          required:
+             - fromTerm
+             - comment    
+          properties:             
+              fromTerm:
+                title: Starting Term
+                maxLength: 6
+                type: string
+                description: "The starting term code for a set of comments."
+                x-lineageReferenceObject: SIRCMNT__TERM_CODE_EFF
+                x-lineageLookupReferenceObject: STVTERM
+                example: 199510      
+              toTerm:
+                title: Ending Term
+                maxLength: 6
+                type: string
+                description: "The ending term code for a set of comments."
+                x-lineageReferenceObject: derived
+                x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+                x-lineageLookupReferenceObject: STVTERM
+                example: 999999         
+              comments:
+                type: array
+                items: 
+                  type: object
+                  required: 
+                    - comment
+                    - sequenceNumber
+                  properties:
+                    comment: 
+                      title: Comment
+                      maxLength: 60
+                      type: string
+                      description: "Comments related to faculty or advisor."
+                      x-lineageReferenceObject: SIRCMNT_TEXT
+                      example: Sabbatical in 2016-2017 academic year
+                    sequenceNumber: 
+                      title: Comment Sequence Number
+                      maxLength: 23
+                      type: number
+                      description: "The comment sequence number."
+                      x-lineageReferenceObject: SIRCMNT_SEQNO
+                      example: 2
+                    modifiedOn:
+                      title: Modified On
+                      maxLength: 11
+                      type: string
+                      format: date-time
+                      pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                      description: "Most current date the record was created or changed."
+                      x-lineageReferenceObject: SIRCMNT_ACTIVITY_DATE
+                      example: 2024-05-05T04:00:00Z                     
+                    modifiedBy:
+                      title: Modified By User ID
+                      maxLength: 30
+                      type: string
+                      description: "User who inserted or last update the data."
+                      x-lineageReferenceObject: SIRCMNT_USER_ID
+                      example: SYSTEST08                                                    
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic         
+                                                                             
+               
+           
+                 
+  

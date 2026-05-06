@@ -1,0 +1,958 @@
+openapi: 3.0.0
+info:
+  title: Payroll Deduction Arrangements
+  description: >
+    The details of payroll deductions related to contributions of all employees
+    (includes retirees).
+
+
+    Please refer to the section "API Integration Configuration Settings" in Banner Ethos API Handbook for all the configuration settings needed for this API. Please refer to the section "Changes in payroll-deduction-arrangements processing" in Banner Ethos API Handbook for more details on deduction codes set up and how arrangements are processed.
+  version: "7.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Human Resources
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/payroll-deduction-arrangements:
+    get:
+      summary: Returns resources from PDRBDED
+      description: >
+        Returns all records from PDRBDED that have deduction codes either with
+        each pay period of month or first pay period of the month, and with
+        calculation rule = 10 or 12 or 13. For a PDRBDED record, the deduction
+        in PDRDEDN for the SYSDATE will be retrieved. But if there is no
+        deduction available for current date, then the latest (max effective
+        dated) record will be retrieved.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PAYROLL_DEDN_ARRANGEMENTS
+      tags:
+        - payroll-deduction-arrangements
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v7+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Person  
+
+            Returns all payroll deduction arrangements for the given person
+
+            ```
+
+            /payroll-deduction-arrangements?person=290a3306-10b5-4873-a97a-6c6277281743
+
+            ```
+
+            ### Deduction type  
+
+            Returns all payroll deduction arrangements for the given person
+
+            ```
+
+            /payroll-deduction-arrangements?deductionType=da6ac0ad-62bd-416e-9751-7a15974be584
+
+            ```
+
+            ### Status 
+
+            Returns all payroll deduction arrangements for the given person
+
+            ```
+
+            /payroll-deduction-arrangements?status=active
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-payroll-deduction-arrangements.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v7+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new resource in PDRBDED
+      description: >
+        Creates a payroll deduction arrangement in PDRBDED.
+
+
+        Note:
+
+        • The API supports create requests with by sending either commitment type (pledge, recurring donation or membership dues) OR deduction type ID.
+
+        • If commitment type (pledge, recurring donation or membership dues) is sent in a create request, appropriate deduction types should be mapped in API configuration settings for PDA.COMMITMENT.PLEDGE, PDA.COMMITMENT.RECURRDONATION and PDA.COMMITMENT.MEMBERDUES. These deduction codes should have the calculation rule type of 10, 12 or 13. 
+
+        • Pay period occurrence with first pay period of the month (monthlyPayPeriods = 1) and each pay period of month (interval = 1) are only supported.
+
+
+        POST requests must include a nil GUID value ("00000000-0000-0000-0000-000000000000") for the root id property.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PAYROLL_DEDN_ARRANGEMENTS
+      tags:
+        - payroll-deduction-arrangements
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v7+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v7+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v7+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v7+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-payroll-deduction-arrangements.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-payroll-deduction-arrangements.json"
+  /api/payroll-deduction-arrangements/{id}:
+    get:
+      summary: Return the requested resource from PDRBDED
+      description: |
+        Returns a record from PDRBDED with the passed in identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PAYROLL_DEDN_ARRANGEMENTS
+      tags:
+        - payroll-deduction-arrangements
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v7+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v7+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v7+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-payroll-deduction-arrangements.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    put:
+      summary: Update the requested resource from PDRBDED
+      description: >
+        Updates a payroll deduction arrangement with the passed in identifier.
+
+
+        Note:
+
+
+        • If an update request is sent with the supplied startOn date not equal to the existing begin date on the PDRBDED record, the API process this request as a change to the overall arrangement start date and cannot be earlier than the employee’s last paid date.
+
+        • If an update request has only change to effective date and there is no change to any other data of this arrangement such as status, amount, then the PUT API will delete the previously existing arrangement closely matching the effective date of the record that needs to change. But will hold the original GUID in memory and create a new PDRDEDN record thereby returning the original GUID in the response. 
+
+        • If an update request is sent with cancelled or withdrawn or rejected request, the payroll deduction arrangement will be terminated and the response will display the record status as terminated.
+
+
+
+        Updatable fields are : status, amountPerPayment.value, totalAmount.value changeReason and startOn 
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PAYROLL_DEDN_ARRANGEMENTS
+      tags:
+        - payroll-deduction-arrangements
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Payroll Deduction Arrangements for use in
+            all external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v7+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v7+json 
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v7+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v7+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-payroll-deduction-arrangements.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-payroll-deduction-arrangements.json"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-payroll-deduction-arrangements.json:
+      title: Payroll Deduction Arrangements
+      description: A request to establish a payroll deduction.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of a payroll deduction request.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: PDRBDED_GUID(PDRBDED)
+        person:
+          title: Person
+          description: The employee for whom the payroll deduction is requested.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Person.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+              x-lineageDerivedLogic: A record in GORGUID where GORGUID_LDM_NAME = 'persons' and GORGUID_DOMAIN_KEY = pdrbded_pidm
+          additionalProperties: false
+          required:
+            - id
+        paymentTarget:
+          title: Payment Target
+          description: The target towards which payroll deductions are requested.
+          oneOf:
+            - title: One Of-1
+              description: ""
+              type: object
+              properties:
+                commitment:
+                  title: Commitment
+                  description: The commitment and type of commitment made.
+                  type: object
+                  properties:
+                    contribution:
+                      title: Contribution
+                      description: The contribution (pledge/recurring donation) for which the payroll
+                        deduction is requested
+                      type: string
+                      x-lineageReferenceObject: unsupported
+                    type:
+                      title: Type
+                      description: The reason for a payroll deduction request.
+                      enum:
+                        - pledge
+                        - recurringDonation
+                        - membershipDues
+                      type: string
+                      x-lineageReferenceObject: unsupported
+                  additionalProperties: false
+              additionalProperties: false
+            - title: One Of-2
+              description: ""
+              type: object
+              properties:
+                deduction:
+                  title: Deduction
+                  description: Payroll deduction for HSA, dining, parking, wage garnishments, etc.
+                  type: object
+                  properties:
+                    deductionType:
+                      title: Deduction Type
+                      description: Payroll deduction for HSA, dining, parking, wage garnishments, etc.
+                      type: object
+                      properties:
+                        id:
+                          title: ID
+                          description: The global identifier for the Deduction Type.
+                          type: string
+                          format: guid
+                          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                          x-lineageLookupReferenceObject: deduction-types 
+                          x-lineageReferenceObject: PTRBDCA_GUID(PTRBDCA)
+                      additionalProperties: false
+                      required:
+                        - id
+                  additionalProperties: false
+              additionalProperties: false
+        status:
+          title: Status
+          description: The status of a payroll deduction request.
+          enum:
+            - active
+            - suspended
+            - rejected
+            - cancelled
+            - withdrawn
+            - terminated
+          type: string
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: If PDRDEDN_STATUS = 'T' then display 'terminated';if PDRDEDN_STATUS = 'W' or 'E' then display 'suspended';if PDRDEDN_STATUS = 'A' then display 'active'
+        amountPerPayment:
+          title: Amount per Payment
+          description: The amount to be deducted per instance.
+          format: currency
+          type: object
+          properties:
+            value:
+              title: Value
+              description: The monetary value
+              type: number
+              x-lineageReferenceObject: PDRDEDN_AMOUNT1(PDRDEDN)
+            currency:
+              title: Currency
+              description: The ISO 4217 currency code
+              enum:
+                - AED
+                - AFN
+                - ALL
+                - AMD
+                - ANG
+                - AOA
+                - ARS
+                - AUD
+                - AWG
+                - AZN
+                - BAM
+                - BBD
+                - BDT
+                - BGN
+                - BHD
+                - BIF
+                - BMD
+                - BND
+                - BOB
+                - BRL
+                - BSD
+                - BTN
+                - BWP
+                - BYR
+                - BZD
+                - CAD
+                - CDF
+                - CHF
+                - CLP
+                - CNY
+                - COP
+                - CRC
+                - CUC
+                - CUP
+                - CVE
+                - CZK
+                - DJF
+                - DKK
+                - DOP
+                - DZD
+                - EGP
+                - ERN
+                - ETB
+                - EUR
+                - FJD
+                - FKP
+                - GBP
+                - GEL
+                - GHS
+                - GIP
+                - GMD
+                - GNF
+                - GTQ
+                - GYD
+                - HKD
+                - HNL
+                - HRK
+                - HTG
+                - HUF
+                - IDR
+                - ILS
+                - INR
+                - IQD
+                - IRR
+                - ISK
+                - JMD
+                - JOD
+                - JPY
+                - KES
+                - KGS
+                - KHR
+                - KMF
+                - KPW
+                - KRW
+                - KWD
+                - KYD
+                - KZT
+                - LAK
+                - LBP
+                - LKR
+                - LRD
+                - LSL
+                - LYD
+                - MAD
+                - MDL
+                - MGA
+                - MKD
+                - MMK
+                - MNT
+                - MOP
+                - MRO
+                - MUR
+                - MVR
+                - MWK
+                - MXN
+                - MYR
+                - MZN
+                - NAD
+                - NGN
+                - NIO
+                - NOK
+                - NPR
+                - NZD
+                - OMR
+                - PAB
+                - PEN
+                - PGK
+                - PHP
+                - PKR
+                - PLN
+                - PYG
+                - QAR
+                - RON
+                - RSD
+                - RUB
+                - RWF
+                - SAR
+                - SBD
+                - SCR
+                - SDG
+                - SEK
+                - SGD
+                - SHP
+                - SLL
+                - SOS
+                - SRD
+                - SSP
+                - STD
+                - SVC
+                - SYP
+                - SZL
+                - THB
+                - TJS
+                - TMT
+                - TND
+                - TOP
+                - TRY
+                - TTD
+                - TWD
+                - TZS
+                - UAH
+                - UGX
+                - USD
+                - UYU
+                - UZS
+                - VEF
+                - VND
+                - VUV
+                - WST
+                - XAF
+                - XCD
+                - XOF
+                - XPF
+                - YER
+                - ZAR
+                - ZMW
+                - ZWL
+              type: string
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: Display 'USD'
+          additionalProperties: false
+          required:
+            - value
+            - currency
+        totalAmount:
+          title: Total Amount
+          description: The total amount to be deducted.
+          oneOf:
+            - type: object
+              format: currency
+              properties:
+                value:
+                  title: Value
+                  description: The monetary value
+                  type: number
+                  x-lineageReferenceObject: PDRDEDN_AMOUNT2(PDRDEDN)
+                currency:
+                  title: Currency
+                  description: The ISO 4217 currency code
+                  enum:
+                    - AED
+                    - AFN
+                    - ALL
+                    - AMD
+                    - ANG
+                    - AOA
+                    - ARS
+                    - AUD
+                    - AWG
+                    - AZN
+                    - BAM
+                    - BBD
+                    - BDT
+                    - BGN
+                    - BHD
+                    - BIF
+                    - BMD
+                    - BND
+                    - BOB
+                    - BRL
+                    - BSD
+                    - BTN
+                    - BWP
+                    - BYR
+                    - BZD
+                    - CAD
+                    - CDF
+                    - CHF
+                    - CLP
+                    - CNY
+                    - COP
+                    - CRC
+                    - CUC
+                    - CUP
+                    - CVE
+                    - CZK
+                    - DJF
+                    - DKK
+                    - DOP
+                    - DZD
+                    - EGP
+                    - ERN
+                    - ETB
+                    - EUR
+                    - FJD
+                    - FKP
+                    - GBP
+                    - GEL
+                    - GHS
+                    - GIP
+                    - GMD
+                    - GNF
+                    - GTQ
+                    - GYD
+                    - HKD
+                    - HNL
+                    - HRK
+                    - HTG
+                    - HUF
+                    - IDR
+                    - ILS
+                    - INR
+                    - IQD
+                    - IRR
+                    - ISK
+                    - JMD
+                    - JOD
+                    - JPY
+                    - KES
+                    - KGS
+                    - KHR
+                    - KMF
+                    - KPW
+                    - KRW
+                    - KWD
+                    - KYD
+                    - KZT
+                    - LAK
+                    - LBP
+                    - LKR
+                    - LRD
+                    - LSL
+                    - LYD
+                    - MAD
+                    - MDL
+                    - MGA
+                    - MKD
+                    - MMK
+                    - MNT
+                    - MOP
+                    - MRO
+                    - MUR
+                    - MVR
+                    - MWK
+                    - MXN
+                    - MYR
+                    - MZN
+                    - NAD
+                    - NGN
+                    - NIO
+                    - NOK
+                    - NPR
+                    - NZD
+                    - OMR
+                    - PAB
+                    - PEN
+                    - PGK
+                    - PHP
+                    - PKR
+                    - PLN
+                    - PYG
+                    - QAR
+                    - RON
+                    - RSD
+                    - RUB
+                    - RWF
+                    - SAR
+                    - SBD
+                    - SCR
+                    - SDG
+                    - SEK
+                    - SGD
+                    - SHP
+                    - SLL
+                    - SOS
+                    - SRD
+                    - SSP
+                    - STD
+                    - SVC
+                    - SYP
+                    - SZL
+                    - THB
+                    - TJS
+                    - TMT
+                    - TND
+                    - TOP
+                    - TRY
+                    - TTD
+                    - TWD
+                    - TZS
+                    - UAH
+                    - UGX
+                    - USD
+                    - UYU
+                    - UZS
+                    - VEF
+                    - VND
+                    - VUV
+                    - WST
+                    - XAF
+                    - XCD
+                    - XOF
+                    - XPF
+                    - YER
+                    - ZAR
+                    - ZMW
+                    - ZWL
+                  type: string
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: Display 'USD'
+              additionalProperties: false
+              required:
+                - value
+                - currency
+            - type: object
+              maxProperties: 0
+        startOn:
+          title: Start On
+          description: The date when the payroll deductions should begin.
+          type: string
+          format: date
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+          x-lineageReferenceObject: PDRBDED_BEGIN_DATE(PDRBDED)
+        endOn:
+          title: End On
+          description: The date when the payroll deductions should end.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: PDRBDED_END_DATE(PDRBDED)
+            - type: string
+              maxLength: 0
+        payPeriodOccurence:
+          title: Pay Period Occurence
+          description: The pay periods for which the payroll deductions are applicable.
+          oneOf:
+            - title: Interval
+              description: The number of pay periods between deductions, e.g 1 = every pay
+                period, 2 = every other pay period).
+              type: object
+              properties:
+                interval:
+                  title: Interval
+                  description: The number of pay periods between deductions, e.g. 1 = every pay
+                    period, 2 = every other pay period).
+                  type: integer
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: If PTRBDCA_WEEK1_IND = 'Y' AND PTRBDCA_WEEK2_IND = 'Y' AND PTRBDCA_WEEK3_IND = 'Y' AND PTRBDCA_WEEK4_IND = 'Y' then display '1' else do not publish.
+              additionalProperties: false
+              required:
+                - interval
+            - title: Monthly Pay Periods
+              description: A list of pay periods during a month when deductions should occur.
+                Use a positive number to count from the start of the month
+                (e.g., 1 = first pay period of the month, 2 = second pay period
+                of the month), and a negative number to count from the end of
+                the month (e.g. -1 = last pay period of the month).
+              type: object
+              properties:
+                monthlyPayPeriods:
+                  title: Monthly Pay Periods
+                  description: A list of pay periods during a month when deductions should occur.
+                    Use a positive number to count from the start of the month
+                    (e.g., 1 = first pay period of the month, 2 = second pay
+                    period of the month), and a negative number to count from
+                    the end of the month (e.g. -1 = last pay period of the
+                    month).
+                  type: array
+                  minItems: 1
+                  items:
+                    type: integer
+                    x-lineageReferenceObject: derived  
+                    x-lineageDerivedLogic: If PTRBDCA_WEEK1_IND = 'Y' AND PTRBDCA_WEEK2_IND = 'N' AND PTRBDCA_WEEK3_IND = 'N' AND PTRBDCA_WEEK4_IND = 'N' then display '1' else do not publish.
+              additionalProperties: false
+              required:
+                - monthlyPayPeriods
+        changeReason:
+          title: Change Reason
+          description: "The reason why a property was changed (example: status change)"
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Change Reason.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: payroll-deduction-arrangement-change-reasons 
+                  x-lineageReferenceObject: PDRDEDN_BREA_CODE(PDRDEDN)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+      required:
+        - id
+        - person
+        - paymentTarget
+        - status
+        - amountPerPayment
+        - startOn
+        - payPeriodOccurence
+      additionalProperties: false

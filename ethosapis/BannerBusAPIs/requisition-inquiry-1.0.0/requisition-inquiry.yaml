@@ -1,0 +1,913 @@
+openapi: 3.0.0
+info:
+  title: requisition-inquiry
+  description: API for FPIREQN administrative page
+  version: 1.0.0
+  x-audience: all
+  x-release-status: beta
+  x-source-name: FPIREQN
+  x-source-domain: Finance
+  x-source-title: Requisition Query
+  x-source-system: banner
+  x-api-type: bus-poc
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/requisition-inquiry:
+    get:
+      tags:
+        - requisition-inquiry
+      summary: Return resources from FPIREQN
+      parameters:
+        - name: X-SDE-Expand
+          in: header
+          description: The comma seperated value list of block names
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: The maximum number of resources requesting for this result set.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          description: The filter criteria as a single URL query parameter. Use this
+            parameter or the individual parameters listed. Must be a JSON
+            representation of the property searching for. This can be any of the
+            properties listed on the URL or QAPI and must be a json
+            representation that can be validated against the GET schema. Limit
+            and Offset are the only supported additional parameters on the URL.
+          required: false
+          schema:
+            type: string
+        - name: displayRqstCode
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/requisition-inquiry-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+  /qapi/requisition-inquiry:
+    post:
+      tags:
+        - requisition-inquiry QAPI (Query by POST)
+      summary: Return resources from FPIREQN
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/requisition-inquiry-1.0.0_get_request"
+            example:
+              displayRqstCode: WIND4
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/requisition-inquiry-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+components:
+  schemas:
+    requisition-inquiry-1.0.0_qapi_post:
+      type: object
+      properties:
+        displayRqstCode:
+          type: string
+    errors-2.0.0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+              description:
+                type: string
+    requisition-inquiry-1.0.0_get_response:
+      type: object
+      properties:
+        fpbreqh:
+          type: array
+          items:
+            type: object
+            properties:
+              displayCoasName:
+                maxLength: 35
+                type: string
+              displayZip:
+                title: ZIP or Postal Code
+                maxLength: 30
+                type: string
+              displayShipPhoneArea:
+                title: Area Code
+                maxLength: 6
+                type: string
+              currCode:
+                title: Currency
+                maxLength: 7
+                type: string
+                description: "Lineage reference object : FPBREQH_CURR_CODE, Lookup lineage
+                  reference object : gtvcurr"
+                x-lineageReferenceObject: FPBREQH_CURR_CODE
+                x-lineageLookupReferenceObject: gtvcurr
+              tgrpCode:
+                title: Tax Group
+                maxLength: 4
+                type: string
+                description: "Lineage reference object : FPBREQH_TGRP_CODE"
+                x-lineageReferenceObject: FPBREQH_TGRP_CODE
+              displayStatCode:
+                title: State or Province
+                maxLength: 30
+                type: string
+                description: "Lookup lineage reference object : stvstat"
+                x-lineageLookupReferenceObject: stvstat
+              phoneNum:
+                title: Phone Number
+                maxLength: 12
+                type: string
+                description: "Lineage reference object : FPBREQH_PHONE_NUM"
+                x-lineageReferenceObject: FPBREQH_PHONE_NUM
+              displayShipFloor:
+                title: Floor
+                maxLength: 10
+                type: string
+              displayVendName:
+                maxLength: 130
+                type: string
+              orgnCode:
+                title: Organization
+                maxLength: 6
+                type: string
+                description: "Lineage reference object : FPBREQH_ORGN_CODE"
+                x-lineageReferenceObject: FPBREQH_ORGN_CODE
+              docRefCode:
+                title: Reference Number
+                maxLength: 20
+                type: string
+                description: "Lineage reference object : FPBREQH_DOC_REF_CODE"
+                x-lineageReferenceObject: FPBREQH_DOC_REF_CODE
+              copiedFrom:
+                title: Requisition Copied From
+                maxLength: 8
+                type: string
+                description: "Lineage reference object : FPBREQH_COPIED_FROM"
+                x-lineageReferenceObject: FPBREQH_COPIED_FROM
+              reqhDate:
+                title: Order Date
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : FPBREQH_REQH_DATE"
+                format: date-time
+                x-lineageReferenceObject: FPBREQH_REQH_DATE
+              crsnCode:
+                title: Cancel Reason
+                maxLength: 4
+                type: string
+                description: "Lineage reference object : FPBREQH_CRSN_CODE"
+                x-lineageReferenceObject: FPBREQH_CRSN_CODE
+              apprInd:
+                title: Approved
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : FPBREQH_APPR_IND"
+                x-lineageReferenceObject: FPBREQH_APPR_IND
+              discCode:
+                title: Discount
+                maxLength: 2
+                type: string
+                description: "Lineage reference object : FPBREQH_DISC_CODE"
+                x-lineageReferenceObject: FPBREQH_DISC_CODE
+              singleAcctgInd:
+                title: Document Accounting
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : FPBREQH_SINGLE_ACCTG_IND"
+                x-lineageReferenceObject: FPBREQH_SINGLE_ACCTG_IND
+              displayTextInd:
+                title: Document Text
+                maxLength: 1
+                type: string
+              attentionTo:
+                title: Attention To
+                maxLength: 35
+                type: string
+                description: "Lineage reference object : FPBREQH_ATTENTION_TO"
+                x-lineageReferenceObject: FPBREQH_ATTENTION_TO
+              completeInd:
+                title: Complete
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : FPBREQH_COMPLETE_IND"
+                x-lineageReferenceObject: FPBREQH_COMPLETE_IND
+              originCode:
+                title: Origin
+                maxLength: 26
+                type: string
+                description: "Lineage reference object : FPBREQH_ORIGIN_CODE"
+                x-lineageReferenceObject: FPBREQH_ORIGIN_CODE
+              nsfOnOffInd:
+                title: NSF Checking
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : FPBREQH_NSF_ON_OFF_IND"
+                x-lineageReferenceObject: FPBREQH_NSF_ON_OFF_IND
+              rqstTypeInd:
+                title: Document Type
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : FPBREQH_RQST_TYPE_IND"
+                x-lineageReferenceObject: FPBREQH_RQST_TYPE_IND
+              displayRqstTypeDesc:
+                type: string
+              displayPhoneArea:
+                title: Area Code
+                maxLength: 6
+                type: string
+              displayLine2:
+                title: Street Line 2
+                maxLength: 75
+                type: string
+              displayLine3:
+                title: Street Line 3
+                maxLength: 75
+                type: string
+              displayLine1:
+                title: Street Line 1
+                maxLength: 75
+                type: string
+              displayVendCode:
+                title: Vendor
+                maxLength: 9
+                type: string
+                description: "Lookup lineage reference object : ftvvend"
+                x-lineageLookupReferenceObject: ftvvend
+              displayShipState:
+                title: State or Province
+                maxLength: 30
+                type: string
+              faxArea:
+                title: Fax
+                maxLength: 6
+                type: string
+                description: "Lineage reference object : FPBREQH_FAX_AREA"
+                x-lineageReferenceObject: FPBREQH_FAX_AREA
+              editDeferInd:
+                title: Deferred Editing
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : FPBREQH_EDIT_DEFER_IND"
+                x-lineageReferenceObject: FPBREQH_EDIT_DEFER_IND
+              vendEmailAddr:
+                title: Email
+                maxLength: 128
+                type: string
+                description: "Lineage reference object : FPBREQH_VEND_EMAIL_ADDR"
+                x-lineageReferenceObject: FPBREQH_VEND_EMAIL_ADDR
+              atypSeqNum:
+                title: Sequence Number
+                maxLength: 2
+                type: number
+                description: "Lineage reference object : FPBREQH_ATYP_SEQ_NUM"
+                x-lineageReferenceObject: FPBREQH_ATYP_SEQ_NUM
+              name:
+                title: Requestor
+                maxLength: 35
+                type: string
+                description: "Lineage reference object : FPBREQH_NAME"
+                x-lineageReferenceObject: FPBREQH_NAME
+              phoneArea:
+                title: Area Code
+                maxLength: 6
+                type: string
+                description: "Lineage reference object : FPBREQH_PHONE_AREA"
+                x-lineageReferenceObject: FPBREQH_PHONE_AREA
+              displayNation:
+                title: Nation
+                maxLength: 30
+                type: string
+              displayShipPhoneExt:
+                title: Extension
+                maxLength: 10
+                type: string
+              suspInd:
+                title: In Suspense
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : FPBREQH_SUSP_IND"
+                x-lineageReferenceObject: FPBREQH_SUSP_IND
+              displayCounty:
+                title: Nation
+                maxLength: 30
+                type: string
+              cancelDate:
+                title: Cancel Date
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : FPBREQH_CANCEL_DATE"
+                format: date-time
+                x-lineageReferenceObject: FPBREQH_CANCEL_DATE
+              displayPhoneExt:
+                title: Extension
+                maxLength: 10
+                type: string
+              displayShipCity:
+                title: City
+                maxLength: 50
+                type: string
+              code:
+                title: Requisition
+                maxLength: 8
+                type: string
+                description: "Lineage reference object : FPBREQH_CODE"
+                x-lineageReferenceObject: FPBREQH_CODE
+              displayTgrpDesc:
+                type: string
+              reqdDate:
+                title: Delivery Date
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : FPBREQH_REQD_DATE"
+                format: date-time
+                x-lineageReferenceObject: FPBREQH_REQD_DATE
+              matchDescription:
+                title: Receipt  Required
+                maxLength: 85
+                type: string
+              displayShipAddr:
+                title: Street Line 1
+                maxLength: 75
+                type: string
+              deliveryComment:
+                title: Comments
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : FPBREQH_DELIVERY_COMMENT"
+                x-lineageReferenceObject: FPBREQH_DELIVERY_COMMENT
+              coasCode:
+                title: COA
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : FPBREQH_COAS_CODE, Lookup lineage
+                  reference object : ftvcoas"
+                x-lineageReferenceObject: FPBREQH_COAS_CODE
+                x-lineageLookupReferenceObject: ftvcoas
+              displayFaxExt:
+                maxLength: 10
+                type: string
+              displayDiscDesc:
+                type: string
+              displayShipAddr3:
+                title: Street Line 3
+                maxLength: 75
+                type: string
+              activityDate:
+                title: Activity Date
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : FPBREQH_ACTIVITY_DATE"
+                format: date-time
+                x-lineageReferenceObject: FPBREQH_ACTIVITY_DATE
+              displayCurrTitle:
+                type: string
+              displayShipAddr2:
+                title: Street Line 2
+                maxLength: 75
+                type: string
+              displayCrsnDesc:
+                type: string
+              faxExt:
+                maxLength: 10
+                type: string
+                description: "Lineage reference object : FPBREQH_FAX_EXT"
+                x-lineageReferenceObject: FPBREQH_FAX_EXT
+              transDate:
+                title: Transaction Date
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : FPBREQH_TRANS_DATE"
+                format: date-time
+                x-lineageReferenceObject: FPBREQH_TRANS_DATE
+              displayShipPhoneNum:
+                title: Phone Number
+                maxLength: 12
+                type: string
+              displayFaxArea:
+                title: Fax
+                maxLength: 6
+                type: string
+              phoneExt:
+                title: Extension
+                maxLength: 10
+                type: string
+                description: "Lineage reference object : FPBREQH_PHONE_EXT"
+                x-lineageReferenceObject: FPBREQH_PHONE_EXT
+              displayShipBldg:
+                title: Building
+                maxLength: 15
+                type: string
+              displayShipZipCode:
+                title: ZIP or Postal Code
+                maxLength: 30
+                type: string
+              displayFaxNum:
+                title: Phone
+                maxLength: 12
+                type: string
+              vendorContact:
+                title: Contact
+                maxLength: 35
+                type: string
+                description: "Lineage reference object : FPBREQH_VENDOR_CONTACT"
+                x-lineageReferenceObject: FPBREQH_VENDOR_CONTACT
+              displayCity:
+                title: City
+                maxLength: 50
+                type: string
+              displayPhoneNum:
+                title: Phone Number
+                maxLength: 12
+                type: string
+              reqPrintDate:
+                title: Print Date
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : FPBREQH_REQ_PRINT_DATE"
+                format: date-time
+                x-lineageReferenceObject: FPBREQH_REQ_PRINT_DATE
+              userId:
+                title: User ID
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : FPBREQH_USER_ID"
+                x-lineageReferenceObject: FPBREQH_USER_ID
+              shipCode:
+                title: Ship To
+                maxLength: 6
+                type: string
+                description: "Lineage reference object : FPBREQH_SHIP_CODE"
+                x-lineageReferenceObject: FPBREQH_SHIP_CODE
+              displayOrgnName:
+                maxLength: 35
+                type: string
+              closedDate:
+                title: Closed Date
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : FPBREQH_CLOSED_DATE"
+                format: date-time
+                x-lineageReferenceObject: FPBREQH_CLOSED_DATE
+              emailAddr:
+                title: Email
+                maxLength: 128
+                type: string
+                description: "Lineage reference object : FPBREQH_EMAIL_ADDR"
+                x-lineageReferenceObject: FPBREQH_EMAIL_ADDR
+              faxNumber:
+                title: Phone
+                maxLength: 12
+                type: string
+                description: "Lineage reference object : FPBREQH_FAX_NUMBER"
+                x-lineageReferenceObject: FPBREQH_FAX_NUMBER
+              displayShipContact:
+                title: Contact
+                maxLength: 35
+                type: string
+              atypCode:
+                title: Address Code
+                maxLength: 2
+                type: string
+                description: "Lineage reference object : FPBREQH_ATYP_CODE, Lookup lineage
+                  reference object : ftvatyp"
+                x-lineageReferenceObject: FPBREQH_ATYP_CODE
+                x-lineageLookupReferenceObject: ftvatyp
+            x-lineageReferenceObject: fpbreqh
+        fprreqd:
+          type: array
+          items:
+            type: object
+            properties:
+              tgrpCode:
+                title: Tax Group
+                maxLength: 4
+                type: string
+                description: "Lineage reference object : FPRREQD_TGRP_CODE"
+                x-lineageReferenceObject: FPRREQD_TGRP_CODE
+              reqdDate:
+                title: Delivery Date
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : FPRREQD_REQD_DATE"
+                format: date-time
+                x-lineageReferenceObject: FPRREQD_REQD_DATE
+              displayNetAmt:
+                title: Commodity Line Total
+                maxLength: 25
+                type: number
+              agreCode:
+                title: Agreement
+                maxLength: 15
+                type: string
+                description: "Lineage reference object : FPRREQD_AGRE_CODE"
+                x-lineageReferenceObject: FPRREQD_AGRE_CODE
+              vendRefNum:
+                title: Part Number
+                maxLength: 15
+                type: string
+                description: "Lineage reference object : FPRREQD_VEND_REF_NUM"
+                x-lineageReferenceObject: FPRREQD_VEND_REF_NUM
+              commFtvshipFloor:
+                title: Floor
+                maxLength: 10
+                type: string
+              commCode:
+                title: Commodity
+                maxLength: 10
+                type: string
+                description: "Lineage reference object : FPRREQD_COMM_CODE"
+                x-lineageReferenceObject: FPRREQD_COMM_CODE
+              displayCommDesc:
+                title: Description
+                maxLength: 50
+                type: string
+              commFtvshipBldg:
+                title: Building
+                maxLength: 15
+                type: string
+              closedInd:
+                title: Closed
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : FPRREQD_CLOSED_IND"
+                x-lineageReferenceObject: FPRREQD_CLOSED_IND
+              bidsCode:
+                title: Bid Assigned
+                maxLength: 8
+                type: string
+                description: "Lineage reference object : FPRREQD_BIDS_CODE"
+                x-lineageReferenceObject: FPRREQD_BIDS_CODE
+              tuNote:
+                title: Text Usage
+                maxLength: 8
+                type: string
+              pohdItem:
+                title: Purchase Order Item Number
+                maxLength: 4
+                type: number
+                description: "Lineage reference object : FPRREQD_POHD_ITEM"
+                x-lineageReferenceObject: FPRREQD_POHD_ITEM
+              taxAmt:
+                title: Tax
+                maxLength: 25
+                type: number
+                description: "Lineage reference object : FPRREQD_TAX_AMT"
+                x-lineageReferenceObject: FPRREQD_TAX_AMT
+              commFtvshipContact:
+                title: Contact
+                maxLength: 35
+                type: string
+              unitPrice:
+                title: Unit Price
+                maxLength: 25
+                type: number
+                description: "Lineage reference object : FPRREQD_UNIT_PRICE"
+                x-lineageReferenceObject: FPRREQD_UNIT_PRICE
+              addlChrgAmt:
+                title: Additional
+                maxLength: 25
+                type: number
+                description: "Lineage reference object : FPRREQD_ADDL_CHRG_AMT"
+                x-lineageReferenceObject: FPRREQD_ADDL_CHRG_AMT
+              item:
+                title: Item
+                maxLength: 4
+                type: number
+                description: "Lineage reference object : FPRREQD_ITEM"
+                x-lineageReferenceObject: FPRREQD_ITEM
+              litextInd:
+                title: Item Text
+                maxLength: 1
+                type: string
+              displayMinQty:
+                title: Minimun Quantity
+                maxLength: 10
+                type: number
+              displayBuyrName:
+                maxLength: 35
+                type: string
+              discAmt:
+                title: Discount
+                maxLength: 25
+                type: number
+                description: "Lineage reference object : FPRREQD_DISC_AMT"
+                x-lineageReferenceObject: FPRREQD_DISC_AMT
+              commAcctgTotal:
+                title: Commodity Total
+                maxLength: 25
+                type: number
+              shipCode:
+                title: Ship To
+                maxLength: 6
+                type: string
+                description: "Lineage reference object : FPRREQD_SHIP_CODE, Lookup lineage
+                  reference object : ftvship"
+                x-lineageReferenceObject: FPRREQD_SHIP_CODE
+                x-lineageLookupReferenceObject: ftvship
+              displayExtAmt:
+                title: Extended
+                maxLength: 25
+                type: number
+              commFtvshipAddline1:
+                title: Street Line 1
+                maxLength: 75
+                type: string
+              buyrCode:
+                title: Assigned Buyer
+                maxLength: 4
+                type: string
+                description: "Lineage reference object : FPRREQD_BUYR_CODE, Lookup lineage
+                  reference object : ftvbuyr"
+                x-lineageReferenceObject: FPRREQD_BUYR_CODE
+                x-lineageLookupReferenceObject: ftvbuyr
+              commFtvshipAddline2:
+                title: Street Line 2
+                maxLength: 75
+                type: string
+              commFtvshipAddline3:
+                title: Street Line 3
+                maxLength: 75
+                type: string
+              qty:
+                title: Quantity
+                maxLength: 10
+                type: number
+                description: "Lineage reference object : FPRREQD_QTY"
+                x-lineageReferenceObject: FPRREQD_QTY
+              pohdCode:
+                title: Assigned to Purchase Order
+                maxLength: 8
+                type: string
+                description: "Lineage reference object : FPRREQD_POHD_CODE"
+                x-lineageReferenceObject: FPRREQD_POHD_CODE
+              displayAgreTitle:
+                maxLength: 35
+                type: string
+              suspInd:
+                title: Suspense
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : FPRREQD_SUSP_IND"
+                x-lineageReferenceObject: FPRREQD_SUSP_IND
+              displayAgrePrice:
+                title: Unit Price
+                maxLength: 24
+                type: number
+              ctextInd:
+                title: Commodity Text
+                maxLength: 1
+                type: string
+              uomsCode:
+                title: U/M
+                maxLength: 3
+                type: string
+                description: "Lineage reference object : FPRREQD_UOMS_CODE, Lookup lineage
+                  reference object : ftvuoms"
+                x-lineageReferenceObject: FPRREQD_UOMS_CODE
+                x-lineageLookupReferenceObject: ftvuoms
+            x-lineageReferenceObject: fprreqd
+        fprreqa:
+          type: array
+          items:
+            type: object
+            properties:
+              addlChrgAmt:
+                title: Additional
+                maxLength: 25
+                type: number
+                description: "Lineage reference object : FPRREQA_ADDL_CHRG_AMT"
+                x-lineageReferenceObject: FPRREQA_ADDL_CHRG_AMT
+              projCode:
+                title: Proj
+                maxLength: 8
+                type: string
+                description: "Lineage reference object : FPRREQA_PROJ_CODE, Lookup lineage
+                  reference object : ftvproj"
+                x-lineageReferenceObject: FPRREQA_PROJ_CODE
+                x-lineageLookupReferenceObject: ftvproj
+              nsfSuspInd:
+                title: NSF Suspense
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : FPRREQA_NSF_SUSP_IND"
+                x-lineageReferenceObject: FPRREQA_NSF_SUSP_IND
+              seqNum:
+                title: FOAPAL
+                maxLength: 4
+                type: number
+                description: "Lineage reference object : FPRREQA_SEQ_NUM"
+                x-lineageReferenceObject: FPRREQA_SEQ_NUM
+              acciCode:
+                title: Index
+                maxLength: 6
+                type: string
+                description: "Lineage reference object : FPRREQA_ACCI_CODE, Lookup lineage
+                  reference object : ftvacci"
+                x-lineageReferenceObject: FPRREQA_ACCI_CODE
+                x-lineageLookupReferenceObject: ftvacci
+              amt:
+                title: Extended
+                maxLength: 25
+                type: number
+                description: "Lineage reference object : FPRREQA_AMT"
+                x-lineageReferenceObject: FPRREQA_AMT
+              coasCode:
+                title: COA
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : FPRREQA_COAS_CODE, Lookup lineage
+                  reference object : ftvcoas"
+                x-lineageReferenceObject: FPRREQA_COAS_CODE
+                x-lineageLookupReferenceObject: ftvcoas
+              locnCode:
+                title: Locn
+                maxLength: 6
+                type: string
+                description: "Lineage reference object : FPRREQA_LOCN_CODE"
+                x-lineageReferenceObject: FPRREQA_LOCN_CODE
+              acctCode:
+                title: Acct
+                maxLength: 6
+                type: string
+                description: "Lineage reference object : FPRREQA_ACCT_CODE"
+                x-lineageReferenceObject: FPRREQA_ACCT_CODE
+              discAmt:
+                title: Discount
+                maxLength: 25
+                type: number
+                description: "Lineage reference object : FPRREQA_DISC_AMT"
+                x-lineageReferenceObject: FPRREQA_DISC_AMT
+              orgnCode:
+                title: Orgn
+                maxLength: 6
+                type: string
+                description: "Lineage reference object : FPRREQA_ORGN_CODE"
+                x-lineageReferenceObject: FPRREQA_ORGN_CODE
+              nsfOverrideInd:
+                title: NSF Override
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : FPRREQA_NSF_OVERRIDE_IND"
+                x-lineageReferenceObject: FPRREQA_NSF_OVERRIDE_IND
+              fundCode:
+                title: Fund
+                maxLength: 6
+                type: string
+                description: "Lineage reference object : FPRREQA_FUND_CODE"
+                x-lineageReferenceObject: FPRREQA_FUND_CODE
+              fsyrCode:
+                title: Year
+                maxLength: 2
+                type: string
+                description: "Lineage reference object : FPRREQA_FSYR_CODE, Lookup lineage
+                  reference object : ftvfspd,ftvfsyr,ftvfspd"
+                x-lineageReferenceObject: FPRREQA_FSYR_CODE
+                x-lineageLookupReferenceObject: ftvfspd,ftvfsyr,ftvfspd
+              progCode:
+                title: Prog
+                maxLength: 6
+                type: string
+                description: "Lineage reference object : FPRREQA_PROG_CODE"
+                x-lineageReferenceObject: FPRREQA_PROG_CODE
+              suspInd:
+                title: Suspense
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : FPRREQA_SUSP_IND"
+                x-lineageReferenceObject: FPRREQA_SUSP_IND
+              actvCode:
+                title: Actv
+                maxLength: 6
+                type: string
+                description: "Lineage reference object : FPRREQA_ACTV_CODE"
+                x-lineageReferenceObject: FPRREQA_ACTV_CODE
+              taxAmt:
+                title: Tax
+                maxLength: 25
+                type: number
+                description: "Lineage reference object : FPRREQA_TAX_AMT"
+                x-lineageReferenceObject: FPRREQA_TAX_AMT
+              displayActgNetAmt:
+                title: FOAPAL Total
+                maxLength: 25
+                type: number
+            x-lineageReferenceObject: fprreqa
+    requisition-inquiry-1.0.0_get_request:
+      type: object
+      properties:
+        displayRqstCode:
+          title: Requisition
+          maxLength: 8
+          type: string
+          description: "Lineage reference object : displayRqstCode"
+          x-lineageReferenceObject: displayRqstCode
+      x-lineageReferenceObject: KEY_BLOCK
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EllucianOAuthUserToken:
+      type: http
+      scheme: bearer
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

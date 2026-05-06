@@ -1,0 +1,365 @@
+openapi: 3.0.0
+info:
+  title: Leave Plans
+  description: Information on leave plan options offered by the employer.
+  version: "11.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Human Resources
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/leave-plans:
+    get:
+      summary: Return all resources from PTRLVAS
+      description: Returns a paged listing of all the leave plan records from PTRLVAS table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_LEAVE_PLANS
+      tags:
+        - leave-plans
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-leave-plans.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/leave-plans/{id}:
+    get:
+      summary: Return the requested resource from PTRLVAS
+      description: Return the one resource with the passed in identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_LEAVE_PLANS
+      tags:
+        - leave-plans
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Leave Plans for use in all external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v11+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-leave-plans.json"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-leave-plans.json:
+      title: Leave Plans
+      description: Information on leave plan options offered by the employer.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the leave plan.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: PTRLVAS_GUID(PTRLVAS)
+        title:
+          title: Title
+          description: The full name of the leave plan.
+          type: string
+          minLength: 1
+          x-lineageReferenceObject: PTRLEAV_LONG_DESC(PTRLEAV)
+        description:
+          title: Description
+          description: The description of the leave plan.
+          type: string
+          x-lineageReferenceObject: unsupported
+        code:
+          title: Code
+          description: A code that may be used to identify the leave plan.
+          type: string
+          x-lineageReferenceObject: PTRLVAS_LEAV_CODE(PTRLVAS)
+        type:
+          title: Type
+          description: The type of leave (e.g. sick, vacation, etc.).
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Type.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: leave-types 
+              x-lineageReferenceObject: PTRLVAS_LEAV_CODE(PTRLVAS)
+          additionalProperties: false
+          required:
+            - id
+        category:
+          title: Category
+          description: The category associated with the leave plan.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Category.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: leave-categories 
+                  x-lineageReferenceObject: PTRLVAS_LCAT_CODE(PTRLVAS)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        accrualMethod:
+          title: Accrual Method
+          description: The method by which leave can be accumulated.
+          enum:
+            - frontLoad
+            - payrollAccrual
+          type: string
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: If PTRLVAS_EXCESS_IND is 'Y' then display as 'payrollAccrual', else 'accrualMethod' is not displayed
+        usage:
+          title: Usage
+          description: An indication whether the leave plan can be used before accrual or
+            after accrual.
+          oneOf:
+            - type: string
+              enum:
+                - beforeAccrued
+                - afterAccrued
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: If PTRLVAS_EXCESS_IND is 'Y' then display as 'afterAccrued', else display as 'beforeAccrued'
+            - type: string
+              maxLength: 0
+        startOn:
+          title: Start On
+          description: The start date of the leave plan.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: unsupported
+            - type: string
+              maxLength: 0
+        endOn:
+          title: End On
+          description: The end date of the leave plan.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: unsupported
+            - type: string
+              maxLength: 0
+        planYearStart:
+          title: Plan Year Start
+          description: The default start of the plan in a year.
+          oneOf:
+            - type: object
+              properties:
+                month:
+                  title: Month
+                  description: The month when the plan begins.
+                  maximum: 12
+                  type: number
+                  x-lineageReferenceObject: unsupported
+                day:
+                  title: Day
+                  description: The day when the plan begins.
+                  oneOf:
+                    - type: number
+                      maximum: 31
+                      x-lineageReferenceObject: unsupported
+                    - type: string
+                      nullable: true
+              additionalProperties: false
+              required:
+                - month
+            - type: object
+              maxProperties: 0
+        alternateRolloverLeaveType:
+          title: Alternate Rollover Leave Type
+          description: The type of leave that can be rolled over from one plan to another
+            at the end of plan year.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Alternate Rollover Leave Type.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: leave-types 
+                  x-lineageReferenceObject: unsupported
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        accrualFrequency:
+          title: Accrual Frequency
+          description: The frequency at which leave accrues.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Accrual Frequency.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: employment-frequencies 
+                  x-lineageReferenceObject: unsupported
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        waitDays:
+          title: Wait Days
+          description: The amount of time an employee must wait until he/she can take a
+            leave.
+          oneOf:
+            - type: integer
+              x-lineageReferenceObject: unsupported
+            - type: string
+              nullable: true
+      required:
+        - id
+        - title
+        - type
+        - accrualMethod
+      additionalProperties: false

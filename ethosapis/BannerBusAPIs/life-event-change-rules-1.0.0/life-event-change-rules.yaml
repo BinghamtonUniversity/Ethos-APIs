@@ -1,0 +1,340 @@
+openapi: 3.0.0
+info:
+  title: life-event-change-rules
+  description: API for PTRLFCH administrative page
+  version: 1.0.0
+  x-audience: all
+  x-release-status: beta
+  x-source-name: PTRLFCH
+  x-source-domain: Human Resources
+  x-source-title: Life Event Change Rules
+  x-source-system: banner
+  x-api-type: bus-poc
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/life-event-change-rules:
+    get:
+      tags:
+        - life-event-change-rules
+      summary: Return resources from PTRLFCH
+      parameters:
+        - name: X-SDE-Expand
+          in: header
+          description: The comma seperated value list of block names
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: The maximum number of resources requesting for this result set.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          description: The filter criteria as a single URL query parameter. Use this
+            parameter or the individual parameters listed. Must be a JSON
+            representation of the property searching for. This can be any of the
+            properties listed on the URL or QAPI and must be a json
+            representation that can be validated against the GET schema. Limit
+            and Offset are the only supported additional parameters on the URL.
+          required: false
+          schema:
+            type: string
+        - name: breaCode
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: bdocCode
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/life-event-change-rules-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+  /qapi/life-event-change-rules:
+    post:
+      tags:
+        - life-event-change-rules QAPI (Query by POST)
+      summary: Return resources from PTRLFCH
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/life-event-change-rules-1.0.0_get_request"
+            example:
+              breaCode: ADOPTION
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/life-event-change-rules-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+components:
+  schemas:
+    life-event-change-rules-1.0.0_get_response:
+      type: object
+      properties:
+        ptrlfsd:
+          type: array
+          items:
+            required:
+              - bdocCode
+            type: object
+            properties:
+              bdocDesc:
+                type: string
+              bdocCode:
+                title: Supporting Document Code
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : PTRLFSD_BDOC_CODE, Lookup lineage
+                  reference object : PTVBDOC"
+                x-lineageReferenceObject: PTRLFSD_BDOC_CODE
+                x-lineageLookupReferenceObject: PTVBDOC
+            x-lineageReferenceObject: ptrlfsd
+        ptrlfch:
+          type: array
+          items:
+            required:
+              - bdpgCode
+            type: object
+            properties:
+              webCvgUpdInd:
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : PTRLFCH_WEB_CVG_UPD_IND"
+                x-lineageReferenceObject: PTRLFCH_WEB_CVG_UPD_IND
+              webCvgSelInd:
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : PTRLFCH_WEB_CVG_SEL_IND"
+                x-lineageReferenceObject: PTRLFCH_WEB_CVG_SEL_IND
+              webEmprInd:
+                title: Display Employer Amounts
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : PTRLFCH_WEB_EMPR_IND"
+                x-lineageReferenceObject: PTRLFCH_WEB_EMPR_IND
+              bdpgDesc:
+                type: string
+              webCvgInsInd:
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : PTRLFCH_WEB_CVG_INS_IND"
+                x-lineageReferenceObject: PTRLFCH_WEB_CVG_INS_IND
+              bdpgCode:
+                title: Primary Group
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : PTRLFCH_BDPG_CODE, Lookup lineage
+                  reference object : PTVBDPG"
+                x-lineageReferenceObject: PTRLFCH_BDPG_CODE
+                x-lineageLookupReferenceObject: PTVBDPG
+              priority:
+                title: Benefit Enrollment Priority
+                maxLength: 3
+                type: number
+                description: "Lineage reference object : PTRLFCH_PRIORITY"
+                x-lineageReferenceObject: PTRLFCH_PRIORITY
+            x-lineageReferenceObject: ptrlfch
+        ptrlfbd:
+          type: array
+          items:
+            required:
+              - bdcaCode
+              - enrlBeginDateMethod
+            type: object
+            properties:
+              webCvgUpdInd:
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : PTRLFBD_WEB_CVG_UPD_IND"
+                x-lineageReferenceObject: PTRLFBD_WEB_CVG_UPD_IND
+              webCvgSelInd:
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : PTRLFBD_WEB_CVG_SEL_IND"
+                x-lineageReferenceObject: PTRLFBD_WEB_CVG_SEL_IND
+              webEmprInd:
+                title: Display Employer Amounts
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : PTRLFBD_WEB_EMPR_IND"
+                x-lineageReferenceObject: PTRLFBD_WEB_EMPR_IND
+              bdcaCode:
+                title: Benefit or Deduction
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : PTRLFBD_BDCA_CODE"
+                x-lineageReferenceObject: PTRLFBD_BDCA_CODE
+              webBalcUpdInd:
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : PTRLFBD_WEB_BALC_UPD_IND"
+                x-lineageReferenceObject: PTRLFBD_WEB_BALC_UPD_IND
+              webCvgInsInd:
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : PTRLFBD_WEB_CVG_INS_IND"
+                x-lineageReferenceObject: PTRLFBD_WEB_CVG_INS_IND
+              bdcaDesc:
+                type: string
+              enrlBeginDateMethod:
+                title: Benefits Begin Date
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : PTRLFBD_ENRL_BEGIN_DATE_METHOD"
+                x-lineageReferenceObject: PTRLFBD_ENRL_BEGIN_DATE_METHOD
+              webBalcSelInd:
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : PTRLFBD_WEB_BALC_SEL_IND"
+                x-lineageReferenceObject: PTRLFBD_WEB_BALC_SEL_IND
+              webBalcInsInd:
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : PTRLFBD_WEB_BALC_INS_IND"
+                x-lineageReferenceObject: PTRLFBD_WEB_BALC_INS_IND
+            x-lineageReferenceObject: ptrlfbd
+    errors-2.0.0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+              description:
+                type: string
+    life-event-change-rules-1.0.0_qapi_post:
+      required:
+        - breaCode
+      type: object
+      properties:
+        breaCode:
+          type: string
+        bdocCode:
+          type: string
+    life-event-change-rules-1.0.0_get_request:
+      required:
+        - breaCode
+        - bdocCode
+      type: object
+      properties:
+        breaCode:
+          title: Benefit Deduction Change Reason
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : breaCode"
+          x-lineageReferenceObject: breaCode
+        bdocCode:
+          title: Supporting Document Code
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : PTRLFSD_BDOC_CODE, Lookup lineage
+            reference object : PTVBDOC"
+          x-lineageReferenceObject: PTRLFSD_BDOC_CODE
+          x-lineageLookupReferenceObject: PTVBDOC
+      x-lineageReferenceObject: PTRLFSD
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EllucianOAuthUserToken:
+      type: http
+      scheme: bearer
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

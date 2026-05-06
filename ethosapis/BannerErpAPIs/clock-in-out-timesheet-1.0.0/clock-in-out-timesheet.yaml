@@ -1,0 +1,168 @@
+openapi: 3.0.0
+info:
+  title: Clock In Out Timesheet
+  description: Recording job sequence number for the timesheet extracted.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: beta
+  x-source-domain: Human Resources
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /clock-in-out-timesheet:
+    post:
+      summary: Create a new resource
+      description: |
+        Create a new resource
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_CLOCK_IN_OUT_TIMESHEET
+      tags:
+        - clock-in-out-timesheet
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/clock-in-out-timesheet-obj"
+              examples:
+                ExtractTimesheet:
+                  $ref: "#/components/schemas/clock-in-out-timesheet-obj"
+                MultipleApprovers:
+                  $ref: "#/components/examples/MultipleApprovers"
+                SelectedApprover:
+                  $ref: "#/components/examples/SelectedApprover"
+        "201":
+          description: Failure
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ErrorsObj"
+              examples:
+                PayrollNotDefined:
+                  $ref: "#/components/examples/PayrollNotDefined"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/clock-in-out-timesheet-obj"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    clock-in-out-timesheet-obj:
+      type: object
+      properties:
+        jobSequenceNumber:
+          title: Job Sequence Number
+          description: Internal System Identification Number for a time entry document.
+          type: integer
+    ErrorsObj:
+      type: object
+      properties:
+        failure:
+          type: string
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+        errorNumber:
+          type: string
+  examples:
+    PayrollNotDefined:
+      value:
+        failure: true
+        error:
+          message: Payroll not defined on PTRCALN.
+        errorNumber: null
+    MultipleApprovers:
+      value:
+        failure: false
+        message: string
+        approverList:
+          - seqNo: 0
+            members:
+              - action: string
+                bannerId: string
+                fullName: string
+                position: string
+                source: string
+        warningMessage: No approval routing queue established.
+        errorNumber: 4
+    SelectedApprover:
+      value:
+        failure: false
+        message: Timesheet successfully extracted.
+        jobSequenceNumber: 0

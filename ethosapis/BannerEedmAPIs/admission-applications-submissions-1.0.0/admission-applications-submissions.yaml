@@ -1,0 +1,610 @@
+openapi: 3.0.0
+info:
+  title: Admission Applications Submissions
+  description: >
+    The admission-applications-submissions API is an alternate representation of
+    the admission-applications API. The API is used to create and update
+    applicant records and their associated curriculum, major, minor, and
+    concentration details.
+
+
+    Please refer to the 'Additional information for the admission-applications-submissions API' section in Banner Ethos API Handbook for processing details of creating and updating the applicant records.
+
+
+    Please refer to the section 'API Integration Configuration Settings' in Banner Ethos API Handbook for all the configuration settings needed for this API.
+  version: 1.0.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Recruitment
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/admission-applications:
+    post:
+      summary: Create a new resource in SARADAP
+      description: >
+        POST requests must include a nil GUID value
+        ("00000000-0000-0000-0000-000000000000") for the root id property.
+
+
+        In addition to the required properties defined in the data model, the following are required for a POST request: academicPeriod.id
+
+
+        Creates a admission applicant record in the SARADAP table, creates associated curriculum records in SORLCUR, and associated field of study – major, minor and concentration records in SORLFOS. Only active and current ADMISSION SORLCUR records are created. Institution-enabled validations are performed based on the configurations in curriculum checkings, SOACTRL page and the curriculum rules, SOACURR page.
+
+
+        The API response conforms to the admission-applications data model.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_ADM_APPLICATIONS
+      tags:
+        - admission-applications-submissions
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.admission-applications-submissions.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-admission-applications-submissions.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v16+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-admission-applications-submissions.json"
+  /api/admission-applications/{id}:
+    put:
+      summary: Update the requested resource from SARADAP
+      description: >
+        Updates an admission application record in SARADAP with the passed in
+        identifier.
+
+
+        The API response conforms to the admission-applications data model.
+
+
+        Properties that are not updatable: id, applicant.id, academicPeriod.id, academicLevel.id, programOwner.id, credentials.id
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_ADM_APPLICATIONS
+      tags:
+        - admission-applications-submissions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Admission Applications Submissions for use
+            in all external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.admission-applications-submissions.v1+json 
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-admission-applications-submissions.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v16+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-admission-applications-submissions.json"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-admission-applications-submissions.json:
+      title: Admission Applications Submissions
+      description: Higher education institution admission applications submissions.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the admission application.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+        referenceId:
+          title: Reference Id
+          description: The identifier of the application at its origin.
+          type: string
+        applicant:
+          title: Applicant
+          description: The person applying for admission.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Applicant.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          additionalProperties: false
+          required:
+            - id
+        type:
+          title: Type
+          description: The type of application.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Type.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        academicPeriod:
+          title: Academic Period
+          description: The starting academic period for admission.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Academic Period.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        owner:
+          title: Owner
+          description: The institution representative assigned to manage the application.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Owner.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        admissionPopulation:
+          title: Admission Population
+          description: The type of admission population the applicant belongs to.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Admission Population.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        site:
+          title: Site
+          description: The institution site (campus) selected by the applicant.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Site.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        residencyType:
+          title: Residency Type
+          description: The residency type of the applicant (e.g. international).
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Residency Type.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        academicLoad:
+          title: Academic Load
+          description: The academic load selection, e.g., full- or part-time
+          oneOf:
+            - type: string
+              enum:
+                - fullTime
+                - partTime
+            - type: string
+              maxLength: 0
+        appliedOn:
+          title: Applied On
+          description: The date the application was submitted.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+            - type: string
+              maxLength: 0
+        applicationAcademicPrograms:
+          title: Application Academic Programs
+          description: The academic programs for which the applicant has applied.
+          type: array
+          items:
+            type: object
+            properties:
+              program:
+                title: Program
+                description: The academic program applied to.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Program.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                additionalProperties: false
+                required:
+                  - id
+              academicLevel:
+                title: Academic Level
+                description: The level of instruction for this course or program of study.
+                oneOf:
+                  - type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the Academic Level.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    additionalProperties: false
+                    required:
+                      - id
+                  - type: object
+                    maxProperties: 0
+              credentials:
+                title: Credentials
+                description: Credentials associated with the academic program.
+                type: array
+                items:
+                  title: Credentials
+                  description: Credentials associated with the academic program.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Credentials.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  additionalProperties: false
+                  required:
+                    - id
+              programOwner:
+                title: Program Owner
+                description: The operational unit which is the program owner.
+                oneOf:
+                  - type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the Program Owner.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    additionalProperties: false
+                    required:
+                      - id
+                  - type: object
+                    maxProperties: 0
+              disciplines:
+                title: Disciplines
+                description: The academic disciplines associated with the academic program.
+                type: array
+                items:
+                  type: object
+                  properties:
+                    discipline:
+                      title: Discipline
+                      description: The academic discipline associated with the academic program.
+                      type: object
+                      properties:
+                        id:
+                          title: ID
+                          description: The global identifier for the Discipline.
+                          type: string
+                          format: guid
+                          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      additionalProperties: false
+                      required:
+                        - id
+                    administeringInstitutionUnit:
+                      title: Administering Institution Unit
+                      description: The administering institution unit associated with the discipline.
+                      oneOf:
+                        - type: object
+                          properties:
+                            id:
+                              title: ID
+                              description: The global identifier for the Administering Institution Unit.
+                              type: string
+                              format: guid
+                              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                          additionalProperties: false
+                          required:
+                            - id
+                        - type: object
+                          maxProperties: 0
+                    startOn:
+                      title: Start On
+                      description: The date on which the discipline begins for the academic program
+                        the applicant has applied to.
+                      oneOf:
+                        - type: string
+                          format: date
+                          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                        - type: string
+                          maxLength: 0
+                  additionalProperties: false
+                  required:
+                    - discipline
+            additionalProperties: false
+            required:
+              - program
+        withdrawal:
+          title: Withdrawal
+          description: Application withdrawal related information.
+          type: object
+          properties:
+            withdrawnOn:
+              title: Withdrawn On
+              description: The date when the application was withdrawn.
+              oneOf:
+                - type: string
+                  format: date
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                - type: string
+                  maxLength: 0
+            reason:
+              title: Reason
+              description: The application withdrawal reason.
+              oneOf:
+                - type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Reason.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  additionalProperties: false
+                  required:
+                    - id
+                - type: object
+                  maxProperties: 0
+            institutionAttended:
+              title: Institution Attended
+              description: The institution attended by the applicant.
+              oneOf:
+                - type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Institution Attended.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  additionalProperties: false
+                  required:
+                    - id
+                - type: object
+                  maxProperties: 0
+          additionalProperties: false
+        applicationSource:
+          title: Application Source
+          description: The source associated with the application.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Application Source.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        personSource:
+          title: Person Source
+          description: The source associated with the applicant.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Person Source.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        comment:
+          title: Comment
+          description: The comment associated with the application.
+          type: string
+      required:
+        - id
+        - applicant
+        - applicationAcademicPrograms
+      additionalProperties: false

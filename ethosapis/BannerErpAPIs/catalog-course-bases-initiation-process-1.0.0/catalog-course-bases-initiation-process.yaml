@@ -1,0 +1,625 @@
+openapi: 3.0.0
+info:
+  title: Catalog Course Bases Initiation Process
+  description: 
+  
+    The Catalog Course Bases Initiation Process API is used to create base catalog course records.
+
+
+    Base catalog course details can be queried using catalog-course-bases, and adjusted using 
+    catalog-course-bases-adjustments-process.
+
+
+  version: 1.0.0-beta
+  x-api-type: erp
+  x-release-status: beta
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Student
+  x-source-name: SCACRSE
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /api/catalog-course-bases-initiation-process:
+    post:
+      tags:
+      - catalog-course-bases-initiation-process
+      summary: Create a new resource in SCBCRSE, SCRLEVL, SCRGMOD and SCRSCHD.
+      description: >
+
+          
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string            
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/catalog-course-bases-initiation-process-1.0.0_post_request"
+      responses:
+        '201':
+          description: Success
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_CTLG_CRSE_BASES_INIT_PRCS
+components:
+  schemas:
+    catalog-course-bases-initiation-process-1.0.0_post_request:
+      type: object
+      required:
+        - subject
+        - courseNumber
+        - fromTerm   
+        - courseDetails
+        - levelDetails
+        - gradingModeDetails
+        - scheduleDetails    
+      properties:
+        subject:
+          title: Subject
+          maxLength: 4
+          type: string
+          description: "The subject area of the course."
+          x-lineageReferenceObject: SCBCRSE_SUBJ_CODE
+          x-lineageLookupReferenceObject: STVSUBJ
+          example: MATH
+        courseNumber: 
+          title: Course Number
+          maxLength: 5
+          type: string
+          description: "The course number associated with the subject for the course."
+          x-lineageReferenceObject: SCBCRSE_CRSE_NUMB
+          example: ENGL1        
+        fromTerm:
+          title: Effective Term
+          maxLength: 6
+          type: string
+          description: "The starting term code for the set of base course details."
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202201      
+        courseDetail:
+          title: Course Detail
+          type: object
+          required:
+            - college
+            - status
+            - shortTitle
+            - creditCeuHoursMinimum
+            - billingHoursMinimum        
+          properties:     
+            college:
+              title: College Code
+              maxLength: 2
+              type: string
+              description: "The college offering the course."
+              x-lineageReferenceObject: SCBCRSE_COLL_CODE
+              x-lineageLookupReferenceObject: STVCOLL             
+              example: NU  
+            division:
+              title: Division Code
+              maxLength: 4
+              type: string
+              description: "The division offering the course."
+              x-lineageReferenceObject: SCBCRSE_DIVS_CODE
+              x-lineageLookupReferenceObject: STVDIVS             
+              example: UNDG
+            department:
+              title: Department Code
+              maxLength: 4
+              type: string
+              description: "The department offering the course."
+              x-lineageReferenceObject: SCBCRSE_DEPT_CODE
+              x-lineageLookupReferenceObject: STVDEPT             
+              example: NURS
+            status:
+              title: Status Code
+              maxLength: 1
+              type: string
+              description: "The status of the course."
+              x-lineageReferenceObject: SCBCRSE_CSTA_CODE
+              x-lineageLookupReferenceObject: STVCSTA             
+              example: A 
+            shortTitle:
+              title: Short Course Title
+              maxLength: 30
+              type: string
+              description: "The short title of the course."
+              x-lineageReferenceObject: SCBCRSE_TITLE            
+              example: Nursing Care of Adult       
+            cipc:
+              title: Classification of Instructional Program (CIP) Code
+              maxLength: 6
+              type: string
+              description: "The CIP code of the course. Normally, CIP course codes are used to identify the primary subject matter of a course."
+              x-lineageReferenceObject: SCBCRSE_CIPC_CODE
+              x-lineageLookupReferenceObject: STVCIPC           
+              example: 181101 
+            creditCeuHoursConnector:
+              title: Credit/CEU Hours Connector
+              maxLength: 2
+              type: string
+              description: "This field defines whether the course can be offered for variable credit. OR/TO is used to specify the relationship between minimum and maximum credit hours values. An OR/TO value must exist to enter Credit Hours Maximum."
+              x-lineageReferenceObject: SCBCRSE_CREDIT_HR_IND           
+              example: TO        
+            creditCeuHoursMinimum:
+              title: Credit/CEU Hours Minimum
+              maxLength: 7
+              type: number
+              description: "The minimum number of credits/CEU hours for which a course may be offered. Credit/CEU hour values will control the number of credit/CEU hours for which sections can be scheduled and for which students may register."
+              x-lineageReferenceObject: SCBCRSE_CREDIT_HR_LOW    
+              example: 3  
+            creditCeuHoursMaximum:
+              title: Credit/CEU Hours Maximum
+              maxLength: 7
+              type: number
+              description: "This property is either a second valid credit/CEU hour value or the maximum credit/CEU hour value within a range. A value may only be entered if the Credit/CEU Hours Connector property is included and the value must be greater than the Credit/CEU Hours Minimum."
+              x-lineageReferenceObject: SCBCRSE_CREDIT_HR_HIGH    
+              example: 6       
+            lectureHoursConnector:
+              title: Lecture Hours Connector
+              maxLength: 2
+              type: string
+              description: "This property defines whether the course can be offered for variable lecture hours. OR/TO is used to specify the relationship between the minimum and maximum lecture hour values. An OR/TO value must exist to enter Lecture Hours Maximum."
+              x-lineageReferenceObject: SCBCRSE_LEC_HR_IND           
+              example: TO        
+            lectureHoursMinimum:
+              title: Lecture Hours Minimum
+              maxLength: 7
+              type: number
+              description: "The minimum number of lecture hours for which a course may be offered."
+              x-lineageReferenceObject: SCBCRSE_LEC_HR_LOW    
+              example: 2  
+            lectureHoursMaximum:
+              title: Lecture Hours Maximum
+              maxLength: 7
+              type: number
+              description: "This property is either a second valid lecture hour value or the maximum lecture hour value within a range. A value may only be entered if the Lecture Hours Connector property is included and the value must be greater than the Lecture Hours Minimum."
+              x-lineageReferenceObject: SCBCRSE_LEC_HR_HIGH    
+              example: 4                           
+            labHoursConnector:
+              title: Lab Hours Connector
+              maxLength: 2
+              type: string
+              description: "This property defines whether the course can be offered for variable lab hours. OR/TO is used to specify the relationship between the minimum and maximum lab hour values. An OR/TO value must exist to enter Lab Hours Maximum."
+              x-lineageReferenceObject: SCBCRSE_LAB_HR_IND           
+              example: TO        
+            labHoursMinimum:
+              title: Lab Hours Minimum
+              maxLength: 7
+              type: number
+              description: "The minimum number of lab hours for which a course may be offered."
+              x-lineageReferenceObject: SCBCRSE_LAB_HR_LOW    
+              example: 1  
+            labHoursMaximum:
+              title: Lab Hours Maximum
+              maxLength: 7
+              type: number
+              description: "This property is either a second valid lab hour value or the maximum lab hour value within a range. A value may only be entered if the Lab Hours Connector property is included and the value must be greater than the Lab Hours Minimum."
+              x-lineageReferenceObject: SCBCRSE_LAB_HR_HIGH    
+              example: 3
+            otherHoursConnector:
+              title: Other Hours Connector
+              maxLength: 2
+              type: string
+              description: "This property defines whether the course can be offered for variable other hours. OR/TO is used to specify the relationship between the minimum and maximum other hour values. An OR/TO value must exist to enter Other Hours Maximum."
+              x-lineageReferenceObject: SCBCRSE_OTH_HR_IND           
+              example: OR        
+            otherHoursMinimum:
+              title: Other Hours Minimum
+              maxLength: 7
+              type: number
+              description: "The minimum number of other hours for which the course can be offered. Other hours is defined by the institution."
+              x-lineageReferenceObject: SCBCRSE_OTH_HR_LOW    
+              example: 1  
+            otherHoursMaximum:
+              title: Other Hours Maximum
+              maxLength: 7
+              type: number
+              description: "This property is either a second valid other hour value or the maximum other hours value within a range. A value may only be entered if the Other Hours Connector property is included and the value must be greater than the Other Hours Minimum."
+              x-lineageReferenceObject: SCBCRSE_OTH_HR_HIGH    
+              example: 2    
+            billingHoursConnector:
+              title: Billing Hours Connector
+              maxLength: 2
+              type: string
+              description: "This property defines whether the course can be billed for variable credit. OR/TO is used to specify the relationship between the minimum and maximum billing hour values. An OR/TO value must exist to enter Billing Hours Maximum."
+              x-lineageReferenceObject: SCBCRSE_BILL_HR_IND           
+              example: TO        
+            billingHoursMinimum:
+              title: Billing Hours Minimum
+              maxLength: 7
+              type: number
+              description: "The minimum number of credits for which the course can be billed based on defined assessment rules."
+              x-lineageReferenceObject: SCBCRSE_BILL_HR_LOW    
+              example: 2  
+            billingHoursMaximum:
+              title: Billing Hours Maximum
+              maxLength: 7
+              type: number
+              description: "This property is either second valid billing hours value or the madimum billing hours value within a range. A value may only be entered if the Billing Hours Connector property is included the value must be greater than the Billing Hours Minimum."
+              x-lineageReferenceObject: SCBCRSE_BILL_HR_HIGH    
+              example: 3
+            contactHoursConnector:
+              title: Contact Hours Connector
+              maxLength: 2
+              type: string
+              description: "This property specifies the relationship between the minimum and maximum contact hours. OR/TO is used to specify the relationship between the minimum and maximum contact hour values. An OR/TO value must exist to enter Contact Hours Maximum."
+              x-lineageReferenceObject: SCBCRSE_CONT_HR_IND           
+              example: OR        
+            contactHoursMinimum:
+              title: Contact Hours Minimum
+              maxLength: 7
+              type: number
+              description: "This property is the sum of minimum lecture, lab and other hours or a user set value."
+              x-lineageReferenceObject: SCBCRSE_CONT_HR_LOW    
+              example: 4  
+            contactHoursMaximum:
+              title: Contact Hours Maximum
+              maxLength: 7
+              type: number
+              description: "This property is the sum of maximum lecture, lab and others hours. A value may only be entered if the Contact Hours Connector property is included and must be greater than the Contact Hours Minimum."
+              x-lineageReferenceObject: SCBCRSE_CONT_HR_HIGH    
+              example: 8                                     
+            approval:
+              title: Approval Code
+              maxLength: 1
+              type: string
+              description: "Code specifying how the course was approved."
+              x-lineageReferenceObject: SCBCRSE_APRV_CODE
+              x-lineageLookupReferenceObject: STVAPRV             
+              example: D 
+            prerequisiteWaiver:
+              title: Prerequisite Waiver Code
+              maxLength: 1
+              type: string
+              description: "The type of role that is allowed to authorize a student to waive a prerequisite requirement (e.g. instructor, registrar, etc.)."
+              x-lineageReferenceObject: SCBCRSE_PWAV_CODE
+              x-lineageLookupReferenceObject: STVPWAV             
+              example: C  
+            isExemptFromTuitionAndFeeRules:
+              title: Tuition and Fee Rule Exemption Indicator
+              type: boolean
+              description: "This property specifies whether the course is exempt from tuition and fees term rules defined on Registration Fees Process Control Admin Page - SFARGFE. If 'Y', all rules on SFARGFE with 'Y' in Override field  will be ignored.  If 'N', rules on SFARGFE apply. (Valid values: null, N, Y)."
+              x-lineageReferenceObject: SCBCRSE_TUIW_IND            
+              example: true       
+            hasAdditionalFees:
+              title: Additional Fees Indicator
+              type: boolean
+              description: "This property indicates that additional fees, outside of the SFARGFE assessment rules, are established for the course."
+              x-lineageReferenceObject: SCBCRSE_ADD_FEES_IND            
+              example: false   
+            isContinuingEducation:
+              title: Continuing Education Unit (CEU) Indicator
+              type: boolean
+              description: "Indicates whether the course is a continuing education unit (CEU) course. (Valid values: null, N, Y)."
+              x-lineageReferenceObject: SCBCRSE_CEU_IND            
+              example: false  
+            durationUnit:
+              title: Duration Unit Code
+              maxLength: 4
+              type: string
+              description: "The duration for which the course is offered (e.g. week, day, month, etc.)."
+              x-lineageReferenceObject: SCBCRSE_DUNT_CODE
+              x-lineageLookupReferenceObject: GTVDUNT             
+              example: WEEK         
+            durationNumberOfUnits:
+              title: Duration Number of Units
+              maxLength: 7
+              type: number             
+              description: "The total number of times the duration unit extends."
+              x-lineageReferenceObject: SCBCRSE_NUMBER_OF_UNITS          
+              example: 15  
+            repeatLimit:
+              title: Repeat Limit
+              maxLength: 2
+              type: number
+              description: "The maximum number of times the course may be repeated by a student."
+              x-lineageReferenceObject: SCBCRSE_REPEAT_LIMIT
+              example: 0 
+            repeatStatus:
+              title: Repeat Status Code
+              maxLength: 4
+              type: string   
+              description: "Indicates whether the course is repeatable."                
+              x-lineageReferenceObject: SCBCRSE_REPS_CODE
+              x-lineageLookupReferenceObject: STVREPS             
+              example: NR                  
+            repeatMaximumHours:
+              title: Maximum Repeat Hours
+              maxLength: 9
+              type: number
+              description: "Maximum number of credits permitted."
+              x-lineageReferenceObject: SCBCRSE_MAX_RPT_UNITS          
+              example: 3                
+            repeatType:
+              title: Repeat Type Code
+              maxLength: 4
+              type: string              
+              description: "Course's repeat type for registration repeat rules processing. Valid values: NULL (null is treated as an implied N), N (Non-repeatable Credit), L (Legally Mandated Training), A (Activity/Other Repeatable), F (Family Non-repeatable Credit), G (Family Activity/Other Repeatable)."
+              x-lineageReferenceObject: SCBCRSE_REPEAT_CDE    
+              x-product-region: CalB-Stu                 
+              example: N      
+            repetitionFamilies:
+              title: Repetition Family Details
+              type: array               
+              items:
+                type: object
+                required:
+                  - repetitionFamily
+                  - modifiedOn                
+                properties:
+                  repetitionFamily:
+                    title: Repetition Family Code
+                    maxLength: 6
+                    type: string
+                    description: "Course's repetition family code(s). Used when evaluating registration course repeat limits for families. Only used with the family type of courses."
+                    x-lineageReferenceObject: SVRCRFM_CRFM_CODE
+                    x-lineageLookupReferenceObject: SVVCRFM
+                    x-product-region: CalB-Stu                     
+                    example: MATHRE
+            creditStatusCode:
+              title: Credit Status Code
+              maxLength: 1
+              type: string
+              description: "The credit status of the course."
+              x-lineageReferenceObject: SCBCRSE_CREDIT_STATUS_CODE
+              x-product-region: CalB-Stu                
+              example: N                                                                                                                                                          
+        levelDetail:
+          title: Course Level Detail
+          type: object
+          required:
+            - levels            
+          properties:           
+            levels:
+              title: Course Levels
+              type: array               
+              items:
+                type: object
+                required:
+                  - level               
+                properties:
+                  level:
+                    title: Level Code
+                    maxLength: 2
+                    type: string
+                    description: "The level(s) at which the course can be offered."
+                    x-lineageReferenceObject: SCRLEVL_LEVL_CODE
+                    x-lineageLookupReferenceObject: STVLEVL
+                    example: UG                         
+        gradingModeDetail:
+          title: Course Grading Mode Detail
+          type: object
+          required:
+            - gradingModes          
+          properties:                          
+            gradingModes:
+              title: Grading Modes
+              type: array
+              items:
+                type: object
+                required:
+                  - gradingMode            
+                properties:
+                  gradingMode:
+                    title: Grading Mode Code
+                    maxLength: 1
+                    type: string
+                    description: "The grading mode(s) for which a course can be taken (e.g. audit, credit/no credit, pass/fail, etc.)."
+                    x-lineageReferenceObject: SCRGMOD_GMOD_CODE
+                    x-lineageLookupReferenceObject: STVGMOD
+                    example: B
+                  defaultGradingModeIndicator: 
+                    title: Default Grading Mode Indicator
+                    maxLength: 1
+                    type: string
+                    description: "The default grading mode for the course. One grading mode must be designated as the default (D)."
+                    x-lineageReferenceObject: SCRGMOD_DEFAULT_IND
+                    example: D                                                    
+        scheduleDetail:
+          title: Course Schedule Detail
+          type: object
+          required:     
+            - schedules
+          properties:             
+            schedules:
+              title: Schedules
+              type: array
+              items:
+                type: object
+                required:
+                  - scheduleType            
+                properties:
+                  scheduleType:
+                    title: Schedule Type Code
+                    maxLength: 3
+                    type: string
+                    description: "The schedule type(s) defined for the course."
+                    x-lineageReferenceObject: SCRSCHD_SCHD_CODE
+                    x-lineageLookupReferenceObject: STVSCHD
+                    example: L
+                  workload: 
+                    title: Workload
+                    maxLength: 9
+                    type: number
+                    description: "Faculty instructional workload value for the schedule type."
+                    x-lineageReferenceObject: SCRSCHD_WORKLOAD
+                    example: 10    
+                  enrollmentOverload: 
+                    title: Enrollment Overload
+                    maxLength: 3
+                    type: number
+                    description: "Number of enrolled students that constitutes an over-enrollment for the schedule type."
+                    x-lineageReferenceObject: SCRSCHD_MAX_ENRL
+                    example: 100     
+                  adjustedWorkload: 
+                    title: Adjusted Faculty Instructional Workload
+                    maxLength: 9
+                    type: number
+                    description: "Adjusted faculty instructional workload value for over-enrollment of the schedule type."
+                    x-lineageReferenceObject: SCRSCHD_ADJ_WORKLOAD
+                    example: 4     
+                  instructionalMethod:
+                    title: Instructional Method Code
+                    maxLength: 5
+                    type: string
+                    description: "The method used to deliver the course to the learner."
+                    x-lineageReferenceObject: SCRSCHD_INSM_CODE
+                    x-lineageLookupReferenceObject: GTVINSM
+                    example: TR                                                                                 
+        alias:
+          title: Course Alias
+          maxLength: 50
+          type: string
+          description: "Alternate identifier for the course."
+          x-lineageReferenceObject: SCRCALS_CRSE_ALIAS
+          example: English 100                                                                                                             
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

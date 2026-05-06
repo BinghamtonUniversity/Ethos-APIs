@@ -1,0 +1,298 @@
+openapi: 3.0.0
+info:
+  title: fund-organization-security-details
+  description: |
+            This API can be used to request and verify status of Banner Finance Fund-Organization Security authorizations for a particular user. Each API request checks user authority for one of the following two types of access:  Query access or Posting access.
+
+            For a specified Chart of Accounts, request the authorization status for any number of Funds, any number of Organizations, or any number of Funds and Organizations.
+
+            To support querying long lists of Funds and Organizations, the query API has been created as a QAPI, Query by POST API. The request could be a list of Funds and Organizations, but could also be used for verifying access to a single Fund and Organization in a FOAPAL accounting string.
+
+            Note:  The API request must begin with /qapi rather than /api.
+  version: 1.0.0
+  x-source-name: FOBPROF
+  x-source-title: Fund Organization Security Details
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: beta
+  x-audience: all
+  x-source-domain: Finance
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /qapi/fund-organization-security-details: 
+    post:
+      summary: Returns the user authorization status for each Fund and each Organization in the request.
+      description: >-
+        Returns the user authorization status for each Fund and each Organization in the request as one of the following statuses:  Authorized, Not Authorized, or Not Found.
+      x-method-permissions: API_FUND_ORG_SECURITY_DETAILS
+      tags:
+        - fund-organization-security-details
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v11+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/fund-organization-security-details-v1.0.0_post_request"
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/fund-organization-security-details-v1.0.0_post_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      #security is standardized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+      x-method-permission:
+components:
+  schemas:
+    fund-organization-security-details-v1.0.0_post_request:
+      type: object
+      properties:
+        asOfDate:
+          "title": "As Of Date"
+          "description": "A request date to validate against the effective date of fund hierarchies and organization hierarchies. (Optional. Default value is system date.)"
+          "type": string
+          "format": date
+          "maxLength": 11
+          "x-lineageReferenceObject": FTVFUND.FTVFUND_EFF_DATE
+          "x-lineageLookupReferenceObject": FTVFUND
+        authority:
+          "title": "Authority"
+          "description": "Specifies whether query access or posting access should be checked. Valid values are Query or Posting. (Optional. Default value is Query.)"
+          "example": 'Posting'
+          "type": string
+          "maxLength": 6
+        chartOfAccountsCode:
+          "title": "Chart of Accounts Code"
+          "description": "The chart of accounts code to which the fund and organization belong."
+          "type": string
+          "example": 'B'
+          "maxLength": 1
+          "x-lineageReferenceObject": FTVFUND.FTVFUND_COAS_CODE
+          "x-lineageLookupReferenceObject": FTVFUND
+        fundCodes:
+          "title": Fund Code Authorization List
+          "description": "Identifies one or more fund codes to verify. (Optional. One of fundCodes or organizationCodes is required.)"
+          "type": array
+          items:
+            type: string
+          example: [FUND01, FUND02, FUND03]
+          "x-lineageReferenceObject": FORUSFN.FORUSFN_FUND_CODE
+        organizationCodes:
+          "title": Organization Code Authorization List
+          "description": "Identifies one or more organization codes to verify. (Optional. One of fundCodes or organizationCodes is required.)"
+          "type": array
+          items:
+            type: string
+          example: [ORGN01, ORGN02, ORGN03]
+          "x-lineageReferenceObject": FORUSOR.FORUSOR_ORGN_CODE
+        userId:
+          "title": "User ID"
+          "description": "The unique identification code of the user."
+          "example": 'TESTUSER'
+          "type": string
+          "maxLength": 30
+          "x-lineageReferenceObject": FOBPROF.FOBPROF_USER_ID
+      required:
+        - chartOfAccountsCode
+        - userId
+    fund-organization-security-details-v1.0.0_post_response:
+      type: object
+      properties:
+        asOfDate:
+          "title": "As Of Date"
+          "description": "The request date used to validate against the effective date of fund hierarchies and organization hierarchies."
+          "type": string
+          "format": date
+          "maxLength": 11
+          "x-lineageReferenceObject": FTVFUND.FTVFUND_EFF_DATE
+          "x-lineageLookupReferenceObject": FTVFUND
+        authority:
+          "title": "Authority"
+          "description": "Indicates whether query access or posting access has been verified."
+          "example": 'Posting'
+          "type": string
+          "maxLength": 6
+        chartOfAccountsCode:
+          "title": "Chart of Accounts Code"
+          "description": "The chart of accounts code to which the fund and organization belong."
+          "type": string
+          "example": 'B'
+          "maxLength": 1
+          "x-lineageReferenceObject": FTVFUND.FTVFUND_COAS_CODE
+          "x-lineageLookupReferenceObject": FTVFUND
+        fundCodes:
+          "title": "Fund Code Authorization Details"
+          "description": "An array of zero, one, or more than one that lists fund codes verified as requested reporting authorization as one of the following statuses:  Authorized, Not Authorized, or Not Found."
+          "type": object
+          "example": {"FUND01":'Authorized',"FUND02":'Not Authorized',"FUND03":'Not Found'}
+        organizationCodes:
+          "title": "Organization Code Authorization Details"
+          "description": "An array of zero, one, or more than one that lists organization codes verified as requested reporting authorization as one of the following statuses:  Authorized, Not Authorized, or Not Found."
+          "type": object
+          "example": {"ORGN01":'Authorized',"ORGN02":'Not Authorized',"ORGN03":'Not Found'}
+        userId:
+          "title": "User ID"
+          "description": "The unique identification code of the user."
+          "example": 'TESTUSER'
+          "type": string
+          "maxLength": 30
+          "x-lineageReferenceObject": FOBPROF.FOBPROF_USER_ID
+      required:
+        - asOfDate
+        - authority
+        - chartOfAccountsCode
+        - fundCodes
+        - organizationCodes
+        - userId
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    EllucianOAuthUserToken:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

@@ -1,0 +1,889 @@
+openapi: 3.0.0
+info:
+  title: student-miscellaneous-transaction
+  description: API for TSAMISC administrative page if Finance isn't installed.
+  version: 1.0.0
+  x-audience: all
+  x-release-status: ga
+  x-source-name: TSAMISC
+  x-source-domain: Student
+  x-source-title: Miscellaneous Transaction Form - Student
+  x-source-system: banner
+  x-api-type: bus-poc
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/student-miscellaneous-transaction:
+    get:
+      tags:
+        - student-miscellaneous-transaction
+      summary: Return resources from TSAMISC. API is only accessible if Finance isn't
+        installed (or enabled on GUAINST)
+      parameters:
+        - name: X-SDE-Expand
+          in: header
+          description: The comma seperated value list of block names
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: The maximum number of resources requesting for this result set.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          description: The filter criteria as a single URL query parameter. Use this
+            parameter or the individual parameters listed. Must be a JSON
+            representation of the property searching for. This can be any of the
+            properties listed on the URL or QAPI and must be a json
+            representation that can be validated against the GET schema. Limit
+            and Offset are the only supported additional parameters on the URL.
+          required: false
+          schema:
+            type: string
+        - name: receiptNumber
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/student-miscellaneous-transaction-1.0.0_get_respons\
+                    e"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+    post:
+      tags:
+        - student-miscellaneous-transaction
+      summary: Creates a new resource in TSAMISC
+      parameters: []
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/student-miscellaneous-transaction-1.0.0_post_reques\
+                t"
+            examples:
+              example1:
+                summary: Amount is passed in the request.
+                value:
+                  id: HOSH101010
+                  transDate: 2023-04-24
+                  transaction:
+                    - workDetailCode: CASH
+                      desc: Debit
+                      drCrInd: D
+                      amount: 15
+                      paymentId: 45
+                      merchantId: "12345"
+                    - workDetailCode: CASH
+                      desc: Credit
+                      drCrInd: C
+                      amount: 15
+                      paymentId: 45
+                      merchantId: "12345"
+                  name: Luffy
+                  streetLine1: Great Avenue
+                  streetLine2: Park
+                  streetLine3: Avenue
+                  zip: "12"
+                  city: Newyork
+                  natnCode: "132"
+              example2:
+                summary: Foreign amount and Currency code is passed in the request.
+                value:
+                  id: HOSH101010
+                  transDate: 2023-04-24
+                  transaction:
+                    - workDetailCode: CASH
+                      desc: Debit
+                      drCrInd: D
+                      paymentId: 45
+                      merchantId: 12345
+                      currCode: USD
+                      foreignAmount: 20
+                    - workDetailCode: CASH
+                      desc: Credit
+                      drCrInd: C
+                      paymentId: 45
+                      merchantId: 12345
+                      currCode: USD
+                      foreignAmount: 20
+                  name: Luffy
+                  streetLine1: Great Avenue
+                  streetLine2: Park
+                  streetLine3: Avenue
+                  zip: "12"
+                  city: Newyork
+                  natnCode: "132"
+              example3:
+                summary: Amount is passed for debit and Foreign amount and Currency code is
+                  passed for credit.
+                value:
+                  id: HOSH101010
+                  transDate: 2023-04-24
+                  transaction:
+                    - workDetailCode: CASH
+                      desc: Debit
+                      drCrInd: D
+                      amount: 15
+                      paymentId: 45
+                      merchantId: 12345
+                    - workDetailCode: CASH
+                      desc: Credit
+                      drCrInd: C
+                      paymentId: 45
+                      merchantId: 12345
+                      currCode: USD
+                      foreignAmount: 20
+                  name: Luffy
+                  streetLine1: Great Avenue
+                  streetLine2: Park
+                  streetLine3: Avenue
+                  zip: "12"
+                  city: Newyork
+                  natnCode: "132"
+              example4:
+                summary: Foreign amount and Currency code is passed for debit and Amount is
+                  passed for credit.
+                value:
+                  id: HOSH101010
+                  transDate: 2023-04-24
+                  transaction:
+                    - workDetailCode: CASH
+                      desc: Debit
+                      drCrInd: D
+                      paymentId: 45
+                      merchantId: 12345
+                      currCode: USD
+                      foreignAmount: 20
+                    - workDetailCode: CASH
+                      desc: Credit
+                      drCrInd: C
+                      paymentId: 45
+                      merchantId: 12345
+                      amount: 15
+                  name: Luffy
+                  streetLine1: Great Avenue
+                  streetLine2: Park
+                  streetLine3: Avenue
+                  zip: "12"
+                  city: Newyork
+                  natnCode: "132"
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/student-miscellaneous-transaction-1.0.0_post_respon\
+                    se"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+  /qapi/student-miscellaneous-transaction:
+    post:
+      tags:
+        - student-miscellaneous-transaction QAPI (Query by POST)
+      summary: Return resources from TSAMISC
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/student-miscellaneous-transaction-1.0.0_qapi_post"
+            example:
+              receiptNumber: 3987
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/student-miscellaneous-transaction-1.0.0_get_respons\
+                    e"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+components:
+  schemas:
+    student-miscellaneous-transaction-1.0.0_post_request:
+      required:
+        - streetLine1
+        - id
+      type: object
+      properties:
+        id:
+          title: ID
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : id"
+          x-lineageReferenceObject: id
+        streetLine2:
+          title: Street Line 2
+          maxLength: 75
+          type: string
+          description: Second line of the street address for the receipt of the
+            miscellaneous transaction.
+          x-lineageReferenceObject: TBBMISC_STREET_LINE2
+        zip:
+          title: ZIP or Postal Code
+          maxLength: 30
+          type: string
+          description: "Zip or postal code of the address for the receipt of the
+            miscellaneous transaction. object : gtvzipc"
+          x-lineageReferenceObject: TBBMISC_ZIP
+          x-lineageLookupReferenceObject: gtvzipc
+        streetLine1:
+          title: Street Line 1
+          maxLength: 75
+          type: string
+          description: First line of the street address for the receipt of the
+            miscellaneous transaction.
+          x-lineageReferenceObject: TBBMISC_STREET_LINE1
+        statCode:
+          title: State or Province
+          maxLength: 3
+          type: string
+          description: "State or province of the address for the receipt of the
+            miscellaneous transaction, valid in STVSTAT reference object :
+            stvstat"
+          x-lineageReferenceObject: TBBMISC_STAT_CODE
+          x-lineageLookupReferenceObject: stvstat
+        natnCode:
+          title: Nation
+          maxLength: 5
+          type: string
+          description: "Nation or country of the address for the receipt of the
+            miscellaneous transaction, valid in STVNATN. reference object :
+            stvnatn"
+          x-lineageReferenceObject: TBBMISC_NATN_CODE
+          x-lineageLookupReferenceObject: stvnatn
+        city:
+          title: City
+          maxLength: 50
+          type: string
+          description: City of the address for the receipt of the miscellaneous transaction
+          x-lineageReferenceObject: TBBMISC_CITY
+        streetLine4:
+          title: Street Line 4
+          maxLength: 75
+          type: string
+          description: "Lineage reference object : TBBMISC_STREET_LINE4"
+          x-lineageReferenceObject: TBBMISC_STREET_LINE4
+        streetLine3:
+          title: Street Line 3
+          maxLength: 75
+          type: string
+          description: Third line of the street address for the receipt of the
+            miscellaneous transaction.
+          x-lineageReferenceObject: TBBMISC_STREET_LINE3
+        name:
+          title: Name
+          maxLength: 30
+          type: string
+          description: "Free-form name of the person or office presenting revenue for
+            processing as a miscellaneous transaction. "
+          x-lineageReferenceObject: TBBMISC_NAME
+        transaction:
+          type: array
+          items:
+            required:
+              - workDetailCode
+              - drCrInd
+              - streetLine1
+            type: object
+            properties:
+              amount:
+                title: Amount
+                maxLength: 12
+                type: number
+                description: The amount of the miscellaneous transaction.
+                x-lineageReferenceObject: TBRMISD_AMOUNT
+              currCode:
+                title: Currency Code
+                maxLength: 4
+                type: string
+                description: Foreign currency code used when creating the payment side of a
+                  miscellaneous transaction.
+                x-lineageReferenceObject: TBRMISD_CURR_CODE
+                x-lineageLookupReferenceObject: gtvcurr
+              workDetailCode:
+                title: Detail Code
+                maxLength: 4
+                type: string
+                description: Work Detail Code
+                x-lineageLookupReferenceObject: tbbdetc
+              foreignAmount:
+                title: Currency Amount
+                maxLength: 16
+                type: number
+                description: The amount of the transaction stated in foreign currency.
+                x-lineageReferenceObject: TBRMISD_FOREIGN_AMOUNT
+              merchantId:
+                title: Merchant ID
+                maxLength: 20
+                type: string
+                description: Merchant ID associated with the Process Name Code, Credit Card Type
+                  Code, and System Code.  The Merchant ID is included in the
+                  credit card payment request transmitted to the vendor handling
+                  credit card payments.
+                x-lineageReferenceObject: TBRMISD_MERCHANT_ID
+              paymentId:
+                title: Payment Number
+                maxLength: 20
+                type: string
+                description: Free-form information identifying a payment; often used to record
+                  check or credit card number.
+                x-lineageReferenceObject: TBRMISD_PAYMENT_ID
+              drCrInd:
+                title: Debit or Credit
+                maxLength: 1
+                type: string
+                description: The Debit Credit Indicator identifies this transaction as a debit
+                  (D) or credit (C) to the finance ledger.
+                x-lineageReferenceObject: TBRMISD_DR_CR_IND
+              desc:
+                title: Description
+                maxLength: 30
+                type: string
+                description: Free-form description associated with the miscellaneous
+                  transaction.  Default value comes from the Detail Code
+                  description (TBBDESC).
+                x-lineageReferenceObject: TBRMISD_DESC
+            x-lineageReferenceObject: TBRMISD
+      x-lineageReferenceObject: TBBMISC
+    errors-2.0.0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+              description:
+                type: string
+    student-miscellaneous-transaction-1.0.0_qapi_post:
+      type: object
+      properties:
+        receiptNumber:
+          title: Receipt Number
+          maxLength: 8
+          type: number
+          description: "Lineage reference object : receiptNumber"
+          x-lineageReferenceObject: receiptNumber
+      x-lineageReferenceObject: KEY_BLOCK
+    student-miscellaneous-transaction-1.0.0_get_response:
+      type: object
+      properties:
+        tbrmisd:
+          type: array
+          items:
+            required:
+              - amount
+              - desc
+              - drCrInd
+              - workDetailCode
+            type: object
+            properties:
+              amount:
+                title: Amount
+                maxLength: 12
+                type: number
+                description: The amount of the miscellaneous transaction.
+                x-lineageReferenceObject: TBRMISD_AMOUNT
+              currCode:
+                title: Currency Code
+                maxLength: 4
+                type: string
+                description: Foreign currency code used when creating the payment side of a
+                  miscellaneous transaction.
+                x-lineageReferenceObject: TBRMISD_CURR_CODE
+                x-lineageLookupReferenceObject: gtvcurr
+              foreignAmount:
+                title: Currency Amount
+                maxLength: 16
+                type: number
+                description: The amount of the transaction stated in foreign currency.
+                x-lineageReferenceObject: TBRMISD_FOREIGN_AMOUNT
+              workDetailCode:
+                title: Detail Code
+                maxLength: 4
+                type: string
+                description: "Lookup lineage reference object : tbbdetc"
+                x-lineageLookupReferenceObject: tbbdetc
+              merchantId:
+                title: Merchant ID
+                maxLength: 20
+                type: string
+                description: Merchant ID associated with the Process Name Code, Credit Card Type
+                  Code, and System Code.  The Merchant ID is included in the
+                  credit card payment request transmitted to the vendor handling
+                  credit card payments.
+                x-lineageReferenceObject: TBRMISD_MERCHANT_ID
+              paymentId:
+                title: Payment Number
+                maxLength: 20
+                type: string
+                description: Free-form information identifying a payment; often used to record
+                  check or credit card number.
+                x-lineageReferenceObject: TBRMISD_PAYMENT_ID
+              drCrInd:
+                title: Debit or Credit
+                maxLength: 1
+                type: string
+                description: The Debit Credit Indicator identifies this transaction as a debit
+                  (D) or credit (C) to the finance ledger.
+                x-lineageReferenceObject: TBRMISD_DR_CR_IND
+              desc:
+                title: Description
+                maxLength: 30
+                type: string
+                description: Free-form description associated with the miscellaneous
+                  transaction.  Default value comes from the Detail Code
+                  description (TBBDESC).
+                x-lineageReferenceObject: TBRMISD_DESC
+            x-lineageReferenceObject: tbrmisd
+        tbrcmis:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                maxLength: 1
+                type: string
+            x-lineageReferenceObject: tbrcmis
+        receipt_print_ctl:
+          type: array
+          items:
+            type: object
+            properties:
+              printReceipt:
+                title: Print Receipt
+                maxLength: 1
+                type: string
+                description: Indicator to decide if we need to print the receipt
+                x-lineageReferenceObject: printReceipt
+              dupReceiptInd:
+                title: Print Duplicate
+                maxLength: 1
+                type: string
+                description: Duplicate receipt indicator
+                x-lineageReferenceObject: dupReceiptInd
+            x-lineageReferenceObject: receipt_print_ctl
+        tbbmisc:
+          type: array
+          items:
+            type: object
+            properties:
+              natnDesc:
+                maxLength: 30
+                type: string
+              streetLine2:
+                title: Street Line 2
+                maxLength: 75
+                type: string
+                description: Second line of the street address for the receipt of the
+                  miscellaneous transaction.
+                x-lineageReferenceObject: TBBMISC_STREET_LINE2
+              zip:
+                title: ZIP or Postal Code
+                maxLength: 30
+                type: string
+                description: "Zip or postal code of the address for the receipt of the
+                  miscellaneous transaction. object : gtvzipc"
+                x-lineageReferenceObject: TBBMISC_ZIP
+                x-lineageLookupReferenceObject: gtvzipc
+              streetLine1:
+                title: Street Line 1
+                maxLength: 75
+                type: string
+                description: First line of the street address for the receipt of the
+                  miscellaneous transaction.
+                x-lineageReferenceObject: TBBMISC_STREET_LINE1
+              createSource:
+                title: Create Source
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : TBBMISC_CREATE_SOURCE"
+                x-lineageReferenceObject: TBBMISC_CREATE_SOURCE
+              statCode:
+                title: State or Province
+                maxLength: 3
+                type: string
+                description: "State or province of the address for the receipt of the
+                  miscellaneous transaction, valid in STVSTAT reference object :
+                  stvstat"
+                x-lineageReferenceObject: TBBMISC_STAT_CODE
+                x-lineageLookupReferenceObject: stvstat
+              natnCode:
+                title: Nation
+                maxLength: 5
+                type: string
+                description: "Nation or country of the address for the receipt of the
+                  miscellaneous transaction, valid in STVNATN. reference object
+                  : stvnatn"
+                x-lineageReferenceObject: TBBMISC_NATN_CODE
+                x-lineageLookupReferenceObject: stvnatn
+              city:
+                title: City
+                maxLength: 50
+                type: string
+                description: City of the address for the receipt of the miscellaneous
+                  transaction
+                x-lineageReferenceObject: TBBMISC_CITY
+              streetLine3:
+                title: Street Line 3
+                maxLength: 75
+                type: string
+                description: Third line of the street address for the receipt of the
+                  miscellaneous transaction.
+                x-lineageReferenceObject: TBBMISC_STREET_LINE3
+              name:
+                title: Name
+                maxLength: 30
+                type: string
+                description: "Free-form name of the person or office presenting revenue for
+                  processing as a miscellaneous transaction. "
+                x-lineageReferenceObject: TBBMISC_NAME
+            x-lineageReferenceObject: tbbmisc
+    student-miscellaneous-transaction-1.0.0_post_response:
+      type: object
+      properties:
+        key_block:
+          type: array
+          items:
+            type: object
+            properties:
+              creditTotal:
+                title: Credit Total
+                maxLength: 18
+                type: number
+                description: "Lineage reference object : creditTotal"
+                x-lineageReferenceObject: creditTotal
+              documentNumber:
+                title: Document
+                maxLength: 8
+                type: string
+                description: "Lineage reference object : documentNumber, Lookup lineage
+                  reference object : tbrmisd"
+                x-lineageReferenceObject: documentNumber
+                x-lineageLookupReferenceObject: tbrmisd
+              rwname:
+                maxLength: 230
+                type: string
+                description: "Lineage reference object : rwname"
+                x-lineageReferenceObject: rwname
+              transDate:
+                title: Transaction Date
+                maxLength: 26
+                type: string
+                description: "Lineage reference object : transDate"
+                format: date-time
+                x-lineageReferenceObject: transDate
+              id:
+                title: ID
+                maxLength: 9
+                type: string
+                description: "Lineage reference object : id"
+                x-lineageReferenceObject: id
+              sessUser:
+                title: User
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : sessUser"
+                x-lineageReferenceObject: sessUser
+              receiptNumber:
+                title: Receipt Number
+                maxLength: 8
+                type: number
+                description: "Lineage reference object : receiptNumber"
+                x-lineageReferenceObject: receiptNumber
+              debitTotal:
+                title: Debit Total
+                maxLength: 18
+                type: number
+                description: "Lineage reference object : debitTotal"
+                x-lineageReferenceObject: debitTotal
+            x-lineageReferenceObject: key_block
+        tbrmisd:
+          type: array
+          items:
+            required:
+              - amount
+              - desc
+              - drCrInd
+              - workDetailCode
+            type: object
+            properties:
+              amount:
+                title: Amount
+                maxLength: 12
+                type: number
+                description: The amount of the miscellaneous transaction.
+                x-lineageReferenceObject: TBRMISD_AMOUNT
+              currCode:
+                title: Currency Code
+                maxLength: 4
+                type: string
+                description: Foreign currency code used when creating the payment side of a
+                  miscellaneous transaction.
+                x-lineageReferenceObject: TBRMISD_CURR_CODE
+                x-lineageLookupReferenceObject: gtvcurr
+              foreignAmount:
+                title: Foreign Amount
+                maxLength: 12
+                type: number
+                description: The amount of the transaction stated in foreign currency.
+                x-lineageReferenceObject: TBRMISD_FOREIGN_AMOUNT
+              workDetailCode:
+                title: Detail Code
+                maxLength: 4
+                type: string
+                description: "Lookup lineage reference object : tbbdetc"
+                x-lineageLookupReferenceObject: tbbdetc
+              merchantId:
+                title: Merchant ID
+                maxLength: 20
+                type: string
+                description: Merchant ID associated with the Process Name Code, Credit Card Type
+                  Code, and System Code.  The Merchant ID is included in the
+                  credit card payment request transmitted to the vendor handling
+                  credit card payments.
+                x-lineageReferenceObject: TBRMISD_MERCHANT_ID
+              paymentId:
+                title: Payment Number
+                maxLength: 20
+                type: string
+                description: Free-form information identifying a payment; often used to record
+                  check or credit card number.
+                x-lineageReferenceObject: TBRMISD_PAYMENT_ID
+              drCrInd:
+                title: Debit or Credit
+                maxLength: 1
+                type: string
+                description: The Debit Credit Indicator identifies this transaction as a debit
+                  (D) or credit (C) to the finance ledger.
+                x-lineageReferenceObject: TBRMISD_DR_CR_IND
+              desc:
+                title: Description
+                maxLength: 30
+                type: string
+                description: Free-form description associated with the miscellaneous
+                  transaction.  Default value comes from the Detail Code
+                  description (TBBDESC).
+                x-lineageReferenceObject: TBRMISD_DESC
+            example:
+              - amount: 0
+                currCode: string
+                foreignAmount: 0
+                workDetailCode: string
+                merchantId: string
+                paymentId: string
+                drCrInd: string
+                desc: string
+              - amount: 0
+                currCode: string
+                foreignAmount: 0
+                workDetailCode: string
+                merchantId: string
+                paymentId: string
+                drCrInd: string
+                desc: string
+            x-lineageReferenceObject: tbrmisd
+        tbbmisc:
+          type: array
+          items:
+            type: object
+            properties:
+              natnDesc:
+                maxLength: 30
+                type: string
+              streetLine2:
+                title: Street Line 2
+                maxLength: 75
+                type: string
+                description: Second line of the street address for the receipt of the
+                  miscellaneous transaction.
+                x-lineageReferenceObject: TBBMISC_STREET_LINE2
+              zip:
+                title: ZIP or Postal Code
+                maxLength: 30
+                type: string
+                description: "Zip or postal code of the address for the receipt of the
+                  miscellaneous transaction. object : gtvzipc"
+                x-lineageReferenceObject: TBBMISC_ZIP
+                x-lineageLookupReferenceObject: gtvzipc
+              streetLine1:
+                title: Street Line 1
+                maxLength: 75
+                type: string
+                description: First line of the street address for the receipt of the
+                  miscellaneous transaction.
+                x-lineageReferenceObject: TBBMISC_STREET_LINE1
+              createSource:
+                title: Create Source
+                maxLength: 30
+                type: string
+                description: Source system that initially created the record.
+                x-lineageReferenceObject: TBBMISC_CREATE_SOURCE
+              statCode:
+                title: State or Province
+                maxLength: 3
+                type: string
+                description: "State or province of the address for the receipt of the
+                  miscellaneous transaction, valid in STVSTAT reference object :
+                  stvstat"
+                x-lineageReferenceObject: TBBMISC_STAT_CODE
+                x-lineageLookupReferenceObject: stvstat
+              natnCode:
+                title: Nation
+                maxLength: 5
+                type: string
+                description: "Nation or country of the address for the receipt of the
+                  miscellaneous transaction, valid in STVNATN. reference object
+                  : stvnatn"
+                x-lineageReferenceObject: TBBMISC_NATN_CODE
+                x-lineageLookupReferenceObject: stvnatn
+              city:
+                title: City
+                maxLength: 50
+                type: string
+                description: City of the address for the receipt of the miscellaneous
+                  transaction.
+                x-lineageReferenceObject: TBBMISC_CITY
+              streetLine3:
+                title: Street Line 3
+                maxLength: 75
+                type: string
+                description: "Third line of the street address for the receipt of the
+                  miscellaneous transaction. "
+                x-lineageReferenceObject: TBBMISC_STREET_LINE3
+              name:
+                title: Name
+                maxLength: 30
+                type: string
+                description: "Free-form name of the person or office presenting revenue for
+                  processing as a miscellaneous transaction. "
+                x-lineageReferenceObject: TBBMISC_NAME
+            x-lineageReferenceObject: tbbmisc
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EllucianOAuthUserToken:
+      type: http
+      scheme: bearer
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

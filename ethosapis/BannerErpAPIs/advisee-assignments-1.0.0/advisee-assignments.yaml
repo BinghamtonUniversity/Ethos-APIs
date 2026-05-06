@@ -1,0 +1,163 @@
+openapi: 3.0.0
+info:
+  title: advisee-assignments
+  description: >
+    This API allows assigning advisors to multiple students. You can assign
+    advisors to multiple students and in turn assign multiple advisors to each
+    student using this API.
+  version: "1.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Student
+  x-source-title: Advisee Assignments
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: advisee-assignments
+paths:
+  /api/adviseeAssignment:
+    post:
+      description: >
+        This API treats each record in the request independent of other records.
+        Records will be processed one by one sequentially in the given order. In
+        no way API tries to derive relationship between records based on one or
+        more fields. This API only INSERTs but never UPDATEs.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_ADVISEE_ASSIGNMENTS
+      tags:
+        - advisee-assignments
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content-type
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/advisee-assignment"
+          application/vnd.hedtech.integration.v1.0.0+xml:
+            schema:
+              type: object
+              $ref: "#/components/schemas/advisee-assignment"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/advisee-assignment-response"
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/advisee-assignment-response"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    advisee-assignment:
+      type: object
+      properties:
+        assignments:
+          type: array
+          items:
+            type: object
+            properties:
+              studentBannerId:
+                type: string
+              effectiveTermCode:
+                type: integer
+              advisorBannerId:
+                type: string
+              advisorTypeCode:
+                type: string
+              primaryIndicator:
+                type: string
+    advisee-assignment-response:
+      type: object
+      properties:
+        success:
+          type: integer
+        assignments:
+          type: array
+          items:
+            type: object
+            properties:
+              studentBannerId:
+                type: string
+              effectiveTermCode:
+                type: integer
+              advisorBannerId:
+                type: string
+              advisorTypeCode:
+                type: string
+              primaryIndicator:
+                type: string

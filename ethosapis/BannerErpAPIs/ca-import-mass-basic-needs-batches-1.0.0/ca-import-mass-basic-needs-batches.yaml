@@ -1,0 +1,303 @@
+openapi: 3.0.0
+info:
+  title: ca-import-mass-basic-needs-batches
+  description: API for Mass Import for SVANEED page
+  version: 1.0.0-beta
+  x-source-title: Ca Import Mass Basic Needs Batch
+  x-source-system: banner
+  x-api-type: erp
+  x-audience: all
+  x-release-status: beta
+  x-source-domain: Student
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+
+  /api/ca-import-mass-basic-needs-batches/batches:
+    post:
+      tags:
+        - ca-import-mass-basic-needs-batches
+      summary: Create a ca import mass basic needs batch with given data in the request body.
+      description: Create a ca import mass basic needs batch with given data in the request body.
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              $ref: '#/components/schemas/ca-import-mass-basic-needs-batches-v1_post_request'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                $ref: '#/components/schemas/ca-import-mass-basic-needs-batches-batches-v1_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the clients preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+      - BasicAuth: []
+      - EthosIntegrationBearer: []
+      
+components:
+  schemas:
+    ca-import-mass-basic-needs-batches-v1_post_request:
+      type: object
+      properties:
+        id:
+          title: ID
+          description: A globally unique identifier of a batch to be used in all external
+            references.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+        resource:
+          title: Resource
+          description: The affected resource.
+          type: object
+          properties:
+            name:
+              title: Resource Name
+              description: The pluralized name of the affected resource
+              type: string
+            version:
+              title: Resource version
+              description: The version of the resource
+              type: string
+          additionalProperties: false
+          required:
+            - name
+            - version
+        items:
+          title: items
+          description: List of items to be processed.
+          type: array
+          items:
+            type: object
+            $ref: "#/components/schemas/ca-import-mass-basic-needs-batches-batches-v1_post_request"
+      required:
+        - items
+    ca-import-mass-basic-needs-batches-batches-v1_post_request:
+      type: object
+      properties:
+        stuTermCode:
+          "title": "termCode"
+          "description": "TERM CODE: This field identifies the term associated with the service received by the student."
+          "type": string
+          "maxLength": 6
+          "x-lineageReferenceObject": SVRPSID.SVRPSID_TERM_CODE
+          example: 202210
+        stuDicdCode:
+          "title": "districtCode"
+          "description": "DISTRICT CODE: The district or division associated with a student."
+          "type": string
+          "maxLength": 3
+          "x-lineageReferenceObject": SVRPSID.SVRPSID_DICD_CODE
+          example: 123
+        fileCode:
+          "title": "fileCode"
+          "description": "SEID CODE: Social economic identity code."
+          "type": string
+          "maxLength": 30
+          "x-lineageReferenceObject": SVRPSID.SVRPSID_SEID_CODE
+          example: FOOD_SRV
+        stuId:
+          "title": "pidm"
+          "description": "ID: Unique person identifier."
+          "type": string
+          "x-lineageReferenceObject": SVRPSID.SVRPSID_PIDM
+          example: A00000719
+        stuServiceCode:
+          "title": "stuServiceCode"
+          "description": Service Code."
+          "type": string
+          "maxLength": 30
+          example: 1
+        stuServiceDate:
+          "title": "stuServiceDate"
+          "description": "Service Date."
+          "type": string
+          "maxLength": 250
+          example: 05/31/2018
+        stuStatus:
+          type: string
+          description: Student Status
+          example: A
+        stuProviderOrigin:
+          type: string
+          description: Provider Origin
+          example: STDN
+      required:
+        - stuTermCode
+        - stuDicdCode
+        - fileCode
+        - stuId
+    ca-import-mass-basic-needs-batches-batches-v1_response:
+      description: "Returns the list of Ids for those applicant-requirements that were
+        successfully updated . For those that did not, it returns the list of
+        error messages. "
+      type: object
+      x-last-modified: 1694460214111
+      properties:
+        id:
+          title: ID
+          description: A globally unique identifier of a batch to be used in all external
+            references.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+        status:
+          title: status
+          description: status of the batch.
+          type: string
+          enum:
+            - completed
+            - inProgress
+            - aborted
+        resource:
+          title: Resource
+          description: The affected resource.
+          type: object
+          properties:
+            name:
+              title: Resource Name
+              description: The pluralized name of the affected resource
+              type: string
+            version:
+              title: Resource version
+              description: The version of the resource
+              type: string
+          additionalProperties: false
+          required:
+            - name
+            - version
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+            oneOf:
+              - type: object
+                $ref: "#/components/schemas/ca-import-mass-basic-needs-batches-v1_response"
+              - type: object
+                $ref: "#/components/schemas/errors_2_0_0"
+          required:
+            - items    
+    ca-import-mass-basic-needs-batches-v1_response:
+      type: object
+      properties:
+        id:
+            type: object
+            properties:
+              stuId:
+                  type: string
+              serviceCode:
+                  type: string
+              serviceType:
+                  type: string
+              providerUserId:
+                  type: string
+              status:
+                  type: string
+              providerOrigin:
+                  type: string
+              message:
+                  type: string
+      required:
+        - stuTermCode
+        - stuDicdCode
+        - fileCode
+        - stuId
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  securitySchemes:
+    BasicAuth:
+        type: http
+        scheme: basic
+    EthosIntegrationBearer:
+        type: http
+        scheme: bearer

@@ -1,0 +1,497 @@
+openapi: 3.0.0
+info:
+  title: Job Applications
+  description: Information about applications for employment.
+  version: "10.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Human Resources
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/job-applications:
+    get:
+      summary: Return all resources from PABAPPL
+      description: Returns a paged listing of all the job application records from
+        PABAPPL table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_JOB_APPLICATIONS
+      tags:
+        - job-applications
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-job-applications.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v10+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/job-applications/{id}:
+    get:
+      summary: Return the requested resource from PABAPPL
+      description: Return the one resource with the passed in identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_JOB_APPLICATIONS
+      tags:
+        - job-applications
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Job Applications for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v10+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v10+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-job-applications.json"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-job-applications.json:
+      title: Job Applications
+      description: Information about applications for employment.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the job application.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: PABAPPL_GUID(PABAPPL)
+        person:
+          title: Person
+          description: The person applying for employment.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Person.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+              x-lineageDerivedLogic: Display the person GUID from GORGUID where GORGUID_LDM_NAME='persons' and GORGUID_LDM_NAME matches PABAPPL_PIDM
+          additionalProperties: false
+          required:
+            - id
+        position:
+          title: Position
+          description: The position associated with the application.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Position.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: institution-positions 
+                  x-lineageReferenceObject: PABAPPL_POSN(PABAPPL)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        desiredCompensation:
+          title: Desired Compensation
+          description: The applicant's desired compensation.
+          oneOf:
+            - type: object
+              properties:
+                period:
+                  title: Period
+                  description: The time period of the salary.
+                  enum:
+                    - hour
+                    - year
+                    - contract
+                  type: string
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: If desiredCompensation.rate.value is displayed from PABAPPL_DESIRED_SALARY, then display desiredCompensation.period as 'year'. If desiredCompensation.rate.value is displayed from PABAPPL_DESIRED_HOURLY, then display desiredCompensation.period as 'hour'.
+                rate:
+                  title: Rate
+                  description: The amount desired per time period.
+                  format: currency
+                  type: object
+                  properties:
+                    value:
+                      title: Value
+                      description: The monetary value
+                      type: number
+                      x-lineageReferenceObject: derived  
+                      x-lineageDerivedLogic: Display PABAPPL_DESIRED_SALARY if not null else display PABAPPL_DESIRED_HOURLY
+                    currency:
+                      title: Currency
+                      description: The ISO 4217 currency code
+                      enum:
+                        - AED
+                        - AFN
+                        - ALL
+                        - AMD
+                        - ANG
+                        - AOA
+                        - ARS
+                        - AUD
+                        - AWG
+                        - AZN
+                        - BAM
+                        - BBD
+                        - BDT
+                        - BGN
+                        - BHD
+                        - BIF
+                        - BMD
+                        - BND
+                        - BOB
+                        - BRL
+                        - BSD
+                        - BTN
+                        - BWP
+                        - BYR
+                        - BZD
+                        - CAD
+                        - CDF
+                        - CHF
+                        - CLP
+                        - CNY
+                        - COP
+                        - CRC
+                        - CUC
+                        - CUP
+                        - CVE
+                        - CZK
+                        - DJF
+                        - DKK
+                        - DOP
+                        - DZD
+                        - EGP
+                        - ERN
+                        - ETB
+                        - EUR
+                        - FJD
+                        - FKP
+                        - GBP
+                        - GEL
+                        - GHS
+                        - GIP
+                        - GMD
+                        - GNF
+                        - GTQ
+                        - GYD
+                        - HKD
+                        - HNL
+                        - HRK
+                        - HTG
+                        - HUF
+                        - IDR
+                        - ILS
+                        - INR
+                        - IQD
+                        - IRR
+                        - ISK
+                        - JMD
+                        - JOD
+                        - JPY
+                        - KES
+                        - KGS
+                        - KHR
+                        - KMF
+                        - KPW
+                        - KRW
+                        - KWD
+                        - KYD
+                        - KZT
+                        - LAK
+                        - LBP
+                        - LKR
+                        - LRD
+                        - LSL
+                        - LYD
+                        - MAD
+                        - MDL
+                        - MGA
+                        - MKD
+                        - MMK
+                        - MNT
+                        - MOP
+                        - MRO
+                        - MUR
+                        - MVR
+                        - MWK
+                        - MXN
+                        - MYR
+                        - MZN
+                        - NAD
+                        - NGN
+                        - NIO
+                        - NOK
+                        - NPR
+                        - NZD
+                        - OMR
+                        - PAB
+                        - PEN
+                        - PGK
+                        - PHP
+                        - PKR
+                        - PLN
+                        - PYG
+                        - QAR
+                        - RON
+                        - RSD
+                        - RUB
+                        - RWF
+                        - SAR
+                        - SBD
+                        - SCR
+                        - SDG
+                        - SEK
+                        - SGD
+                        - SHP
+                        - SLL
+                        - SOS
+                        - SRD
+                        - SSP
+                        - STD
+                        - SVC
+                        - SYP
+                        - SZL
+                        - THB
+                        - TJS
+                        - TMT
+                        - TND
+                        - TOP
+                        - TRY
+                        - TTD
+                        - TWD
+                        - TZS
+                        - UAH
+                        - UGX
+                        - USD
+                        - UYU
+                        - UZS
+                        - VEF
+                        - VND
+                        - VUV
+                        - WST
+                        - XAF
+                        - XCD
+                        - XOF
+                        - XPF
+                        - YER
+                        - ZAR
+                        - ZMW
+                        - ZWL
+                      type: string
+                      x-lineageReferenceObject: GUBINST_BASE_CURR_CODE(GUBINST)
+                  additionalProperties: false
+                  required:
+                    - value
+                    - currency
+              additionalProperties: false
+              required:
+                - period
+                - rate
+            - type: object
+              maxProperties: 0
+        employmentPreference:
+          title: Employment Preference
+          description: The preference of employment (e.g. full-time, part-time and no
+            preference).
+          oneOf:
+            - type: string
+              enum:
+                - fullTime
+                - partTime
+                - noPreference
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: If PABAPPL_FULL_PART_IND is 'F' then display as 'fullTime', if 'P' then display as 'partTime' and if 'N' then display as 'noPreference'
+            - type: string
+              maxLength: 0
+        status:
+          title: Status
+          description: The status of the job application.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Status.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: job-application-statuses 
+                  x-lineageReferenceObject: PTRAPPS_GUID(PTRAPPS)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        source:
+          title: Source
+          description: The source of information for the employment opportunity.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Source.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: job-application-sources 
+                  x-lineageReferenceObject: PABAPPL_ASRC_CODE(PABAPPL)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        appliedOn:
+          title: Applied On
+          description: The date when the application was submitted.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: PABAPPL_DATE(PABAPPL)
+            - type: string
+              maxLength: 0
+      required:
+        - id
+        - person
+      additionalProperties: false

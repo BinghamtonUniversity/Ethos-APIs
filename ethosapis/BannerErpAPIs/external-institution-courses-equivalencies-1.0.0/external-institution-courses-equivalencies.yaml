@@ -1,0 +1,399 @@
+openapi: 3.0.0
+info:
+  title: External Institution Courses Equivalencies
+  description: This API provides details about external institution course equivalencies, including grade scales and external courses with their equivalency rules.
+  version: 1.0.0
+  x-source-domain: Student
+  x-source-name: SHRTGRD, SHBTATC, SHRTCAT, SHRTCMT, SHRTATC, SHRTRAT, SHRICMT
+  x-source-system: banner
+  x-api-type: erp
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/external-institution-courses-equivalencies:
+    get:
+      tags:
+        - external-institution-courses-equivalencies
+      summary: Retrieve external institution course equivalencies.
+      description: Provides details about external institution course equivalencies, including grade scales and external courses with their equivalency rules, attributes, and comments.
+      parameters:
+        - name: sbgiCode
+          in: query
+          description: Institution code to filter the results.
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Maximum number of records to return.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: Number of records to skip before starting to return results.
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/external-institution-courses-equivalencies-v1_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ErrorsObj'
+        '401':
+          description: Failure. Unauthorized.
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '500':
+          description: Server error. Unexpected configuration or data.
+      security:
+        - BasicAuth: []
+        - EthosIntegrationBearer: []
+      x-method-permission: API_EXT_INST_COURSES_EQUIV
+components:
+  schemas:
+    external-institution-courses-equivalencies-v1_response:
+      type: object
+      properties:
+        sbgiCode:
+          "type": string
+          "description": The unique code identifying the institution.
+          "maxLength": 20
+          "x-lineageReferenceObject": STVSBGI.STVSBGI_CODE
+        sbgiDesc:
+          "type": string
+          "description": The description of the institution.
+          "maxLength": 100
+          "x-lineageReferenceObject": STVSBGI.STVSBGI_DESC
+        gradeScales:
+          "type": array
+          description: Grade scale information for the institution.
+          items:
+            "type": object
+            properties:
+              transferGrade:
+                "type": string
+                "description": Transfer grade code.
+                "maxLength": 6
+                "x-lineageReferenceObject": SHRTGRD.SHRTGRD_CODE
+              effectiveTerm:
+                "type": string
+                "description": Effective term code.
+                "maxLength": 6
+                "x-lineageReferenceObject": SHRTGRD.SHRTGRD_TERM_CODE_EFFECTIVE
+              transferLevel:
+                "type": string
+                "description": Transfer level code.
+                "maxLength": 2
+                "x-lineageReferenceObject": SHRTGRD.SHRTGRD_LEVL_CODE
+              abbreviation:
+                "type": string
+                "description": Grade abbreviation.
+                "maxLength": 7
+                "x-lineageReferenceObject": SHRTGRD.SHRTGRD_ABBREV
+              statusInd:
+                "type": string
+                "description": Status indicator.
+                "maxLength": 1
+                "x-lineageReferenceObject": SHRTGRD.SHRTGRD_GRDE_STATUS_IND
+              qualityPoints:
+                "type": number
+                "description": Quality points for the grade.
+                "format": float
+                "x-lineageReferenceObject": SHRTGRD.SHRTGRD_QUALITY_POINTS
+              countInAttempted:
+                "type": string
+                "description": Count in attempted indicator.
+                "maxLength": 1
+                "x-lineageReferenceObject": SHRTGRD.SHRTGRD_ATTEMPTED_IND
+              countInPassed:
+                "type": string
+                "description": Count in passed indicator.
+                "maxLength": 1
+                "x-lineageReferenceObject": SHRTGRD.SHRTGRD_PASSED_IND
+              countInEarned:
+                "type": string
+                "description": Count in earned indicator.
+                "maxLength": 1
+                "x-lineageReferenceObject": SHRTGRD.SHRTGRD_COMPLETED_IND
+              countInGPA:
+                "type": string
+                "description": Count in GPA indicator.
+                "maxLength": 1
+                "x-lineageReferenceObject": SHRTGRD.SHRTGRD_GPA_IND
+              numericValue:
+                "type": number
+                "description": Numeric value of the grade.
+                "format": float
+                "x-lineageReferenceObject": SHRTGRD.SHRTGRD_NUMERIC_VALUE
+              institutionGrade:
+                "type": string
+                "description": Institution grade.
+                "maxLength": 6
+                "x-lineageReferenceObject": SHRTGRD.SHRTGRD_GRDE_CODE
+              institutionMode:
+                "type": string
+                "description": Institution mode.
+                "maxLength": 1
+                "x-lineageReferenceObject": SHRTGRD.SHRTGRD_GMOD_CODE
+        externalCourses:
+          "type": array
+          "description": External course information and equivalencies.
+          items:
+            "type": object
+            properties:
+              programCode:
+                "type": string
+                "description": Program code.
+                "maxLength": 12
+                "x-lineageReferenceObject": SHBTATC.SHBTATC_PROGRAM
+              groupConnector:
+                "type": string
+                "description": Group connector.
+                "maxLength": 2
+                "x-lineageReferenceObject": SHBTATC.SHBTATC_GROUP
+              primaryInd:
+                "type": string
+                "description": Primary indicator.
+                "maxLength": 1
+                "x-lineageReferenceObject": SHBTATC.SHBTATC_GROUP_PRIMARY_IND
+              transferSubject:
+                "type": string
+                "description": Transfer subject code.
+                "maxLength": 60
+                "x-lineageReferenceObject": SHBTATC.SHBTATC_SUBJ_CODE_TRNS
+              transferCourse:
+                "type": string
+                "description": Transfer course number.
+                "maxLength": 60
+                "x-lineageReferenceObject": SHBTATC.SHBTATC_CRSE_NUMB_TRNS
+              transferCourseTitle:
+                "type": string
+                "description": Transfer course title.
+                "maxLength": 30
+                "x-lineageReferenceObject": SHBTATC.SHBTATC_TRNS_TITLE
+              transferTerm:
+                "type": string
+                "description": Transfer term code.
+                "maxLength": 6
+                "x-lineageReferenceObject": SHBTATC.SHBTATC_TERM_CODE_EFF_TRNS
+              reviewInd:
+                "type": string
+                "description": Review indicator.
+                "maxLength": 1
+                "x-lineageReferenceObject": SHBTATC.SHBTATC_TRNS_REVIEW_IND
+              transferCatalog:
+                "type": string
+                "description": Transfer catalog.
+                "maxLength": 4
+                "x-lineageReferenceObject": SHBTATC.SHBTATC_TRNS_CATALOG
+              transferLevel:
+                "type": string
+                "description": Transfer level code.
+                "maxLength": 2
+                "x-lineageReferenceObject": SHBTATC.SHBTATC_TLVL_CODE
+              transferStatus:
+                "type": string
+                "description": Transfer status code.
+                "maxLength": 2
+                "x-lineageReferenceObject": SHBTATC.SHBTATC_TAST_CODE
+              transferMinGrade:
+                "type": string
+                "description": Transfer minimum grade.
+                "maxLength": 6
+                "x-lineageReferenceObject": SHBTATC.SHBTATC_TGRD_CODE_MIN
+              transferCreditsLow:
+                "type": number
+                "description": Transfer credits low range.
+                "format": float
+                "x-lineageReferenceObject": SHBTATC.SHBTATC_TRNS_LOW_HRS
+              transferCreditsHigh:
+                "type": number
+                "description": Transfer credits high range.
+                "format": float
+                "x-lineageReferenceObject": SHBTATC.SHBTATC_TRNS_HIGH_HRS
+              protectInd:
+                "type": string
+                "description": Protect indicator.
+                "maxLength": 1
+                "x-lineageReferenceObject": SHBTATC.SHBTATC_PROTECT_IND
+              transferCourseDescription:
+                "type": string
+                "description": Transfer course description.
+                "x-lineageReferenceObject": SHBTATC.SHBTATC_CRSE_DESC
+              attributes:
+                "type": array
+                "description": Course attributes.
+                items:
+                  "type": object
+                  properties:
+                    transferAttribute:
+                      "type": string
+                      "description": Transfer attribute code.
+                      "maxLength": 4
+                      "x-lineageReferenceObject": SHRTCAT.SHRTCAT_ATTR_CDE
+                    transferAttributeDesc:
+                      "type": string
+                      "description": Transfer attribute description.
+                      "maxLength": 30
+                      "x-lineageReferenceObject": SHRTCAT.SHRTCAT_ATTR_DESC
+              comments:
+                "type": array
+                "description": Course comments.
+                items:
+                  "type": object
+                  properties:
+                    transferCourseSeqNo:
+                      "type": number
+                      "description": Transfer course comment sequence number.
+                      "x-lineageReferenceObject": SHRTCMT.SHRTCMT_SEQNO
+                    transferCourseComments:
+                      "type": string
+                      "description": Transfer course comments text.
+                      "maxLength": 60
+                      "x-lineageReferenceObject": SHRTCMT.SHRTCMT_TEXT
+              equivalencyRules:
+                "type": array
+                "description": Institutional course equivalency rules.
+                items:
+                  "type": object
+                  properties:
+                    seqNo:
+                      "type": number
+                      "description": Sequence number.
+                      "x-lineageReferenceObject": SHRTATC.SHRTATC_SEQNO
+                    connector:
+                      "type": string
+                      "description": Connector.
+                      "maxLength": 1
+                      "x-lineageReferenceObject": SHRTATC.SHRTATC_CONNECTOR
+                    leftParenthesis:
+                      "type": string
+                      "description": Left parenthesis.
+                      "maxLength": 1
+                      "x-lineageReferenceObject": SHRTATC.SHRTATC_INST_LPAREN_CONN
+                    instSubject:
+                      "type": string
+                      "description": Institutional subject code.
+                      "maxLength": 4
+                      "x-lineageReferenceObject": SHRTATC.SHRTATC_SUBJ_CODE_INST
+                    instCourse:
+                      "type": string
+                      "description": Institutional course number.
+                      "maxLength": 5
+                      "x-lineageReferenceObject": SHRTATC.SHRTATC_CRSE_NUMB_INST
+                    instCourseAlias:
+                      "type": string
+                      "description": Institutional course alias.
+                      "maxLength": 50
+                      "x-lineageReferenceObject": SCRCALS.SCRCALS_CRSE_ALIAS
+                    instCourseTitle:
+                      "type": string
+                      "description": Institutional course title.
+                      "maxLength": 30
+                      "x-lineageReferenceObject": SHRTATC.SHRTATC_INST_TITLE
+                    creditsLow:
+                      "type": number
+                      "description": Credits low range.
+                      "format": float
+                      "x-lineageReferenceObject": SCBCRSE.SCBCRSE_CREDIT_HR_LOW
+                    creditsHigh:
+                      "type": number
+                      "description": Credits high range.
+                      "format": float
+                      "x-lineageReferenceObject": SCBCRSE.SCBCRSE_CREDIT_HR_HIGH
+                    creditsUsed:
+                      "type": number
+                      "description": Credits used.
+                      "format": float
+                      "x-lineageReferenceObject": SHRTATC.SHRTATC_INST_CREDITS_USED
+                    rightParenthesis:
+                      "type": string
+                      "description": Right parenthesis.
+                      "maxLength": 1
+                      "x-lineageReferenceObject": SHRTATC.SHRTATC_INST_RPAREN
+                    attributes:
+                      "type": array
+                      "description": Institutional course attributes.
+                      items:
+                        "type": object
+                        properties:
+                          instAttribute:
+                            "type": string
+                            "description": Institutional attribute code.
+                            "maxLength": 4
+                            "x-lineageReferenceObject": SHRTRAT.SHRTRAT_ATTR_CDE
+                          instAttrDescription:
+                            "type": string
+                            "description": Institutional attribute description.
+                            "maxLength": 30
+                            "x-lineageReferenceObject": STVATTR.STVATTR_DESC
+                    comments:
+                      "type": array
+                      "description": Institutional course comments.
+                      items:
+                        "type": object
+                        properties:
+                          seqNo:
+                            "type": number
+                            "description": Comment sequence number.
+                            "x-lineageReferenceObject": SHRICMT.SHRICMT_SEQNO
+                          instCourseComments:
+                            "type": string
+                            "description": Institutional course comments text.
+                            "maxLength": 60
+                            "x-lineageReferenceObject": SHRICMT.SHRICMT_TEXT
+    ErrorsObj:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        message:
+          type: string
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

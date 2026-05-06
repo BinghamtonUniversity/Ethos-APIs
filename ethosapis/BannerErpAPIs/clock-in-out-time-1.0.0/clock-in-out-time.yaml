@@ -1,0 +1,222 @@
+openapi: 3.0.0
+info:
+  title: Clock In Out Time
+  description: Recording of clocking In and Cloking out time and Saving it for timesheet.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Human Resources
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /clock-in-out-time:
+    post:
+      summary: Create a new resource
+      description: |
+        Create a new resource
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_CLOCK_IN_OUT_TIME
+      tags:
+        - clock-in-out-time
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/clock-in-out-time-obj"
+        "201":
+          description: Failure
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ErrorsObj"
+              examples:
+                NoRegularPay:
+                  $ref: "#/components/examples/NoRegularPay"
+                ClockInTimeRequired:
+                  $ref: "#/components/examples/ClockInTimeRequired"
+                MissingClockOut:
+                  $ref: "#/components/examples/MissingClockOut"
+                TimeOutGreaterThanTimeIn:
+                  $ref: "#/components/examples/TimeOutGreaterThanTimeIn"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/clock-in-out-time-obj"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    clock-in-out-time-obj:
+      type: object
+      properties:
+        message:
+          title: Success Message
+          description: Success message after the clock in/out is completed.
+          type: string
+        timeInOut:
+          type: object
+          properties:
+            clockInSystemTime:
+              title: Clock in System Time
+              description: The System time user has requested for clock-in time record.
+              type: string
+            clockOutSystemTime:
+              title: Clock Out System Time
+              description: The System time user has requested for clock-out time record.
+              type: string
+            earnCode:
+              title: Earn code
+              description: Indicates the earnings type for which employees assigned to
+                job/employement, Employee Class will be eligible for the earn
+                code.
+              type: string
+            id:
+              title: ID
+              description: Immutable unique key.
+              type: integer
+            jobSequenceNumber:
+              title: Job Sequence Number
+              description: Internal System Identification Number for a time entry document.
+              type: integer
+            timeEntryDate:
+              title: Time Entry Date
+              description: Begin date of the time entry.
+              type: string
+            timeIn:
+              title: Time In
+              description: The Rounded time in for the system time, user has requested for
+                clock-in.
+              type: string
+            timeOut:
+              title: Time Out
+              description: The Rounded time out for the system time, user has requested for
+                clock-out.
+              type: string
+            generalMessages:
+              title: General Messages
+              description: Messages that possibly can occur while time in and time out
+              type: object
+              properties:
+                timeOverlapMessages:
+                  title: Time Overlap Messages
+                  description: The messages related to the overlap validation when time in time
+                    out action is performed.
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                      type:
+                        type: string
+    ErrorsObj:
+      type: object
+      properties:
+        failure:
+          type: string
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+            code:
+              type: string
+  examples:
+    NoRegularPay:
+      value:
+        failure: true
+        error:
+          message: Regular pay earning does not exist.
+          code: CICO.noRegularPay.Error
+    ClockInTimeRequired:
+      value:
+        failure: true
+        error:
+          message: Clock in time is required for clock out.
+          code: CICO.missingClockIn.Error
+    MissingClockOut:
+      value:
+        failure: true
+        error:
+          message: Missing clock out.
+          code: CICO.missingClockOut.Error
+    TimeOutGreaterThanTimeIn:
+      value:
+        failure: true
+        error:
+          message: Time Out must be greater than Time In.
+          code: CICO.timeOutNotGreaterThanTimeIn.Error

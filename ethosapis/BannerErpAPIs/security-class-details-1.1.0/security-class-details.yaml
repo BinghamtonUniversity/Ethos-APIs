@@ -1,0 +1,779 @@
+openapi: 3.0.0
+info:
+  title: Security Class Details
+  description: >
+    The Security Class Details API provides information about Banner Security Classes as shown on the Classes tab on the GSASECR administrative page in Banner Access Management.
+
+
+    Note: To maintain strict access control, the required security object must be assigned directly to individual users. 
+    Assignment via security classes is not supported for this API.
+  version: 1.1.0
+  x-api-type: erp
+  x-release-status: ga
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Foundation
+  x-source-name: GSASECR
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /api/security-class-details:
+    get:
+      tags:
+      - security-class-details
+      summary: Returns security class details.
+      description: Returns resources from GTVCLAS, GURUCLS and GURUOBJ.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description:  |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object   
+          description: >
+            ### Security Class
+
+            Returns all records for the Security Class passed.
+
+            ```
+
+            /security-class-details?criteria={"securityClass":"BAN_DEFAULT_C"}
+
+            ```
+
+            ### System Type
+
+            Returns all security class records for the System Type passed.
+
+            ```
+
+            /security-class-details?criteria={"systemType":"G"}
+
+            ```    
+
+            ### Assigned User
+
+            Returns all security class records associated with the Assigned User(s) passed.
+
+            ```
+
+            /security-class-details?criteria={"assignedUsers":["A0000275"]}
+            
+
+            ```   
+            
+            ### Assigned Object
+
+            Returns all security class records associated with the Assigned Object(s) passed.
+
+            ```
+
+            /security-class-details?criteria={"assignedObjects":{"object":["SHQSECT","TestObject2"]}}
+
+            ```         
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/security-class-details-1.1.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SECURITY_CLASS_DETAILS
+    post:
+      tags:
+        - security-class-details 
+      summary: Creates security class details.
+      description: Creates resources in GTVCLAS.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.1.0.0+json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/security-class-details-1.1.0_post_request'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/security-class-details-1.1.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'     
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permissions: API_SECURITY_CLASS_DETAILS     
+  /api/security-class-details/{id}:
+    get:
+      summary: Returns the requested resource from GTVCLAS.
+      description: |
+        Returns a record from GTVCLAS with the passed in identifier.
+      tags:
+        - security-class-details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/security-class-details-1.1.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []   
+      x-method-permissions: API_SECURITY_CLASS_DETAILS        
+    put:
+      tags:
+        - security-class-details 
+      summary: Updates the security class details for the specified resource.
+      description: Updates security class details for the specified resource in GTVCLAS.
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/security-class-details-1.1.0_put_request'
+      parameters:
+        - name: id
+          in: path
+          description: |
+              A global identifier of the resource for use in all external references.
+          required: true
+          schema:
+            type: string
+            minimum: 1            
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json 
+
+            ```
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/security-class-details-1.1.0_response"
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permissions: API_SECURITY_CLASS_DETAILS
+    delete:
+      summary: Removes the specified security class details.
+      description: Deletes the specified security class details from GTVCLAS.
+      tags:
+        - security-class-details 
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description:  A global identifier of the resource for use in all external references.
+
+          schema:
+            type: string
+            format: guid
+            minimum: 1
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Resource not found
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SECURITY_CLASS_DETAILS            
+components:
+  schemas:
+    security-class-details-1.1.0_post_request:
+      type: object
+      required:
+        - securityClass 
+      properties:
+        securityClass:
+          title: Security Class Code
+          description: "The name of the security class."
+          type: string
+          x-lineageReferenceObject: GTVCLAS_CLASS_CODE
+          example: "BAN_STUDENT_C"
+          maxLength: 30   
+        systemType:
+          title: System Indicator 
+          description: "The system that a security class is associated with."
+          type: string
+          x-lineageReferenceObject: GTVCLAS_SYSI_CODE
+          x-lineageLookupReferenceObject: gtvsysi  
+          example: 'G'
+          maxLength: 2                 
+        owner:
+          title: Owner
+          description: "The owner of the security class. Defaults to API user if not included in request."
+          type: string
+          x-lineageReferenceObject: GTVCLAS_OWNER
+          example: "BANSECR"
+          maxLength: 30
+        comment:
+          title: Comment
+          description: "The comment related to the security class."
+          type: string
+          x-lineageReferenceObject: GTVCLAS_COMMENTS
+          example: "Test class 1234"
+          maxLength: 4000    
+    security-class-details-1.1.0_put_request:
+      type: object   
+      properties:
+        securityClass:
+          title: Security Class Code
+          description: "The name of the security class."
+          type: string
+          x-lineageReferenceObject: GTVCLAS_CLASS_CODE
+          example: "BAN_STUDENT_C"
+          maxLength: 30   
+        systemType:
+          title: System Indicator 
+          description: "The system that a security class is associated with."
+          type: string
+          x-lineageReferenceObject: GTVCLAS_SYSI_CODE
+          x-lineageLookupReferenceObject: gtvsysi  
+          example: 'G'
+          maxLength: 2                 
+        owner:
+          title: Owner
+          description: "The owner of the security class."
+          type: string
+          x-lineageReferenceObject: GTVCLAS_OWNER
+          example: "BANSECR"
+          maxLength: 30
+        comment:
+          title: Comment
+          description: "The comment related to the security class."
+          type: string
+          x-lineageReferenceObject: GTVCLAS_COMMENTS
+          example: "Test class 1234"
+          maxLength: 4000                    
+    security-class-details-1.1.0_response:
+      type: object
+      required:
+        - id
+        - securityClass 
+        - owner    
+      properties:
+        id:
+          title: Security Class ID
+          description: "Unique identifier for the security class."
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: GTVCLAS_GUID
+          example: 49eqfc68-3t89-4036-852c-341aa9d8501a          
+          maxLength: 36
+        securityClass:
+          title: Security Class Code
+          description: "The name of the security class."
+          type: string
+          x-lineageReferenceObject: GTVCLAS_CLASS_CODE
+          example: "BAN_STUDENT_C"
+          maxLength: 30   
+        systemType:
+          title: System Indicator 
+          description: "The system that a security class is associated with."
+          type: string
+          x-lineageReferenceObject: GTVCLAS_SYSI_CODE
+          x-lineageLookupReferenceObject: gtvsysi  
+          example: 'G'
+          maxLength: 2                 
+        owner:
+          title: Owner
+          description: "The owner of the security class."
+          type: string
+          x-lineageReferenceObject: GTVCLAS_OWNER
+          example: "BANSECR"
+          maxLength: 30
+        comment:
+          title: Comment
+          description: "The comment related to the security class."
+          type: string
+          x-lineageReferenceObject: GTVCLAS_COMMENTS
+          example: "Test class 1234"
+          maxLength: 4000          
+        assignedUsers:
+          title: Assigned Users
+          type: array
+          description: "User(s) assigned to the security class."   
+          x-lineageReferenceObject: GURUCLS_USERID
+          x-lineageDerivedLogic: A record in GURUCLS where GURUCLS_CLASS_CODE = GTVCLAS_CLASS_CODE.
+          example: "BCMUSER"                 
+          minItems: 1
+          items:
+            minLength: 1
+            maxLength: 30
+            type: string   
+        assignedObjects:
+          title: Assigned Objects
+          description: "The object(s) assigned to the security class."          
+          type: array
+          items:
+            required:
+              - object
+              - role
+            type: object
+            properties:          
+              object:
+                title: Object 
+                description: "The security object name."
+                type: string
+                x-lineageReferenceObject: GURUOBJ_OBJECT
+                x-lineageDerivedLogic: A GURUOBJ_OBJECT record where GURUOBJ_USERID = GTVCLAS_CLASS_CODE and GUVUACC_OBJECT = GURUOBJ_OBJECT.
+                example: "GTVCTYP"
+                maxLength: 30               
+              role:
+                title: Role
+                description: "The role associated with the security object."
+                type: string
+                x-lineageReferenceObject: GURUOBJ_ROLE
+                x-lineageDerivedLogic: The GURUOBJ_ROLE associated with the GURUOBJ_OBJECT.
+                example: "BAN_DEFAULT_M"
+                maxLength: 30     
+        modifiedOn:
+          title: Activity Date
+          description: This field identifies the most recent date a record was created or updated.
+          format: date-time
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+          example: 2024-11-17 06:39:14.000
+          x-lineageReferenceObject: GTVCLAS_ACTIVITY_DATE
+        modifiedBy:
+          title: Modified By User ID
+          maxLength:  30
+          type:  string
+          description:  User who inserted or last update the data.
+          x-lineageReferenceObject: GTVCLAS_USER_ID
+          example: SAISUSR                                          
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

@@ -1,0 +1,394 @@
+openapi: 3.0.0
+info:
+  title: Student Unverified Grades Submissions
+  description: >
+    The student-unverified-grades-submissions API is an alternate representation
+    of the student-unverified-grades v1.0.0 API. The API allows the submissions
+    of unverified grade information per midterm(s) and/or final grade for a
+    student. The grades are provided as an array for the section/course to which
+    they are associated. This includes reference to the student associated with
+    the unverified grades, section registration Id associated with the grade,
+    actual grades and the type of grades,
+
+    award grade scheme associated with the student, date on which the unverified grade was submitted and incomplete grade and last date of attendance details.
+
+
+    Please refer to 'Student unverified and student transcript grades processing' section in Banner Ethos API Handbook for more details.
+  version: 1.0.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Student
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/student-unverified-grades:
+    post:
+      summary: Create a new resource in SFRSTCR
+      description: >
+        Creates a record in SFRSTCR record with mid term and/or final grades
+        and/or last attendance date for a student registration record.
+         
+        The API response conforms to the student-unverified-grades v1.0.0 data model.
+         
+        POST requests must include a nil GUID value ("00000000-0000-0000-0000-000000000000") for the root id property.
+
+
+        In addition to the required properties defined in the data model, the following are required for a POST request: grade.type or lastAttendance.date or submittedBy.id
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STUDENT_UNVERIFIED_GRADES
+      tags:
+        - student-unverified-grades-submissions
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.student-unverified-grades-submissions.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-student-unverified-grades-submissions.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-student-unverified-grades-submissions.json"
+  /api/student-unverified-grades/{id}:
+    put:
+      summary: Update the requested resource from SFRSTCR
+      description: >
+        Updates a record in SFRSTCR record with mid term and/or final grades
+        and/or last attendance date for a student registration record.
+
+
+        The API response conforms to the student-unverified-grades v1.0.0 data model.
+
+
+        In addition to the required properties defined in the data model, the following are required for a PUT request: grade.type or lastAttendance.date or submittedBy.id
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STUDENT_UNVERIFIED_GRADES
+      tags:
+        - student-unverified-grades-submissions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Student Unverified Grades Submissions for
+            use in all external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.student-unverified-grades-submissions.v1+json 
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-student-unverified-grades-submissions.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-student-unverified-grades-submissions.json"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-student-unverified-grades-submissions.json:
+      title: Student Unverified Grades Submissions
+      description: The submissions of unverified grades or grade changes.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the student unverified grade.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+        sectionRegistration:
+          title: Section Registration
+          description: The section registration associated with the unverified grade.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Section Registration.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          additionalProperties: false
+          required:
+            - id
+        grade:
+          title: Grade
+          description: The grade submission details to be applied.
+          oneOf:
+            - type: object
+              properties:
+                type:
+                  title: Type
+                  description: The type of grade.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Type.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  additionalProperties: false
+                  required:
+                    - id
+                grade:
+                  title: Grade
+                  description: The grade that is being submitted.
+                  oneOf:
+                    - type: object
+                      properties:
+                        id:
+                          title: ID
+                          description: The global identifier for the Grade.
+                          type: string
+                          format: guid
+                          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      additionalProperties: false
+                      required:
+                        - id
+                    - type: object
+                      maxProperties: 0
+                incompleteGrade:
+                  title: Incomplete Grade
+                  description: The incomplete grade details that are being submitted.
+                  type: object
+                  properties:
+                    extensionDate:
+                      title: Extension Date
+                      description: The date after which the default final grade may be applied.
+                      oneOf:
+                        - type: string
+                          format: date
+                          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                        - type: string
+                          maxLength: 0
+                    finalGrade:
+                      title: Final Grade
+                      description: The default final grade that is being submitted.
+                      oneOf:
+                        - type: object
+                          properties:
+                            id:
+                              title: ID
+                              description: The global identifier for the Final Grade.
+                              type: string
+                              format: guid
+                              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                          additionalProperties: false
+                          required:
+                            - id
+                        - type: object
+                          maxProperties: 0
+                  additionalProperties: false
+              additionalProperties: false
+              required:
+                - type
+            - type: object
+              maxProperties: 0
+        lastAttendance:
+          title: Last Attendance
+          description: The last date or status of attendance associated with the
+            unverified grade.
+          oneOf:
+            - title: Date
+              description: The last date of attendance.
+              type: object
+              properties:
+                date:
+                  title: Date
+                  description: The last date of attendance.
+                  type: string
+                  format: date
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              additionalProperties: false
+              required:
+                - date
+            - title: Status
+              description: The status of attendance.
+              type: object
+              properties:
+                status:
+                  title: Status
+                  description: The status of attendance.
+                  enum:
+                    - neverAttended
+                  type: string
+              additionalProperties: false
+              required:
+                - status
+            - type: object
+              maxProperties: 0
+        submittedBy:
+          title: Submitted By
+          description: The instructor who submitted the grade.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Submitted By.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+      required:
+        - id
+        - sectionRegistration
+      additionalProperties: false

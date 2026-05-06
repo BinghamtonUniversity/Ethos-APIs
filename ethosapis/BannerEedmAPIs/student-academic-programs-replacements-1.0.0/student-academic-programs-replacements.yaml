@@ -1,0 +1,486 @@
+openapi: 3.0.0
+info:
+  title: Student Academic Programs Replacements
+  description: >
+    The student-academic-programs-replacement resource is an alternate
+    representation of student-academic-programs v17.  Allows to replace a
+    current and an active program on a student record with a new program.
+
+
+    Please refer to 'Additional information for the student-academic-programs-replacements API' section in Banner Ethos API Handbook for more details.
+
+
+    Please refer to the section 'API Integration Configuration Settings' in Banner Ethos API Handbook for all the configuration settings needed for this API.
+  version: 1.0.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Student
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/student-academic-programs:
+    post:
+      summary: Create a new resource in SORLCUR
+      description: >
+        Creates a LEARNER curriculum record in SORLCUR with
+        SORLCUR_LMOD_CODE='LEARNER' and creates the associated field of study
+        records in SORLFOS for an effective term by replacing the current and
+        active SORLCUR record. The replaced student academic program is set to
+        inactive (SORLCUR_CACT_CODE = INACTIVE) and not current
+        (SORLCUR_CURRENT_CDE is null). The field of study records (SORLFOS)
+        associated with the program being replaced are also updated to inactive
+        (SORLFOS_CACT_COD) and not current (SORLFOS_CURRENT_CDE set to null).
+
+
+        Note:
+
+
+        - If the program sent in the request is an SMRPRLE program, at least one major discipline should be sent in 'newProgram.disciplines'.
+
+        - If the program sent in the request is a SOBCURR program and if the SOBCURR record does not have any major code attached, at least one major discipline info should be sent in 'newProgram.disciplines'.
+
+
+        The API response conforms to the student-academic-programs v17 data model.
+
+
+        POST requests must include a nil GUID value ("00000000-0000-0000-0000-000000000000") for the root id property.
+
+
+        In addition to the required properties defined in the data model, the following are required for a POST request: academicPeriods.id
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STUDENT_ACADEMIC_PROGRAMS
+      tags:
+        - student-academic-programs-replacements
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v17+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.student-academic-programs-replacements.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v17+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v17+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-student-academic-programs-replacements.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-student-academic-programs-replacements.json"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-student-academic-programs-replacements.json:
+      title: Student Academic Programs Replacements
+      description: Replacement of an academic program in the home institution in which
+        a student is enrolled.
+      type: object
+      properties:
+        id:
+          title: ID
+          description: The global identifier of the student academic program.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+        student:
+          title: Student
+          description: The student who is replacing their academic program.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Student.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          additionalProperties: false
+          required:
+            - id
+        programToReplace:
+          title: Program To Replace
+          description: The academic program the student is replacing.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Program To Replace.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          additionalProperties: false
+          required:
+            - id
+        newProgram:
+          title: New Program
+          description: The student's new academic program.
+          type: object
+          properties:
+            detail:
+              title: Detail
+              description: The detail of the student's new academic program.
+              type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Detail.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              additionalProperties: false
+              required:
+                - id
+            curriculumObjective:
+              title: Curriculum Objective
+              description: The curriculum objective associated with the student's academic
+                program.
+              enum:
+                - matriculated
+              type: string
+            programOwner:
+              title: Program Owner
+              description: The owner of the academic program.
+              oneOf:
+                - type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Program Owner.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  additionalProperties: false
+                  required:
+                    - id
+                - type: object
+                  maxProperties: 0
+            site:
+              title: Site
+              description: The site (campus) at which the student is enrolled in the program.
+              oneOf:
+                - type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Site.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  additionalProperties: false
+                  required:
+                    - id
+                - type: object
+                  maxProperties: 0
+            catalog:
+              title: Academic Catalog
+              description: The academic catalog that defines the requirements for a student's
+                enrollment in a program.
+              type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Academic Catalog.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              additionalProperties: false
+              required:
+                - id
+            academicLevel:
+              title: Academic Level
+              description: The academic level associated with the enrollment of the student in
+                the academic program.
+              oneOf:
+                - type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Academic Level.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  additionalProperties: false
+                  required:
+                    - id
+                - type: object
+                  maxProperties: 0
+            credentials:
+              title: Credentials
+              description: The academic credentials that can be awarded for completing an
+                academic program.
+              type: array
+              items:
+                title: Credentials
+                description: The academic credentials that can be awarded for completing an
+                  academic program.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Credentials.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                additionalProperties: false
+                required:
+                  - id
+            disciplines:
+              title: Disciplines
+              description: The academic disciplines offered as part of the academic program.
+              type: array
+              items:
+                type: object
+                properties:
+                  discipline:
+                    title: Discipline
+                    description: An academic discipline associated with an academic program.
+                    type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the Discipline.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    additionalProperties: false
+                    required:
+                      - id
+                  startOn:
+                    title: Start On
+                    description: The date on which the discipline begins for the student academic
+                      program.
+                    oneOf:
+                      - type: string
+                        format: date
+                        pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                      - type: string
+                        maxLength: 0
+                  endOn:
+                    title: End On
+                    description: The date on which the discipline ends for the student academic
+                      program.
+                    oneOf:
+                      - type: string
+                        format: date
+                        pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                      - type: string
+                        maxLength: 0
+                  status:
+                    title: Status
+                    description: The state of a student's discipline within a program.
+                    oneOf:
+                      - type: object
+                        properties:
+                          id:
+                            title: ID
+                            description: The global identifier for the Status.
+                            type: string
+                            format: guid
+                            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                        additionalProperties: false
+                        required:
+                          - id
+                      - type: object
+                        maxProperties: 0
+                additionalProperties: false
+                required:
+                  - discipline
+            startOn:
+              title: Start Date
+              description: The date on which an academic program begins.
+              oneOf:
+                - type: string
+                  format: date
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                - type: string
+                  maxLength: 0
+            endOn:
+              title: End Date
+              description: The date on which an academic program ends.
+              oneOf:
+                - type: string
+                  format: date
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                - type: string
+                  maxLength: 0
+            academicPeriods:
+              title: Academic Periods
+              description: Various academic periods related to a student's progression in a
+                program.
+              type: object
+              properties:
+                starting:
+                  title: Starting
+                  description: The starting academic period of student's enrollment in the program
+                  oneOf:
+                    - type: object
+                      properties:
+                        id:
+                          title: ID
+                          description: The global identifier for the Starting.
+                          type: string
+                          format: guid
+                          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      additionalProperties: false
+                      required:
+                        - id
+                    - type: object
+                      maxProperties: 0
+                expectedGraduation:
+                  title: Expected Graduation
+                  description: The academic period in which the student is expected to graduate.
+                  oneOf:
+                    - type: object
+                      properties:
+                        id:
+                          title: ID
+                          description: The global identifier for the Expected Graduation.
+                          type: string
+                          format: guid
+                          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      additionalProperties: false
+                      required:
+                        - id
+                    - type: object
+                      maxProperties: 0
+              additionalProperties: false
+            enrollmentStatus:
+              title: Enrollment Status
+              description: The current state of a student's academic program enrollment.
+              type: object
+              properties:
+                status:
+                  title: Enrollment Status
+                  description: The status of the academic program enrollment.
+                  enum:
+                    - active
+                  type: string
+                detail:
+                  title: Detail
+                  description: Details related to the academic enrollment.
+                  oneOf:
+                    - type: object
+                      properties:
+                        id:
+                          title: ID
+                          description: The global identifier for the Detail.
+                          type: string
+                          format: guid
+                          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      additionalProperties: false
+                      required:
+                        - id
+                    - type: object
+                      maxProperties: 0
+              additionalProperties: false
+              required:
+                - status
+            expectedGraduationDate:
+              title: Expected Graduation Date
+              description: The date on which the student is expected to graduate from the
+                academic program.
+              oneOf:
+                - type: string
+                  format: date
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                - type: string
+                  maxLength: 0
+            admissionClassification:
+              title: Admission Classification
+              description: The admission classification and/or the type typically captured
+                upon admission to the program.
+              type: object
+              properties:
+                admissionCategory:
+                  title: Admission Category
+                  description: The student's admission category (e.g. first-time, transfer,
+                    returning, freshman).
+                  oneOf:
+                    - type: object
+                      properties:
+                        id:
+                          title: ID
+                          description: The global identifier for the Admission Category.
+                          type: string
+                          format: guid
+                          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      additionalProperties: false
+                      required:
+                        - id
+                    - type: object
+                      maxProperties: 0
+              additionalProperties: false
+          additionalProperties: false
+          required:
+            - detail
+            - curriculumObjective
+            - catalog
+            - enrollmentStatus
+      required:
+        - id
+        - student
+        - programToReplace
+        - newProgram
+      additionalProperties: false

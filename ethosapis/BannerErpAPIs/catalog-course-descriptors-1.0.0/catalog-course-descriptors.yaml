@@ -1,0 +1,550 @@
+openapi: 3.0.0
+info:
+  title: Catalog Course Descriptors
+  description: This API retrieves information from the Course Syllabus Page (SCASYLB) pertaining to a course's title, URL, student learning objectives, required materials, and technical requirements, and the course's description and text from (SCADETL).
+  version: 1.0.0-beta
+  x-api-type: erp
+  x-release-status: beta
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Student
+  x-source-name: SCASYLB SCADETL
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /qapi/catalog-course-descriptors:
+    post:
+      tags:
+      - catalog-course-descriptors QAPI
+      summary: Returns resources from SCRSYLN, SCRSYLO, SCRSYRM, SCRSYTR, SCBDESC, SCRTEXT.
+      description: Queries for the requested resource using a set of attributes provided in the post
+        request body.  Please note the path to use is /qapi/{resource} in the URL and not /api/{resource}.
+        
+        
+        Returns the SCRSYLN, SCRSYLO, SCRSYRM, SCRSYTR, SCBDESC, and SCRTEXT records meeting the required submitted criteria of subject, course 
+        number and query term. Any SCRSYLN, SCRSYLO, SCRSYRM, SCRSYTR, and SCBDESC records associated 
+        with the subject, term, and course are also returned in the response.     
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0-Version+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string    
+        - name: limit
+          in: query
+          description:  |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer                             
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/catalog-course-descriptors-1.0.0_qapi_post_request"            
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/catalog-course-descriptors-1.0.0_qapi_post_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the clientâ€™s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_CATALOG_COURSE_DESCRIPTORS
+components:
+  schemas:
+    catalog-course-descriptors-1.0.0_qapi_post_request:
+      type: object
+      properties:
+        subject:
+          title: Subject
+          maxLength: 4
+          type: string
+          description: "The subject area of the course."
+          x-lineageReferenceObject: SCBCRSE_SUBJ_CODE
+          example: ANTH
+        courseNumber: 
+          title: Course Number
+          maxLength: 5
+          type: string
+          description: "The course number associated with the subject for the course."
+          x-lineageReferenceObject: SCBCRSE_CRSE_NUMB
+          example: 101       
+        queryTerm:
+          title: Query Term
+          maxLength: 6
+          type: string
+          description:   "A user provided value.  The query term code is used to retrieve the most current course details that are less than, or equal to, the provided value."
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202201  
+      required:
+       - queryTerm
+    catalog-course-descriptors-1.0.0_qapi_post_response:
+      type: object
+      required: 
+      - subject
+      - courseNumber
+      - queryTerm
+      properties:
+        subject:
+          title: Subject
+          maxLength: 4
+          type: string
+          description: "The subject area of the course."
+          x-lineageReferenceObject: SCBCRSE_SUBJ_CODE
+          example: ANTH
+        courseNumber: 
+          title: Course Number
+          maxLength: 5
+          type: string
+          description: "The course number associated with the subject for the course."
+          x-lineageReferenceObject: SCBCRSE_CRSE_NUMB
+          example: 101       
+        queryTerm:
+          title: Query Term
+          maxLength: 6
+          type: string
+          description:   "A user provided value.  The query term code is used to retrieve the most current course details that are less than, or equal to, the provided value."
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202201
+        longTitleAndUrl:
+          title: Long Course Title and URL
+          type: object
+          required: 
+          - fromTerm
+          properties:
+            courseTitle:
+              title:  Course Title
+              maxLength:  100
+              type:  string
+              description:  The long course title of the course
+              example: Introduction to Anthropology 
+              x-lineageReferenceObject:  SCRSYLN_LONG_COURSE_TITLE
+            modifiedOn:
+              title:  Modified On
+              maxLength:  11
+              format:  date-time
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+              example: 2024-05-05T04:00:00Z
+              description:  "Most current date the record was created or changed."
+              x-lineageReferenceObject:  SCRSYLN_ACTIVITY_DATE
+            modifiedBy:
+              title:  Modified By User ID
+              maxLength:  30
+              type:  string
+              example: SAISUSR
+              description:  "User who inserted or last updated the data."
+              x-lineageReferenceObject:  SCRSYLN_USER_ID
+            fromTerm:
+              title:  Effective Term
+              maxLength:  6
+              type:  string
+              description:  "The starting term code for a set of course long titles and URLs.  An empty set indicates a period of time with no defined course course long titles and URLs."
+              x-lineageReferenceObject:  SCRSYLN_TERM_CODE_EFF
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202210
+            toTerm:
+              title:  Ending Term
+              maxLength:  6
+              type:  string
+              description: "The ending term code for a set of course long title and URL."
+              x-lineageReferenceObject:  SCRSYLN_TERM_CODE_END
+              x-lineageDerivedLogic: "If not stored the to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202220
+            courseUrl:
+              title:  Course URL
+              maxLength:  100
+              type:  string
+              example: www.ellucian.com
+              description:  The course URL provided will be displayed for Banner Self-Service users as an active hypertext link.
+              x-lineageReferenceObject:  SCRSYLN_COURSE_URL
+        learningObjective:
+          title: Learning Objective
+          type: object
+          required:
+          - fromTerm
+          - learningObjectives
+          properties:
+            fromTerm:
+              title:  Effective Term
+              maxLength:  6
+              type:  string
+              description: "The starting term code for a set of course learning objectives.  An empty set indicates a period of time with no defined course learning objectives."
+              x-lineageReferenceObject:  SCRSYLO_TERM_CODE_EFF
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202210
+            toTerm:
+              title:  Ending Term
+              maxLength:  6
+              type:  string
+              description:  "The ending term code for a set of course learning objectives."
+              x-lineageReferenceObject:  SCRSYLO_TERM_CODE_END
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202220
+            modifiedOn:
+              title:  Modified On
+              maxLength:  11
+              format:  date-time
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+              example: 2024-05-05T04:00:00Z
+              description:  "Most current date the record was created or changed."
+              x-lineageReferenceObject:  SCRSYLO_ACTIVITY_DATE
+            modifiedBy:
+              title:  Modified By User ID
+              maxLength:  30
+              type:  string
+              description:  "User who inserted or last updated the data."
+              x-lineageReferenceObject:  SCRSYLO_USER_ID
+            objective:
+              title: Objective
+              type:  string
+              description:  This is a CLOB field which can contain a large amount of text used for the Learning Objective of the course.
+              maxLength: 32760
+              example: Students should develop an understanding and appreciation of human biological, linguistic, and cultural diversity, especially those features that separates humans from other species.
+              x-lineageReferenceObject:  SCRSYLO_LEARNING_OBJECTIVES
+        requiredMaterial:
+          title: Required Material
+          type: object
+          required:
+          - fromTerm
+          properties:
+            fromTerm:
+              title:  Effective Term
+              maxLength:  6
+              type:  string
+              description: "The starting term code for a set of course required materials.  An empty set indicates a period of time with no defined course required materials."
+              x-lineageReferenceObject:  SCRSYRM_TERM_CODE_EFF
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202210
+            toTerm:
+              title:  Ending Term
+              maxLength:  6
+              type:  string
+              description:   "The ending term code for a set of course required materials."
+              x-lineageReferenceObject:  SCRSYRM_TERM_CODE_END
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202220
+            modifiedOn:
+              title:  Modified On
+              maxLength:  11
+              format:  date-time
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+              example: 2024-05-05T04:00:00Z
+              description:  "Most current date the record was created or changed."
+              x-lineageReferenceObject:  SCRSYRM_ACTIVITY_DATE
+            modifiedBy:
+              title:  Modified By User ID
+              maxLength:  30
+              type:  string
+              example: SAISUSR
+              description:  "User who inserted or last updated the data."
+              x-lineageReferenceObject:  SCRSYRM_USER_ID
+            requiredCourseMaterial:
+              title:  Required Course Material
+              type:  string
+              description:  The Required Materials for the course
+              maxLength: 32760  
+              example: Required textbook and instituion issued laptop.            
+              x-lineageReferenceObject:  SCRSYRM_REQUIRED_MATERIALS
+        technicalRequirement:
+          title: Technical Requirement
+          type: object
+          required:
+          - fromTerm
+          properties: 
+            fromTerm:
+              title:  Effective Term
+              maxLength:  6
+              type:  string
+              description: "The starting term code for a set of course technical requirements.  An empty set indicates a period of time with no defined course technical requirements."
+              x-lineageReferenceObject:  SCRSYTR_TERM_CODE_EFF
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202210
+            toTerm:
+              title:  Ending Term
+              maxLength:  6
+              type:  string
+              description:  "The ending term code for a set of course technical requirements."
+              x-lineageReferenceObject:  SCRSYTR_TERM_CODE_END
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202220
+            modifiedOn:
+              title:  Modified On
+              maxLength:  11
+              format:  date-time
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+              example: 2024-05-05T04:00:00Z
+              description:  "Most current date the record was created or changed."
+              x-lineageReferenceObject:  SCRSYTR_ACTIVITY_DATE
+            modifiedBy:
+              title:  Modified By User ID
+              maxLength:  30
+              type:  string
+              example: SAISUSR
+              description:  "User who inserted or last updated the data."
+              x-lineageReferenceObject:  SCRSYTR_USER_ID
+            courseTechnicalRequirement:
+              title:  Course Technical Requirement
+              type: string
+              example: Students must be able to join online discussion sessions.
+              description:  The Technical Requirements for the course.
+              x-lineageReferenceObject:  SCRSYTR_TECHNICAL_REQUIREMENT
+        courseDescription:
+            type: object
+            title: Course Description
+            required:
+              - fromTerm
+            properties: 
+              fromTerm:
+                title:  Effective Term
+                maxLength:  6
+                type:  string
+                description: "The starting term code for a set of course description.  An empty set indicates a period of time with no defined course description."
+                x-lineageReferenceObject:  SCBDESC_TERM_CODE_EFF
+                x-lineageLookupReferenceObject:  STVTERM
+                example: 202210
+              toTerm:
+                title:  Ending Term
+                maxLength:  6
+                type:  string
+                description:  "The ending term code for a course description."
+                x-lineageReferenceObject:  SCBDESC_TERM_CODE_END
+                x-lineageLookupReferenceObject: STVTERM
+                example: 202220
+              modifiedOn:
+                title:  Modified On
+                maxLength:  11
+                format:  date-time
+                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                example: 2024-05-05T04:00:00Z
+                description:   "Most current date the record was created or changed."
+                x-lineageReferenceObject:  SCBDESC_ACTIVITY_DATE
+              modifiedBy:                  
+                title:  Modified By User ID
+                maxLength:  30
+                type:  string
+                example: SAISUSR
+                description:   "User who inserted or last updated the data."
+                x-lineageReferenceObject:  SCBDESC_USER_ID
+              description:                  
+                title: Description
+                maxLength: 32760                
+                type:  string
+                example: Introduction to the history, terminology, and practice of anthropology.
+                description:  A free form field for the course description.
+                x-lineageReferenceObject:  SCBDESC_TEXT_NARRATIVE
+        courseText:
+          type: object
+          title: Course Text
+          required:
+            - fromTerm
+          properties: 
+            fromTerm:
+              title:  Effective Term
+              maxLength:  6
+              type:  string
+              description: "The starting term code for a set of course text.  An empty set indicates a period of time with no defined course text."
+              x-lineageReferenceObject:  SCRTEXT_EFF_TERM
+              x-lineageLookupReferenceObject:  STVTERM
+              example: 202210
+            toTerm:
+              title:  Ending Term
+              maxLength:  6
+              type:  string
+              description:  "The ending term code for the course text."
+              x-lineageReferenceObject: derived
+              x-lineageDerivedLogic: "If not stored the to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202220
+            textLines:
+              type: array
+              title: Course Text Lines
+              items:
+                type: object
+                required: 
+                - sequenceNumber
+                - text
+                properties:
+                  sequenceNumber:                  
+                    title: Text line sequence number
+                    maxLength: 23          
+                    type: number
+                    example: 1
+                    description: The sequence number of the text line. Text is displayed in ascending sequence line number order.
+                    x-lineageReferenceObject: SCBTEXT_SEQNO
+                  text: 
+                    title: Course Text Line
+                    maxLength: 60                
+                    type:  string
+                    example: Initial introductory course in the study of anthropology.
+                    description:  A free form field for course text. 
+                    x-lineageReferenceObject: SCBTEXT_TEXT
+                  modifiedOn:
+                    title:  Modified On
+                    maxLength:  11
+                    format:  date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    example: 2024-05-05T04:00:00Z
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SCRTEXT_ACTIVITY_DATE
+                  modifiedBy:                  
+                    title:  Modified By User ID
+                    maxLength:  30
+                    type:  string
+                    example: SAISUSR
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject:  SCRTEXT_USER_ID
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

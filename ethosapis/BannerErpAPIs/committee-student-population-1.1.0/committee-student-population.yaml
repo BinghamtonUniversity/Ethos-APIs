@@ -1,0 +1,591 @@
+openapi: 3.0.0
+info:
+  title: committee-student-population
+  description: This API is used to retrieve student population exam committee information including student details, program information, progression outcomes, and committee assignments for examination and progression management purposes.
+  version: 1.1.0
+  x-source-name: SVQ_STU_POPULATION_EXAM_COMMITTEE
+  x-source-title: Committee Student Population
+  x-source-system: banner
+  x-api-type: erp
+  x-audience: all
+  x-release-status: ga
+  x-source-domain: Student
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/committee-student-population:
+    get:
+      tags:
+        - committee-student-population
+      summary: Provide the list of committee student population records.
+      description: Retrieve student population information for exam committees including student details, program classifications, progression outcomes, and committee assignments.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.1.0+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description:  |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 10 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page requested.
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: order
+          in: query
+          description: Sort order for the results. Valid values are 'asc' or 'desc' (case insensitive).
+          required: false
+          schema:
+            type: string
+            default: asc
+            enum:
+              - asc
+              - desc
+              - Asc
+              - DESC
+        - name: sort
+          in: query
+          description: |
+            The field to sort by. Default is 'studentName'.
+          required: false
+          schema:
+            type: string
+            default: studentName
+            enum:
+              - studentName
+              - studentId
+              - program
+              - programDescription
+              - department
+              - departmentDescription
+              - term
+              - termDescription
+              - level
+              - levelDescription
+              - mode
+              - modeDescription
+              - stageNumber
+              - stageGpa
+              - overallGpa
+              - proposedProgressionOutcome
+              - proposedProgressionOutcomeDescription
+              - proposedClassification
+              - proposedClassificationDescription
+              - progressionStatus
+              - classificationStatus
+              - rolled
+              - approvalDate
+              - gradeCommentExists
+              - studyPathNumber
+              - trailingCourseExists
+        - name: search
+          in: query
+          description: Search to filter results by student ID or student name. Minimum 3 characters required.
+          required: false
+          schema:
+            type: string
+            minLength: 3
+        - name: committeeCode
+          in: query
+          description: Committee code. This parameter is required.
+          required: true
+          schema:
+            type: string
+            maxLength: 10
+          example: "2024CM"
+        - name: stageNumber
+          in: query
+          description: Stage number to filter results.
+          required: false
+          schema:
+            type: integer
+          example: 1
+        - name: term
+          in: query
+          description: Term code to filter results.
+          required: false
+          schema:
+            type: string
+            maxLength: 6
+          example: "202410"
+        - name: program
+          in: query
+          description: Program code to filter results.
+          required: false
+          schema:
+            type: string
+            maxLength: 12
+          example: "ELECTRONICS"
+        - name: department
+          in: query
+          description: Department code to filter results.
+          required: false
+          schema:
+            type: string
+            maxLength: 4
+          example: "HIST"
+        - name: mode
+          in: query
+          description: Mode code to filter results.
+          required: false
+          schema:
+            type: string
+            maxLength: 4
+          example: "FT"
+        - name: proposedProgressionOutcome
+          in: query
+          description: Proposed progression outcome code to filter results.
+          required: false
+          schema:
+            type: string
+            maxLength: 10
+          example: "PS"
+        - name: proposedClassification
+          in: query
+          description: Proposed classification code to filter results.
+          required: false
+          schema:
+            type: string
+            maxLength: 10
+          example: "FIRST"
+        - name: classificationStatus
+          in: query
+          description: Classification status to filter results.
+          required: false
+          schema:
+            type: string
+            maxLength: 10
+          example: "PENDING"
+        - name: progressionStatus
+          in: query
+          description: Progression status to filter results.
+          required: false
+          schema:
+            type: string
+            maxLength: 10
+          example: "APPROVED"
+        - name: rolled
+          in: query
+          description: Rolled indicator to filter results (true or false).
+          required: false
+          schema:
+            type: boolean
+          example: false
+        - name: trailingCourseExists
+          in: query
+          description: Trailing course exists indicator to filter results (true or false).
+          required: false
+          schema:
+            type: boolean
+          example: false
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+                default: 10
+          content:
+            application/vnd.hedtech.integration.v1.1.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/committee-student-population-1.1.0_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client's preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_COMMITTEE_STU_POPULATION
+components:
+  schemas:
+    committee-student-population-1.1.0_response:
+      type: object
+      required:
+        - studentId
+        - studentGuid
+        - term
+      properties:
+        studentId:
+          title: Student ID
+          description: Identification number for a student
+          type: string
+          maxLength: 9
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.STUDENT_ID
+          example: "A00309425"
+        studentGuid:
+          title: Student GUID
+          description: Global unique identifier for the student
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          maxLength: 36
+          x-lineageReferenceObject: GORGUID.GORGUID_GUID
+          example: "dd9b487b-1eaa-4a95-a909-1ffafad06038"
+        studentName:
+          title: Student Name
+          description: Full name of the student
+          type: string
+          maxLength: 250
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.STUDENT_NAME
+          example: "Walker, Lewis B."
+        committeeCode:
+          title: Committee Code
+          description: Code identifying the exam committee
+          type: string
+          maxLength: 6
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.COMMITTEE_CODE
+          x-lineageLookupReferenceObject: STVCOMT
+          example: "2024CM"
+        committeeDescription:
+          title: Committee Description
+          description: Description of the exam committee
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.COMMITTEE_DESCRIPTION
+          x-lineageLookupReferenceObject: STVCOMT
+          example: "2024 June Exam Board"
+        term:
+          title: Term Code
+          description: The term code associated with the student record
+          type: string
+          maxLength: 6
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.TERM
+          x-lineageLookupReferenceObject: STVTERM
+          example: "202420"
+        termDescription:
+          title: Term Description
+          description: Description of the term
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.TERM_DESCRIPTION
+          example: "Spring 2024 (202420)"
+        program:
+          title: Program Code
+          description: Academic program code
+          type: string
+          maxLength: 12
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.PROGRAM
+          example: "ELECTRONICS"
+        programDescription:
+          title: Program Description
+          description: Description of the academic program
+          type: string
+          maxLength: 120
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.PROGRAM_DESCRIPTION
+          example: "B Engineering (Civil)"
+        level:
+          title: Level Code
+          description: Academic level code
+          type: string
+          maxLength: 2
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.LEVEL_CODE
+          x-lineageLookupReferenceObject: STVLEVL
+          example: "UG"
+        levelDescription:
+          title: Level Description
+          description: Description of the academic level
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.LEVEL_DESCRIPTION
+          example: "Undergraduate"
+        department:
+          title: Department Code
+          description: Code identifying the academic department
+          type: string
+          maxLength: 4
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.DEPARTMENT
+          x-lineageLookupReferenceObject: STVDEPT
+          example: "HIST"
+        departmentDescription:
+          title: Department Description
+          description: Description of the academic department
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.DEPARTMENT_DESCRIPTION
+          example: "History"
+        mode:
+          title: Mode Code
+          description: Study mode code
+          type: string
+          maxLength: 2
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.STUDENT_MODE
+          example: "FT"
+        modeDescription:
+          title: Mode Description
+          description: Description of the study mode
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.MODE_DESCRIPTION
+          example: "Full Time"
+        classificationStatus:
+          title: Classification Status
+          description: Current classification status
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.CLASSIFICATION_STATUS
+          example: "OVERRIDDEN"
+        proposedClassification:
+          title: Proposed Classification
+          description: Proposed classification for the student
+          type: string
+          maxLength: 6
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.PROPOSED_CLASSIFICATION
+          example: "FIRST"
+        proposedClassificationDescription:
+          title: Proposed Classification Description
+          description: Description of the proposed classification
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.PROPOSED_CLASSIFICATION_DESCRIPTION
+          example: "First Class Honours"
+        proposedProgressionOutcome:
+          title: Proposed Progression Outcome
+          description: Proposed progression outcome code
+          type: string
+          maxLength: 2
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.PROPOSED_PROGRESSION_OUTCOME
+          example: "PS"
+        proposedProgressionOutcomeDescription:
+          title: Proposed Progression Outcome Description
+          description: Description of the proposed progression outcome
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.PROPOSED_PROGRESSION_OUTCOME_DESCRIPTION
+          example: "Pass Stage"
+        progressionStatus:
+          title: Progression Status
+          description: Current progression status
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.PROGRESSION_STATUS
+          example: "APPROVED"
+        stageNumber:
+          title: Stage Number
+          description: Current stage number in the program
+          type: integer
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.STAGE_NUMBER
+          example: 1
+        stageNumbers:
+          title: Stage Numbers
+          description: Collection of stage numbers associated with the student
+          type: array
+          items:
+            type: integer
+          x-lineageReferenceObject: SHRSPSG.SHRSPSG_STAGE_NO
+          example: [1, 2, 3]
+        stageGpa:
+          title: Stage GPA
+          description: Grade point average for the current stage
+          type: number
+          format: double
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.STAGE_GPA
+          example: 43.75
+        overallGpa:
+          title: Overall GPA
+          description: Overall grade point average
+          type: number
+          format: double
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.OVERALL_GPA
+          example: 3.65
+        studyPathNumber:
+          title: Study Path Number
+          description: Study path number identifier
+          type: integer
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.STUDY_PATH_NUMBER
+          example: 1
+        degreeSequenceNumber:
+          title: Degree Sequence Number
+          description: Sequence number for degree tracking
+          type: integer
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.DEGREE_SEQUENCE_NUMBER
+          example: 1
+        approvalDate:
+          title: Approval Date
+          description: Date when the progression was approved
+          type: string
+          format: date-time
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.APPROVAL_DATE
+          example: "2024-01-15T10:30:00.000Z"
+        gradeCommentExists:
+          title: Grade Comment Exists
+          description: Indicator if grade comments exist
+          type: boolean
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.GRADE_COMMENT_EXIST
+          example: true
+        trailingCourseExists:
+          title: Trailing Course Exists
+          description: Indicator if trailing courses exist
+          type: boolean
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.TRAILING_COURSES_INDICATOR
+          example: true
+        rolled:
+          title: Rolled Indicator
+          description: Indicator if the record has been rolled forward
+          type: boolean
+          x-lineageReferenceObject: SVQ_STU_POPULATION_EXAM_COMMITTEE.ROLLED
+          example: false
+        stageAndCommitteeList:
+          title: Stage and Committee List
+          description: List of stages and associated committees
+          type: array
+          items:
+            type: object
+            properties:
+              stageNumber:
+                title: Stage Number
+                description: Stage number
+                type: integer
+                x-lineageReferenceObject: SHRSPSG.SHRSPSG_STAGE_NO
+                example: 1
+              committeeCode:
+                title: Committee Code
+                description: Committee code for this stage
+                type: string
+                maxLength: 6
+                x-lineageReferenceObject: STVCOMT.STVCOMT_CODE
+                example: "2024CM"
+              committeeDescription:
+                title: Committee Description
+                description: Committee description for this stage
+                type: string
+                maxLength: 30
+                x-lineageReferenceObject: STVCOMT.STVCOMT_DESC
+                example: "2024 June Exam Board"
+              term:
+                title: Term Code
+                description: Term code for this stage
+                type: string
+                maxLength: 6
+                x-lineageReferenceObject: SHRSPSG.SHRSPSG_TERM_CODE
+                example: "202420"
+          x-lineageReferenceObject: DERIVED_FIELD (Transient)
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

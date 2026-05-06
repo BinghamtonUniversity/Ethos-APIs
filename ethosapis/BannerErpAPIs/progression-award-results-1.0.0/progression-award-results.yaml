@@ -1,0 +1,557 @@
+openapi: 3.0.1
+info:
+  title: progression-award-results
+  description: Get Progression Award Results for a Student and update the Proposed Progression Outcome and Proposed Honors Classification
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Student
+  x-source-title: Progression Award Results
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: '{server_url}'
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost   
+paths:
+  /api/progression-award-results:
+    get:
+      tags:
+        - progression-award-results
+      summary: Get Progression Award Results for a Student by passing committeeCode, studentId and level.
+      x-method-permissions: API_PROGRESS_AWARDS_RESULTS
+      parameters:
+        - name: committeeCode
+          required: true
+          in: query
+          schema:
+            type: string
+          example: APTEST
+        - name: studentId
+          required: true
+          in: query
+          schema:
+            type: string
+          example: A0000009
+        - name: level
+          required: true
+          in: query
+          schema:
+            type: string
+          example: UG
+        - name: program
+          in: query
+          schema:
+            type: string
+          example: BA-MATH
+        - name: stageNumber
+          in: query
+          schema:
+            type: number
+          example: 1
+        - name: studyPathNumber
+          in: query
+          schema:
+            type: number
+          example: 1
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/ProgressionAwardGetObj'
+              examples:
+                award-data:
+                  $ref: '#/components/examples/ProgressionAwardGet'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                       $ref: '#/components/schemas/ErrorsObj'
+              examples:
+                committeeCodeRequired:
+                  $ref: '#/components/examples/CommitteeCodeRequired'
+                studentIdRequired:
+                  $ref: '#/components/examples/StudentIdRequired'
+                levelRequired:
+                  $ref: '#/components/examples/LevelRequired'  
+                invalidParams:
+                  $ref: '#/components/examples/InvalidParams'  
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                unauthorizedNoParams:
+                  $ref: '#/components/examples/Unauthorized'
+                unauthorizedNoAuth:
+                  $ref: '#/components/examples/UnauthorizedNoAuth'  
+    put:
+      tags:
+        - progression-award-results
+      summary: Update the Proposed Progression Outcome and Proposed Honors Classification into the respective intermediate tables by selecting action.
+      x-method-permissions: API_PROGRESS_AWARDS_RESULTS
+      parameters:
+        - name: action
+          required: true
+          in: query
+          schema:
+            type: string
+            enum: [approve,unlock,update,roll]
+      requestBody:
+        description: Request body to update the Proposed Progression Outcome and Proposed Honors Classification
+        required: true
+        $ref: '#/components/requestBodies/ProgressionAwardRequestBody'    
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/ProgressionAwardPutObj'
+              examples:
+                progression-award-results-put-data:
+                  $ref: '#/components/examples/ProgressionAwardPut'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                       $ref: '#/components/schemas/ErrorsObj'
+              examples:
+                committeeCodeRequired:
+                  $ref: '#/components/examples/CommitteeCodeRequired' 
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                unauthorizedNoParams:
+                  $ref: '#/components/examples/Unauthorized'
+                unauthorizedNoAuth:
+                  $ref: '#/components/examples/UnauthorizedNoAuth'                         
+components:
+  requestBodies:
+    ProgressionAwardRequestBody:
+       content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProgressionAwardRequestBodySchema'   
+  schemas:
+    ProgressionAwardGetObj:
+      type: object
+      properties:
+        classificationRuleNumber:
+          type: number
+        classificationStatus:
+          type: string
+        compensatedCreditsEarned:
+          type: number
+        condonedCreditsEarned:
+          type: number
+        currentClassification:
+          type: string
+        currentClassificationDescription:
+          type: string
+        currentProgressionOutcome:
+          type: string
+        currentProgressionOutcomeDescription:
+          type: string
+        deferredCreditsEarned:
+          type: number
+        degreeSequence:
+          type: number
+        level:
+          type: string
+        levelDescription:
+          type: string
+        overallGpa:
+          type: number
+        passedAtFirstAttemptCredits:
+          type: number
+        program:
+          type: string
+        programCreditAttempted:
+          type: number
+        programCreditEarned:
+          type: number
+        programCreditRequired:
+          type: number
+        programDescription:
+          type: string
+        programRequirementsMet:
+          type: string
+        progressionCalculatedOnDate:
+          type: string
+        progressionCalculationSummary:
+          type: string
+        progressionRuleNumber:
+          type: number
+        progressionStatus:
+          type: string
+        proposedClassification:
+          type: string
+        proposedClassificationDescription:
+          type: string
+        proposedClassificationsList:
+          type: array
+          items:
+            type: object
+            properties:
+              description:
+                type: string
+              honorsCode:
+                type: string
+        proposedFinalProgressionOutcome:
+          type: string
+        proposedFinalProgressionOutcomeDescription:
+          type: string
+        proposedProgressionOutcome:
+          type: string
+        proposedProgressionOutcomeDescription:
+          type: string
+        proposedProgressionOutcomesList:
+          type: array
+          items:
+            type: object
+            properties:
+              description:
+                type: string
+              progressionOutcomeCode:
+                type: string
+        stageCreditAttempted:
+          type: number
+        stageCreditEarned:
+          type: number
+        stageCreditRequired:
+          type: number
+        stageGpa:
+          type: string
+        stageNumber:
+          type: number
+        stageNumbers:
+          type: array
+          items:
+            type: number
+        stageRequirementsMet:
+          type: string
+        studentName:
+          type: string
+        studyPathNumber:
+          type: number
+        term:
+          type: string
+        termDescription:
+          type: string 
+        anonymousInd:
+          type: string    
+    ProgressionAwardPutObj:
+      type: array
+      items:
+        type: object
+        properties:
+          level:
+            type: string
+          program:
+            type: string
+          stageNumber:
+            type: number
+          studentId:
+            type: string
+          studyPathNumber:
+            type: number
+          success:
+            type: boolean
+          term:
+            type: string
+          errors:
+            type: array
+            items: 
+              type: object
+              properties:
+                code:
+                  type: string
+                description:
+                    type: string
+                message:
+                    type: string
+    ProgressionAwardRequestBodySchema:
+      type: object
+      properties:
+        action:
+          type: string
+        committeeCode:
+          type: string
+        updateUserId:
+          type: string
+        updateSource:
+          type: string
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              studentId:
+                type: string
+              stageNumber:
+                type: number
+              level:
+                type: string
+              program:
+                type: string
+              term:
+                type: string
+              studyPathNumber:
+                type: number 
+              progression:
+                type: object
+                properties:
+                  finalProgressionOutcome:
+                    type: string
+              classification:
+                type: object
+                properties:
+                  finalClassification:
+                    type: string      
+                  degreeSequenceNumber:
+                    type: number
+    ErrorsObj:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        message:
+          type: string
+  examples:
+    Unauthorized:
+      description: If the request send blank params for auth
+      value: "401 - Unauthorized"
+    UnauthorizedNoAuth:
+      description: If the request does not authenticate
+      value: "401 - Full authentication is required to access this resource"       
+    CommitteeCodeRequired:
+      value: |-
+          {
+              "errors": [
+                  {
+                      "code": "Global.SchemaValidation.Error",
+                      "description": "Errors parsing input JSON.",
+                      "message": "Mandatory Field: committeeCode is missing from payload"
+                  }
+              ]
+          }  
+    StudentIdRequired:
+      value: |-
+          {
+              "errors": [
+                  {
+                      "code": "Global.SchemaValidation.Error",
+                      "description": "Errors parsing input JSON.",
+                      "message": "Mandatory Field: studentId is missing from payload"
+                  }
+              ]
+          }
+    LevelRequired:
+      value: |-
+          {
+              "errors": [
+                  {
+                      "code": "Global.SchemaValidation.Error",
+                      "description": "Errors parsing input JSON.",
+                      "message": "Mandatory Field: level is missing from payload"
+                  }
+              ]
+          }      
+    InvalidParams:
+      value: |-
+          {
+              "errors": [
+                  {
+                      "code": "Global.SchemaValidation.Error",
+                      "description": "Errors parsing input JSON.",
+                      "message": "Valid stageNumber value must be entered."
+                  }
+              ]
+          }      
+    ProgressionAwardGet:
+      value:
+        [
+          {
+            "classificationRuleNumber": 92,
+            "classificationStatus": "APPROVED",
+            "compensatedCreditsEarned": 0,
+            "condonedCreditsEarned": 0,
+            "currentClassification": "I",
+            "currentClassificationDescription": "First Class Honors",
+            "currentProgressionOutcome": "00",
+            "currentProgressionOutcomeDescription": "Good Standing",
+            "deferredCreditsEarned": 0,
+            "degreeSequence": 1,
+            "level": "UG",
+            "levelDescription": "Undergraduate",
+            "overallGpa": 1,
+            "passedAtFirstAttemptCredits": 0,
+            "program": "CIVIL",
+            "programCreditAttempted": 3,
+            "programCreditEarned": 3,
+            "programCreditRequired": 1,
+            "programDescription": "Civil Engineering",
+            "programRequirementsMet": "N",
+            "progressionCalculatedOnDate": "08/01/2022",
+            "progressionCalculationSummary": "< 2022-08-01 Job No: 485766:\n             Stage Academic Standing Evaluated. Stage Academic Standing: CN - Continue on Stage\n             Stage GPA calculated. Stage GPA: 68.75\n             Compliance request successful. Compliance Request No: 16\n >",
+            "progressionRuleNumber": 92,
+            "progressionStatus": "CALCULATED",
+            "proposedClassification": "M",
+            "proposedClassificationDescription": "magna cum laude",
+            "proposedClassificationsList": [
+                {
+                    "description": "magna cum laude",
+                    "honorsCode": "M"
+                },
+                {
+                    "description": "summa cum laude",
+                    "honorsCode": "S"
+                },
+                {
+                    "description": "cum laude",
+                    "honorsCode": "C"
+                },
+                {
+                    "description": "New Honor",
+                    "honorsCode": "N"
+                },
+                {
+                    "description": "new date",
+                    "honorsCode": "NEW"
+                }
+            ],
+            "proposedFinalProgressionOutcome": "CN",
+            "proposedFinalProgressionOutcomeDescription": "Continue on Stage",
+            "proposedProgressionOutcome": "CN",
+            "proposedProgressionOutcomeDescription": "Continue on Stage",
+            "proposedProgressionOutcomesList": [
+                {
+                    "description": "Good Standing",
+                    "progressionOutcomeCode": "00"
+                },
+                {
+                    "description": "Academic Probation 1 term",
+                    "progressionOutcomeCode": "P1"
+                },
+                {
+                    "description": "Academic Probation 2 terms",
+                    "progressionOutcomeCode": "P2"
+                },
+                {
+                    "description": "Dean's List",
+                    "progressionOutcomeCode": "DL"
+                },
+                {
+                    "description": "Academic Dismissal",
+                    "progressionOutcomeCode": "AD"
+                },
+                {
+                    "description": "Suspension",
+                    "progressionOutcomeCode": "SU"
+                },
+                {
+                    "description": "Academic Probation 3 terms",
+                    "progressionOutcomeCode": "P3"
+                },
+                {
+                    "description": "Academic Warning",
+                    "progressionOutcomeCode": "AW"
+                },
+                {
+                    "description": "Tech Review",
+                    "progressionOutcomeCode": "TR"
+                },
+                {
+                    "description": "Good Standing",
+                    "progressionOutcomeCode": "GS"
+                }
+            ],
+            "stageCreditAttempted": 80,
+            "stageCreditEarned": 80,
+            "stageCreditRequired": 255,
+            "stageGpa": 68.75,
+            "stageNumber": 2,
+            "stageNumbers": [
+                1,
+                2
+            ],
+            "stageRequirementsMet": "N",
+            "studentName": "Whitty, Bill",
+            "studyPathNumber": 1,
+            "term": "202110",
+            "termDescription": "FALL 2020 (2020-2021)"
+          }
+      ]
+    ProgressionAwardPut:
+      value:
+        [
+          {
+            "errors": [
+              {
+                "code": "Global.SchemaValidation.Error",
+                "description": "Errors parsing input JSON.",
+                "message": "Valid studentId value must be entered."
+              }
+            ],
+            "level": "UG",
+            "program": "CIVIL",
+            "stageNumber": 3,
+            "studentId": "A00089999",
+            "studyPathNumber": 1,
+            "success": false,
+            "term": "202106"
+          },
+          {
+            "errors": [
+              {
+                "code": "Global.SchemaValidation.Error",
+                "description": "Failed to update student record",
+                "message": "Student ID not linked to the committee code. Unable to process request."
+              }
+            ],
+            "level": "UG",
+            "program": "CIVIL",
+            "stageNumber": 3,
+            "studentId": "A00089999",
+            "studyPathNumber": 1,
+            "success": false,
+            "term": "202106"
+          }
+        ]

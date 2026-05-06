@@ -1,0 +1,342 @@
+openapi: 3.0.0
+info:
+  title: External Funding Student Fees
+  description: >
+    Returns Account Receivable details of the student, required to process student funding by external funding sources.
+    The charges from the external funding source are compared with the charges tracked by the College/University for the student.
+    The details are based on the TSAAREV administrative page.
+  version: 1.0.0-beta
+  x-api-type: erp
+  x-release-status: beta
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Student
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: '{server_url}'
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /qapi/external-funding-student-fees:
+    post:
+      tags:
+        - external-funding-student-fees - QAPI
+      summary: Returns Account Receivable details of the student, required to process student funding by external funding sources.
+      description: >
+        Returns Account Receivable details of the student, required to process student funding by external funding sources.
+        The charges from the external funding source are compared with the charges tracked by the College/University for the student's matched curriculum on a study path.
+        The details are retrieved from TBRACCD and TBBDETC tables. 
+        Returns the records that meet the requested criteria of Student ID and term.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/external-funding-student-fees-1.0.0_qapi_post_request'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-STP-Code:
+              description:
+                If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description:
+                If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/external-funding-student-fees-1.0.0_qapi_post_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EXT_FUND_STU_FEES
+components:
+  schemas:
+    external-funding-student-fees-1.0.0_qapi_post_request:
+      type: object
+      required:
+        - studentId
+        - termCode
+      properties:
+        studentId:
+          title: Student ID
+          type: string
+          description: The student identifier of the student.
+          example: 'A00102028'
+        termCode:
+          title: Term Code
+          type: string
+          description: >
+            The term code for which the student's account receivable details are fetched.
+          example: '202410'
+        chargePaymentSourceCodes:
+          title: Charge Payment Source Codes
+          type: array
+          description: >
+            The charge payment source codes used by the College/University to determine the charges 
+            applied to the student for the enrolled program.
+          items:
+            type: string
+          example: ['R', 'T']
+        detailChargePaymentCategoryCodes:
+          title: Detail Charge Payment Category Codes
+          type: array
+          description: >
+            The category codes of the detail codes used by the College/University to determine the charges 
+            applied to the student for the enrolled program.
+          items:
+            type: string
+          example: ['TUI', 'TRN']
+        feeAmount:
+          title: Fee Amount
+          type: number
+          format: double
+          description: >
+            The tuition fee amount charged to the student for the enrolled program, as provided by the 
+            external funding source.
+          example: 1000
+        programDetails:
+          type: array
+          description: >
+            'The program details of the Banner program mapped from the
+            external funding source program of the student, along with program details from the funding source directly.'
+          items:
+            type: object
+            properties:
+              programCode:
+                title: Program Code
+                type: string
+                description: The code of the student's enrolled program .
+                example: 'BA-SCIENCE'
+              disciplineCode:
+                title: Discipline Code
+                type: string
+                description: The discipline code associated with the program
+                example: 'BIO-SCIENCES'
+              disciplineTypeCode:
+                title: Discipline Type Code
+                type: string
+                description: The discipline type associated with the discipline code (major, minor, concentration)
+                example: 'MAJOR'
+              concentrationCode:
+                title: Concentration Code
+                type: string
+                description: The concentration associated with the program.
+                example: 'BIOTECH'
+              concentrationTypeCode:
+                title: Concentration Type Code
+                type: string
+                description: The concentration type code of the concentration.
+                example: 'CONCENTRATION'
+              campusCode:
+                title: Campus Code
+                type: string
+                description: The location at which the program is delivered.
+                example: 'M'
+              programLevel:
+                title: Level Code
+                maxLength: 2
+                type: string
+                description: Indicates the academic level of the student's program.
+                x-lineageReferenceObject: SORLCUR_LEVL_CODE
+                x-lineageLookupReferenceObject: STVLEVL
+                example: 'UG'
+    external-funding-student-fees-1.0.0_qapi_post_response:
+      type: object
+      properties:
+        studentId:
+          title: Student ID
+          type: string
+          maxLength: 9
+          description: The student identifier of the student.
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: 'A00102028'
+        termCode:
+          title: Term Code
+          type: string
+          maxLength: 6
+          description: The term code for which the student's account receivable details are fetched.
+          x-lineageReferenceObject: STVTERM_CODE
+          example: '202410'
+        feeMatchChargePaySource:
+          title: Fee Match on Charge/Payment Source
+          type: boolean
+          description: >
+            Indicates if the tuition fee charges by the external funding source is the same as the 
+            charges from TBRACCD_AMOUNT tracked by the College/University towards the student’s tuition fee for the enrolled 
+            program for the requested charge/payment source codes.
+          x-lineageDerivedLogic: >
+            The sum of charges of the requested charge/payment source codes is matched with the tuition fee amount
+            from the external funding source for the matched curriculum on the study path. If the charges match, then the value is true, otherwise it is false.
+          example: true
+        feeMatchDetailCategory:
+          title: Fee Match on Detail Charge/Payment Category
+          type: boolean
+          description: >
+            Indicates if the tuition fee charges by the external funding source are the same as the 
+            charges from TBRACCD_AMOUNT tracked by the College/University for the student's tuition fee for the enrolled program,
+            based on the requested detail charge/payment category codes.
+          x-lineageDerivedLogic: >
+            The sum of charges of the requested detail charge/payment category codes is matched with the tuition fee amount
+            from the external funding source for the student's matched curriculum on a study path. If the charges match, then the value is true, otherwise it is false.
+          example: true
+        matchedProgramTuitionFeeCharged:
+          title: Matched Program Tuition Fee Charged
+          type: number
+          format: double
+          description: Tuition fee amount charged for the matched program on the student on a study path.
+          x-lineageDerivedLogic: >
+            The tuition fee amount for the student's matched curriculum on a study path. If both detail charge and payment category codes are provided, the matchedProgramTuitionFeeCharged value will not be populated.
+          example: 1200
+        newProgramTuitionFeeCharged:
+          title: New Program Tuition Fee Charged
+          type: number
+          format: double
+          description: Tuition fee amount charged for the recently enrolled program for the student on a study path.
+          x-lineageDerivedLogic: >
+            If the external funding program details do not match the student's enrolled program in the ERP, newProgramDetails will return the latest current enrolled program for the student, identified by the highest sequence number in SORLCUR table. The corresponding study path for this program is then used to derive the tuition fee amount.
+            If both detail charge and payment category codes are provided, the newProgramTuitionFeeCharged value will not be populated.
+          example: 1300
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the application’s administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

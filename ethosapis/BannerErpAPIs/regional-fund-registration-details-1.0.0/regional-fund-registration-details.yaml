@@ -1,0 +1,355 @@
+openapi: 3.0.0
+info:
+  title: regional-fund-registration-details
+  description: This API is used to retrieve student registration data, section
+    attributes, and account balances .
+  version: 1.0.0
+  x-source-name: SVQ_STUDENT_PERSONAL_INFORMATION
+  x-source-title: Regional Fund Registration Details
+  x-source-system: banner
+  x-api-type: erp
+  x-audience: all
+  x-release-status: ga
+  x-source-domain: Student
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/regional-fund-registration-details:
+    get:
+      tags:
+        - regional-fund-registration-details
+      summary: Provide the list of regional fund registration detail.
+      parameters:
+        - name: limit
+          in: query
+          description: The maximum number of resources requesting for this result set. The
+            default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          schema:
+            type: string
+          in: query
+          required: true
+          description: >
+            ### termCode ,detailCode 
+
+            Returns all records of a effective termCode less than the termCode
+            passed. "detailCode" is used for termTotal calculation. "termCode"
+            and "detailCode" are mandatory filter inputs 
+               ```
+            /regional-fund-registration-details?criteria={"termCode":"201410","detailCode":"CASH"}
+              ```
+
+              ### bannerId
+              Either "bannerId" or "populationSelection" can be entered. Returns all the record for the bannerId/populationSelection 
+
+              ```
+            /regional-fund-registration-details?criteria={"termCode":"201410","detailCode":"CASH","bannerId":"A00000737"}
+              
+              ```
+
+            ### populationSelection
+
+              ```
+            /regional-fund-registration-details?criteria={"termCode":"201410","detailCode":"CASH","populationSelection":{"applicationCode":"STUDENT","selectionId":"MANUAL","creatorId":"BANNER","userId":"GRAILS"}}
+             ```
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/regional-fund-registration-details-v1_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_REG_FUND_REGIST_DETAILS
+components:
+  schemas:
+    regional-fund-registration-details-v1_response:
+      type: object
+      properties:
+        termCode:
+          title: termCode
+          description: The term code value associated with student record
+          type: string
+          maxLength: 6
+          x-lineageReferenceObject: SVQ_STUDENT_PERSONAL_INFORMATION.TERM_CODE
+        detailCode:
+          title: Detail code associated with the transaction
+          description: Detail code associated with the transaction
+          type: string
+        termTotal:
+          title: Sum of the transaction for a term and detail
+          description: Sum of the transaction for a term and detail
+          type: integer
+        bannerId:
+          title: id
+          description: Identification number for a student
+          type: string
+          maxLength: 9
+          x-lineageReferenceObject: SVQ_STUDENT_PERSONAL_INFORMATION.ID
+        personId:
+          title: Person Guid
+          description: Person Guid
+          type: string
+        studentDetails:
+          type: object
+          properties:
+            residencyCode:
+              title: residencyCode
+              description: The residency status of the student for the effective term
+              type: string
+              maxLength: 1
+              x-lineageReferenceObject: SVQ_STUDENT_PERSONAL_INFORMATION.RESIDENCY_CODE
+            activeInd:
+              title: activeInd
+              description: This field identifies the student status code referenced in the
+                student registration
+              type: string
+              maxLength: 1
+              x-lineageReferenceObject: SVQ_STUDENT_PERSONAL_INFORMATION.ACTIVE_IND
+            studentAttributes:
+              type: array
+              items:
+                type: string
+                maxLength: 4
+                x-lineageReferenceObject: SGRSATT_ATTS_CODE
+        registrations:
+          type: array
+          items:
+            type: object
+            properties:
+              subjectCode:
+                title: subjectCode
+                description: This field is required in order to add a section and subject for a
+                  crn.
+                type: string
+                maxLength: 4
+                x-lineageReferenceObject: SSBSECT_SUBJ_CODE
+              courseNumber:
+                title: courseNumber
+                description: This field is used to the determine the course number with a Term
+                  and Subject  to identify a valid course.
+                type: string
+                maxLength: 5
+                x-lineageReferenceObject: SSBSECT_CRSE_NUMB
+              title:
+                title: title
+                description: This field is used to the determine the course number with a Term
+                  and Subject  to identify a valid course.
+                type: string
+                maxLength: 30
+                x-lineageReferenceObject: SSBSECT_CRSE_TITLE,SCBCRSE_TITLE
+              crn:
+                title: crn
+                description: This field identifies the course reference number associated with
+                  the class section.
+                type: string
+                maxLength: 5
+                x-lineageReferenceObject: SFRSTCR_CRN
+              statusCode:
+                title: statusCode
+                description: This field identifies the course registration status associated
+                  with this CRN.
+                type: string
+                maxLength: 2
+                x-lineageReferenceObject: SFRSTCR_RSTS_CODE
+              billingHours:
+                title: billingHours
+                description: This field identifies the billing hours associated with this CRN.
+                type: number
+                maxLength: 7
+                x-lineageReferenceObject: SFRSTCR_BILL_HR
+              creditHours:
+                title: creditHours
+                description: This field defines the Attribute code for a section.
+                type: number
+                maxLength: 7
+                x-lineageReferenceObject: SFRSTCR_CREDIT_HR
+              sectionAttributes:
+                type: array
+                items:
+                  title: sectionAttributes
+                  description: This field defines the Attribute code for a section.
+                  type: string
+                  maxLength: 4
+                  x-lineageReferenceObject: SSRATTR_ATTR_CODE
+              level:
+                title: level
+                description: This field identifies the level the registrant is enrolled for this CRN.
+                type: string
+                maxLength: 2
+                x-lineageReferenceObject: SFRSTCR_LEVL_CODE
+              censusDate:
+                title: censusDate
+                description: This field is defined in the Census field in the Base Part of Term Block on the Term Control Form - SOATERM, and will default to this field based on the Key Block Term and Part/Term field in the Section Block of this form.
+                type: string
+                maxLength: 7
+                x-lineageReferenceObject: SSBSECT_CENSUS_ENRL_DATE
+              registrationStatusDate:
+                title: registrationStatusDate
+                description: This field identifies the date associated with the course registration status of this CRN.
+                type: string
+                maxLength: 7
+                x-lineageReferenceObject: SFRSTCR_RSTS_DATE
+        curriculum:
+          type: object
+          properties:
+            currentProgram:
+              type: array
+              items:
+                type: object
+                properties:
+                  programCode:
+                    title: programCode
+                    description: A program code which will represent a specific university program.
+                    type: string
+                    maxLength: 12
+                    x-lineageReferenceObject: SMRPRLE_PROGRAM
+                  programLevel:
+                    title: programLevel
+                    description: This field defines the course level code.
+                    type: string
+                    maxLength: 2
+                    x-lineageReferenceObject: SMRPRLE_LEVL_CODE
+      required:
+        - termCode
+        - termTotal
+        - bannerId
+        - personId
+        - detailCode
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary
+                  data entity used to create the resource. This is useful for
+                  referencing the source item through the applications
+                  administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

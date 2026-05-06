@@ -1,0 +1,976 @@
+openapi: 3.0.0
+info:
+  title: Vendors
+  description: >
+    The person or organization that offers products or services to an
+    institution. The information about the classification of vendor, the
+    conditions for vendor payment, the accounts payable source, the status of
+    the vendor, the hold reasons if a payment is put on hold, the dates when the
+    vendor was registered and last active, the default currency used to deal
+    with the vendor, address defaults, the federal tax id number, associated tax
+    forms, and any comments related to the vendor is published.
+  version: 11.1.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Finance
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/vendors:
+    get:
+      summary: Returns resources from FTVVEND
+      description: |
+        Returns all the records from FTVVEND.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_VENDORS
+      tags:
+        - vendors
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Organization  
+
+            Detail information of the organization acting as the vendor.
+             ```
+            /vendors?criteria={"vendorDetail":"0d316912-b8d1-4cbf-ab62-e7bf1f2be576"}
+
+            ```
+
+            ```
+
+            /vendors?criteria={"vendorDetail":{"organization":{"id":"0d316912-b8d1-4cbf-ab62-e7bf1f2be576"}}}
+
+            ```
+
+            ### Person  
+
+            Detail information of the person acting as the vendor.
+
+            ```
+
+            /vendors?criteria={"vendorDetail":{"person":{"id":"0d316912-b8d1-4cbf-ab62-e7bf1f2be576"}}}
+
+            ```
+
+            ### Institution  
+
+            Not Supported
+
+
+            ### Classifications  
+
+            The vendor's classification (E.g. federal contract, small business, etc. )
+
+            ```
+
+            /vendors?criteria={"classifications":"a174ecf5-15c8-4532-b60c-225f33616de4"}
+
+            ```
+
+            ```
+
+            /vendors?criteria={"classifications": [{"id":"a174ecf5-15c8-4532-b60c-225f33616de4"}]}
+
+            ```
+
+            ### Statuses  
+
+            The statuses (active, approved, stop payment) that apply to the vendor.
+
+            ```
+
+            /vendors?criteria={"statuses":["active","approved"]}
+
+            ```
+
+            ### Related Vendors Type  
+
+            The type of related vendor.
+
+            ```
+
+            /vendors?criteria={"relatedVendors":[{"type":"paymentVendor"}]}
+
+            ```
+
+            ### Related Reference Type  
+
+            The type of related reference.
+
+            ```
+
+            /vendors?criteria={"relatedReference":[{"type":"parentVendor"}]}
+
+            ```
+
+            ### Types  
+
+            The type(s) of vendor, i.e. Procurement, eProcurement, or Travel.
+
+            ```
+
+            /vendors?criteria={"types":["procurement","eProcurement"]}
+
+            ```
+
+            ### Tax ID  
+
+            The federal tax identification number for the vendor.
+
+            ```
+
+            /vendors?criteria={"taxId":"9900"}
+
+            ```
+        - name: vendorType
+          in: query
+          required: false
+          schema:
+            type: object
+          description: |
+            ### Vendor Type  
+            Returns all vendors for the given vendorType
+            ```
+            /vendors?vendorType={"vendorType":"procurement"}
+            ```
+        - name: vendorDetail
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Vendor Detail  
+
+            Filter based on the person, organization or institution acting as the vendor.
+
+            ```
+
+            /vendors?vendorDetail={"vendorDetail": {"id":"1d6dff87-982d-4291-a94b-0f76e7c4277c"}}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-vendors.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11.1.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new resource in FTVVEND
+      description: >
+        Creates a vendor record in FTVVEND.
+
+
+        POST requests must include a nil GUID value ("00000000-0000-0000-0000-000000000000") for the root id property.
+
+
+
+        Note:
+
+        If a create request to create a vendor with startOn as future dated is sent, the API does not allow to create a futured dated vendor record.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_VENDORS
+      tags:
+        - vendors
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v11.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-vendors.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v11+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-vendors.json"
+  /api/vendors/{id}:
+    get:
+      summary: Return the requested resource from FTVVEND
+      description: |
+        Returns a record from FTVVEND with the passed in identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_VENDORS
+      tags:
+        - vendors
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v11.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-vendors.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    put:
+      summary: Update the requested resource from FTVVEND
+      description: |
+        Updates a vendor record in FTVVEND for the passed in identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_VENDORS
+      tags:
+        - vendors
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Vendors for use in all external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json 
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v11.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-vendors.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v11+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-vendors.json"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-vendors.json:
+      title: Vendors
+      description: A person or organization who offers products or services to an
+        institution.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the vendor.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: FTVVEND_GUID(FTVVEND)
+        types:
+          title: Types
+          description: The type(s) of vendor, i.e. Procurement, eProcurement, or Travel.
+          type: array
+          items:
+            enum:
+              - procurement
+              - eProcurement
+              - travel
+            type: string
+            x-lineageReferenceObject: derived  
+            x-lineageDerivedLogic: If FTVVEND_EPROC_IND = Y, then display 'eProcurement' else if FTVVENDS_TRAVEL_IND='Y', then display 'travel'
+        vendorDetail:
+          title: Vendor Detail
+          description: The person or organization acting as the vendor.
+          oneOf:
+            - title: organization
+              description: Detail information of the organization acting as the vendor.
+              type: object
+              properties:
+                organization:
+                  title: Organization
+                  description: Detail information of the organization acting as the vendor.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Organization.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: organizations 
+                      x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = non-persons) 
+                      x-lineageDerivedLogic: A record in GORGUID where GORGUID_LDM_NAME='non-persons' and   GORGUID_DOMAIN_KEY= FTVVEND_PIDM and FTVVEND_ENTITY_IND = 'C'
+                  additionalProperties: false
+                  required:
+                    - id
+              additionalProperties: false
+              required:
+                - organization
+            - title: person
+              description: Detail information of the person acting as the vendor.
+              type: object
+              properties:
+                person:
+                  title: Person
+                  description: Detail information of the person acting as the vendor.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Person.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: persons 
+                      x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+                      x-lineageDerivedLogic: A record in GORGUID where GORGUID_LDM_NAME='persons' and   GORGUID_DOMAIN_KEY= FTVVEND_PIDM and FTVVEND_ENTITY_IND = 'P'
+                  additionalProperties: false
+                  required:
+                    - id
+              additionalProperties: false
+              required:
+                - person
+            - title: institution
+              description: Detail information of the educational institution acting as the
+                vendor.
+              type: object
+              properties:
+                institution:
+                  title: Institution
+                  description: Detail information of the educational institution acting as the
+                    vendor.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Institution.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: educational-institutions 
+                      x-lineageReferenceObject: unsupported
+                  additionalProperties: false
+                  required:
+                    - id
+              additionalProperties: false
+              required:
+                - institution
+        relatedVendors:
+          title: Related Vendors
+          description: The vendor(s) assigned to receive payment for this vendor or the
+            parent vendor.
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                title: Type
+                description: The type of related vendor.
+                enum:
+                  - paymentVendor
+                  - parentVendor
+                type: string
+                x-lineageReferenceObject: derived  
+                x-lineageDerivedLogic: if FTVVEND_VEND_CHECK_PIDM is used for relatedVendor.vendor.ID, then display 'paymentVendor' and if FTVVEND_PIDM_OWNER is used for relatedVendor.vendor.ID display 'parentVendor'
+              vendor:
+                title: Vendor
+                description: The related vendor.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Vendor.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: vendors 
+                    x-lineageReferenceObject: FTVVEND_PIDM_OWNER(FTVVEND) or FTVVEND_VEND_CHECK_PIDM(FTVVEND)
+                additionalProperties: false
+                required:
+                  - id
+            additionalProperties: false
+            required:
+              - type
+              - vendor
+        taxId:
+          title: Tax ID
+          description: The federal tax identification number for the vendor.
+          type: string
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: If FTVVEND_ENTITY_IND for the vendor = 'C', taxId should be displayed in the format- xx-xxxxxxx (2-7); If FTVVEND_ENTITY_IND for the vendor = 'P', taxId should be displayed in the format- xxx-xx-xxxx (3-2-4).
+        classifications:
+          title: Classifications
+          description: The vendor's classification (E.g. federal contract, small business,
+            etc. )
+          type: array
+          items:
+            title: Classifications
+            description: The vendor's classification (E.g. federal contract, small business,
+              etc. )
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Classifications.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: vendor-classifications 
+                x-lineageReferenceObject: FTVVENT_VTYP_CODE(FTVVENT)
+            additionalProperties: false
+            required:
+              - id
+        paymentTerms:
+          title: Payment Terms
+          description: The payment terms and conditions that may be applied to the vendor.
+          type: array
+          items:
+            title: Payment Terms
+            description: The payment terms and conditions that may be applied to the vendor.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Payment Terms.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: vendor-payment-terms 
+                x-lineageReferenceObject: FTVVEND_DISC_CODE(FTVVEND)
+            additionalProperties: false
+            required:
+              - id
+        paymentSources:
+          title: Payment Sources
+          description: The accounts payable sources associated with the vendor.
+          type: array
+          items:
+            title: Payment Sources
+            description: The accounts payable sources associated with the vendor.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Payment Sources.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: accounts-payable-sources 
+                x-lineageReferenceObject: unsupported
+            additionalProperties: false
+            required:
+              - id
+        statuses:
+          title: Statuses
+          description: The statuses (active, approved, stop payment) that apply to the
+            vendor.
+          type: array
+          items:
+            enum:
+              - active
+              - holdPayment
+              - approved
+            type: string
+            x-lineageReferenceObject: derived  
+            x-lineageDerivedLogic: Display 'active', if system date is between FTVVEND_EFF_DATE) and Termination Date (FTVVEND_TERM_DATE); else display 'holdPayment' if FTVVEND_PMT_HOLD_RSN_CODE has any data; else display 'approved'
+        vendorHoldReasons:
+          title: Vendor Hold Reasons
+          description: The reasons the vendor has been placed on hold.
+          type: array
+          items:
+            title: Vendor Hold Reasons
+            description: The reasons the vendor has been placed on hold.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Vendor Hold Reasons.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: vendor-hold-reasons 
+                x-lineageReferenceObject: FTVVEND_PMT_HOLD_RSN_CODE(FTVVEND)
+            additionalProperties: false
+            required:
+              - id
+        startOn:
+          title: Start On
+          description: The first date when the vendor was active/registered.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: FTVVEND_EFF_DATE(FTVVEND)
+            - type: string
+              maxLength: 0
+        endOn:
+          title: End On
+          description: The last date when the vendor was active.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: FTVVEND_TERM_DATE(FTVVEND)
+            - type: string
+              maxLength: 0
+        defaultAddresses:
+          title: Default Addresses
+          description: The default address(es) associated with the vendor.
+          type: array
+          items:
+            type: object
+            properties:
+              address:
+                title: Address
+                description: The default address associated  with the vendor.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Address.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: addresses 
+                    x-lineageReferenceObject: SPRADDR_GUID(SPRADDR)
+                additionalProperties: false
+                required:
+                  - id
+              usage:
+                title: Usage
+                description: The usage associated with the address.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Usage.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: vendor-address-usages 
+                    x-lineageReferenceObject: FTVVADUE_GUID(FTVVADUE)
+                additionalProperties: false
+                required:
+                  - id
+            additionalProperties: false
+            required:
+              - address
+              - usage
+        defaultTaxFormComponent:
+          title: Default Tax Form Component
+          description: The default tax form component associated with the vendor.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Default Tax Form Component.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: tax-form-components 
+                  x-lineageReferenceObject: FTVVEND_ITYP_SEQ_CODE(FTVVEND)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        defaultCurrency:
+          title: Default Currency
+          description: The default currency for the vendor.
+          oneOf:
+            - type: string
+              enum:
+                - AED
+                - AFN
+                - ALL
+                - AMD
+                - ANG
+                - AOA
+                - ARS
+                - AUD
+                - AWG
+                - AZN
+                - BAM
+                - BBD
+                - BDT
+                - BGN
+                - BHD
+                - BIF
+                - BMD
+                - BND
+                - BOB
+                - BRL
+                - BSD
+                - BTN
+                - BWP
+                - BYR
+                - BZD
+                - CAD
+                - CDF
+                - CHF
+                - CLP
+                - CNY
+                - COP
+                - CRC
+                - CUC
+                - CUP
+                - CVE
+                - CZK
+                - DJF
+                - DKK
+                - DOP
+                - DZD
+                - EGP
+                - ERN
+                - ETB
+                - EUR
+                - FJD
+                - FKP
+                - GBP
+                - GEL
+                - GHS
+                - GIP
+                - GMD
+                - GNF
+                - GTQ
+                - GYD
+                - HKD
+                - HNL
+                - HRK
+                - HTG
+                - HUF
+                - IDR
+                - ILS
+                - INR
+                - IQD
+                - IRR
+                - ISK
+                - JMD
+                - JOD
+                - JPY
+                - KES
+                - KGS
+                - KHR
+                - KMF
+                - KPW
+                - KRW
+                - KWD
+                - KYD
+                - KZT
+                - LAK
+                - LBP
+                - LKR
+                - LRD
+                - LSL
+                - LYD
+                - MAD
+                - MDL
+                - MGA
+                - MKD
+                - MMK
+                - MNT
+                - MOP
+                - MRO
+                - MUR
+                - MVR
+                - MWK
+                - MXN
+                - MYR
+                - MZN
+                - NAD
+                - NGN
+                - NIO
+                - NOK
+                - NPR
+                - NZD
+                - OMR
+                - PAB
+                - PEN
+                - PGK
+                - PHP
+                - PKR
+                - PLN
+                - PYG
+                - QAR
+                - RON
+                - RSD
+                - RUB
+                - RWF
+                - SAR
+                - SBD
+                - SCR
+                - SDG
+                - SEK
+                - SGD
+                - SHP
+                - SLL
+                - SOS
+                - SRD
+                - SSP
+                - STD
+                - SVC
+                - SYP
+                - SZL
+                - THB
+                - TJS
+                - TMT
+                - TND
+                - TOP
+                - TRY
+                - TTD
+                - TWD
+                - TZS
+                - UAH
+                - UGX
+                - USD
+                - UYU
+                - UZS
+                - VEF
+                - VND
+                - VUV
+                - WST
+                - XAF
+                - XCD
+                - XOF
+                - XPF
+                - YER
+                - ZAR
+                - ZMW
+                - ZWL
+              x-lineageReferenceObject: FTVVEND_CURR_CODE(FTVVEND)
+            - type: string
+              maxLength: 0
+        comment:
+          title: Comment
+          description: Comment generated regarding the vendor.
+          type: string
+          x-lineageReferenceObject: FOBTEXT_TEXT(FOBTEXT)
+      required:
+        - id
+        - vendorDetail
+      additionalProperties: false

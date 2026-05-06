@@ -1,0 +1,1115 @@
+openapi: 3.0.0
+info:
+  title: Employee Job Earnings
+  description: >
+    This API can be used to retrieve, post, or delete an employee's job earning data.
+    This information is displayed in the Banner administrative page NBAJOBS.
+    Additionally, the API supports the option to create or update employee job earning data in batches.
+  version: 1.0.0-beta
+  x-audience: all
+  x-release-status: beta
+  x-source-domain: Human Resources
+  x-source-system: banner
+  x-source-name: NBREARN
+  x-api-type: erp
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/employee-job-earnings:
+    get:
+      tags:
+        - employee-job-earnings
+      summary: Get employee job earnings
+      description: Query and retrieve employee job earning data for a given criteria. Data is extracted from NBREARN.
+      parameters:
+        - name: limit
+          in: query
+          description:
+            The maximum number of resources requesting for this result set.
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/employee-job-earnings-1.0.0_get_request_criteria'
+          description: >
+            ### Person ID
+            
+            Returns the employee job earning information for this Person ID.  This filter should not be used if a Banner ID filter is used.
+            
+            ```
+
+            /employee-job-earnings?criteria={"personId": "085df706-ee15-4947-93f8-8c260e64795e"}
+
+            ```
+
+            ### Banner ID
+            
+            Returns the employee job earning information for this Banner ID.   This filter should not be used if a Person ID filter is used.
+            
+            ```
+
+            /employee-job-earnings?criteria={bannerId":"123456789"}
+            
+            ```
+
+            ### Position
+
+            Returns the employee job earning information for this Position.
+
+            ```
+
+            /employee-job-earnings?criteria={"position":"A000001"}
+
+            ```
+            
+            ### Suffix
+
+            Returns the employee job earning information for this position suffix.
+
+            ```
+
+            /employee-job-earnings?criteria={"suffix":"00"}
+
+            ```
+            
+            ### Effective On
+
+            Returns the employee job earning information that becomes effective on this date.  This filter will support the following operators: $eq, $ne, $gt, $gte, $lt, $lte.
+
+            ```
+
+            /employee-job-earnings?criteria={"effectiveOn":"2024-03-15"}
+            
+
+            /employee-job-earnings?criteria={"effectiveOn":{"\$gte": "2024-03-15"}
+          
+            ```
+            
+            ### Earn code
+
+            Returns the employee job earning information that matches the earn code.
+
+            ```
+
+            /employee-job-earnings?criteria={"earnCode":"REG"}
+            
+            ```
+            
+            ### Active or Inactive
+
+            Returns the employee job earning information that matches the active indicator.
+            
+            ```
+
+            /employee-job-earnings?criteria={"isActive": true}
+            
+            ```
+        - name: activeAsOf
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/employee-job-earnings-1.0.0_get_request_active_as_of'
+          description: >
+            A named query that returns a list of employee job earning resources that are active as of the specified "asOf" date and matches on other the filter fields.
+            This is an alternative to using the criteria query.
+           
+            ### As Of
+
+            REQUIRED. Returns the employee job earning information that is active as of this date.
+
+            ```
+
+            /employee-job-earnings?activeAsOf={"asOf":"2024-03-15"}
+
+            ```
+           
+            ### Person ID
+            
+            Returns the employee job earning information for this Person ID.  This filter should not be used if a Banner ID filter is used.
+            
+            ```
+
+            /employee-job-earnings?activeAsOf={"personId": "085df706-ee15-4947-93f8-8c260e64795e"}
+
+            ```
+
+            ### Banner ID
+            
+            Returns the employee job earning information for this Banner ID.   This filter should not be used if a Person ID filter is used.
+            
+            ```
+
+            /employee-job-earnings?activeAsOf={bannerId":"123456789"}
+            
+            ```
+
+            ### Position
+
+            Returns the employee job earning information for this Position.
+
+            ```
+
+            /employee-job-earnings?activeAsOf={"position":"A000001"}
+
+            ```
+            
+            ### Suffix
+
+            Returns the employee job earning information for this position suffix.
+
+            ```
+
+            /employee-job-earnings?activeAsOf={"suffix":"00"}
+
+            ```
+
+            ### Earn Code
+
+            Returns the employee job earning information that matches the earn code.
+
+            ```
+
+            /employee-job-earnings?activeAsOf={"earnCode":"REG"}
+            
+            ```
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/employee-job-earnings-1.0.0_get_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+    post:
+      tags:
+        - employee-job-earnings
+      summary: Creates a new resource in NBREARN.
+      description: >
+        Creates a new job earning for an employee in NBREARN with a POST request.
+
+
+        POST requests must include a nil GUID value
+        ("00000000-0000-0000-0000-000000000000") for the root id property.
+        
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.1.0.0+json:
+            schema:
+              $ref: '#/components/schemas/employee-job-earnings-1.0.0_post_request'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                $ref: '#/components/schemas/employee-job-earnings-1.0.0_post_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+  /api/employee-job-earnings/{id}:
+    get:
+      summary: Return the requested resource from NBREARN
+      description: |
+        Returns a single employee job earning record with the requested global identifier.
+      tags:
+        - employee-job-earnings
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier (GUID) of the resource for use in all external
+            references.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                $ref: "#/components/schemas/employee-job-earnings-1.0.0_get_response"
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+    put:
+      tags:
+        - employee-job-earnings
+      summary: Updates an existing NBREARN resource.
+      description: Updates the employee job earning data for an employee.
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: '#/components/schemas/employee-job-earnings-1.0.0_put_request'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the employee's job earning resource.
+          schema:
+            type: string
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+            
+            ```
+            
+            application/vnd.hedtech.integration.v1.0.0+json
+            
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+            
+            ```
+            
+            application/vnd.hedtech.integration.v1.0.0+json
+            
+            ```
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                $ref: "#/components/schemas/employee-job-earnings-1.0.0_put_response"
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+    delete:
+      summary: Removes an employee job earning resource from NBREARN.
+      description: >
+        Removes a job earning record from the employee.
+      tags:
+        - employee-job-earnings
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID for the employee job earning record.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: No Content
+        '204':
+          description: No Content
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Resource not found
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+  /api/employee-job-earnings/batches:
+    post:
+      tags:
+        - employee-job-earnings
+      summary: "Submit a batch of employee job earnings to be created or updated."
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/employee-job-earnings-batch-2.0.0_post_request"
+      responses:
+        "201":
+          "description": "Created or Updated"
+          "headers":
+            "X-Media-Type":
+              "description": "The full semantic version with the media type of the response."
+              "required": true
+              "schema":
+                "type": "string"
+            "X-Content-Restricted":
+              "description": "If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included."
+              "schema":
+                "type": "string"
+          "content":
+            "application/vnd.hedtech.integration.v1.0.0+json":
+              "schema":
+                "$ref": "#/components/schemas/employee-job-earnings-batch-2.0.0_post_response"
+        "400":
+          "description": "Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+        "401":
+          "description": "Failure. Unauthorized."
+        "403":
+          "description": "Failure. Forbidden. The user does not have the required permissions for the resource."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+        "404":
+          "description": "Failure. Not Found. Cannot map the URI to a resource."
+        "405":
+          "description": "Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+        "406":
+          "description": "Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+        "500":
+          "description": "Server error. Unexpected configuration or data."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    employee-job-earnings-1.0.0_get_request_criteria:    
+      properties:
+        personId:
+          title: Person ID
+          description: The global identifier for the Person.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageLookupReferenceObject: persons 
+          x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+          x-lineageDerivedLogic: A record from GORGUID where GORGUID_LDM_NAME = 'persons' and GORGUID_DOMAIN_KEY matches the PIDM value
+        bannerId:
+          title: Banner ID
+          description: Banner ID of the employee.
+          type: string
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: "123456789"      
+        position:
+          title: Position
+          description: The position to which the job is attached.
+          type: string
+          x-lineageReferenceObject: NBREARN_POSN
+          example: "ADM001"
+        suffix:
+          title: Suffix
+          description: Used to uniquely create multiple jobs in the same position.
+          type: string
+          x-lineageReferenceObject: NBREARN_SUFF
+          example: "00"
+        effectiveOn:
+          title: Date for which the job earning data becomes effective.
+          type: string
+          format: date
+          description: "Effective date of the job earning data."
+          x-lineageReferenceObject: NBREARN_EFFECTIVE_DATE
+          example: "2024-03-15"
+        earnCode:
+          title: Earnings Code
+          description: The default earnings code attached to the job and used on timesheet. 
+          type: string
+          example: "REG"
+          x-lineageReferenceObject: NBREARN_EARN_CODE
+        isActive:
+          title: Active or Inactive
+          description: Indicates whether the earnings code is active or inactive.
+          type: boolean
+          example: true
+          x-lineageReferenceObject: NBREARN_ACTIVE_IND
+    employee-job-earnings-1.0.0_get_request_active_as_of:
+      properties:
+        asOf:
+          title: As Of Date
+          type: string
+          format: date
+          description: Used to query a job earning resource that is active as of this date.
+          example: "2024-03-15"      
+        personId:
+          title: Person ID
+          description: The global identifier for the Person.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageLookupReferenceObject: persons 
+          x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+          x-lineageDerivedLogic: A record from GORGUID where GORGUID_LDM_NAME = 'persons' and GORGUID_DOMAIN_KEY matches the PIDM value
+        bannerId:
+          title: Banner ID
+          description: Banner ID of the employee.
+          type: string
+          example: "123456789"      
+          x-lineageReferenceObject: SPRIDEN_ID
+        position:
+          title: Position
+          description: The position to which the job is attached.
+          type: string
+          example: "ADM001"
+          x-lineageReferenceObject: NBREARN_POSN
+        suffix:
+          title: Suffix
+          description: Used to uniquely create multiple jobs in the same position.
+          type: string
+          example: "00"
+          x-lineageReferenceObject: NBREARN_SUFF
+        earnCode:
+          title: Earnings Code
+          description: The default earnings code attached to the job and used on timesheet. 
+          type: string
+          example: "REG"
+          x-lineageReferenceObject: NBREARN_EARN_CODE
+      required:
+         - asOf
+      additionalProperties: false
+    employee-job-earnings-1.0.0_get_response:
+      properties:
+        id:
+          title: Id
+          type: string
+          description: "The global identifier of the employee job earning."
+          example: 085df706-ee15-4947-93f8-8c260e64795e
+          x-lineageReferenceObject: NBREARN_GUID
+        bannerId:
+          title: Banner ID
+          description: Banner ID of the employee.
+          type: string
+          example: "123456789"          
+          x-lineageReferenceObject: SPRIDEN_ID
+        position:
+          title: Position
+          description: The position to which the job is attached.
+          type: string
+          example: "ADM001"
+          x-lineageReferenceObject: NBREARN_POSN
+        suffix:
+          title: Suffix
+          description: Used to uniquely create multiple jobs in the same position.
+          type: string
+          example: "00"
+          x-lineageReferenceObject: NBREARN_SUFF
+        effectiveOn:
+          title: Effective Date
+          type: string
+          format: date
+          description:  Date for which the job earning data becomes effective.
+          example: "2024-03-15"
+          x-lineageReferenceObject: NBREARN_EFFECTIVE_DATE
+        earnCode:
+          title: Earnings Code
+          description: The default earnings code attached to the job and used on timesheet. 
+          type: string
+          example: "REG"
+          x-lineageReferenceObject: NBREARN_EARN_CODE 
+        isActive:
+          title: Active or Inactive
+          description: Indicates whether the earnings code is active or inactive.
+          type: boolean
+          example: true
+          x-lineageReferenceObject: NBREARN_ACTIVE_IND 
+        hours: 
+          title: Hours or Units
+          description: Hours/units defaulted on timesheets for the earn code.
+          type: number
+          example: 40.00
+          x-lineageReferenceObject: NBREARN_HRS
+        specialRate:
+          title: Special Rate
+          description: Special Rate defaulted onto timesheets for the earn code.
+          type: number
+          example: 40.55
+          x-lineageReferenceObject: NBREARN_SPECIAL_RATE
+        shift:
+          title: Shift Code
+          description: Shift code defaulted onto timesheets for the earn code.
+          type: string
+          example: "1"
+          x-lineageReferenceObject: NBREARN_SHIFT
+        deemedHours:
+          title: Deemed Hours
+          description: Reportable hours for Canadian Employment Insurance.
+          type: number
+          example: 35.00
+          x-lineageReferenceObject: NBREARN_DEEMED_HRS
+        employeeJob:
+          title: Employee Job
+          description: A reference to link an employee job to the employee job earning entity.
+          type: object
+          properties:
+            id:
+              title: Id
+              type: string
+              description: The global identifier of the employee job.
+              x-lineageReferenceObject: NBRBJOB_GUID
+              example: 085df706-ee15-4947-93f8-8c260e64795e
+            startOn:
+              title: Starts Date
+              type: string
+              format: date
+              description: Begin date of the job assignment.
+              example: "2024-03-15"
+              x-lineageReferenceObject: NBRBJOB_BEGIN_DATE
+            endOn:
+              title: End Date
+              type: string
+              format: date
+              description: The date the job assignment will terminate.
+              example: "2025-15-31"
+              x-lineageReferenceObject: NBRBJOB_END_DATE
+        person:
+          $ref: '#/components/schemas/person' 
+    employee-job-earnings-1.0.0_post_request:
+      type: object
+      properties:
+        id:
+          title: Id
+          type: string
+          description: The global identifier of the employee job earning.
+          x-lineageReferenceObject: NBREARN_GUID
+          example: "00000000-0000-0000-0000-000000000000"
+        bannerId:
+          title: Banner ID
+          description: Banner ID of the employee.
+          type: string
+          example: "123456789"          
+          x-lineageReferenceObject: SPRIDEN_ID
+        position:
+          title: Position
+          description: The position to which the job is attached.
+          type: string
+          example: "ADM001"
+          x-lineageReferenceObject: NBREARN_POSN
+        suffix:
+          title: Suffix
+          description: Used to uniquely create multiple jobs in the same position.
+          type: string
+          example: "00"
+          x-lineageReferenceObject: NBREARN_SUFF
+        effectiveOn:
+          title: Effective Date
+          type: string
+          format: date
+          description:  Date for which the job earning data becomes effective.
+          example: "2024-03-15"
+          x-lineageReferenceObject: NBREARN_EFFECTIVE_DATE
+        earnCode:
+          title: Earnings Code
+          description: The default earnings code attached to the job and used on timesheet. 
+          type: string
+          example: "REG"
+          x-lineageReferenceObject: NBREARN_EARN_CODE 
+        isActive:
+          title: Active or Inactive
+          description: Indicates whether the earnings code is active or inactive.
+          type: boolean
+          example: true
+          x-lineageReferenceObject: NBREARN_ACTIVE_IND 
+        hours: 
+          title: Hours or Units
+          description: Hours/units defaulted on timesheets for the earn code.
+          type: number
+          example: 40.00
+          x-lineageReferenceObject: NBREARN_HRS
+        specialRate:
+          title: Special Rate
+          description: Special Rate defaulted onto timesheets for the earn code.
+          type: number
+          example: 40.55
+          x-lineageReferenceObject: NBREARN_SPECIAL_RATE
+        shift:
+          title: Shift Code
+          description: Shift code defaulted onto timesheets for the earn code.
+          type: string
+          example: "1"
+          x-lineageReferenceObject: NBREARN_SHIFT
+        deemedHours:
+          title: Deemed Hours
+          description: Reportable hours for Canadian Employment Insurance.
+          type: number
+          example: 35.00
+          x-lineageReferenceObject: NBREARN_DEEMED_HRS
+        cancelOn:
+          title: Earnings End Date
+          description: Date for which the job earning is ended.
+          type: string
+          format: date
+          example: "2024-09-30"
+      required:
+        - id
+        - bannerId
+        - position
+        - suffix
+        - effectiveOn
+        - earnCode
+        - isActive
+    employee-job-earnings-1.0.0_post_response:
+      $ref: '#/components/schemas/employee-job-earnings-1.0.0_get_response'
+    employee-job-earnings-1.0.0_put_request:
+      type: object
+      properties:
+        hours: 
+          title: Hours or Units
+          description: Hours/units defaulted on timesheets for the earn code.
+          type: number
+          example: 40.00
+          x-lineageReferenceObject: NBREARN_HRS
+        specialRate:
+          title: Special Rate
+          description: Special Rate defaulted onto timesheets for the earn code.
+          type: number
+          example: 40.55
+          x-lineageReferenceObject: NBREARN_SPECIAL_RATE
+        shift:
+          title: Shift Code
+          description: Shift code defaulted onto timesheets for the earn code.
+          type: string
+          example: "1"
+          x-lineageReferenceObject: NBREARN_SHIFT
+        deemedHours:
+          title: Deemed Hours
+          description: Reportable hours for Canadian Employment Insurance.
+          type: number
+          example: 35.00
+          x-lineageReferenceObject: NBREARN_DEEMED_HRS
+        cancelOn:
+          title: Earnings End Date
+          description: Date for which the job earning is ended.
+          type: string
+          format: date
+          example: "2024-09-30"      
+    employee-job-earnings-1.0.0_put_request_batch:
+      allOf: # Combines the id with the put request model
+        - type: object
+          required:
+            - id
+          properties:
+            id:
+              title: Id
+              type: string
+              description: "The global identifier of the employee job earning."
+              x-lineageReferenceObject: NBREARN_GUID
+              example: 085df706-ee15-4947-93f8-8c260e64795e
+        - $ref: '#/components/schemas/employee-job-earnings-1.0.0_put_request'
+    employee-job-earnings-1.0.0_put_response:
+      $ref: '#/components/schemas/employee-job-earnings-1.0.0_get_response'
+    employee-job-earnings-batch-2.0.0_post_request:
+      type: object
+      properties:
+        items:
+          title: items
+          description: List of items to be processed.
+          type: array
+          items:
+            type: object
+            oneOf:
+              - $ref: "#/components/schemas/employee-job-earnings-1.0.0_post_request"
+              - $ref: "#/components/schemas/employee-job-earnings-1.0.0_put_request_batch"
+      required:
+        - items
+    employee-job-earnings-batch-2.0.0_post_response:
+      description: >
+        Returns the list of Ids for those employee job earnings that were successfully created. 
+        For those that did not, it returns the list of error messages.
+      type: object
+      x-last-modified:
+      properties:
+        id:
+          title: ID
+          description: A globally unique identifier of a batch to be used in all external references.
+          type: string
+          example: 085df706-ee15-4947-93f8-8c260e64795e
+        status:
+          title: status
+          description: status of the batch.
+          type: string
+          enum:
+            - completed
+            - inProgress
+            - aborted
+          example: completed
+        resource:
+          title: Resource
+          description: The affected resource.
+          type: object
+          properties:
+            name:
+              title: Resource Name
+              description: The pluralized name of the affected resource
+              type: string
+              example: employee-job-earnings
+            version:
+              title: Resource version
+              description: The version of the resource
+              type: string
+              example: 2.0.0
+          additionalProperties: false
+          required:
+            - name
+            - version
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+            oneOf:
+              - $ref: '#/components/schemas/employee-job-earnings-1.0.0_get_response'
+              - $ref: '#/components/schemas/errors_2_0_0'
+            required:
+              - items
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+    person:
+      title: Person
+      description: A reference to link an employee job earning to the common persons entity.
+      type: object
+      properties:
+        id:
+          title: ID
+          description: The global identifier for the Person.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageLookupReferenceObject: persons 
+          x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+          x-lineageDerivedLogic: A record from GORGUID where GORGUID_LDM_NAME = 'persons' and GORGUID_DOMAIN_KEY matches the PIDM value

@@ -1,0 +1,266 @@
+openapi: 3.0.1
+
+info:
+  title: API Specifications
+  description: >
+    The api-specifications API enables creation, update, activation, OAuth management,
+    and deletion of specification-driven custom APIs in Banner Ethos Integration.
+
+    
+    **Security Requirements**:
+    
+    To create, modify, or delete custom APIs, users must be granted the appropriate
+    Banner security objects:
+
+    - **API_API_SPECIFICATIONS**  
+      Required to create, update, modify, or delete a custom API.
+
+    - **BAN_ETHOS_API_OVERRIDE**  
+      Required to modify or delete a custom API created by another user.
+
+    **Functional Overview**
+    
+    - **POST** creates a new custom API using a NIL GUID.
+    
+    - **PUT** updates API metadata (status, OAuth, fields).
+    
+    - **DELETE** removes the custom API and its GUID table from the system.
+
+    **OAuth Enablement**
+    
+    Use `oauthAllowed` to control API-level OAuth behavior:
+    
+    - `true`  → API requires OAuth authentication.
+    
+    - `false` → API does not require OAuth.
+
+    
+    **Status Lifecycle**
+    
+    Allowed values for API state:
+    
+    - `test`
+    
+    - `enabled`
+    
+    - `disabled`
+
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Foundation
+  x-required-security-objects:
+    - API_API_SPECIFICATIONS
+    - BAN_ETHOS_API_OVERRIDE
+
+servers:
+  - url: https://integrate.elluciancloud.com
+  - url: https://integrate.elluciancloud.ca
+  - url: https://integrate.elluciancloud.ie
+  - url: https://integrate.elluciancloud.com.au
+  - url: "{server_url}"
+    variables:
+      server_url:
+        default: localhost
+
+paths:
+
+  /IntegrationApi/api/api-specifications:
+    post:
+      summary: Create a Custom API Definition
+      description: >
+        Creates a new custom API definition using a NIL GUID (`00000000-0000-0000-0000-000000000000`)
+        and the resource name.
+
+        Generates the real GUID for the custom API and stores it in the GURASPC table.
+
+      tags:
+        - api-specifications
+      x-method-permissions:
+        - API_API_SPECIFICATIONS
+        - BAN_ETHOS_API_OVERRIDE
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/apiSpecificationCreate"
+            example:
+              id: "00000000-0000-0000-0000-000000000000"
+              resource: "x-financial-aid-tracking-requirements"
+              oauthAllowed: false
+
+      responses:
+        "201":
+          description: Custom API created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/apiSpecificationResponse"
+              example:
+                id: "c7b7f9a1-efe3-4c6c-b4b9-87e0a6744331"
+                resource: "x-financial-aid-tracking-requirements"
+                oauthAllowed: false
+                status: "test"
+        "400":
+          description: Invalid request payload.
+        "409":
+          description: API already exists.
+        "500":
+          description: Server error creating custom API.
+
+  /IntegrationApi/api/api-specifications/{id}:
+    put:
+      summary: Update an Existing Custom API
+      description: >
+        Updates an existing custom API definition.
+
+        Allows the following actions:
+       
+        - Activate (`status: enabled`)
+       
+        - Disable (`status: disabled`)
+       
+        - Reset to test (`status: test`)
+       
+        - Enable/disable OAuth (`oauthAllowed: true|false`)
+
+      tags:
+        - api-specifications
+      x-method-permissions:
+        - API_API_SPECIFICATIONS
+        - BAN_ETHOS_API_OVERRIDE
+
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/apiSpecificationUpdate"
+            examples:
+              activate:
+                summary: Activate API
+                value:
+                  id: "6498b1d0-842e-429a-a227-cd2bab53b72b"
+                  resource: "x-financial-aid-tracking-requirements"
+                  status: "enabled"
+                  oauthAllowed: true
+              disable:
+                summary: Disable API
+                value:
+                  id: "6498b1d0-842e-429a-a227-cd2bab53b72b"
+                  resource: "x-financial-aid-tracking-requirements"
+                  status: "disabled"
+              updateOAuth:
+                summary: Toggle OAuth
+                value:
+                  id: "6498b1d0-842e-429a-a227-cd2bab53b72b"
+                  oauthAllowed: false
+
+      responses:
+        "200":
+          description: Custom API updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/apiSpecificationResponse"
+              example:
+                id: "6498b1d0-842e-429a-a227-cd2bab53b72b"
+                resource: "x-financial-aid-tracking-requirements"
+                status: "enabled"
+                oauthAllowed: true
+                message: "Custom API updated successfully."
+        "400":
+          description: Invalid enumeration for <status>.
+        "403":
+          description: API does not exist or insufficient permissions.
+        "500":
+          description: Server error updating API.
+
+    delete:
+      summary: Delete Custom API Definition
+      description: >
+        Deletes a custom API using its GUID.
+
+        Removes the GURASPC definition and the GUID table associated with the API.
+
+      tags:
+        - api-specifications
+      x-method-permissions:
+        - API_API_SPECIFICATIONS
+        - BAN_ETHOS_API_OVERRIDE
+
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+
+      responses:
+        "200":
+          description: Custom API deleted successfully.
+        "404":
+          description: API not found.
+        "500":
+          description: Server error deleting custom API.
+components:
+  schemas:
+
+    apiSpecificationCreate:
+      type: object
+      required:
+        - id
+        - resource
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Must be the NIL GUID.
+        resource:
+          type: string
+          description: Custom API resource name.
+        oauthAllowed:
+          type: boolean
+          description: Enable or disable OAuth.
+
+    apiSpecificationUpdate:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        resource:
+          type: string
+        status:
+          type: string
+          enum: [test, enabled, disabled]
+        oauthAllowed:
+          type: boolean
+
+    apiSpecificationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        resource:
+          type: string
+        status:
+          type: string
+        oauthAllowed:
+          type: boolean
+        message:
+          type: string

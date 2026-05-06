@@ -1,0 +1,683 @@
+openapi: 3.0.0
+info:
+  title: Database Query Previews
+  version: 1.1.0
+  x-source-system: banner
+  description: |
+    Returns the records for the query in JSON format, consistent with the API response structure. The response is compiled from the provided payload and includes the number of records. Additionally, it returns the execution plan and the compiled execution query based on the given accept and content-type headers. 
+  x-api-type: ethos
+  x-source-domain: Foundation
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: '{server_url}'
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/database-query-previews:
+    post:
+      description: Returns the records for the query in JSON format, consistent with the API response structure. The response is compiled from the provided payload and includes the number of records. Additionally, it returns the execution plan and the compiled execution query based on the given headers.
+      security:
+        - EthosIntegrationBearer: []
+          BasicAuth: []
+          EllucianOAuthUserToken: []
+      x-method-permissions: API_DESIGNER_CREATE
+      tags:
+        - database-query-previews
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: |
+            The version of the resource requested. Prefer to use only the whole MAJOR version.  Refer to the Semantic Versioning topic in the API Standards for more information.
+            ```
+            application/vnd.hedtech.integration.v1.1.0+json
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: |
+            The version of the resource supplied in the request. Please refer to the API source documentation for detailed support information. Prefer to use only the whole MAJOR version. 
+            ```
+            application/vnd.hedtech.integration.v1+json
+            ```
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/schema-database-query-previews-1.1.0'
+              examples:
+                database-query-previews-example-1.1.0:
+                  $ref: '#/components/examples/database-query-previews-example-1.1.0'
+            application/vnd.hedtech.integration.execution-query.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/schema-database-query-previews-execution-query-1.0.0'
+              examples:
+                database-query-previews-execution-query-example-1.0.0:
+                  $ref: '#/components/examples/database-query-previews-execution-query-example-1.0.0'
+            application/vnd.hedtech.integration.execution-plans.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/schema-database-query-previews-execution-plans-1.0.0'
+              examples:
+                database-query-previews-execution-plans-example-1.0.0:
+                  $ref: '#/components/examples/database-query-previews-execution-plans-example-1.0.0'
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Permission Denied
+        '404':
+          description: Resource not found
+        '500':
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/schema-database-query-previews-post-payload-1.1.0'
+            examples:
+              database-query-previews-post-payload-1.1.0:
+                $ref: '#/components/examples/database-query-previews-post-payload-1.1.0'
+          application/vnd.hedtech.integration.execution-query.v1+json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/schema-database-query-previews-post-payload-1.1.0'
+            examples:
+              database-query-previews-execution-query-example-1.0.0:
+                $ref: '#/components/examples/database-query-previews-post-payload-1.1.0'
+          application/vnd.hedtech.integration.execution-plans.v1+json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/schema-database-query-previews-post-payload-1.1.0'
+            examples:
+              database-query-previews-execution-plans-example-1.0.0:
+                $ref: '#/components/examples/database-query-previews-post-payload-1.1.0'
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      scheme: bearer
+      type: http
+    BasicAuth:
+      type: http
+      scheme: basic
+    EllucianOAuthUserToken:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://integrate.elluciancloud.com
+          tokenUrl: https://integrate.elluciancloud.com
+          scopes:
+            read: Read access
+            write: Write access
+  schemas:
+    schema-database-query-previews-post-payload-1.1.0:
+      title: POST payload for database-query-previews
+      description: POST payload for database-query-previews and other representations.
+      type: object
+      properties:
+        limit:
+          title: Limit
+          description: The maximum number of resources requested for this result set. Default page limit is 500.
+          type: integer
+        offset:
+          title: Offset
+          description: The 0-based index for a collection of resources for the page requested.
+          type: integer
+        entities:
+          title: Entities
+          description: Tables that are part of the 'FROM' clause of the API query.
+          type: array
+          items:
+            title: Entities
+            description: Tables that are part of the 'FROM' clause of the API query.
+            type: object
+            properties:
+              name:
+                title: Name
+                description: The name of the table as defined in the database schema.
+                type: string
+              joinType:
+                title: Join Type
+                description: The type of the join(e.g., inner, outer, left, and right) used to combine this join condition with previous conditions in a multi-condition join clause.
+                type: string
+              queryReference:
+                title: Query Reference
+                description: Represents a reference to a model(sub-query) that functions as an entity within the context of a data operation. Unlike standard entities that map directly to physical tables, a queryReference encapsulates a derived dataset—typically defined through a reusable model—which can be used in join conditions.
+                type: object
+                properties:
+                  queryId:
+                    title: Query Id
+                    description: The id of the model from GORDQBD where GORDQBD_SUBQUERY_IND = 'Y'
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageReferenceObject: GORDQBD_GUID(GORDQBD)
+                additionalProperties: false
+                required:
+                  - queryId
+              joinConditions:
+                title: Join conditions
+                description: Joining condition of this table with the previous/other table that is part of the entities array.
+                type: array
+                minItems: 1
+                items:
+                  title: Join Conditions
+                  description: Joining condition of this table with the previous/other table that is part of the entities array.
+                  type: object
+                  properties:
+                    name:
+                      title: Name
+                      description: The column on the left-hand side (LHS) of the join condition. This is the primary column used to establish the relationship and is typically part of the source entity.
+                      type: string
+                    entityName:
+                      title: Entity Name
+                      description: The name of the table or entity to which the LHS column (name) belongs.
+                      type: string
+                    operator:
+                      title: Operator
+                      description: The logical operator used to define the join condition (e.g., =, >, <, !=). It determines how the LHS and RHS columns are compared.
+                      type: string
+                    expression:
+                      title: Expression
+                      description: The column on the right-hand side (RHS) of the join condition. This column is used to match against the LHS column to form the join.
+                      type: string
+                    expressionEntityName:
+                      title: Expression Entity Name
+                      description: The name of the table or entity to which the RHS column (expression) belongs.
+                      type: string
+                    condition:
+                      title: Condition
+                      description: The logical connector (e.g., AND, OR) used to combine this join condition with previous conditions in a multi-condition join clause.
+                      type: string
+                    dataType:
+                      title: DataType
+                      description: The data type of the LHS column (name). This ensures compatibility during the join operation.
+                      type: string
+                    expressionDataType:
+                      title: Expression Data Type
+                      description: The data type of the RHS column (expression). It should be compatible with the LHS data type for a valid join.
+                      type: string
+            additionalProperties: false
+            required:
+              - name
+            x-lineageReferenceObject: GORDQBD_ENTITIES(GORDQBD)
+        selects:
+          title: Selects
+          description: Columns that are part of the 'SELECTS'  clause of the API query.
+          type: array
+          items:
+            title: Selects
+            description: Columns that are part of the 'SELECTS'  clause of the API query.
+            type: object
+            properties:
+              name:
+                title: Name
+                description: The name of the column.
+                type: string
+              entityName:
+                title: Entity Name
+                description: The name of the table to which the column belongs.
+                type: string
+              alias:
+                title: Alias
+                description: An alternate name or shorthand for the column, often used for display or query simplification.
+                type: string
+              valueType:
+                title: Value Type
+                description: Indicates whether the column is a direct reference to a base column or if it involves an aggregate function or a custom function defined via the Functions API. The Values can be COLUMN, AGGREGATEFUNCTION, or a function.
+                type: string
+              function:
+                title: Function
+                description: The name of the function.
+                type: string
+              entityParams:
+                title: Entity Params
+                description: Defines the list of input parameters required for the selected function to execute correctly. The number and type of parameters vary depending on the specific function chosen. Each parameter may represent a column, constant, or expression, and must conform to the expected data types and structure defined by the function's signature.
+                type: array
+                items:
+                  title: Entity Params
+                  description: Defines the list of input parameters required for the selected function to execute correctly.
+                  type: object
+                  properties:
+                    name:
+                      title: Name
+                      description: The name of the parameter.
+                      type: string
+                    entityName:
+                      title: Entity Name
+                      description: The name of the table or entity to which the column (name) belongs.
+                      type: string
+                    valueType:
+                      title: Value Type
+                      description: Indicates whether the column is a direct reference to a base column or if it involves a custom function defined via the Functions API. The Values can be COLUMN or a function.
+                      type: string
+                    value:
+                      title: Value
+                      description: The value of the parameter. The values can be one of string, number, integer, boolean, decimal and null.
+                  additionalProperties: false
+                  required:
+                    - name
+                    - entityName
+                    - valueType
+                    - value
+            additionalProperties: false
+            required:
+              - name
+              - entityName
+            x-lineageReferenceObject: GORDQBD_COLUMN_LIST(GORDQBD)
+        criteria:
+          title: Criteria
+          description: Filters or 'WHERE' clause of the API query.
+          type: array
+          items:
+            title: Criteria
+            description: Filters or 'WHERE' clause of the API query.
+            type: object
+            properties:
+              name:
+                title: Name
+                description: The name of the column.
+                type: string
+              entityName:
+                title: Entity Name
+                description: The name of the table to which the column belongs.
+                type: string
+              operator:
+                title: Operator
+                description: The logical operator used to define the join condition (e.g., =, >, <, !=). It determines how the LHS and RHS columns are compared.
+                type: string
+              expression:
+                title: Expression
+                description: The column on the right-hand side (RHS) of the join condition. This column is used to match against the LHS column to form the join.
+                type: string
+              expressionEntityName:
+                title: Expression Entity Name
+                description: The name of the table or entity to which the RHS column (expression) belongs.
+                type: string
+              expressionType:
+                title: Expression Type
+                description: Indicates whether the RHS of the condition is a direct reference to a base column or if it involves a custom function defined via the Functions API or a defined parameter, or a literal. The Values can be a field, a parameter, a literal, or a function.
+                type: string
+              condition:
+                title: Condition
+                description: The logical connector (e.g., AND, OR) used to combine this join condition with previous conditions in a multi-condition join clause.
+                type: string
+              dataType:
+                title: DataType
+                description: The data type of the LHS column (name). This ensures compatibility during the join operation.
+                type: string
+              expressionDataType:
+                title: Expression Data Type
+                description: The data type of the RHS column (expression). It should be compatible with the LHS data type for a valid join.
+                type: string
+              nameValueType:
+                title: Name Value Type
+                description: Indicates whether the LHS of the condition is a direct reference to a base column or if it involves a custom function defined via the Functions API or a defined parameter, or a literal. The Values can be a field, a parameter, a literal, or a function.
+                type: string
+              nestedCriteria:
+                title: Nested Criteria
+                description: Represents the collection of filter conditions(criteria property itself) applied within a query. Each criterion defines a specific logical condition, and multiple criteria can be nested into groups, which are enclosed in parentheses to control evaluation precedence. This structure supports complex logical expressions using connectors such as AND and OR, enabling precise and flexible data filtering.
+                type: array
+                items:
+                  minLength: 1
+                  type: string
+              entityParams:
+                title: Entity Params
+                description: Defines the list of input parameters required for the selected function to execute correctly on the LHS of the condition. The number and type of parameters vary depending on the specific function chosen. Each parameter may represent a column, constant, or expression, and must conform to the expected data types and structure defined by the function's signature.
+                type: array
+                minItems: 1
+                items:
+                  title: Entity Params
+                  description: Defines the list of input parameters required for the selected function to execute correctly.
+                  type: object
+                  properties:
+                    name:
+                      title: Name
+                      description: The name of the parameter.
+                      type: string
+                    entityName:
+                      title: Entity Name
+                      description: The name of the table or entity to which the column (name) belongs.
+                      type: string
+                    valueType:
+                      title: Value Type
+                      description: Indicates whether the column is a direct reference to a base column or if it involves a custom function defined via the Functions API. The Values can be COLUMN or a function.
+                      type: string
+                    value:
+                      title: Value
+                      description: The value of the parameter. The allowed values are string, number, integer, boolean, decimal, and null.
+                  additionalProperties: false
+                  required:
+                    - name
+                    - entityName
+                    - valueType
+                    - value
+              expressionParams:
+                title: Expression Params
+                description: Defines the list of input parameters required for the selected function to execute correctly on the RHS of the condition. The number and type of parameters vary depending on the specific function chosen. Each parameter may represent a column, constant, or expression, and must conform to the expected data types and structure defined by the function's signature.
+                type: array
+                minItems: 1
+                items:
+                  title: Expression Params
+                  description: Defines the list of input parameters required for the selected function to execute correctly.
+                  type: object
+                  properties:
+                    name:
+                      title: Name
+                      description: The name of the parameter.
+                      type: string
+                    entityName:
+                      title: Entity Name
+                      description: The name of the table or entity to which the column (name) belongs.
+                      type: string
+                    valueType:
+                      title: Value Type
+                      description: Indicates whether the column is a direct reference to a base column or if it involves a custom function defined via the Functions API. The Values can be COLUMN or a function.
+                      type: string
+                    value:
+                      title: Value
+                      description: The value of the parameter.  The allowed values are string, number, integer, boolean, decimal, and null.
+                  additionalProperties: false
+                  required:
+                    - name
+                    - entityName
+                    - valueType
+                    - value
+            additionalProperties: false
+            required:
+              - name
+              - entityName
+              - operator
+              - dataType
+              - expression
+              - expressionEntityName
+              - expressionDataType
+              - expressionType
+            x-lineageReferenceObject: GORDQBD_QUERY_CRITERIA(GORDQBD)
+        sorts:
+          title: Sorts
+          description: Sort by clause of the API query.
+          type: array
+          items:
+            title: Sorts
+            description: Sort by clause of the API query.
+            type: object
+            properties:
+              name:
+                title: Name
+                description: The name of the column by which the query should be sorted.
+                type: string
+              entityName:
+                title: Entity Name
+                description: The name of the table to which the column belongs.
+                type: string
+              sortType:
+                title: Sort Type
+                description: Specifies the sorting direction applied to a column. The Values can be asc(ascending) or desc(descending). Default value is asc.
+                type: string
+            additionalProperties: false
+            required:
+              - name
+              - entityName
+            x-lineageReferenceObject: GORDQBD_QUERY_CRITERIA(GORDQBD)
+        groupBys:
+          title: Group Bys
+          description: Group by clause of the API query.
+          type: array
+          items:
+            title: Group Bys
+            description: Group by clause of the API query.
+            type: object
+            properties:
+              name:
+                title: Name
+                description: The name of the column by which the query should be grouped.
+                type: string
+              entityName:
+                title: Entity Name
+                description: The name of the table to which the column belongs.
+                type: string
+            additionalProperties: false
+            required:
+              - name
+              - entityName
+            x-lineageReferenceObject: GORDQBD_QUERY_CRITERIA(GORDQBD)
+        bindParameters:
+          title: Bind Parameters
+          description: 'Represents the set of user-defined parameters configured within the API Designer as placeholders for dynamic filter values. These parameters can be supplied at runtime when invoking the API. If a value is not provided during execution, the default value specified during design time will be used. '
+          type: array
+          items:
+            title: Bind Parameters
+            description: 'List of the parameters. '
+            type: object
+            properties:
+              paramName:
+                title: Param Name
+                description: The name of the parameter.
+                type: string
+              defaultValue:
+                title: Default Value
+                description: The default value of the parameter. The values can be a string, number, integer, boolean, or decimal.
+              paramValue:
+                title: Param Value
+                description: The value of the parameter that can be sent as a runtime parameter/filter criteria to the API. The values can be a string, number, integer, boolean, decimal, or null.
+              datatype:
+                title: Data Type
+                description: The data type of the parameter value.
+                type: string
+              description:
+                title: Description
+                description: The description of the parameter.
+                type: string
+          additionalProperties: false
+          required:
+            - paramName
+            - defaultValue
+            - datatype
+            - description
+          x-lineageReferenceObject: GORDQBD_QUERY_CRITERIA(GORDQBD)
+      required:
+        - entities
+        - selects
+      additionalProperties: false
+    schema-database-query-previews-1.1.0:
+      title: Database Query Previews
+      description: Returns the records for the query in JSON format, consistent with the API response structure. The response is compiled from the provided payload and includes the number of records. Additionally, it returns the execution plan and the compiled execution query based on the given headers.
+      type: object
+      properties:
+        totalCount:
+          title: Total Count
+          description: The total number of records available for the given query.
+          type: integer
+        executionTime:
+          title: Execution Time
+          description: The execution time of the given query.
+          type: string
+        results:
+          title: Results
+          description: A preview response from the API.
+          type: array
+          items:
+            title: Results
+            description: A preview JSON response from the API.
+            type: object
+    schema-database-query-previews-execution-query-1.0.0:
+      title: Database Query Previews Execution Query
+      description: Returns the execution query or the SQL query that is compiled from the given input.
+      type: object
+      properties:
+        executionQuery:
+          title: Execution Query
+          description: Returns the execution query or the SQL query that is compiled from the given input.
+          type: string
+    schema-database-query-previews-execution-plans-1.0.0:
+      title: Database Query Previews Execution Plans
+      description: Returns the execution Plan for the SQL query that is compiled from the given input.
+      type: object
+      properties:
+        executionPlan:
+          title: Execution Plan
+          description: Returns the execution Plan for the SQL query that is compiled from the given input.
+          type: array
+          items:
+            minLength: 1
+            type: object
+  examples:
+    database-query-previews-post-payload-1.1.0:
+      summary: Database Query Previews POST payload example
+      value:
+        entities:
+          - name: SPRIDEN
+          - name: modelexample
+            queryReference:
+              queryId: 5c73eaf5-31f5-4436-9a99-278086673ea5
+            joinType: inner
+            joinConditions:
+              - name: SPRIDEN_PIDM
+                expression: GORGUID_DOMAIN_KEY
+                entityName: SPRIDEN
+                expressionEntityName: modelexample
+                dataType: number
+                expressionDataType: string
+                operator: '='
+        selects:
+          - name: SPRIDEN_CHANGE_IND
+            entityName: SPRIDEN
+            valueType: COLUMN
+            dataType: string
+            alias: changeInd
+          - name: SPRIDEN_FIRST_NAME
+            entityName: SPRIDEN
+            valueType: COLUMN
+            dataType: string
+            alias: firstName
+          - name: SPRIDEN_ID
+            entityName: SPRIDEN
+            valueType: COLUMN
+            dataType: string
+            alias: id
+          - name: SPRIDEN_LAST_NAME
+            entityName: SPRIDEN
+            valueType: COLUMN
+            dataType: string
+            alias: lastName
+          - name: SPRIDEN_MI
+            entityName: SPRIDEN
+            valueType: COLUMN
+            dataType: string
+            alias: mi
+          - name: GORGUID_GUID
+            entityName: modelexample
+            valueType: COLUMN
+            dataType: string
+            alias: guid
+        criteria:
+          - condition: null
+            name: GORGUID_LDM_NAME
+            nameValueType: field
+            entityName: modelexample
+            operator: '='
+            expression: '''persons'''
+            expressionType: literal
+            expressionEntityName: null
+            dataType: string
+            expressionDataType: string
+            expressionParams: null
+        userSecurity: {}
+        sorts: []
+        groupBys: []
+        bindParameters: []
+    database-query-previews-example-1.1.0:
+      summary: Database Query Previews example
+      value:
+        totalCount: 378704
+        results:
+          - firstName: ' '
+            id: A00103602
+            lastName: Wizards
+            guid: d1a30b40-c284-4165-80a3-bf7de9505571
+          - firstName: ' '
+            id: A00103722
+            lastName: ' '
+            guid: 6153324d-2ed0-4107-a236-11621617a234
+        executionTime: 412 ms
+    database-query-previews-execution-plans-example-1.0.0:
+      summary: Database Query Previews Execution Plan example
+      value:
+        executionPlan:
+          - BYTES: 1683
+            REMARKS: null
+            OBJECT_TYPE: null
+            PARTITION_ID: null
+            POSITION: 4
+            COST: 4
+            STATEMENT_ID: null
+            IO_COST: 4
+            TIMESTAMP: 1759999986000
+            CARDINALITY: 11
+            ACCESS_PREDICATES: null
+            ID: 0
+            OTHER_TAG: null
+            QBLOCK_NAME: null
+            OBJECT_OWNER: null
+            FILTER_PREDICATES: null
+            PARTITION_START: null
+            DISTRIBUTION: null
+            CPU_COST: 34794
+            SEARCH_COLUMNS: null
+            PLAN_ID: 7642
+            TIME: 1
+            OPTIONS: null
+            OPTIMIZER: FIRST_ROWS
+            OBJECT_INSTANCE: null
+            PARENT_ID: null
+            OTHER: null
+            TEMP_SPACE: null
+            OBJECT_NODE: null
+            PROJECTION: null
+            OBJECT_ALIAS: null
+            OPERATION: SELECT STATEMENT
+            OBJECT_NAME: null
+            DEPTH: 0
+            PARTITION_STOP: null
+    database-query-previews-execution-query-example-1.0.0:
+      summary: Database Query Previews Execution Query example
+      value:
+        executionQuery: SELECT SPRIDEN.SPRIDEN_CHANGE_IND AS changeInd,SPRIDEN.SPRIDEN_FIRST_NAME AS firstName,SPRIDEN.SPRIDEN_ID AS id,SPRIDEN.SPRIDEN_LAST_NAME AS lastName,SPRIDEN.SPRIDEN_MI AS mi,modelexample.GORGUID_GUID AS guid FROM SPRIDEN inner join  (SELECT GORGUID.GORGUID_DOMAIN_KEY,GORGUID.GORGUID_GUID,GORGUID.GORGUID_LDM_NAME FROM GORGUID)modelexample on TO_CHAR(SPRIDEN.SPRIDEN_PIDM) = TO_CHAR(modelexample.GORGUID_DOMAIN_KEY) WHERE modelexample.GORGUID_LDM_NAME = 'persons'

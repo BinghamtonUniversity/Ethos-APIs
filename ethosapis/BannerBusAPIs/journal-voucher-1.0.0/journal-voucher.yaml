@@ -1,0 +1,124 @@
+openapi: 3.0.0
+info:
+  title: journal-voucher
+  description: API for FGAJVCM administrative page
+  version: 1.0.0
+  x-audience: all
+  x-release-status: beta
+  x-source-name: FGAJVCM
+  x-source-domain: Finance
+  x-source-title: Journal Voucher Mass Entry
+  x-source-system: banner
+  x-api-type: bus-poc
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/journal-voucher:
+    delete:
+      tags:
+        - journal-voucher
+      summary: Deletes an existing resource in FGAJVCM
+      parameters: []
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/journal-voucher-1.0.0_delete_request"
+            example:
+              documentNumber: J0000001
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/journal-voucher-1.0.0_delete_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+  /qapi/journal-voucher: {}
+components:
+  schemas:
+    journal-voucher-1.0.0_delete_request:
+      type: object
+      properties:
+        documentNumber:
+          title: Document Number
+          maxLength: 8
+          type: string
+          description: "Lineage reference object : documentNumber"
+          x-lineageReferenceObject: documentNumber
+      x-lineageReferenceObject: KEY_BLOCK
+    errors-2.0.0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+              description:
+                type: string
+    journal-voucher-1.0.0_delete_response:
+      type: object
+      properties:
+        documentNumber:
+          title: Document Number
+          maxLength: 8
+          type: string
+          description: "Lineage reference object : documentNumber"
+          x-lineageReferenceObject: documentNumber
+      x-lineageReferenceObject: key_block
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EllucianOAuthUserToken:
+      type: http
+      scheme: bearer
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

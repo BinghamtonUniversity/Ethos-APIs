@@ -1,0 +1,623 @@
+openapi: 3.0.0
+info:
+  title: Person External Education
+  description: >
+    The Person external education API contains information about the external
+    institutions associated with a person in Banner. Each record of the API
+    represents a person educational pursuit at the institution specified.
+  version: 1.1.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Foundation
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/person-external-education:
+    get:
+      summary: Returns resources
+      description: >
+        Returns a paged listing of person external education details where high
+        school records are retrieved from SORHSCH table where institution type
+        is 'H', prior college records from SORPCOL table where institution type
+        is 'C' and transfer institution records from SHRTRIT table where
+        institution type is 'C'.
+
+
+        The person-external-educations API is part of Integration application, however some of the Banner tables (SORHSCH and SHRTRIT) supporting these APIs are part of Banner Student. Customers without Banner Student license would only see the records for prior college from SORPCOL table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSON_EXTERNAL_EDUCATION
+      tags:
+        - person-external-education
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Person  
+
+            Returns all external educations for the specific person.
+
+            ```
+
+            /person-external-education?criteria={"person":{"id":"e5be4edc-1e40-4cd7-8d88-5b2cf312845f"}}
+
+            ```
+        - name: personFilter
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Person Filter  
+
+            Fetch all the person-external-education records for the person PIDMs identified through the person filter sent in the request.
+
+            ```
+
+            /person-external-education?personFilter={"personFilter":{"id":"b5427b09-422b-98e5-c44d-e6a25b210a44"}}
+
+            ```
+        - name: personByInstitutionType
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Person By Institution Type  
+
+            Fetch all the person-external-education records for the person id and educationalInstitutionType sent in the request.
+
+            ```
+
+            /person-external-education?personByInstitutionType={"person":{"id":"f14db252-d9b4-477d-b970-587493a4e56e"},"educationalInstitutionType":"secondarySchool"}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-person-external-education.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.1.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new resource
+      description: >
+        POST requests must include a nil GUID value
+        ("00000000-0000-0000-0000-000000000000") for the root id property.
+
+
+        Creates a new person external education high school record in SORHSCH and prior college record in SORPCOL. Creating a transfer institution record is not supported.
+
+
+        The person-external-educations API is part of Integration application, however the Banner table for high school SORHSCH is part of Banner Student. Customers without Banner Student license would not be allowed to created high school records. A request sent to create a high school record would be rejected with an error.
+
+
+        The properties classSize, classPercentile, classRank and graduationDetails properties are not supported for prior college. Create request sent with these properties will be rejected with an error message.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSON_EXTERNAL_EDUCATION
+      tags:
+        - person-external-education
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-person-external-education.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-person-external-education.json"
+  /api/person-external-education/{id}:
+    get:
+      summary: Return the requested resource
+      description: >
+        Returns a single person external education record with the requested
+        Identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSON_EXTERNAL_EDUCATION
+      tags:
+        - person-external-education
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-person-external-education.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    put:
+      summary: Update the requested resource
+      description: >
+        Updates an existing person-external-education record.
+
+
+        Note that the properties 'person.id', 'institution. id' and 'originallyRegisteredOn' cannot be changed.
+
+
+        The properties classSize, classPercentile, classRank and graduationDetails properties are not supported for prior college. Update request sent with these properties will be rejected with an error message.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSON_EXTERNAL_EDUCATION
+      tags:
+        - person-external-education
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Person External Education for use in all
+            external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json 
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-person-external-education.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-person-external-education.json"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-person-external-education.json:
+      title: Person External Education
+      description: A record of person's education outside of the home institution.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the person external education.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: SORHSCH_GUID(SORHSCH)  or SHRTRIT_GUID(SHRTRIT)  or SORPCOL_GUID(SORPCOL)
+        person:
+          title: Person
+          description: The person who was educated at the institution.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Person.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+              x-lineageDerivedLogic: Display the GUID from GORGUID where GORGUID_LDM_NAME is 'persons' and GORGUID_DOMAIN_KEY matches SORPCOL_PIDM or GORGUID_DOMAIN_KEY matches SORHSCH_PIDM or GORGUID_DOMAIN_KEY matches SHRTRAM_PIDM
+          additionalProperties: false
+          required:
+            - id
+        institution:
+          title: Institution
+          description: The educational institution where the person studied.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Institution.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: educational-institutions 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = src-background-inst) 
+              x-lineageDerivedLogic: Display the GUID from GORGUID where GORGUID_LDM_NAME is 'educational-institutions' and GORGUID_DOMAIN_KEY matches SORPCOL_SBGI_CODE or  GORGUID_DOMAIN_KEY matches SHRTRIT_SBGI_CODE or GORGUID_DOMAIN_KEY matches SORHSCH_SBGI_CODE
+          additionalProperties: false
+          required:
+            - id
+        attendancePeriods:
+          title: Attendance Periods
+          description: The periods associated with the person's attendance at the
+            institution.
+          type: array
+          items:
+            type: object
+            properties:
+              startOn:
+                title: Start Date
+                description: The date when the person's education at the institution began.
+                oneOf:
+                  - type: object
+                    properties:
+                      year:
+                        title: Year
+                        description: The year portion of the date.
+                        minimum: 0
+                        type: number
+                        x-lineageReferenceObject: SORHSCHM_ATTN_START_DATE(SORHSCHM) or SORPCOLM_ATTN_START_DATE(SORPCOLM) or SHRTRAM_ATTN_START_DATE(SHRTRAM)
+                        x-lineageDerivedLogic: Display the year from the selected date
+                        format: positiveInteger
+                      month:
+                        title: Month
+                        description: The month portion of the date
+                        oneOf:
+                          - type: number
+                            minimum: 0
+                            format: positiveInteger
+                            x-lineageReferenceObject: SORHSCHM_ATTN_START_DATE(SORHSCHM) or SORPCOLM_ATTN_START_DATE(SORPCOLM) or SHRTRAM_ATTN_START_DATE(SHRTRAM)
+                            x-lineageDerivedLogic: Display the month from the selected date
+                          - type: string
+                            nullable: true
+                      day:
+                        title: Day
+                        description: The day portion of a date.
+                        oneOf:
+                          - type: number
+                            minimum: 0
+                            format: positiveInteger
+                            x-lineageReferenceObject: SORHSCHM_ATTN_START_DATE(SORHSCHM) or SORPCOLM_ATTN_START_DATE(SORPCOLM) or SHRTRAM_ATTN_START_DATE(SHRTRAM)
+                            x-lineageDerivedLogic: Display the day from the selected date
+                          - type: string
+                            nullable: true
+                    additionalProperties: false
+                    required:
+                      - year
+                  - type: object
+                    maxProperties: 0
+              endOn:
+                title: End Date
+                description: The date when the person's education at the institution ended.
+                oneOf:
+                  - type: object
+                    properties:
+                      year:
+                        title: Year
+                        description: The year part of the date.
+                        minimum: 0
+                        type: number
+                        x-lineageReferenceObject: SORHSCHM_ATTN_END_DATE(SORHSCHM) or SORPCOLM_ATTN_END_DATE(SORPCOLM) or SHRTRAM_ATTN_END_DATE(SHRTRAM)
+                        x-lineageDerivedLogic: Display the year from the selected date
+                        format: positiveInteger
+                      month:
+                        title: Month
+                        description: The month part of the date.
+                        oneOf:
+                          - type: number
+                            minimum: 0
+                            format: positiveInteger
+                            x-lineageReferenceObject: SORHSCHM_ATTN_END_DATE(SORHSCHM) or SORPCOLM_ATTN_END_DATE(SORPCOLM) or SHRTRAM_ATTN_END_DATE(SHRTRAM)
+                            x-lineageDerivedLogic: Display the month from the selected date
+                          - type: string
+                            nullable: true
+                      day:
+                        title: Day
+                        description: The day part of the date.
+                        oneOf:
+                          - type: number
+                            minimum: 0
+                            format: positiveInteger
+                            x-lineageReferenceObject: SORHSCHM_ATTN_END_DATE(SORHSCHM) or SORPCOLM_ATTN_END_DATE(SORPCOLM) or SHRTRAM_ATTN_END_DATE(SHRTRAM)
+                            x-lineageDerivedLogic: Display the day from the selected date
+                          - type: string
+                            nullable: true
+                    additionalProperties: false
+                    required:
+                      - year
+                  - type: object
+                    maxProperties: 0
+            additionalProperties: false
+          minProperties: 1
+        performanceMeasure:
+          title: Performance Measure
+          description: A measurement of the student's educational performance at the
+            institution (e.g. GPA).
+          type: string
+          x-lineageReferenceObject: SORHSCH_GPA(SORHSCH) or  SORPCOL_GPA(SORPCOL)
+        classSize:
+          title: Class Size
+          description: The size of the person’s secondary school graduating class.
+          oneOf:
+            - type: integer
+              x-lineageReferenceObject: SORHSCH_CLASS_SIZE(SORHSCH)
+            - type: string
+              nullable: true
+        classPercentile:
+          title: Class Percentile
+          description: The person's percentile within their secondary school graduating
+            class.
+          oneOf:
+            - type: number
+              minimum: 0
+              format: positiveNumber
+              x-lineageReferenceObject: SORHSCH_PERCENTILE(SORHSCH)
+            - type: string
+              nullable: true
+        classRank:
+          title: Class Rank
+          description: The person's rank within their secondary school graduating class.
+          oneOf:
+            - type: integer
+              x-lineageReferenceObject: SORHSCH_CLASS_RANK(SORHSCH)
+            - type: string
+              nullable: true
+        totalCredits:
+          title: Total Credits
+          description: The total number of credits completed during the person's entire
+            attendance at the institution.
+          oneOf:
+            - type: number
+              x-lineageReferenceObject: SORHSCH_TOTAL_CREDITS(SORHSCH) or SORPCOL_TOTAL_CREDITS(SORPCOL)
+            - type: string
+              nullable: true
+        graduationDetails:
+          title: Graduation Details
+          description: The details of the educational institution where the person
+            graduated.
+          oneOf:
+            - type: object
+              properties:
+                source:
+                  title: Source
+                  description: The source of educational institution where the person graduated.
+                  enum:
+                    - secondarySchool
+                  type: string
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: Always display as 'secondarySchool' if graduationDetails.graduatedOn is populated with high school graduation date
+                graduatedOn:
+                  title: Graduated On
+                  description: The date the student graduated from the source institution.
+                  type: string
+                  format: date
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                  x-lineageReferenceObject: SORHSCH_GRADUATION_DATE(SORHSCH)
+              additionalProperties: false
+              required:
+                - source
+                - graduatedOn
+            - type: object
+              maxProperties: 0
+      required:
+        - id
+        - person
+        - institution
+      additionalProperties: false

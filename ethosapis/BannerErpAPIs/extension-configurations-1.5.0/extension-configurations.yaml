@@ -1,0 +1,677 @@
+openapi: 3.0.0
+info:
+  title: Extension Configurations
+  description: The configurations of the extended table definition which resides
+    in the GORRSDE Banner configuration table. Please refer to "Use Schema
+    Designer" section in Schema Designer for more information.
+  version: 1.5.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Foundation
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/extension-configurations:
+    get:
+      summary: Return all resources
+      description: Returns a paged listing of all the resources in the system.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EXT_CONFIGURATIONS
+      tags:
+        - extension-configurations
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Name  
+
+            The name of the extended table.
+
+            ```
+
+            /extension-configurations?criteria={"extendedTableName":{"$like":"XMATERIL%"}}
+
+            ```
+
+            ### Description  
+
+            The description of the extended table.
+
+            ```
+            
+            /extension-configurations?criteria={"extendedTableDescription":{"$like":"Materials%"}}
+            
+            ```
+
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-extension-configurations.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.5.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new extension configuration in GORRSDE table.
+      description: >-
+        The POST operation of the extension-configurations API is designed to
+        support institutions in extending their database schema to meet unique
+        business requirements by adding new tables to the BAN_EXTENSIONS schema.
+
+
+
+        • Creating an Extended Table - The API allows administrators to define
+        the schema of an extended table. Based on the configuration entries
+        provided in the request, the system automatically creates this table
+        within the BAN_EXTENSIONS schema.
+        
+        
+        • Business Event Name Support - As part of 1.4.0 new optional 
+        property 'businessEventName' is added which supports with the automatic 
+        creation of Business Events, with all columns selected for data capture.
+        By default, events created will remain in disabled status.
+
+         • Additional DataType Support - As part of 1.5.0, new datatypes were added
+         those being datatime and large_object
+         
+        • Configuration Entries - Upon creating an extended table, the system
+        updates two Banner configuration tables GORRSDE which holds the new
+        extended table definition and GURASPC which contains the new extended
+        table API definition.
+
+
+
+        • Specification based API - Alongside the creation of the table, the
+        system also generates an API specification for the newly created
+        extended table. This specification includes operations such as GET,
+        POST, PUT, and DELETE, complete with standard validations. This ensures
+        that the extended table is readily accessible and manageable through API
+        calls.
+
+
+
+        • Primary Key Identification - When defining the schema for an extended
+        table, it is crucial for the administrator to identify and designate
+        primary key columns. This information is necessary for the system to
+        properly manage the extended table, especially in regard to maintaining
+        data integrity and supporting efficient data retrieval operations.
+
+
+
+        • MEPed Tables - If the baseline (original) table is MEPed (Multi-Entity
+        Processing enabled), the corresponding extended table will automatically
+        inherit this characteristic. This ensures consistent handling of data
+        across entities within the system.
+
+
+        • OAuth support for extended table APIs - When creating a new extended
+        table API using the extension-configurations API, the API sets the oauthAllowed value to true.
+        For more information,please refer to "OAuth support for extended table APIs" section in Banner Extensibility - Use.
+
+
+        • Extended Table Names - Ellucian recommends prefixing the names of
+        extended tables with the letter 'x' (e.g., xnextofkin). This practice
+        helps in avoiding naming conflicts with future Ellucian-delivered
+        resources.
+
+
+        • API Names - Similarly, for extended table APIs, it is recommended to
+        prefix the name with 'x-' followed by the extended table name (e.g.,
+        x-nextofkin). If a specific name isn't provided during configuration,
+        the system generates one following this convention.
+
+
+
+        • When an extension configuration is created with the columns defined
+        and if the property AtrributeRequired is set to true for a non-key
+        column, then attributeDisplay must be set to true irrespective of the
+        request having attributeDisplay as false or true. The user will not be
+        informed and the response will have the property attributeDisplay set as
+        true.
+
+
+        • If an extended column is defined such a way that column is a key
+        column i.e columnBaseTable is specified, and if the request has
+        attributeRequired set as N or Y, the response will have the
+        attributeRequired property set to Y.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EXT_CONFIGURATIONS
+      tags:
+        - extension-configurations
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.5.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.5.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-extension-configurations.json"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-extension-configurations.json"
+  /api/extension-configurations/{id}:
+    get:
+      summary: Return the requested resource
+      description: Return the one resource with the passed in identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EXT_CONFIGURATIONS
+      tags:
+        - extension-configurations
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Extension Configurations for use in all
+            external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.5.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.5.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-extension-configurations.json"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    put:
+      summary: Update the requested resource from GORRSDE
+      description: |
+        The PUT operation of the extension-configurations API is designed specifically for institutions to update fields related to the extended data column configuration, ensuring that the data is displayed as a List of Values (LOV) on the user interface when surfaced on the experience page.
+          
+          The following properties must be updated to support the LOV feature:
+
+           
+            extendedColumns.validationTable
+            extendedColumns.validationColumn
+            extendedColumns.validationCodeDesc
+            extendedColumns.LOVAPICode
+            extendedColumns.LOVAPIDescription
+            extendedColumns.LOVAPIName 
+            
+        **Note** 
+        
+        - If the user has not created the configuration, then the user must have additional access to the security object **BAN_ETHOS_API_OVERRIDE** to update the configurations created by another user.
+        
+        
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EXT_CONFIGURATIONS
+      tags:
+        - extension-configurations
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Extension Configurations for use in all
+            external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json 
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.5.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.5.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-extension-configurations.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-extension-configurations.json"
+    delete:
+      summary: Removes the requested resource
+      tags:
+        - extension-configurations
+      description: >
+        Deletes the existing extension configuration record from GORRSDE table
+        with the passed in identifier.
+              
+        
+        **NOTE**:
+        
+        - Deleting an extension configuration requires the user to have access to the security object **API_EXT_CONFIGURATIONS_DELETE**.
+      
+        - If the user has not created the configuration, then the user must have additional access to the security object **BAN_ETHOS_API_OVERRIDE** to delete configurations created by another user.
+        
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EXT_CONFIGURATIONS_DELETE
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-extension-configurations.json:
+      title: Extension Configurations
+      description: The API returns the list of the extended table configurations in
+        GORRSDE table.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the accounts payable invoice.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: GORRSDE_GUID(GORRSDE)
+        businessEventName:
+          title: businessEventName
+          description: The Business Event Name for the extended table
+          type: string
+        baselineTable:
+          title: Baseline Table
+          description: The name of the baseline table which is to be mapped with the
+            custom table/delivered table.
+          type: string
+          x-lineageReferenceObject: GORRSDE_BASE_TABLE(GORRSDE)
+        extendedTableName:
+          title: Extended Table Name
+          description: The name of the extended table to hold the extended data.
+          type: string
+          x-lineageReferenceObject: GORRSDE_EXT_TABLE(GORRSDE)
+        extendedTableDescription:
+          title: Extended Table Description
+          description: The description of the extended table to hold the extended data.
+          type: string
+          x-lineageReferenceObject: GORRSDE_EXT_TABLE_DESC(GORRSDE)
+        extendedTableSecurityObject:
+          title: Extended Table Security Object
+          description: The security object for the extended table API
+          type: string
+          x-lineageReferenceObject: GORRSDE_EXT_API_SEC_OBJECT(GORRSDE)
+        extendedTableAPIName:
+          title: Extended Table APIName
+          description: The name of the API that would be generated for the extended table
+            to hold the extended data.
+          type: string
+          x-lineageReferenceObject: GORRSDE_EXT_TABLE_API(GORRSDE)
+        extendedColumns:
+          title: Extended Columns
+          description: The extended column details for configuration.
+          type: array
+          items:
+            type: object
+            properties:
+              columnName:
+                title: Extended Column Name
+                description: The name of the extended column.
+                type: string
+                x-lineageReferenceObject: GORRSDE_EXT_COL_NAME(GORRSDE)
+              columnBaseTable:
+                title: Column Base Table
+                description: The baseline table's column name to be mapped as key column
+                type: string
+                x-lineageReferenceObject: GORRSDE_BASE_TAB_COLUMN(GORRSDE)
+              attributeDataType:
+                title: Attribute Data Type
+                description: The data type of the extended column.
+                type: string
+                enum:
+                  - varchar2
+                  - date
+                  - numeric
+                  - datetime
+                  - large_object
+                x-lineageReferenceObject: GORRSDE_ATTR_DATA_TYPE(GORRSDE)
+              attributeDataLength:
+                title: Attribute Data Length
+                description: The data length of the extended column.
+                type: string
+                x-lineageReferenceObject: GORRSDE_ATTR_DATA_LEN(GORRSDE)
+              attributeDataScale:
+                title: Attribute Data Scale
+                description: The data scale of the extended column.
+                type: string
+                x-lineageReferenceObject: GORRSDE_ATTR_DATA_SCALE(GORRSDE)
+              rangeLow:
+                title: Range Low
+                description: The lowest range for the column value
+                type: string
+                x-lineageReferenceObject: GORRSDE_LOW_RANGE(GORRSDE)
+              rangeHigh:
+                title: Range High
+                description: The highest range for the column value
+                type: string
+                x-lineageReferenceObject: GORRSDE_HIGH_RANGE(GORRSDE)
+              attributeDisplay:
+                title: Attribute Display
+                description: An indicator if the extended column is to be displayed or not.
+                type: string
+                x-lineageReferenceObject: GORRSDE_ATTR_TYPE(GORRSDE)
+                enum:
+                  - true
+                  - false
+              attributeRequired:
+                title: Attribute Required
+                description: An indicator if the extended column is required column or not.
+                type: string
+                x-lineageReferenceObject: GORRSDE_ATTR_REQD_IND(GORRSDE)
+                enum:
+                  - true
+                  - false
+              attributePrompt:
+                title: Attribute Prompt
+                description: The prompt name of the extended column when displayed.
+                type: string
+                x-lineageReferenceObject: GORRSDE_ATTR_PROMPT(GORRSDE)
+              validationTable:
+                title: Validation Table Name
+                description: The baseline table/custom table for which the extended data is to be validated.
+                type: string
+                x-lineageReferenceObject: GORRSDE_VALIDATION_TAB(GORRSDE)
+              validationColumn:
+                title: Validation Table's Code Column
+                description: The baseline table/custom table's column for which the extended
+                  data is to be validated.
+                type: string
+                x-lineageReferenceObject: GORRSDE_VALIDATION_COL(GORRSDE)
+              validationCodeDesc:
+                title: Validation Table's description column
+                description: The baseline table/custom table's column of description that is to be published when LOV attributes are defined. This property is intended for GRID rendering when the data column is defined to be an LOV for the UI data surfacing.
+                type: string
+                x-lineageReferenceObject: GORRSDE_VALIDATION_DESC(GORRSDE)
+              LOVAPIName:
+                title: LOV API Name
+                description: The list of values to be shown for the extended data column configured as LOV on the UI.
+                type: string
+                x-lineageReferenceObject: GORRSDE_LOV_API_RESOURCE(GORRSDE)
+              LOVAPICode:
+                title: LOV API Code Property
+                description: The property name which would be the code of the record API resource referred to in the column extendedColumns.LOVAPIName representing the code property is to be displayed as the description on the UI for the corresponding value in the list of values.
+                type: string
+                x-lineageReferenceObject: GORRSDE_LOV_API_CODE_PROPERTY(GORRSDE)
+              LOVAPIDescription:
+                title: LOV API Description Property
+                description: The property name which would be the description of the resource record of the API referred to in the column extendedColumns.LOVAPIName representing the code property is to be saved as column data in the extended data.
+                type: string
+                x-lineageReferenceObject: GORRSDE_LOV_API_DESC_PROPERTY(GORRSDE)
+            additionalProperties: false
+            required:
+              - columnName
+              - attributeDataType
+              - attributePrompt
+              - attributeDisplay
+        oneToManyRelationShip:
+          title: One To Many
+          description: An indicator if the extended table can establish 1 to many
+            relationships with the baseline table.
+          type: string
+          enum:
+            - true
+            - false
+        oauthAllowed:
+          title: OAuthorization Allowed Indicator
+          description: An indicator that the extended table API is enabled to OAuth
+            support and whitelisting.
+          type: string
+          enum:
+            - true
+            - false
+        apiRegistryDocument:
+          title: API Registry Document identifier
+          description: The document identifier of the endpoint specification registered in API Registry.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the API Registry Document.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+      required:
+        - id
+        - baselineTable
+        - extendedTableName
+        - extendedTableDescription
+        - extendedColumns
+      additionalProperties: false

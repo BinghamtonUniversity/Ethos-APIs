@@ -1,0 +1,137 @@
+openapi: 3.0.0
+info:
+  title: registration-eligibility-check
+  description: |
+    Checks whether a Student is eligible for registration for the given term
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Student
+  x-source-title: Registration Eligibility Check
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: registration-eligibility-check
+paths:
+  /api/registration-eligibility-check:
+    get:
+      description: |
+        Requires bannerID and term details in url path .
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_REGSTATUS
+      tags:
+        - registration-eligibility-check
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          schema:
+            type: string
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+        - name: bannerId
+          in: query
+          required: true
+          schema:
+            type: string
+          example: BSCUVEE02
+        - name: term
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "266852"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/registration-eligibility-check"
+            application/vnd.hedtech.integration.v1.0.0+xml:
+              schema:
+                type: object
+                $ref: "#/components/schemas/registration-eligibility-check"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    registration-eligibility-check:
+      type: array
+      items:
+        type: object
+        properties:
+          requiresAltPin:
+            type: boolean
+          requiresStudyPath:
+            type: boolean
+          studyPaths:
+            type: array
+            items:
+              type: object
+              properties:
+                castPreventRegIndicator:
+                  type: string
+                statusAllowRegIndicator:
+                  type: string
+                term:
+                  type: string
+                astdPreventRegIndicator:
+                  type: string
+                studentStudyPathStatus:
+                  type: string
+                enrollmentPreventRegIndicator:
+                  type: boolean
+                keySequenceNumber:
+                  type: string
+                termEffective:
+                  type: string
+                studyPathName:
+                  type: string
+          validStudent:
+            type: boolean

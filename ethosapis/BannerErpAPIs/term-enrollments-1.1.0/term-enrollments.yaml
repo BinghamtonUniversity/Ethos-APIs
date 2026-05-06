@@ -1,0 +1,1057 @@
+openapi: 3.0.0
+info:
+  title: Term Enrollments
+  description: "A bulk extraction of student registration datasets with respect to
+    Term Code and other filters used as inputs. Data mappings include: course
+    sections, academic history final grade, curricula program  and fields of
+    study,  student emails, alternate student Id, and telephone and address
+    details"
+  version: 1.1.0
+  x-source-domain: Student
+  x-source-name: SFBETRM
+  x-source-title: null
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-audience: all
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/term-enrollments:
+    get:
+      tags:
+        - term-enrollments
+      summary: Return student information along with registration details.
+      description: Return student information along with registration details. Data is
+        extracted from SFBETRM, SFRSTCR, SFRENSP, SSBSECT, SPRIDEN, SPBPERS,
+        SCBCRSE, SOVCLTR, SORLFOS, GOREMAL, SMRPRLE, SPRADDR, SPRTELE, STVNATN,
+        SHRTCKN, and SHRTCKG.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Term Code (Required) 
+
+
+            Returns all records for the termCode passed. 
+
+            ```
+
+            /term-enrollments?criteria={"termCode":"202122"} 
+
+            ```            
+
+            ### Enrollment Status Code 
+
+
+            Returns all records for the enrollmentStatusCode passed. 
+
+            ```
+
+            /term-enrollments?criteria={"termCode":"202122",
+            "enrollmentStatusCode":"EL"} 
+
+            ```
+
+            ### Student Id
+
+
+            Returns all records for the studentId passed. 
+
+            ```
+
+            /term-enrollments?criteria={"termCode":"202122",
+            "studentId":"331314209"} 
+
+            ```
+
+            ### Course Registration Status Code 
+
+
+            Returns all records for the courseRegistrationStatusCode passed. 
+
+            ```
+
+            /term-enrollments?criteria={"termCode":"202122",
+            "sectionRegistrations": {"$or": [{"courseRegistrationStatusCode":
+            "RW"}, {"courseRegistrationStatusCode": "EL"}]}}
+
+            ```            
+
+            ### Course Reference Number 
+
+
+            Returns all records for the courseReferenceNumber passed. 
+
+            ```
+
+            /term-enrollments?criteria={"termCode":"202122",
+            "sectionRegistrations": {"$or": [{"courseReferenceNumber": "2007"},
+            {"courseReferenceNumber": "10012"}]}} 
+
+            ```
+
+            ### Course Number 
+
+
+            Returns all records for the courseNumber passed. 
+
+            ```
+
+            /term-enrollments?criteria={"termCode":"202122",
+            "sectionRegistrations": {"$or": [{"courseNumber":
+            "1401"},  {"courseNumber": "2010"}]}}
+
+            ```            
+
+            ### Subject Code 
+
+
+            Returns all records for the subjectCode passed. 
+
+            ```
+
+            /term-enrollments?criteria={"termCode":"202122",
+            "sectionRegistrations": {"$or": [{"subjectCode": "BIOL"},
+            {"subjectCode": "ANTH"}]}}
+
+            ```            
+
+            ### Part of Term Code 
+
+
+            Returns all records for the partOfTermCode passed. 
+
+            ```
+
+            /term-enrollments?criteria={"termCode":"202122",
+            "sectionRegistrations": {"$or": [{"partOfTermCode": "1"},
+            {"partOfTermCode": "2"}]}}
+
+            ```
+
+            ### Section Sequence Number 
+
+
+            Returns all records for the sectionSequenceNumber passed. 
+
+            ```
+
+            /term-enrollments?criteria={"termCode":"202122",
+            "sectionRegistrations": {"$or": [{"sectionSequenceNumber": "2"},
+            {"sectionSequenceNumber": "001"}]}}
+
+            ```            
+
+            ### Email Code 
+
+
+            Returns all records for the emailCode passed. 
+
+            ```
+
+            /term-enrollments?criteria={"termCode":"202122", "studentDetails":
+            {"emails": {"emailCode": "0001"}}}
+
+            ```            
+
+            ### Email Preferred Indicator
+
+
+            Returns all records for the emailPreferredInd passed. 
+
+            ```
+
+            /term-enrollments?criteria={"termCode":"202122", "studentDetails":
+            {"emails": {"emailPreferredInd": true}}} 
+
+            ```
+
+            ### Telephone Code 
+
+
+            Returns all records for the telephoneCode passed. 
+
+            ```
+
+            /term-enrollments?criteria={"termCode":"202122", "studentDetails" :
+            {"telephones" : {"$or" : [{"telephoneCode": "MA"}, {"telephoneCode":
+            "PR"}]}}}
+
+            ```            
+
+            ### Address Type 
+
+
+            Returns all records for the addressType passed. 
+
+            ```
+
+            /term-enrollments?criteria={"termCode":"202122", "studentDetails" :
+            {"addresses" : {"$or" : [{"addressType": "BB"}, {"addressType":
+            "HQ"}]}}}
+
+            ```            
+
+            ### Program 
+
+
+            Returns all records for the program passed. 
+
+            ```
+
+            /term-enrollments?criteria={"termCode":"202122", "curricula" :
+            {"$or" : [{"program": "BA-ANTHRO"}, {"program" :  "BSCE"}]}}
+
+            ```
+
+            ### Level Code 
+
+
+            Returns all records for the levelCode passed. 
+
+            ```
+
+            /term-enrollments?criteria={"termCode":"202122", "curricula" :
+            {"$or" : [{"levelCode" :  "CR"}, {"levelCode" : "US"}]}}
+
+            ```
+
+            ### Field of Study Type 
+
+
+            Returns all records for the fieldOfStudyType passed. 
+
+            ```
+
+            /term-enrollments?criteria={"termCode":"202122", "curricula" :
+            {"fieldsOfStudy" : {"$or": [{"fieldOfStudyType":"MAJOR"},
+            {"fieldOfStudyType":"MINOR"}]}}}
+
+            ``` 
+            
+            ### Course Identifier Display 
+
+
+            Returns all records for the courseIdentifierDisplay passed. 
+
+            ```
+
+            /term-enrollments?criteria={"termCode":"202122",
+            "sectionRegistrations": {"$or": [{"courseIdentifierDisplay":
+            "1401"},  {"courseIdentifierDisplay": "2010"}]}}
+            
+            ```
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1.1.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/term-enrollments-1.1.0_get_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the clientâ€™s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - BasicAuth: []
+          EthosIntegrationBearer: []
+      x-method-permissions: API_TERM_ENROLLMENTS
+  /api/term-enrollments/{id}:
+    get:
+      summary: Return student information along with registration details.
+      description: >
+        Return student information along with registration details. Data is
+        extracted from SFBETRM, SFRSTCR, SSBSECT, SPRIDEN, SPBPERS, SCBCRSE,
+        SOVCLTR, SORLFOS, GOREMAL, SMRPRLE, SPRADDR, SPRTELE, STVNATN, SHRTCKN,
+        and SHRTCKG.
+      security:
+        - BasicAuth: []
+          EthosIntegrationBearer: []
+      tags:
+        - term-enrollments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: >
+            A global identifier of the resource for use in all external
+            references 
+          schema:
+            type: number
+            format: integer
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.1.0+json
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/term-enrollments-1.1.0_get_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      x-method-permissions: API_TERM_ENROLLMENTS
+components:
+  schemas:
+    term-enrollments-1.1.0_get_response:
+      type: object
+      properties:
+        curricula:
+          title: Curricula
+          type: array
+          items:
+            type: object
+            properties:
+              campusCode:
+                title: Campus Code
+                description: Campus code of the curriculum.
+                maxLength: 3
+                type: string
+                x-lineageReferenceObject: SOVLCUR_CAMP_CODE
+              collegeCode:
+                title: College Code
+                description: College code of the curriculum.
+                maxLength: 2
+                type: string
+                x-lineageReferenceObject: SOVLCUR_COLL_CODE
+              degreeCode:
+                title: Degree Code
+                description: Degree code of the curriculum.
+                maxLength: 6
+                type: string
+                x-lineageReferenceObject: SOVLCUR_DEGC_CODE
+              fieldsOfStudy:
+                title: Fields of Study
+                type: array
+                items:
+                  type: object
+                  properties:
+                    departmentCode:
+                      title: Department Code
+                      description: Department code.
+                      type: string
+                      x-lineageReferenceObject: SOVLFOS_DEPT_CODE
+                    fieldOfStudyType:
+                      title: Field Of Study Type
+                      description: Field of study type code, examples are MAJOR, MINOR, CONCENTRATION.
+                      maxLength: 15
+                      type: string
+                      x-lineageReferenceObject: SORLFOS_LFST_CODE
+                    fieldOfStudyCode:
+                      title: Field Of Study Code
+                      description: Field of study code.
+                      maxLength: 4
+                      type: string
+                      x-lineageReferenceObject: SORLFOS_MAJR_CODE
+                    majorMinorConcentrationAttach:
+                      title: Major Minor Concentration Attached
+                      description: Major code to which the concentration is attached.
+                      type: string
+                      x-lineageReferenceObject: SOVLFOS_MAJR_CODE_ATTACH
+                    priorityNo:
+                      title: Priority No
+                      description: Priority number, or ranking of the field of study.
+                      maxLength: 4
+                      type: integer
+                      x-lineageReferenceObject: SORLFOS_PRIORITY_NO
+              keyRecordSequenceNumber:
+                title: Key Record Sequence Number
+                description: One up number to define the curriculum row.
+                maxLength: 4
+                type: number
+                x-lineageReferenceObject: SOVLCUR_KEY_SEQNO
+              levelCode:
+                title: Level Code
+                description: Level code of the curriculum.
+                maxLength: 2
+                type: string
+                x-lineageReferenceObject: SOVLCUR_LEVL_CODE
+              priorityNumber:
+                title: Priority Number
+                description: Priority of the curriculum.
+                maxLength: 4
+                type: number
+                x-lineageReferenceObject: SOVLCUR_PRIORITY_NO
+              program:
+                title: Program
+                description: Program code of the curriculum.
+                maxLength: 12
+                type: string
+                x-lineageReferenceObject: SOVLCUR_PROGRAM
+              programDesc:
+                title: Program Description
+                description: Program description which further describes program code.
+                maxLength: 30
+                type: string
+                x-lineageReferenceObject: SMRPRLE_PROGRAM_DESC
+        enrollmentStatusCode:
+          title: Enrollment Status Code
+          description: The student enrollment status for the term.
+          maxLength: 2
+          type: string
+          x-lineageReferenceObject: SFBETRM_ESTS_CODE
+        enrollmentStatusIncludedInHeadcount:
+          title: Enrollment Status Included In Headcount
+          description: Identifies whether the student enrollment status is included in the
+            term head count.
+          maxLength: 1
+          type: boolean
+        enrollmentTimeStatus:
+          title: Enrollment Time Status
+          description: The latest time status for the enrollment term.
+          maxLength: 2
+          type: string
+          x-lineageReferenceObject: SFBETRM_TMST_CODE
+        id:
+          title: ID
+          description: Unique key for the enrollment term record.
+          maxLength: 19
+          type: number
+          x-lineageReferenceObject: SFBETRM_SURROGATE_ID
+        enrollmentStudyPaths:
+          title: Enrollment Study Paths
+          type: array
+          items:
+            type: object
+            properties:
+              studyPath:
+                title: Study Path
+                description: Study path sequence number.
+                maxLength: 2
+                type: number
+                x-lineageReferenceObject: SFRENSP_KEY_SEQNO
+              enrollmentStatus:
+                title: Study Path Enrollment Status
+                description: Study path enrollment status for the term.
+                maxLength: 2
+                type: string
+                x-lineageReferenceObject: SFRENSP_ESTS_CODE
+        sectionRegistrations:
+          title: Section Registrations
+          type: array
+          items:
+            type: object
+            properties:
+              addedOn:
+                title: Added On
+                description: The add date of the registrant in the section.
+                maxLength: 11
+                type: string
+                format: date
+                x-lineageReferenceObject: SFRSTCR_ADD_DATE
+              billingHour:
+                title: Billing Hour
+                description: The billing hours associated with the section.
+                maxLength: 7
+                type: number
+                x-lineageReferenceObject: SFRSTCR_BILL_HR
+              campusCode:
+                title: Campus Code
+                description: The campus on which the section is scheduled.
+                maxLength: 3
+                type: string
+                x-lineageReferenceObject: SSBSECT_CAMP_CODE
+              courseNumber:
+                title: Course Number
+                description: The course number.
+                maxLength: 5
+                type: string
+                x-lineageReferenceObject: SSBSECT_CRSE_NUMB
+              courseReferenceNumber:
+                title: Course Reference Number
+                description: The course reference number (CRN) associated with the class
+                  section.
+                maxLength: 5
+                type: string
+                x-lineageReferenceObject: SFRSTCR_CRN
+              courseRegistrationStatusCode:
+                title: Course Registration Status Code
+                description: The student's course registration status associated with this
+                  section.
+                maxLength: 2
+                type: string
+                x-lineageReferenceObject: SFRSTCR_RSTS_CODE
+              courseRegistrationStatusDate:
+                title: Course Registration Status Date
+                description: The date associated with the course registration status of the
+                  section.
+                maxLength: 11
+                type: string
+                format: date
+                x-lineageReferenceObject: SFRSTCR_RSTS_DATE
+              courseTitle:
+                title: Course Title
+                description: The title of the course section.
+                maxLength: 30
+                type: string
+                x-lineageReferenceObject: SCBCRSE_TITLE
+              creditHour:
+                title: Credit Hour
+                description: The credit hours associated with the section.
+                maxLength: 7
+                type: number
+                x-lineageReferenceObject: SFRSTCR_CREDIT_HR
+              finalGrade:
+                title: Final Grade
+                description: Institutional Course Section Final Grade.
+                maxLength: 6
+                type: string
+                x-lineageReferenceObject: SHRTCKG_GRADE_CODE_FINAL
+              gradeCode:
+                title: Grade Code
+                description: The grade submitted in registration for the section.
+                maxLength: 6
+                type: string
+                x-lineageReferenceObject: SFRSTCR_GRDE_CODE
+              gradeDate:
+                title: Grade Date
+                description: The date associated with the grade submission in registration.
+                maxLength: 11
+                type: string
+                format: date
+                x-lineageReferenceObject: SFRSTCR_GRDE_DATE
+              partOfTermCode:
+                title: Part Of Term Code
+                description: The part-of-term in which the section is offered.
+                maxLength: 3
+                type: string
+                x-lineageReferenceObject: SSBSECT_PTRM_CODE
+              sectionCourseTitle:
+                title: Section Course Title
+                description: The title of the course section.
+                maxLength: 30
+                type: string
+                x-lineageReferenceObject: SSBSECT_CRSE_TITLE
+              sectionSequenceNumber:
+                title: Section Sequence Number
+                description: The section sequence number of the course section.
+                maxLength: 3
+                type: string
+                x-lineageReferenceObject: SSBSECT_SEQ_NUMB
+              subjectCode:
+                title: Subject Code
+                description: Subject code of the course section.
+                maxLength: 4
+                type: string
+                x-lineageReferenceObject: SSBSECT_SUBJ_CODE
+              studyPath:
+                title: Study path
+                description: The study path under which the section is registered.
+                maxLength: 2
+                type: number
+                x-lineageReferenceObject: SFRSTCR_STSP_KEY_SEQUENCE
+              courseAlias:
+                title: Course Alias
+                maxLength: 20
+                type: string
+                description: Additional identifier value associated with the course, example (Course Alias or Common Course Number).
+                x-lineagereferenceobject: COURSE_ALIAS
+              courseIdentifierDisplay:
+                type: string
+                maxLength: 20
+                description: System-managed course identifier that should be displayed for the course (e.g., Course Number, Course Alias, or Common Course Number).
+                x-lineagereferenceobject: COURSE_IDENTIFIER_DISPLAY
+        studentDetails:
+          title: Student Details
+          type: object
+          properties:
+            addresses:
+              title: Student Addresses
+              type: array
+              items:
+                type: object
+                properties:
+                  nationCode:
+                    title: Nation Code
+                    description: The nation/country code associated with the address.
+                    maxLength: 5
+                    type: string
+                    x-lineageReferenceObject: SPRADDR_NATN_CODE
+                  nation:
+                    title: Nation Description
+                    description: The nation/country code description.
+                    maxLength: 30
+                    type: string
+                    x-lineageReferenceObject: STVNATN_NATION
+                  houseNumber:
+                    title: House Number
+                    description: Building or lot number on a street or in an area.
+                    maxLength: 10
+                    type: string
+                    x-lineageReferenceObject: SPRADDR_HOUSE_NUMBER
+                  city:
+                    title: City
+                    description: The city associated with the address.
+                    maxLength: 50
+                    type: string
+                    x-lineageReferenceObject: SPRADDR_CITY
+                  stateCode:
+                    title: State Code
+                    description: The state associated with the address.
+                    maxLength: 3
+                    type: string
+                    x-lineageReferenceObject: SPRADDR_STAT_CODE
+                  postalCode:
+                    title: Postal Code
+                    description: The postal or zip code associated with the address.
+                    maxLength: 30
+                    type: string
+                    x-lineageReferenceObject: SPRADDR_ZIP
+                  streetLine1:
+                    title: Street Line 1
+                    description: The first line of the address.
+                    maxLength: 75
+                    type: string
+                    x-lineageReferenceObject: SPRADDR_STREET_LINE1
+                  streetLine2:
+                    title: Street Line 2
+                    description: The second line of the address.
+                    maxLength: 75
+                    type: string
+                    x-lineageReferenceObject: SPRADDR_STREET_LINE2
+                  streetLine3:
+                    title: Street Line 3
+                    description: The third line of the address.
+                    maxLength: 75
+                    type: string
+                    x-lineageReferenceObject: SPRADDR_STREET_LINE3
+                  streetLine4:
+                    title: Street Line 4
+                    description: The fourth line of the address.
+                    maxLength: 75
+                    type: string
+                    x-lineageReferenceObject: SPRADDR_STREET_LINE4
+            alternateIdentifications:
+              title: Alternate Person Identifications
+              type: array
+              items:
+                type: object
+                properties:
+                  alternateID:
+                    title: Alternate Identification Number
+                    description: Alternate identification number for a person.
+                    maxLength: 9
+                    type: string
+                    x-lineageReferenceObject: SPRIDEN_ID
+                  alternateIDCreatedOn:
+                    title: Alternate Identification Created On
+                    description: Alternate Idenification record creation date.
+                    maxLength: 11
+                    type: string
+                    format: date
+                    x-lineageReferenceObject: SPRIDEN_CREATE_DATE
+                  alternateIDNameType:
+                    title: Alternate Identification Name Type
+                    description: The code that represents the name type of the alternate
+                      identification.
+                    maxLength: 4
+                    type: string
+                    x-lineageReferenceObject: SPRIDEN_NTYP_CODE
+            birthDate:
+              title: Birth Date
+              description: The person's birth date.
+              maxLength: 11
+              type: string
+              format: date
+              x-lineageReferenceObject: SPBPERS_BIRTH_DATE
+            confidentialInd:
+              title: Confidential Indicator
+              description: Identifies if a person record is confidential. Y = confidential.
+              maxLength: 1
+              type: string
+              x-lineageReferenceObject: SPBPERS_CONFID_IND
+            emails:
+              title: Emails
+              type: array
+              items:
+                type: object
+                properties:
+                  emailCode:
+                    title: Email Code
+                    description: The type of e-mail address.
+                    maxLength: 4
+                    type: string
+                    x-lineageReferenceObject: GOREMAL_EMAL_CODE
+                  email:
+                    title: Email
+                    description: The e-mail address.
+                    maxLength: 128
+                    type: string
+                    x-lineageReferenceObject: GOREMAL_EMAIL_ADDRESS
+                  emailPreferredInd:
+                    title: Email Preferred Indicator
+                    description: Indicates if the e-mail address is the preferred contact address.
+                    maxLength: 1
+                    type: boolean
+                    x-lineageReferenceObject: GOREMAL_PREFERRED_IND
+            ethnicCode:
+              title: Ethnic Code
+              description: The ethnic code for the person.
+              maxLength: 2
+              type: string
+              x-lineageReferenceObject: SPBPERS_ETHN_CODE
+            externalUser:
+              title: External User
+              description: Value which may be passed to partner systems as a login ID and/or
+                email ID.
+              maxLength: 30
+              type: string
+              x-lineageReferenceObject: GOBTPAC_EXTERNAL_USER
+            firstName:
+              title: First Name
+              description: Th first name of the person.
+              maxLength: 60
+              type: string
+              x-lineageReferenceObject: SPRIDEN_FIRST_NAME
+            gender:
+              title: Gender
+              description: "The gender of the person. Valid values are: M - Male, F - Female,
+                N - Unknown."
+              maxLength: 1
+              type: string
+              x-lineageReferenceObject: SPBPERS_SEX
+            lastName:
+              title: Last Name
+              description: Th last name of the person.
+              maxLength: 60
+              type: string
+              x-lineageReferenceObject: SPRIDEN_LAST_NAME
+            legalName:
+              title: Legal Name
+              description: The legal name associated with the person.
+              maxLength: 500
+              type: string
+              x-lineageReferenceObject: SPBPERS_LEGAL_NAME
+            middleName:
+              title: Middle Name
+              description: The middle name of the person.
+              maxLength: 60
+              type: string
+              x-lineageReferenceObject: SPRIDEN_MI
+            preferredFirstName:
+              title: Preferred First Name
+              description: The preferred first name of the person.
+              maxLength: 60
+              type: string
+              x-lineageReferenceObject: SPBPERS_PREF_FIRST_NAME
+            namePrefix:
+              title: Name Prefix
+              description: The prefix (Mr, Mrs, etc) used before person name.
+              maxLength: 20
+              type: string
+              x-lineageReferenceObject: SPBPERS_NAME_PREFIX
+            nameSuffix:
+              title: Name Suffix
+              description: The suffix (Jr, Sr, etc) used after person name.
+              maxLength: 20
+              type: string
+              x-lineageReferenceObject: SPBPERS_NAME_SUFFIX
+            telephones:
+              title: Telephones
+              type: array
+              items:
+                type: object
+                properties:
+                  areaCode:
+                    title: Area Code
+                    description: Telephone number area code.
+                    maxLength: 6
+                    type: string
+                    x-lineageReferenceObject: SPRTELE_PHONE_AREA
+                  phoneNumber:
+                    title: Phone Number
+                    description: Telephone number.
+                    maxLength: 12
+                    type: string
+                    x-lineageReferenceObject: SPRTELE_PHONE_NUMBER
+                  phoneExtension:
+                    title: Phone Extension
+                    description: Telephone number extension.
+                    maxLength: 10
+                    type: string
+                    x-lineageReferenceObject: SPRTELE_PHONE_EXT
+                  telephoneCode:
+                    title: Telephone Code
+                    description: Telephone type code.
+                    maxLength: 4
+                    type: string
+                    x-lineageReferenceObject: SPRTELE_TELE_CODE
+                  inactiveStatusIndicator:
+                    title: Inactive Status Indicator
+                    description: Indicates the phone number is inactive. Valid value is "I".
+                    maxLength: 1
+                    type: string
+                    x-lineageReferenceObject: SPRTELE_STATUS_IND
+                  unlistedStatusIndicator:
+                    title: Unlisted Status Indicator
+                    description: Indicates the phone number is unlisted. Valid value is "Y".
+                    maxLength: 1
+                    type: string
+                    x-lineageReferenceObject: SPRTELE_UNLIST_IND
+                  internationalAccessCode:
+                    title: International Access Code
+                    description: International access code for telephone number including country
+                      and city code.
+                    maxLength: 16
+                    type: string
+                    x-lineageReferenceObject: SPRTELE_INTL_ACCESS
+                  countryCallingCode:
+                    title: Country Calling Code
+                    description: Telephone code that indicates the region and country.
+                    maxLength: 4
+                    type: string
+                    x-lineageReferenceObject: SPRTELE_CTRY_CODE_PHONE
+        studentId:
+          title: Student Id
+          description: The person's primary identification number.
+          maxLength: 9
+          type: string
+          x-lineageReferenceObject: SPRIDEN_ID
+        termCode:
+          title: Term Code
+          description: The registration term code.
+          maxLength: 6
+          type: string
+          x-lineageReferenceObject: SFBETRM_TERM_CODE
+      required:
+        - termCode
+        - studentId
+        - id
+        - enrollmentStatusCode
+        - studentDetails
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary
+                  data entity used to create the resource. This is useful for
+                  referencing the source item through the applications
+                  administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

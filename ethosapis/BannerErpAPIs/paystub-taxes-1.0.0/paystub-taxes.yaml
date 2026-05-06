@@ -1,0 +1,217 @@
+openapi: 3.0.0
+info:
+  title: PayStub Taxes
+  description: Listing of the paystub taxes component for an Employee.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: beta
+  x-source-domain: Human Resources
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/paystub-taxes:
+    get:
+      summary: Return all the taxes of an Employee.
+      description: Returns listing of all the taxes for an Employee which can be
+        filtered based on the tax indicator set for an Employee.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PAYSTUB_TAXES
+      tags:
+        - paystub-taxes
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >
+            ### criteria  
+
+            Returns all the taxes specific to employee based on the year, person
+            ID, payroll code, tax indicator, payroll number and sequence number.
+
+            ```
+
+            /paystub-taxes?criteria={"year":"2021","taxIndicator":"2","pictCode":"SY","payrollNumber":1,"sequenceNumber":0,"bannerId":'KGLANVIL"}
+
+            ```
+        - name: bannerId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: taxIndicator
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: payrollNumber
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: pictCode
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: sequenceNumber
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-paystub-taxes.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "201":
+          description: Failure
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ErrorsObj"
+              examples:
+                MandtoryFieldsMissing:
+                  $ref: "#/components/examples/MandtoryFieldsMissing"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-paystub-taxes.json:
+      title: Pay stub taxes
+      description: Taxes for the specific employee.
+      type: object
+      properties:
+        employeeAmount:
+          title: Employee Amount
+          description: The tax amount of an employee.
+          type: integer
+        id:
+          title: ID
+          description: Immutable unique key for the employee record.
+          type: string
+        includeFederalTax:
+          title: Federal Tax Indicator
+          description: Tax indicator to check the federal tax.
+          type: string
+        payrollNumber:
+          title: Payroll number
+          description: The number of the payroll that generated the document.
+          type: string
+        pictCode:
+          title: Payroll Identification code
+          description: The pay identification code that generated the document.
+          type: string
+        sequenceNumber:
+          title: Sequence Number
+          description: The sequence number of the pay event.
+          type: integer
+        taxIndicator:
+          title: Tax Indicator
+          description: To indicate the tax category.
+          type: string
+        version:
+          title: Version
+          description: Optimistic lock token.
+          type: string
+        year:
+          title: Year
+          description: The year of the payroll for which the pay stub document is generated.
+          type: string
+    ErrorsObj:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        message:
+          type: string
+  examples:
+    MandtoryFieldsMissing:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Filter value is required"
+                }
+            ]
+        }

@@ -1,0 +1,1561 @@
+openapi: 3.0.0
+info:
+  title: Section Block Details
+  description: 
+    
+    The Section Block Details API is used to create or maintain section block details as seen on the SSABLCK administrative page.  
+    In addition, the API can be used to POST section block details in batches.
+           
+  version: 1.0.0-beta
+  x-api-type: erp
+  x-release-status: beta
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Student
+  x-source-name: SSABLCK
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /api/section-block-details:
+    get:
+      tags:
+      - section-block-details
+      summary: Returns resources from SSRBLCK.  
+      description:     
+       Returns the SSRBLCK records associated with the section block schedule code and CRN details from SSRBLCK.
+         
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description:  |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: 
+            |
+            ### Term 
+            Returns all records for the term code passed.
+            ```
+            /section-block-details?criteria={"term":"202425"}
+            ```
+            ### Block Schedule Code 
+            Returns all records for the block schedule code passed.
+            ```
+            /section-block-details?criteria={"block":"AA-T-SOC"}
+            ```
+            ### CRN
+            Returns all records for the crn passed.
+            ```
+            /section-block-details?criteria={"crn":"10036"}
+            ```
+            ### Section ID
+            Returns all records for the section ID passed.
+            ```
+            /section-block-details?criteria={"sectionId":"2a4225a5-bb2a-4f57-aded-99e4979ed973"}
+            ```
+            
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/section-block-details-1.0.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SECTION_BLOCK_DETAILS
+    post:
+      tags:
+        - section-block-details 
+      summary: Creates resources in SSRBLCK. 
+      description: Creates a section block schedule group.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.1.0.0+json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/section-block-details-1.0.0_post_request'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/section-block-details-1.0.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'     
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permissions: API_SECTION_BLOCK_DETAILS
+  /api/section-block-details/{id}:
+    get:
+      tags:
+      - section-block-details
+      summary: Returns the specified resource from SSRBLCK.  
+      description: 
+
+         Returns the SSRBLCK records associated with the section block schedule code.
+         
+      parameters:
+        - name: id
+          in: path
+          description: |
+            Globally unique identifier of the section block schedule.
+          required: true
+          schema:
+            type: string
+            minimum: 1      
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/section-block-details-1.0.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SECTION_BLOCK_DETAILS  
+    put:
+      tags:
+        - section-block-details 
+      summary: Updates the specified resource in SSRBLCK.
+      description: Updates the section block schedule details for the specified resource.
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/section-block-details-1.0.0_put_request'
+      parameters:
+        - name: id
+          in: path
+          description: |
+            Globally unique identifier of the section block schedule.
+          required: true
+          schema:
+            type: string
+            minimum: 1            
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json 
+
+            ```
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/section-block-details-1.0.0_response"
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permissions: API_SECTION_BLOCK_DETAILS
+    delete:
+      summary: Removes the specified resources from SSRBLCK.
+      description: Deletes the specified section block schedule details.
+      tags:
+        - section-block-details 
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Globally unique identifier of the section block schedule.
+          schema:
+            type: string
+            format: guid
+            minimum: 1
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Resource not found
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SECTION_BLOCK_DETAILS
+  /api/section-block-details/batches:
+    get:
+      tags:
+      - section-block-details
+      summary: Returns the batch API status for all the jobs created for this resource.  
+      description: 
+
+         Returns the status for all the jobs created for this resource. Use the /batches/{id} GET API to view the result of each request item.
+         
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description:  |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: 
+            |
+            ### ID 
+            Returns all records for the batch request ID passed.
+            ```
+            /batch?criteria={"id":"13371b52-1afc-4a98-8186-90f2219dad01"}
+            ```
+            ### Job ID 
+            Returns all records for the job execution ID passed.
+            ```
+            /batch?criteria={"jobId": 123}
+            ```
+            ### Create Date
+            Returns all records for the create date passed.
+            ```
+            /batch?criteria={"createdOn":"2024-09-18 13:46:48"}
+            ```
+            ### Job Status
+            Returns all records for the job status passed.
+            ```
+            /batch?criteria={"status":"completed"}
+            ```          
+                      
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/section-block-details-batch-1.0.0_get_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SECTION_BLOCK_DETAILS 
+    post:
+      tags:
+        - section-block-details
+      summary: Submit a batch of section block details to be posted to SSRBLCK.
+      description: A batch of section block records will be created or updated.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/section-block-details-batch-1.0.0_post_request"
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/section-block-details-batch-1.0.0_post_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SECTION_BLOCK_DETAILS
+  /api/section-block-details/batches/{id}:
+    get:
+      tags:
+      - section-block-details
+      summary: Returns the result of each item in the batch request.  
+      description: >
+
+        Returns the list of IDs for those section block details that were successfully created. For those that were not, it returns the list of error messages.
+         
+      parameters:
+        - name: id
+          in: path
+          description: |
+            Unique identifier for the section block detail.
+          required: true
+          schema:
+            type: string
+            minimum: 1      
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/section-block-details-batch-1.0.0_get_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SECTION_BLOCK_DETAILS      
+  /qapi/section-block-details:
+    post:
+      tags:
+        - section-block-details QAPI
+      summary: Returns resources from SSRBLCK.
+      description: Queries for the requested resource using a set of attributes provided in the post
+        request body.  Please note the path to the server is overridden to use /qapi/{resource} 
+        in the URL and not /api/{resource}.
+
+        Returns section block schedule records from SSRBLCK.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description:  |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+            
+          required: false
+          schema:
+            type: integer
+
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer            
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.1.0.0+json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/section-block-details-1.0.0_qapi_post_request'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1-WholeVersion+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/section-block-details-1.0.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the clientâ€™s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permissions: API_SECTION_BLOCK_DETAILS   
+components:
+  schemas:
+    section-block-details-1.0.0_response:
+      type: object
+      required:
+        - id
+        - term
+        - block
+        - crn
+      properties:
+        id:
+          title: ID
+          description: "The global identifier of the section block detail resource."
+          type: number
+          format: guid
+          x-lineageReferenceObject: SSRBLCK_GUID
+          example: ee711196-0211-483e-b73c-511af692e532
+        term:
+          title: Term
+          description: "The term code of the section block."
+          maxLength: 6
+          type: string
+          x-lineageReferenceObject: SSRBLCK_TERM_CODE
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202425
+        block:
+          title: Section Block Schedule Code
+          description: "Code of the section block."
+          maxLength: 10
+          type: string
+          x-lineageReferenceObject: SSRBLCK_BLCK_CODE
+          x-lineageLookupReferenceObject: STVBLCK
+          example: "AA-T-SOC"
+        blockDescription:
+          title: Section Block Schedule Code Description
+          description: "Description of the section block code."
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: STVBLCK_DESC
+          example: "Sociology"
+        crn:
+          title: Section Course Reference Number
+          maxLength: 5
+          type: string
+          description: "The Course Reference Number (CRN) of the section assigned to this section block schedule code."
+          x-lineageReferenceObject: SSRBLCK_CRN
+          example: 25001
+        creditCeuHours:
+          title: Credit/CEU Hours 
+          description: "Credit/CEU hours associated with the CRN."
+          maxLength: 7
+          type: number
+          multipleOf: 0.001
+          x-lineageReferenceObject: derived
+          x-lineageDerivedLogic: If populated, the API returns the credit hours value from SSRBLCK_CREDIT_HRS. If no value is present, SSBSECT_CREDIT_HRS is returned. If both are null, SCBCRSE_CREDIT_HR_LOW is returned.
+          example: 3.000
+        billingHours:
+          title: Billing Hours 
+          description: "Billing hours associated with the CRN."
+          maxLength: 7
+          type: number
+          multipleOf: 0.001
+          x-lineageReferenceObject: derived
+          x-lineageDerivedLogic: If populated, the API returns the billing hours value from SSRBLCK_BILL_HRS. If no value is present, SSBSECT_BILL_HRS is returned. If both are null, SCBCRSE_BILL_HR_LOW is returned.
+          example: 1.000
+        gradingMode:
+          title: Grading Mode Code 
+          description: "Grading mode associated with the CRN."
+          maxLength: 1
+          type: string                
+          x-lineageReferenceObject: derived
+          x-lineageDerivedLogic: If populated, the API returns the grading mode from SSRBLCK_GMOD_CODE. If no value is present, SSBSECT_GMOD_CODE is returned. If both are null, SCRGMOD_GMOD_CODE where SCRGMOD_DEFAULT_IND = 'D' is returned.
+          example: S
+        requiresSpecialApproval:
+          title: Requires Special Approval 
+          description: "Indicates whether special approval is required for registration."
+          type: boolean
+          x-lineageReferenceObject: SSRBLCK_APPR_IND
+          example: true
+        modifiedOn:
+          title: Activity Date
+          description: "This field identifies the most recent date a record was created or updated."
+          format: date-time
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+          x-lineageReferenceObject: SSRBLCK_ACTIVITY_DATE
+          example: 2011-11-17 06:39:14.000
+        modifiedBy:
+          title: By User ID
+          maxLength:  30
+          type:  string
+          description:  "User who inserted or last update the data."
+          x-lineageReferenceObject: SSRBLCK_USER_ID
+          example: SAISUSR   
+        sectionId:
+          title: Section Globally Unique Identifier 
+          description: "Section globally unique identifier."
+          type: string
+          format: guid          
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: SSBSGID_GUID(SSBSGID)
+          x-lineageLookupReferenceObject: sections
+          example: 2a4225a5-bb2a-4f57-aded-99e4979ed973   
+          maxLength: 36             
+    section-block-details-1.0.0_post_request:
+      type: object
+      required:
+        - term
+        - block
+        - crn
+      properties:
+        term:
+          title: Term 
+          description: "The term code of the section block schedule code."
+          maxLength: 6
+          type: string
+          x-lineageReferenceObject: SSRBLCK_TERM_CODE
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202425
+        block:
+          title: Section Block Schedule Code
+          description: "Code of the section block schedule."
+          maxLength: 10
+          type: string
+          x-lineageReferenceObject: SSRBLCK_BLCK_CODE
+          x-lineageLookupReferenceObject: STVBLCK
+          example: "AA-T-SOC"
+        crn:
+          title: Section Course Reference Number
+          maxLength: 5
+          type: string
+          description: "The Course Reference Number (CRN) of the section assigned to this section block."
+          x-lineageReferenceObject: SSRBLCK_CRN
+          example: 25001    
+        creditCeuHoursOverride:
+          title:  Credit/CEU Hours Override
+          description: "Credit/CEU hours associated with the section."
+          maxLength: 7
+          type: number
+          multipleOf: 0.001
+          x-lineageReferenceObject: SSRBLCK_CREDIT_HRS    
+        billingHoursOverride:
+          title:  Billing Hours Override
+          description: "Billing hours associated with the section."
+          maxLength: 7
+          type: number
+          multipleOf: 0.001
+          x-lineageReferenceObject: SSRBLCK_BILL_HRS   
+        gradingModeOverride:
+          title: Grading Mode Override 
+          description: "Override of grading mode for the section."
+          maxLength: 1
+          type: string                
+          x-lineageReferenceObject: SSRBLCK_GMOD_CODE  
+          example: S
+    section-block-details-1.0.0_put_request:
+      type: object
+      required:
+        - term
+        - block
+      properties:   
+        creditCeuHoursOverride:
+          title:  Credit/CEU Hours Override
+          description: "Credit hours associated with the CRN."
+          maxLength: 7
+          type: number
+          multipleOf: 0.001
+          x-lineageReferenceObject: SSRBLCK_CREDIT_HRS    
+        billingHoursOverride:
+          title:  Billing Hours Override
+          description: "Billing hours associated with the CRN."
+          maxLength: 7
+          type: number
+          multipleOf: 0.001
+          x-lineageReferenceObject: SSRBLCK_BILL_HRS   
+        gradingModeOverride:
+          title: Grading Mode Override 
+          description: "Grading mode associated with the CRN."
+          maxLength: 1
+          type: string                
+          x-lineageReferenceObject: SSRBLCK_GMOD_CODE  
+          example: S          
+    section-block-details-1.0.0_qapi_post_request:
+      type: object  
+      required:
+        - term          
+      properties:
+        term:
+          title: Term 
+          description: "The term code of the section block schedule code."
+          maxLength: 6
+          type: string
+          x-lineageReferenceObject: SSRBLCK_TERM_CODE
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202425
+        block:
+          title: Section Block Schedule Code
+          description: "Code of the section block schedule."
+          maxLength: 10
+          type: string
+          x-lineageReferenceObject: SSRBLCK_BLCK_CODE
+          x-lineageLookupReferenceObject: STVBLCK
+          example: "AA-T-SOC"   
+        crn:
+          title: Section Course Reference Number
+          maxLength: 5
+          type: string
+          description: "The Course Reference Number (CRN) of the section assigned to this section block schedule code."
+          x-lineageReferenceObject: SSRBLCK_CRN
+          example: 25001   
+        sectionId:
+          title: Section Globally Unique Identifier 
+          description: "Section globally unique identifier."
+          type: string
+          format: guid          
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: SSBSGID_GUID(SSBSGID)
+          x-lineageLookupReferenceObject: sections
+          example: 2a4225a5-bb2a-4f57-aded-99e4979ed973   
+          maxLength: 36             
+    section-block-details-batch-1.0.0_post_request:
+      type: object
+      properties:
+        items:
+          title: Items
+          description: List of items to be processed.
+          type: array
+          items:
+            type: object
+            $ref: "#/components/schemas/section-block-details-batch-1.0.0_post_items"
+      required:
+        - items
+    section-block-details-batch-1.0.0_post_items:  
+      $ref: '#/components/schemas/section-block-details-1.0.0_post_request'
+    section-block-details-batch-1.0.0_post_response:
+        description: 'Returns batch job details like status, job ID, request ID, resource details, etc. '
+        type: object
+        required:
+        - id
+        - jobId
+        - status
+        - link
+        - resource
+        - createdOn
+        - jobStartOn
+        - jobEndOn
+        properties:
+          id:
+            title: Request ID
+            description: A globally unique identifier of a batch API request to be used in all external references.
+            type: string
+            format: guid
+            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+            example: cf5ff489-e386-43a3-93cf-04d4b1f77216 
+            x-lineageReferenceObject: GOBBREQ_GUID   
+          jobId:
+            title: Job ID
+            description: Batch job execution ID.
+            type: number
+            x-lineageReferenceObject: GOBBREQ_JOB_ID
+            example: 123
+          status:
+            title: Status
+            description: Status of the batch.
+            type: string
+            enum:
+              - completed
+              - inProgress
+              - aborted
+            x-lineageReferenceObject: GOBBREQ_JOB_STATUS
+            example: inProgress
+          link: 
+            title: Status URL
+            description: REST API URL to use to get the status of a specific batch job.
+            type: string
+            example: https://api.example.com/api/section-block-details/batches/{id}        
+          resource:
+            title: Resource
+            description: The affected resource.
+            type: object
+            properties:
+              name:
+                title: Resource Name
+                description: The pluralized name of the affected resource.
+                type: string
+                x-lineageReferenceObject: GOBBREQ_API_RESOURCE            
+                example: section-block-details
+              version:
+                title: Resource version
+                description: The version of the resource.
+                type: number
+                x-lineageReferenceObject: GOBBREQ_API_VERSION                
+                example: application/vnd.hedtech.integration.v1.0.0+json
+            additionalProperties: false
+            required:
+              - name
+              - version
+          createdOn:
+            title: Create Date
+            description: Date on which the batch job was created.
+            type: string
+            format: date
+            x-lineageReferenceObject: GOBBREQ_CREATEDTIME
+            example: '2024-01-01'
+          jobStartOn:
+            title: Job Start Time
+            description: Time when the batch job started.
+            type: string
+            format: date-time
+            x-lineageReferenceObject: BATCH_JOB_EXECUTION.START_TIME           
+            example: '2024-09-27 12:46:37.058'
+          jobEndOn:
+            title: Job End Time
+            description: Time when the batch job ended.
+            type: string
+            format: date-time
+            x-lineageReferenceObject: BATCH_JOB_EXECUTION.END_TIME              
+            example: '2024-09-27 12:48:15.976'            
+    section-block-details-batch-1.0.0_get_response:    
+        description: 'Returns the list of IDs for those section block details that were successfully created. For those that were not, it returns the list of error messages.'
+        type: object
+        x-last-modified:
+        required:
+        - id
+        - jobId
+        - status
+        - link
+        - resource
+        - createdOn
+        - jobStartOn
+        - jobEndOn
+        - modifiedBy
+        - modifiedOn
+        - totalErrorsCount
+        - items                
+        properties:            
+          id:
+            title: Request ID
+            description: A globally unique identifier of a batch API request to be used in all external references.
+            type: string
+            format: guid
+            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+            example: cf5ff489-e386-43a3-93cf-04d4b1f77216 
+            x-lineageReferenceObject: GOBBREQ_GUID  
+          jobId:
+            title: Job ID
+            description: Batch job execution ID.
+            type: number
+            x-lineageReferenceObject: GOBBREQ_JOB_ID
+            example: 123
+          status:
+            title: Status
+            description: Status of the batch.
+            type: string
+            enum:
+              - completed
+              - inProgress
+              - aborted
+            x-lineageReferenceObject: GOBBREQ_JOB_STATUS
+            example: inProgress
+          createdOn:
+            title: Create Date
+            description: Date on which the batch job was created.
+            type: string
+            format: date
+            x-lineageReferenceObject: GOBBREQ_CREATEDTIME
+            example: '2024-01-01'
+          jobStartOn:
+            title: Job Start Time
+            description: Time when the batch job started.
+            type: string
+            format: date-time
+            x-lineageReferenceObject: BATCH_JOB_EXECUTION.START_TIME
+            example: '2024-09-27 12:46:37.058'
+          jobEndOn:
+            title: Job End Time
+            description: Time when the batch job ended.
+            type: string
+            format: date-time
+            x-lineageReferenceObject: BATCH_JOB_EXECUTION.END_TIME               
+            example: '2024-09-27 12:48:15.976'  
+          modifiedBy:
+             title: Modified By
+             description: The user ID of the person who inserted or last updated this record.
+             type: string
+             x-lineageReferenceObject: GOBBREQ_USER_ID
+             example: HRISUSR
+          modifiedOn:
+             title: Modified Date
+             description: Date of last activity of the record.
+             type: string
+             format: date
+             x-lineageReferenceObject: GOBBREQ_ACTIVITY_DATE
+             example: 01-JAN-2024
+          resource:
+            title: Resource
+            description: The affected resource.
+            type: object
+            properties:
+              name:
+                title: Resource Name
+                description: The pluralized name of the affected resource.
+                type: string
+                x-lineageReferenceObject: GOBBREQ_API_RESOURCE            
+                example: section-block-details
+              version:
+                title: Resource version
+                description: The version of the resource.
+                type: number
+                x-lineageReferenceObject: GOBBREQ_API_VERSION                
+                example: application/vnd.hedtech.integration.v1.0.0+json
+            additionalProperties: false
+            required:
+              - name
+              - version
+          totalErrorsCount:
+             title: Error Count
+             description: Total number of errors that occurred, while processing the collection of items in the request.
+             type: number
+             x-lineageReferenceObject: derived
+             x-lineageDerivedLogic: Computed and saved in GOBBREQ_BATCH_RESPONSE_BODY.                 
+             example: 1
+          items:
+            type: array            
+            items:
+              type: object
+              x-lineageReferenceObject: GOBBREQ_BATCH_RESPONSE_BODY
+              additionalProperties: true
+              oneOf: 
+                - type: object
+                  title: Identifier
+                  required:
+                    - id                    
+                  properties:                    
+                    id: 
+                      title: ID
+                      description: The global identifier of the section block detail.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageReferenceObject: SSRBLCK_GUID
+                      example: 4feqfc84-3t37-4036-852c-34tzl9d5501a          
+                      maxLength: 36  
+                - type: object
+                  title: Error Message
+                  required:
+                    - errorMessage                 
+                  properties:
+                    errorMessage:
+                      title: errorMessage
+                      type: string
+                      description: Error message describing the error caused during create or update operation.                      
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+       errors:
+        type: array
+        items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

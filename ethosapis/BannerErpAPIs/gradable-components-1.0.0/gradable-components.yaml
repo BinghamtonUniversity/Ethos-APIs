@@ -1,0 +1,621 @@
+openapi: 3.0.0
+info:
+  title: Gradable Components
+  description: 
+  
+    The Gradable Components API returns gradable component details as seen on the SHAGCOM administrative page. 
+    In addition to the gradable component (SHRGCOM) details, sub-component (SHRSCOM) and grade 
+    scale assigment details (SSBSECT) are also returned in the response. 
+         
+    
+
+  version: 1.0.0-beta
+  x-api-type: erp
+  x-release-status: beta
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Student
+  x-source-name: SHAGCOM
+
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /qapi/gradable-components:
+    post:
+      tags:
+      - gradable-components QAPI
+      summary: Returns resources from SHRGCOM, SHRSCOM and SSBSECT.
+      description: >
+        Queries for the requested resource using a set of attributes provided in the post
+        request body.  Please note the path to the server is overridden to use /qapi/{resource} 
+        in the URL and not /api/{resource}.        
+        
+
+        Returns gradable component details from SHRGCOM. Any SHRGCOM and SSBSECT records associated with the gradable component
+        are also returned in the response.
+          
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string            
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/gradable-components-1.0.0_qapi_post_request"
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/gradable-components-1.0.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_GRADABLE_COMPONENTS
+components:
+  schemas:
+    gradable-components-1.0.0_qapi_post_request:
+      type: object
+      required:
+        - term               
+      properties:          
+        term:
+          title: Term
+          maxLength: 6
+          type: string
+          description: "A user provided value. The term code is used to retrieve the gradable component details that are equal to the provided value."         
+          x-lineageLookupReferenceObject: SSBSECT_TERM_CODE
+          example: 201010    
+        crn: 
+          title: Course Reference Number
+          maxLength: 5
+          type: string
+          description: "The course reference number (CRN) associated with gradable component."
+          x-lineageReferenceObject: SSBSECT_CRN
+          example: 10186
+        subject:
+          title: Subject Code
+          maxLength: 4
+          type: string
+          description: "Subject code for the gradable component."
+          x-lineageReferenceObject: SSBSECT_SUBJ_CODE
+          x-lineageLookupReferenceObject: STVSUBJ         
+          example: NURS  
+        courseNumber:
+          title: Course Number
+          maxLength: 5
+          type: string
+          description: "Course number associated with the subject for the gradable component."
+          x-lineageReferenceObject: SSBSECT_CRSE_NUMB         
+          example: 100                 
+    gradable-components-1.0.0_response:
+      type: object
+      required:
+        - term  
+        - crn              
+      properties:
+        term:
+          title: Term
+          maxLength: 6
+          type: string
+          description: "Term associated with the gradable component."         
+          x-lineageLookupReferenceObject: SSBSECT_TERM_CODE
+          example: 201010  
+        crn: 
+          title: Course Reference Number
+          maxLength: 5
+          type: string
+          description: "The course reference number (CRN) associated with the gradable component."
+          x-lineageReferenceObject: SSBSECT_CRN
+          example: 10186
+        subject:
+          title: Subject Code
+          maxLength: 4
+          type: string
+          description: "Subject code for the gradable component."
+          x-lineageReferenceObject: SSBSECT_SUBJ_CODE
+          x-lineageLookupReferenceObject: STVSUBJ         
+          example: POLS  
+        courseNumber:
+          title: Course Number
+          maxLength: 5
+          type: string
+          description: "Course number associated with the subject for the gradable component."
+          x-lineageReferenceObject: SSBSECT_CRSE_NUMB         
+          example: 100
+        sectionId:
+          title: Sections Globally Unique Identifier 
+          description: "The global identifier for the sections resource."
+          type: string
+          format: guid          
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: SSBSGID_GUID(SSBSGID)
+          x-lineageLookupReferenceObject: sections
+          example: 2a4225a5-bb2a-4f57-aded-99e4979ed973   
+          maxLength: 36 
+        gradeScale:
+          title: Grade Scale
+          maxLength: 10
+          type: string
+          description: "The component grade scale to be used in component score calculations."
+          x-lineageReferenceObject: SSBSECT_GRADE_SCALE  
+          x-lineageLookupReferenceObject: SHBGSCH       
+          example: MTGRDSCH
+        gradeScaleDescription:
+          title: Grade Scale Description
+          maxLength: 30
+          type: string
+          description: "Description of the component grade scale."
+          x-lineageReferenceObject: SHBGSCH_DESCRIPTION 
+          example: MT's Grade Scale
+        bestOfComponentCount:
+          title: Best Of Component Count
+          maxLength: 3
+          type: number
+          description: "Specifies how many components are linked to this section (CRN) for use in calculating the final section grade."
+          x-lineageReferenceObject: SSBSECT_BEST_OF_COMP 
+          example: 3
+        subsetOfComponentCount:
+          title: Subset Of Component Count
+          maxLength: 3
+          type: number
+          description: "Number of child sub-components (components within a subset) to be used in the subset calculations to produce a component score."
+          x-lineageReferenceObject: SSBSECT_SUBSET_OF_COMP 
+          example: 2 
+        isFinalGradeRolled: 
+          title: Grade Rolled to Academic History 
+          description: "Indicates whether the final grade has been rolled to history."
+          type: boolean
+          x-lineageReferenceObject: derived
+          example: true
+        componentDetails:
+              title: Grade Component Details
+              type: array
+              items:
+                type: object
+                required: 
+                 - component
+                 - weight   
+                 - totalScorePercentage         
+                 - mustPass
+                 - gradeInclusion
+                 - gradeScale
+                 - allowsAnonymousGrading
+                properties:
+                    sequenceNumber: 
+                      title: Sequence Number
+                      maxLength: 5
+                      type: number
+                      multipleOf: 0.01
+                      description: "Sequence entry controls the Gradable Components order."
+                      x-lineageReferenceObject: SHRGCOM_SEQ_NO
+                      example: 5
+                    component:
+                      title:  Component Name
+                      maxLength: 10
+                      type: string
+                      description: "Gradable Component Name."
+                      x-lineageReferenceObject: SHRGCOM_NAME
+                      example: QUIZ
+                    description:
+                      title: Gradeable Component Description
+                      maxLength: 200
+                      type: string
+                      description: "A description of the component that is meaningful to the student. This description will be displayed on the sub-component Grade Detail page in Self-Service."
+                      x-lineageReferenceObject: SHRGCOM_DESC
+                      example: quiz
+                    weight:
+                      title: Weight
+                      maxLength: 5
+                      type: number
+                      multipleOf: 0.01
+                      description: "Weight that the mark for this component has in the calculation of the midterm or final grade."
+                      x-lineageReferenceObject: SHRGCOM_WEIGHT
+                      example: 12.6    
+                    totalScorePercentage:
+                      title: Total Score Percentage
+                      maxLength: 6
+                      type: number
+                      multipleOf: 0.01
+                      description: "Total attainable marks for the component. The value in this field determines the percentage for the component."
+                      x-lineageReferenceObject: SHRGCOM_TOTAL_SCORE
+                      example: 100  
+                    dueOn:
+                      title: Due Date                          
+                      type: string
+                      format: date 
+                      pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$ 
+                      description: "Date field that can be used / insert for items such as assignment due date, quiz, or exam date."
+                      x-lineageReferenceObject: SHRGCOM_DATE
+                      example: 2025-04-01
+                    mustPass:
+                      title: Must Pass Indicator
+                      type: boolean
+                      description: "Student must pass the component to attain a passing grade for the course."
+                      x-lineageReferenceObject: SHRGCOM_PASS_IND
+                      example: true
+                    gradeInclusion:
+                      title: Grade Inclusion Indicator
+                      type: string
+                      enum:
+                      - midterm
+                      - final
+                      description: "Indicates whether the component is counted in the midterm or final grade."
+                      x-lineageReferenceObject: SHRGCOM_INCL_IND
+                      example: midterm
+                    logicSequenceNumber:
+                      title: Logic Sequence Number
+                      maxLength: 5
+                      type: number
+                      multipleOf: 0.01
+                      description: "Sequence of the components that the and/or logic will be applied to."
+                      x-lineageReferenceObject: SHRGCOM_ANDOR_SEQ_NO
+                      example: 1
+                    logicSubset:
+                      title: Logic Subset
+                      description: "Subset logic, such as OR, AND, or NULL, to be applied to the set of components. The components must be entered in the proper sequence for this logic to work correctly. If the field is left blank, then the process uses AND logic."
+                      oneOf:
+                      - type: string
+                        enum:
+                        - and
+                        - or
+                      - type: string
+                        maxLength: 0                           
+                      x-lineageReferenceObject: SHRGCOM_SUB_SET
+                      example: or                      
+                    gradeScale:
+                      title: Grade Scale
+                      maxLength: 10
+                      type: string
+                      description: "The component grade scale to be used in component score calculations."
+                      x-lineageReferenceObject: SHRGCOM_GRADE_SCALE  
+                      x-lineageLookupReferenceObject: SHBGSCH       
+                      example: MTGRDSCH
+                    gradeScaleDescription:
+                      title: Grade Scale Description
+                      maxLength: 30
+                      type: string
+                      description: "Description of the component garde scale."
+                      x-lineageReferenceObject: SHBGSCH_DESCRIPTION 
+                      example: MT's Grade Scale 
+                    lateRule:
+                      title: Late Rule
+                      maxLength: 10
+                      type: string
+                      description: "The component late rule to be used in component score calculations."
+                      x-lineageReferenceObject: SHRGCOM_COMP_LATE_RULE
+                      example: LATERULE
+                    resitRule:
+                      title: Resit Rule
+                      maxLength: 10
+                      type: string
+                      description: "The component resit rule (retake rule) to be used in component score calculations."
+                      x-lineageReferenceObject: SHRGCOM_COMP_RESIT_RULE
+                      example: RESITRULE
+                    passMark:
+                        title: Minimum Pass Mark
+                        maxLength: 5
+                        type: number
+                        multipleOf: 0.01
+                        description: "Grade required to pass this component."
+                        x-lineageReferenceObject: SHRGCOM_MIN_PASS_SCORE
+                        example: 49.5
+                    bestOfSubComponentCount:
+                      title: Best Of Sub-Component Count
+                      maxLength: 3
+                      type: number
+                      description: "Specifies how many sub-components are linked to this section (CRN) for use in calculating the final section grade."
+                      x-lineageReferenceObject: SHRGCOM_BEST_OF_SUB
+                      example: 2
+                    subsetOfSubComponentCount:
+                      title: Subset Of Sub-Component Count
+                      maxLength: 3
+                      type: number
+                      description: "Number of child sub-components (components within a subset) to be used in the subset calculations to produce a component score."
+                      x-lineageReferenceObject: SHRGCOM_SUBSET_OF_SUB
+                      example: 2     
+                    allowsAnonymousGrading:
+                      title: Allows Anonymous Grading
+                      type: boolean
+                      description: "Indicates whether the component is available for anonymous grading."
+                      x-lineageReferenceObject: SHRGCOM_ANONYMOUS_IND
+                      example: true
+                    modifiedOn:
+                      title: Modified On
+                      maxLength: 11
+                      type: string
+                      format: date-time
+                      pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                      description: "Most current date the record was created or changed."
+                      x-lineageReferenceObject: SHRGCOM_ACTIVITY_DATE
+                      example: 2025-02-14 20:01:24.000   
+                    modifiedBy:
+                      title: Modified By User ID
+                      maxLength: 30
+                      type: string
+                      description: "User who inserted or last updated the data."
+                      x-lineageReferenceObject: SHRGCOM_USER_ID
+                      example: SAISUSR  
+                    subComponentDetails:
+                      title: Grade Sub-Component Details
+                      type: array  
+                      items: 
+                        type: object  
+                        required:                                         
+                          - subComponent
+                          - weight  
+                          - totalScorePercentage
+                          - mustPass
+                          - gradeScale  
+                          - allowsAnonymousGrading        
+                        properties:
+                          subComponent:                       
+                            title: Sub-Component Name
+                            maxLength: 10
+                            type: string
+                            description: "Gradable sub-component name."
+                            x-lineageReferenceObject: SHRSCOM_NAME
+                            example: 
+                          description:
+                            title: Sub-Component Description
+                            maxLength: 100
+                            type: string
+                            description: "Description of the sub-component."
+                            x-lineageReferenceObject: SHRSCOM_DESC
+                            example:
+                          weight:
+                            title: Weight
+                            maxLength: 5
+                            type: number
+                            multipleOf: 0.01
+                            description: "Weight that the mark for this sub-component has in the calculation of the midterm or final grade."
+                            x-lineageReferenceObject: SHRSCOM_WEIGHT
+                            example: 12.6        
+                          totalScorePercentage:
+                            title: Total Score Percentage
+                            maxLength: 6
+                            type: number
+                            multipleOf: 0.01
+                            description: "Total attainable marks for the sub-component. The value in this field determines the percentage for the sub-component."
+                            x-lineageReferenceObject: SHRSCOM_TOTAL_SCORE
+                            example: 100     
+                          dueOn:
+                            title: Due Date                          
+                            type: string
+                            format: date 
+                            pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$ 
+                            description: "The date the sub-component score must be entered."
+                            x-lineageReferenceObject: SHRSCOM_DUE_DATE
+                            example: 2025-04-20
+                          mustPass:
+                            title: Must Pass Indicator
+                            maxLength: 1
+                            type: string
+                            description: "Indicates that the student must pass the sub-component to attain a passing grade for the course."
+                            x-lineageReferenceObject: SHRSCOM_PASS_IND
+                            example: 'Y'
+                          logicSequenceNumber: 
+                            title: Sequence Number
+                            maxLength: 5
+                            type: number
+                            multipleOf: 0.01
+                            description: "Sequence of the sub-components that the and/or logic will be applied to."
+                            x-lineageReferenceObject: SHRSCOM_SEQ_NO
+                            example: 2
+                          logicSubset:
+                            title: Logic Subset Of Sub-Components
+                            maxLength: 3
+                            type: number
+                            enum:
+                            - and
+                            - or
+                            - none
+                            description: "Subset logic, such as OR, AND, or NULL, to be applied to the set of sub-components. The sub-components must be entered in the proper sequence for this logic to work correctly. If the field is left blank, then the process uses AND logic."
+                            x-lineageReferenceObject: SHRSCOM_SUB_SET
+                            example: AND                              
+                          gradeScale:
+                            title: Grade Scale
+                            maxLength: 10
+                            type: string
+                            description: "The sub-component grade scale to be used in component score calculations."
+                            x-lineageReferenceObject: SHRSCOM_GSCH_NAME  
+                            x-lineageLookupReferenceObject: SHBGSCH       
+                            example: MTGRDSCH
+                          gradeScaleDescription:
+                            title: Grade Scale Description
+                            maxLength: 30
+                            type: string
+                            description: "Description of the sub-component grade scale."
+                            x-lineageReferenceObject: SHBGSCH_DESCRIPTION 
+                            example: MT's Grade Scale
+                          lateRule:
+                            title: Sub-Component Late Rule
+                            maxLength: 10
+                            type: string
+                            description: "The sub-component late rule to be used in component score calculations."
+                            x-lineageReferenceObject: SHRSCOM_SUB_LATE_RULE
+                            example: GRLATE
+                          resitRule:
+                            title: Sub-Component Resit Rule
+                            maxLength: 10
+                            type: string
+                            description: "The sub-component resit rule (retake rule) to be used in component score calculations."
+                            x-lineageReferenceObject: SHRSCOM_SUB_RESIT_RULE
+                            example: RESITCAP
+                          passMark:
+                            title: Minimum Pass Mark
+                            maxLength: 5
+                            type: number
+                            multipleOf: 0.01
+                            description: "Grade required to pass this sub-component."
+                            x-lineageReferenceObject: SHRSCOM_MIN_PASS_SCORE
+                            example: 40                                    
+                          allowsAnonymousGrading:
+                            title: Allows Anonymous Grading
+                            type: boolean
+                            description: "Indicates whether the sub-component is available for anonymous grading."
+                            x-lineageReferenceObject: SHRSCOM_ANONYMOUS_IND
+                            example: true
+                          modifiedOn:
+                            title: Modified On
+                            maxLength: 11
+                            type: string
+                            format: date-time
+                            pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                            description: "Most current date the record was created or changed."
+                            x-lineageReferenceObject: SHRSCOM_ACTIVITY_DATE
+                            example: 2025-02-14 20:01:24.000   
+                          modifiedBy:
+                            title: Modified By User ID
+                            maxLength: 30
+                            type: string
+                            description: "User who inserted or last updated the data."
+                            x-lineageReferenceObject: SHRSCOM_USER_ID
+                            example: SAISUSR   
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

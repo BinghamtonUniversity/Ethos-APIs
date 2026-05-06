@@ -1,0 +1,265 @@
+openapi: 3.0.0
+info:
+  title: Clock In Out Position
+  description: Listing of all the active job positions for clocking in and out for
+    an Employee.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: beta
+  x-source-domain: Human Resources
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/clock-in-out-position:
+    get:
+      summary: Return all active Clock In and out positions of an Employee.
+      description: Returns listing of all the active positions for clocking in and out
+        for an Employee.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_CLOCK_IN_OUT_POSITION
+      tags:
+        - clock-in-out-position
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >
+            ### criteria  
+
+            Returns all the active positions specific to employee based on the
+            person Id.
+
+            ```
+
+            /clock-in-out-position?criteria={"bannerId":'KGLANVIL"}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-clock-in-out-position.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-clock-in-out-position.json:
+      title: Clock in out position
+      description: Active positions for current pay period of an Employee.
+      type: object
+      properties:
+        id:
+          title: ID
+          description: Immutable unique key for the employee record.
+          type: number
+        version:
+          title: Version
+          description: Optimistic lock token.
+          type: number
+        sequenceNumber:
+          title: Sequence Number
+          description: Internal System Identification Number for a time entry document.
+          type: number
+        year:
+          title: Year
+          description: The year of current pay period.
+          type: string
+        payrollIdentificationCode:
+          title: Payroll Identification code
+          description: The payroll ID for current pay period.
+          type: string
+        pictDescription:
+          title: Payroll Identification description
+          description: The description or title of the payroll group being defined.
+          type: string
+        payrollNumber:
+          title: Payroll Number
+          description: The payroll number for current pay period.
+          type: integer
+        actionType:
+          title: Action Type
+          description: Action of an employee, T = report time,  L = Leave Report,  R =
+            request leave.
+          type: string
+        position:
+          title: Position
+          description: The Position Number of the Assignment.
+          type: string
+        suffix:
+          title: Suffix
+          description: The Suffix of the Assignment.
+          type: string
+        coasCode:
+          title: Coas Code
+          description: BANNER FINANCE system defined Chart of Accounts Code under which
+            the Time Sheet Department is created.
+          type: string
+        organizationCode:
+          title: Organization Code
+          description: The organization code of the timesheet.
+          type: string
+        organizationDescription:
+          title: Organization Description
+          description: The organization description of the timesheet.
+          type: string
+        status:
+          title: Status
+          description: It indicates status of time sheet or leave request.
+          type: string
+        title:
+          title: Title
+          description: Job title of the user.
+          type: string
+        positionTitle:
+          title: Position Title
+          description: Title of the position.
+          type: string
+        laborOverrideIndicator:
+          title: Labor Override Indicator
+          description: Indicates that override labor distributions exist for this time
+            period.
+          type: string
+        timeOutMissingIndicator:
+          title: Time Out Missing Indicator
+          description: Indicates that time in/out records that are missing time out for
+            dates prior to today's date.
+          type: string
+        midnightClockOutIndicator:
+          title: Midnight Clock Out Indicator
+          description: Indicates if employee has not clocked out past midnight.
+          type: string
+        clockInTime:
+          title: Clock In Time
+          description: The time at which employee has clocked in.
+          type: string
+        lastSubmittedDate:
+          title: Last Submitted Date
+          description: The last date a time sheet was submitted.
+          type: string
+        timeInOutOverlapIndicator:
+          title: Time In Out Over Lap Indicator
+          description: Indicates when time in/out records contain overlapping times.
+          type: string
+        dailyHoursExceededIndicator:
+          title: Daily Hours Exceeded Indicator
+          description: Indicates that the daily hours limit has been exceeded for at least
+            one day in the time entry period.
+          type: string
+        earnCode:
+          title: Earn Code
+          description: Indicates the earnings type for which employees assigned to
+            job/employement, Employee Class will be eligible for the earn code.
+          type: string
+        maxEndDate:
+          title: Max End Date
+          description: The greater of the entry end date, approval end date, and pay
+            period end date.
+          type: string
+        entryStartDate:
+          title: Entry Start Date
+          description: The time Entry Start Date.
+          type: string
+        viewEndDate:
+          title: View End Date
+          description: The Date until which the user has access to view on the web
+            information for the pay period.
+          type: string
+        payPeriodStartDate:
+          title: Pay Period Start Date
+          description: The start date of the pay period.
+          type: string
+        payPeriodEndDate:
+          title: Pay Period End Date
+          description: The end date of the pay period.
+          type: string
+        timeEntryEndDate:
+          title: Time Entry End Date
+          description: Time Entry End Date for the pay period.
+          type: string
+        generalMessages:
+          title: General Messages
+          description: Messages that possibly can occur while time in and time out
+          type: object
+          properties:
+            timeOverlapMessages:
+              title: Time Overlap Messages
+              description: The messages related to the overlap validation when time in time
+                out action is performed.
+              type: array
+              items:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  type:
+                    type: string
+      required:
+        - bannerId
+      additionalProperties: false

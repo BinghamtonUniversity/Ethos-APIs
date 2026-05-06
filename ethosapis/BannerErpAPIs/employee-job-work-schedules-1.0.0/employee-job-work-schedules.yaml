@@ -1,0 +1,869 @@
+openapi: 3.0.0
+info:
+  title: Employee Job Work Schedules
+  description: >
+    This API can be used to retrieve, post, or delete an employee's job work schedule data.
+    This information is displayed in the Banner administrative page NBAJOBS.
+    Additionally, the API supports the option to create or update employee job work schedule data in batches.
+  version: 1.0.0-beta
+  x-audience: all
+  x-release-status: beta
+  x-source-domain: Human Resources
+  x-source-system: banner
+  x-source-name: NBBWKSH
+  x-api-type: erp
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/employee-job-work-schedules:
+    get:
+      tags:
+        - employee-job-work-schedules
+      summary: Get employee job work schedules
+      description: Query and retrieve employee job work schedule data for a given criteria. Data is extracted from NBBWKSH.
+      parameters:
+        - name: limit
+          in: query
+          description:
+            The maximum number of resources requesting for this result set.
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/employee-job-work-schedules-1.0.0_get_request_criteria'
+          description: >
+            ### Person ID
+            
+            Returns the employee job work schedules information for this Person ID.  This filter should not be used if a Banner ID filter is used.
+            
+            ```
+
+            /employee-job-work-schedules?criteria={"personId": "085df706-ee15-4947-93f8-8c260e64795e"}
+
+            ```
+
+            ### Banner ID
+            
+            Returns the employee job work schedules information for this Banner ID.   This filter should not be used if a Person ID filter is used.
+            
+            ```
+
+            /employee-job-work-schedules?criteria={bannerId":"123456789"}
+            
+            ```
+
+            ### Effective On
+
+            Returns the employee job work schedule information that becomes effective on this date.  This filter will support the following operators: $eq, $ne, $gt, $gte, $lt, $lte.
+
+            ```
+
+            /employee-job-work-schedules?criteria={"effectiveOn":"2024-03-15"}
+            
+
+            /employee-job-work-schedules?criteria={"effectiveOn":{"$gte": "2024-03-15"}}
+          
+            ```
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/employee-job-work-schedules-1.0.0_get_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+    post:
+      tags:
+        - employee-job-work-schedules
+      summary: Creates a new resource in NBBWKSH.
+      description: >
+        Creates a new job work schedule for an employee in NBBWKSH with a POST request.
+
+
+        POST requests must include a nil GUID value
+        ("00000000-0000-0000-0000-000000000000") for the root id property.
+        
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.1.0.0+json:
+            schema:
+              $ref: '#/components/schemas/employee-job-work-schedules-1.0.0_post_request'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                $ref: '#/components/schemas/employee-job-work-schedules-1.0.0_post_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+  /api/employee-job-work-schedules/{id}:
+    get:
+      summary: Return the requested resource from NBBWKSH
+      description: |
+        Returns a single employee job work schedule record with the requested global identifier.
+      tags:
+        - employee-job-work-schedules
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier (GUID) of the resource for use in all external
+            references.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                $ref: "#/components/schemas/employee-job-work-schedules-1.0.0_get_response"
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+    put:
+      tags:
+        - employee-job-work-schedules
+      summary: Updates an existing NBBWKSH resource.
+      description: Updates the employee job work schedule data for an employee.
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: '#/components/schemas/employee-job-work-schedules-1.0.0_put_request'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the employee's job detail resource.
+          schema:
+            type: string
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+            
+            ```
+            
+            application/vnd.hedtech.integration.v1.0.0+json
+            
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+            
+            ```
+            
+            application/vnd.hedtech.integration.v1.0.0+json
+            
+            ```
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                $ref: "#/components/schemas/employee-job-work-schedules-1.0.0_put_response"
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+    delete:
+      summary: Removes an employee job work schedule resource from NBBWKSH.
+      description: >
+        Removes a job work schedules record from the employee.
+      tags:
+        - employee-job-work-schedules
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID for the employee job detail record.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: No Content
+        '204':
+          description: No Content
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Resource not found
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+  /api/employee-job-work-schdules/batches:
+    post:
+      tags:
+        - employee-job-work-schedules
+      summary: "Submit a batch of employee job work schedules to be created or updated."
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/employee-job-work-schedules-batch-1.0.0_post_request"
+      responses:
+        "201":
+          "description": "Created or Updated"
+          "headers":
+            "X-Media-Type":
+              "description": "The full semantic version with the media type of the response."
+              "required": true
+              "schema":
+                "type": "string"
+            "X-Content-Restricted":
+              "description": "If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included."
+              "schema":
+                "type": "string"
+          "content":
+            "application/vnd.hedtech.integration.v1.0.0+json":
+              "schema":
+                "$ref": "#/components/schemas/employee-job-work-schedules-batch-1.0.0_post_response"
+        "400":
+          "description": "Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+        "401":
+          "description": "Failure. Unauthorized."
+        "403":
+          "description": "Failure. Forbidden. The user does not have the required permissions for the resource."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+        "404":
+          "description": "Failure. Not Found. Cannot map the URI to a resource."
+        "405":
+          "description": "Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+        "406":
+          "description": "Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+        "500":
+          "description": "Server error. Unexpected configuration or data."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    employee-job-work-schedules-1.0.0_get_request_criteria:    
+      properties:
+        personId:
+          title: Person ID
+          description: The global identifier for the Person.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageLookupReferenceObject: persons 
+          x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+          x-lineageDerivedLogic: A record from GORGUID where GORGUID_LDM_NAME = 'persons' and GORGUID_DOMAIN_KEY matches the PIDM value
+        bannerId:
+          title: Banner ID
+          description: Banner ID of the employee.
+          type: string
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: "123456789"      
+        effectiveOn:
+          title: Date for which the job detail data becomes effective.
+          type: string
+          format: date
+          description: "Effective date of the job detail data."
+          x-lineageReferenceObject: NBBWKSH_EFFECTIVE_DATE
+          example: "2024-03-15"       
+    employee-job-work-schedules-1.0.0_get_response:
+      properties:
+        id:
+          title: Id
+          type: string
+          description: "The global identifier of the employee job detail."
+          x-lineageReferenceObject: NBBWKSH_GUID
+          example: 085df706-ee15-4947-93f8-8c260e64795e
+        bannerId:
+          title: Banner ID
+          description: Banner ID of the employee.
+          type: string
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: "123456789"          
+        position:
+          title: Position
+          description: The position to which the job is attached.
+          type: string
+          x-lineageReferenceObject: NBBWKSH_POSN
+          example: "ADM0001"
+        suffix:
+          title: Suffix
+          description: Used to uniquely create multiple jobs in the same position.
+          type: string
+          x-lineageReferenceObject: NBBWKSH_SUFF
+          example: "00"
+        effectiveOn:
+          title: Effective Date
+          type: string
+          format: date
+          description:  Date for which the job detail data becomes effective.
+          x-lineageReferenceObject: NBBWKSH_EFFECTIVE_DATE
+          example: "2024-03-15"
+        scheduleBeginDay:
+          title: Schedule begin day
+          description: Number of the day on which the employee begins the schedule.
+          type: number
+          x-lineageReferenceObject: NBBWKSH_SCHEDULE_BEGIN_DAY
+          example: 1
+        scheduleEndOn:
+          title: Schedule end date
+          description: Date that schedule was no longer in effect for this assignment.
+          type: string
+          format: date
+          x-lineageReferenceObject: NBBWKSH_SCHEDULE_END_DATE
+          example: "2024-03-31"
+        deemedHours:
+          title: Deemed hours
+          description: Reportable hours for Canadian Employment Insurance.
+          type: number
+          x-lineageReferenceObject: NBBWKSH_DEEMED_HRS
+          example: 8
+        person:
+          $ref: '#/components/schemas/person' 
+    employee-job-work-schedules-1.0.0_post_request:
+      type: object
+      properties:
+        id:
+          title: Id
+          type: string
+          description: "The global identifier of the employee job detail."
+          x-lineageReferenceObject: NBBWKSH_GUID
+          example: "00000000-0000-0000-0000-000000000000"
+        bannerId:
+          title: Banner ID
+          description: Banner ID of the employee.
+          type: string
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: "123456789" 
+        position:
+          title: Position
+          description: The position to which the job is attached.
+          type: string
+          x-lineageReferenceObject: NBBWKSH_POSN
+          example: "ADM0001"
+        suffix:
+          title: Suffix
+          description: Used to uniquely create multiple jobs in the same position.
+          type: string
+          x-lineageReferenceObject: NBBWKSH_SUFF
+          example: "00"
+        effectiveOn:
+          title: Effective Date
+          type: string
+          format: date
+          description:  Date for which the job detail data becomes effective.
+          x-lineageReferenceObject: NBBWKSH_EFFECTIVE_DATE
+          example: "2024-03-15"
+        scheduleBeginDay:
+          title: Schedule begin day
+          description: Number of the day on which the employee begins the schedule.
+          type: number
+          x-lineageReferenceObject: NBBWKSH_SCHEDULE_BEGIN_DAY
+          example: 1
+        scheduleEndOn:
+          title: Schedule end date
+          description: Date that schedule was no longer in effect for this assignment.
+          type: string
+          format: date
+          x-lineageReferenceObject: NBBWKSH_SCHEDULE_END_DATE
+          example: "2024-03-31"
+        deemedHours:
+          title: Deemed hours
+          description: Reportable hours for Canadian Employment Insurance.
+          type: number
+          x-lineageReferenceObject: NBBWKSH_DEEMED_HRS
+          example: 8
+      required:
+        - id
+        - bannerId
+        - position
+        - suffix
+        - effectiveOn
+        - scheduleBeginDay
+    employee-job-work-schedules-1.0.0_post_response:
+      $ref: '#/components/schemas/employee-job-work-schedules-1.0.0_get_response'
+    employee-job-work-schedules-1.0.0_put_request:
+      type: object
+      properties:
+        effectiveOn:
+          title: Effective Date
+          type: string
+          format: date
+          description:  Date for which the job detail data becomes effective.
+          x-lineageReferenceObject: NBBWKSH_EFFECTIVE_DATE
+          example: "2024-03-15"
+        scheduleBeginDay:
+          title: Schedule begin day
+          description: Number of the day on which the employee begins the schedule.
+          type: number
+          x-lineageReferenceObject: NBBWKSH_SCHEDULE_BEGIN_DAY
+          example: 1
+        scheduleEndOn:
+          title: Schedule end date
+          description: Date that schedule was no longer in effect for this assignment.
+          type: string
+          format: date
+          x-lineageReferenceObject: NBBWKSH_SCHEDULE_END_DATE
+          example: "2024-03-31"
+        deemedHours:
+          title: Deemed hours
+          description: Reportable hours for Canadian Employment Insurance.
+          type: number
+          x-lineageReferenceObject: NBBWKSH_DEEMED_HRS
+          example: 8      
+    employee-job-work-schedules-1.0.0_put_request_batch:
+      allOf: # Combines the id with the put request model
+        - type: object
+          required:
+            - id
+          properties:
+            id:
+              title: Id
+              type: string
+              description: "The global identifier of the employee job detail."
+              x-lineageReferenceObject: NBRJOBS_GUID
+              example: 085df706-ee15-4947-93f8-8c260e64795e
+        - $ref: '#/components/schemas/employee-job-work-schedules-1.0.0_put_request'
+    employee-job-work-schedules-1.0.0_put_response:
+      $ref: '#/components/schemas/employee-job-work-schedules-1.0.0_get_response'
+    employee-job-work-schedules-batch-1.0.0_post_request:
+      type: object
+      properties:
+        items:
+          title: items
+          description: List of items to be processed.
+          type: array
+          items:
+            type: object
+            oneOf:
+              - $ref: "#/components/schemas/employee-job-work-schedules-1.0.0_post_request"
+              - $ref: "#/components/schemas/employee-job-work-schedules-1.0.0_put_request_batch"
+      required:
+        - items
+    employee-job-work-schedules-batch-1.0.0_post_response:
+      description: >
+        Returns the list of Ids for those employee job work schdules that were successfully created. 
+        For those that did not, it returns the list of error messages.
+      type: object
+      x-last-modified:
+      properties:
+        id:
+          title: ID
+          description: A globally unique identifier of a batch to be used in all external references.
+          type: string
+          example: 085df706-ee15-4947-93f8-8c260e64795e
+        status:
+          title: status
+          description: status of the batch.
+          type: string
+          enum:
+            - completed
+            - inProgress
+            - aborted
+          example: completed
+        resource:
+          title: Resource
+          description: The affected resource.
+          type: object
+          properties:
+            name:
+              title: Resource Name
+              description: The pluralized name of the affected resource
+              type: string
+              example: employee-job-work-schedules
+            version:
+              title: Resource version
+              description: The version of the resource
+              type: string
+              example: 2.0.0
+          additionalProperties: false
+          required:
+            - name
+            - version
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+            oneOf:
+              - $ref: '#/components/schemas/employee-job-work-schedules-1.0.0_get_response'
+              - $ref: '#/components/schemas/errors_2_0_0'
+            required:
+              - items
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+    person:
+      title: Person
+      description: A reference to link an employee job detail to the common persons entity.
+      type: object
+      properties:
+        id:
+          title: ID
+          description: The global identifier for the Person.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageLookupReferenceObject: persons 
+          x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+          x-lineageDerivedLogic: A record from GORGUID where GORGUID_LDM_NAME = 'persons' and GORGUID_DOMAIN_KEY matches the PIDM value

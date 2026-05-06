@@ -1,0 +1,899 @@
+openapi: 3.0.0
+info:
+  title: Student Academic History Course Details
+  description: API provides the details of courses on the student's institutional academic history record. This information is displayed on the Banner SHATCKN page. Details include essential course details, grade history, associated course levels, instructors, section course attributes, and person course attributes.
+  version: 1.1.0
+  x-api-type: erp
+  x-release-status: ga
+  x-source-system: banner
+  x-source-domain: Student
+  x-audience: all
+  x-source-name: SHATCKN
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /api/student-academic-history-course-details:
+    get:
+      tags:
+      - student-academic-history-course-details
+      summary: Student Academic History Course Details
+      description: Returns all SHRTCKN records meeting the submitted criteria. Any associated SHRTCKG, SHRTCKL, SHRINST, SHRATTC, and SHRATTR are also returned.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.1.0+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description:  |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object   
+          description: >
+            ### Banner Id (required)
+
+            Returns all records for the Banner ID passed. This is a required criteria.
+
+            ```
+
+            /student-academic-history-course-details?criteria={"bannerId":"331314209"}
+
+            ```
+
+            ### Term
+
+            Returns all records for the term passed.
+
+            ```
+
+            /student-academic-history-course-details?criteria={"term":"202410"}
+
+            ```
+
+            ### Course Sequence Number
+
+            Returns all records for the course sequence number passed.
+
+            ```
+
+            /student-academic-history-course-details?criteria={"courseSequenceNumber":5}
+
+            ```
+
+            ### Course Reference Number (CRN)
+
+            Returns all records for the CRN passed.
+
+            ```
+
+            /student-academic-history-course-details?criteria={"courseReferenceNumber":"54827"}
+
+            ```
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1.1.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/student-academic-history-course-details_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_STU_ACAD_HIST_CRSE_DETAILS
+  "/api/student-academic-history-course-details/{id}":
+    get:
+      summary: Returns a single academic history course record.
+      description: |
+        Returns a single SHRTCKN record and its associated details.
+      tags:
+        - student-academic-history-course-details
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.1.0+json
+
+            ```
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: guid
+            minimum: 1
+      responses:
+       '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/student-academic-history-course-details_response"
+       '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '401':
+          description: Failure. Unauthorized.
+       '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+       '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permissions: API_STU_ACAD_HIST_CRSE_DETAILS
+components:
+  schemas:
+    student-academic-history-course-details_response:
+      type: object
+      properties:
+        id:
+          title: ID
+          maxLength: 36
+          type: string
+          description: "Unique identifier for the SHRTCKN record."
+          format: format
+          x-lineageReferenceObject: SHRTCKN_GUID
+          example: 50316ed9-b0c2-4cd8-af83-ed887ff389be
+        bannerId:
+          title: Banner ID
+          maxLength: 9
+          type: string
+          description: "Student's Banner ID"
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: A29273892
+        term:
+          title: Term
+          maxLength: 6
+          type: string
+          description: "Academic history term code"
+          x-lineageReferenceObject: SHRTCKN_TERM_CODE
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202410
+        termDescription:
+          title: Term Code Description
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: STVTERM_DESC
+          example: Fall 2024
+        courseSequenceNumber:
+          title: Course Sequence Number
+          maxLength: 3
+          type: number
+          description: "The internal course sequence number of the course record in a student's term academic history."
+          format: integer
+          x-lineageReferenceObject: SHRTCKN_SEQ_NO
+          example: 5
+        courseReferenceNumber:
+          title: Course Reference Number
+          maxLength: 5
+          type: string
+          description: "The course reference number (CRN) stored in academic history for the course."
+          x-lineageReferenceObject: SHRTCKN_CRN
+          example: 38297
+        subject:
+          title: Subject
+          maxLength: 4
+          type: string
+          description: "Course subject code"
+          x-lineageReferenceObject: SHRTCKN_SUBJ_CODE
+          x-lineageLookupReferenceObject: STVSUBJ
+          example: POLS
+        subjectDescription:
+          title: Subject Description
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: STVSUBJ_DESC
+          example: Political Science
+        courseNumber:
+          title: Course Number
+          maxLength: 5
+          type: string
+          description: "Course Number"
+          x-lineageReferenceObject: SHRTCKN_CRSE_NUMB
+          example: 247
+        college:
+          title: College
+          maxLength: 2
+          type: string
+          description: "College code associated with the course."
+          x-lineageReferenceObject: SHRTCKN_COLL_CODE
+          x-lineageLookupReferenceObject: STVCOLL
+          example: AS
+        collegeDescription:
+          title: College Description
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: STVCOLL_DESC
+          example: Arts and Sciences
+        department:
+          title: Department
+          maxLength: 4
+          type: string
+          description: "Department associated with the course."
+          x-lineageReferenceObject: SHRTCKN_DEPT_CODE
+          x-lineageLookupReferenceObject: STVDEPT
+          example: POLI
+        departmentDescription:
+          title: Department Description
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: STVDEPT_DESC 
+          example: Political Science
+        division:
+          title: Division
+          maxLength: 4
+          type: string
+          description: "Division assoicated with the course."
+          x-lineageReferenceObject: SHRTCKN_DIVS_CODE
+          x-lineageLookupReferenceObject: STVDIVS
+          example: SSCI
+        divisionDescription:
+          title: Division Description
+          maxLength: 4
+          type: string
+          x-lineageReferenceObject: STVDIVS_DESC
+          example: Social Sciences
+        session:
+          title: Session
+          maxLength: 1
+          type: string
+          description: "Session assoicated with the course."
+          x-lineageReferenceObject: SHRTCKN_SESS_CODE
+          x-lineageLookupReferenceObject: STVSESS
+          example: E
+        sessionDescription:
+          title: Session Description
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: STVSESS_DESC
+          example: Evening
+        courseTitle:
+          title: Course Title
+          maxLength: 30
+          type: string
+          description: "Title of the course."
+          x-lineageReferenceObject: SHRTCKN_CRSE_TITLE
+          example: International Relations
+        registrationSequenceNumber:
+          title: Registration Sequence Number
+          maxLength: 4
+          type: number
+          description: "Order student registered for the course."
+          format: integer
+          x-lineageReferenceObject: SHRTCKN_REG_SEQ
+          example: 14
+        courseComment:
+          title: Course Comment
+          maxLength: 30
+          type: string
+          description: "Free format comment associated with the student's course."
+          x-lineageReferenceObject: SHRTCKN_COURSE_COMMENT
+          example: Interdisciplinary model
+        repeatedCourseGpaIndicator:
+          title: Repeated Course GPA Indicator
+          maxLength: 1
+          type: string
+          description: "Used to flag students course as repeated for inclusion or exclusion in GPA calculation. (I)-include, (E)-exclude or (A)-exclude from earned hours but average into gpa"
+          x-lineageReferenceObject: SHRTCKN_REPEAT_COURSE_IND
+          example: A
+        modifiedOn:
+          title: Record Modification Date
+          type: string
+          description: "Date the course record was created or updated."
+          format: date
+          x-lineageReferenceObject: SHRTCKN_ACTIVITY_DATE
+          example: 2024-12-18
+        partOfTerm:
+          title: Part of Term
+          maxLength: 3
+          type: string
+          description: "Part of term associated with the course."
+          x-lineageReferenceObject: SHRTCKN_PTRM_CODE
+          x-lineageLookupReferenceObject: STVPTRM
+          example: 1H
+        partOfTermDescription:
+          title: Part of Term Description
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: STVPTRM_DESC
+          example: First Half
+        sectionSequenceIdentifier:
+          title: Section Sequence Identifier
+          maxLength: 3
+          type: string
+          description: "Sequence number associated with the course section."
+          x-lineageReferenceObject: SHRTCKN_SEQ_NUMB
+          example: 1LC
+        partOfTermStartOn:
+          title: Part of Term Start Date
+          type: string
+          description: "Start date of the part of term associated with the course."
+          format: date
+          x-lineageReferenceObject: SHRTCKN_PTRM_START_DATE
+          example: 2024-09-05
+        partOfTermEndOn:
+          title: Part of Term End Date
+          type: string
+          description: "End date of the part of term associated with the course."
+          format: date
+          x-lineageReferenceObject: SHRTCKN_PTRM_END_DATE
+          example: 2024-10-30
+        contactHours:
+          title: Contact Hours
+          maxLength: 7
+          type: number
+          description: "Contact hours awarded when the section is coded as continuing education units (CEU)."
+          x-lineageReferenceObject: SHRTCKN_CONT_HR
+          example: 3.000
+        scheduleType:
+          title: Schedule Type
+          maxLength: 3
+          type: string
+          description: "The schedule type associated with the course."
+          x-lineageReferenceObject: SHRTCKN_SCHD_CODE
+          x-lineageLookupReferenceObject: STVSCHD
+          example: LEC
+        scheduleTypeDescription:
+          title: Schedule Type Description
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: STVSCHD_DESC
+          example: Lecture
+        repeatSystemIndicator:
+          title: Repeat System Indicator
+          maxLength: 1
+          type: string
+          description: "identifies if the repeat indicator was set manually or system generated. Values are S = System Generated, M = Manually entered."
+          x-lineageReferenceObject: SHRTCKN_REPEAT_SYS_IND
+          example: S
+        registrationStartOn:
+          title: Registration Start On Date
+          type: string
+          description: "Start date of the registration. Used with open learning registration (OLR) sections."
+          format: date
+          x-lineageReferenceObject: SHRTCKN_REG_START_DATE
+          example: 2024-09-01
+        registrationCompletedOn:
+          title: Registration Completed On Date
+          type: string
+          description: "Completion date of the registration. Used with open learning registration (OLR) sections."
+          format: date
+          x-lineageReferenceObject: SHRTCKN_REG_COMPLETION_DATE
+          example: 2024-10-30
+        numberOfExtensionsGranted:
+          title: Number of Extensions Granted
+          maxLength: 3
+          type: number
+          description: "Total number of extensions granted for the course."
+          format: integer
+          x-lineageReferenceObject: SHRTCKN_NUMBER_OF_EXTENSIONS
+          example: 2
+        courseLongTitle:
+          title: Long Course Title
+          maxLength: 100
+          type: string
+          description: "Long course title associated with the course."
+          x-lineageReferenceObject: SHRTCKN_LONG_COURSE_TITLE
+          example: International Relations A Comparison of Diplomatic Strategies
+        studyPathSequenceNumber:
+          title: Study Path Sequence Number
+          maxLength: 2
+          type: number
+          description: "Key sequence number of the study path under which the section was originally registered."
+          format: integer
+          x-lineageReferenceObject: SHRTCKN_STSP_KEY_SEQUENCE
+          example: 1
+        courseHiddenFromTranscript:
+          title: Course Hidden from Transcript
+          maxLength: 1
+          type: string
+          description: "Indicates if the course should be hidden from the transcript. Y - hide from transcript, N - do not hide"
+          x-lineageReferenceObject: SHRTCKN_HIDE_TRANSCRIPT_IND
+          example: N
+        continuingEducationUnit:
+          title: Continuing Education Units
+          maxLength: 1
+          type: string
+          description: "Indicates whether the course is a continuing education unit (CEU) course."
+          x-lineageReferenceObject: SCBCRSE_CEU_IND
+          example: N
+        courseAlias:
+          title: Course Alias
+          maxLength: 20
+          type: string
+          description: "Additional identifier value associated with the course, example (Course Alias or Common Course Number)."
+          x-lineageReferenceObject: COURSE_ALIAS
+          example: Course Alias Maths
+        courseIdentifierDisplay:  
+          title: courseIdentifierDisplay
+          maxLength: 20
+          type: string
+          description: "System-managed course identifier that should be displayed for the course (e.g., Course Number, Course Alias, or Common Course Number)."
+          x-lineageReferenceObject: COURSE_IDENTIFIER_DISPLAY
+          example: 2100
+        grades:
+          title: Course Grade History
+          description: "The student's grade history for the course."
+          type: array
+          items:
+            type: object
+            properties: 
+              sequenceNumber:
+                title: Grade Sequence Number
+                maxLength: 2
+                type: number
+                description: "Sequence number of the assigned grade. The highest sequence number is the most recent grade."
+                format: integer
+                x-lineageReferenceObject: SHRTCKG_SEQ_NO
+                example: 1
+              grade:
+                title: Final Grade
+                maxLength: 6
+                type: string
+                description: "The grade associated with the course."
+                x-lineageReferenceObject: SHRTCKG_GRDE_CODE_FINAL
+                x-lineageLookupReferenceObject: SHAGRDE
+                example: A
+              mode:
+                title: Grade Mode
+                maxLength: 1
+                type: string
+                description: "The grading mode associated with the grade for the course."
+                x-lineageReferenceObject: SHRTCKG_GMOD_CODE
+                x-lineageLookupReferenceObject: STVGMOD
+                example: S
+              modeDescription:
+                title: Grading Mode Description
+                maxLength: 30
+                type: string
+                x-lineageReferenceObject: STVGMOD_DESC
+                example: Standard
+              creditHours:
+                title: Credit Hours
+                maxLength: 7
+                type: number
+                description: "Credit hours associated with the grade of the course."
+                x-lineageReferenceObject: SHRTCKG_CREDIT_HOURS
+                example: 3.00
+              changeReason:
+                title: Grade Change Reason
+                maxLength: 2
+                type: string
+                description: "Grade change reason associated with the course grade."
+                x-lineageReferenceObject: SHRTCKG_GCHG_CODE
+                x-lineageLookupReferenceObject: STVGCHG
+                example: OE
+              changeReasonDescription:
+                title: Grade Change Reason Description
+                maxLength: 30
+                type: string
+                x-lineageReferenceObject: STVGCHG_DESC
+                example: Original Entry
+              incompleteExtendedUntil:
+                title: Incomplete Default Extension Date
+                type: string
+                description: "Date to identify when the default final grade will be applied if coursework is incomplete."
+                format: date
+                x-lineageReferenceObject: SHRTCKG_INCOMPLETE_EXT_DATE
+                example: 2025-01-15
+              postedOn:
+                title: Grade Posting Date
+                type: string
+                description: "Date of grade posting."
+                format: date
+                x-lineageReferenceObject: SHRTCKG_FINAL_GRDE_CHG_DATE
+                example: 2024-12-20
+              modifiedOn:
+                title: Record Modification Date
+                type: string
+                description: "Most recent date the record was created or modified."
+                format: date
+                x-lineageReferenceObject: SHRTCKG_ACTIVITY_DATE
+                example: 2024-12-24
+              comment:
+                title: Comment Code
+                maxLength: 7
+                type: string
+                description: "Value for the grade comment code for a course."
+                x-lineageReferenceObject: SHRTCKG_GCMT_CODE
+                x-lineageLookupReferenceObject: STVGCMT
+                example: GRDCNV
+              commentDescription:
+                title: Comment Code Description
+                maxLength: 30
+                type: string
+                x-lineageReferenceObject: STVGCMT_DESCRIPTION
+                example: Grade Conversion
+              term:
+                title: Term
+                maxLength: 6
+                type: string
+                description: "Term code of the assigned grade."
+                x-lineageReferenceObject: SHRTCKG_TERM_CODE_GRADE
+                x-lineageLookupReferenceObject: STVTERM
+                example: 202410
+              attemptedHours:
+                title: Attempted Hours
+                maxLength: 7
+                type: number
+                description: "Attempted hours associated with the grade of the course."
+                x-lineageReferenceObject: SHRTCKG_HOURS_ATTEMPTED
+                example: 3.00
+              incompleteDefaultGrade:
+                title: Incomplete Default Grade
+                maxLength: 6
+                type: string
+                description: "Default final grade for incomplete coursework."
+                x-lineageReferenceObject: SHRTCKG_GRDE_CODE_INCMP_FINAL
+                x-lineageLookupReferenceObject: SHAGRDE
+                example: D
+              narrativeGradeComment:
+                title: Narrative Grade Comment
+                maxLength: 4000
+                type: string
+                description: "Narrative comments received with grade submission."
+                x-lineageReferenceObject: SHRTCKC_FINAL_GRADE_COMMENT
+                example: Grade impacted by late submission of final paper.
+              narrativeGradeCommentModifiedOn:
+                title: Narrative Grade Comment Modification Date
+                type: string
+                description: "Most recent date the narrative comments were created or modified."
+                format: date
+                x-lineageReferenceObject: SHRTCKC_ACTIVITY_DATE
+                example: 2024-12-20
+            required:
+              - sequenceNumber 
+              - grade
+              - creditHours
+              - changeReason
+              - postedOn
+              - modifiedOn
+        levels:
+          title: Course Grade History
+          description: "The levels to which the course is applied."
+          type: array
+          items:
+            type: object
+            properties: 
+              appliedLevel:
+                title: Level
+                maxLength: 2
+                type: string
+                description: "The academic level to which the course is applied."
+                x-lineageReferenceObject: SHRTCKL_LEVL_CODE
+                x-lineageLookupReferenceObject: STVLEVL
+                example: UG
+              levelDescription:
+                title: Level Description
+                maxLength: 30
+                type: string
+                x-lineageReferenceObject: STVLEVL_DESC
+                example: Undergraduate
+              modifiedOn:
+                title: Record Modification Date
+                type: string
+                description: "Most recent date the record was created or modified."
+                format: date
+                x-lineageReferenceObject: SHRTCKL_ACTIVITY_DATE
+                example: 2024-12-20
+              primaryLevel:
+                title: Primary Level
+                maxLength: 1
+                type: string
+                description: "Indicates the primary level for the course. Y - yes, primary level"
+                x-lineageReferenceObject: SHRTCKL_PRIMARY_LEVL_IND
+                example: Y
+            required:
+              - appliedLevel
+              - modifiedOn
+        instructors:
+          title: Instructors
+          description: "Instructor assigned to the course."
+          type: array
+          items:
+            type: object
+            properties: 
+              bannerId:
+                title: Instructor Banner ID
+                maxLength: 9
+                type: string
+                description: "The current Banner ID of the instructor."
+                x-lineageReferenceObject: SPRIDEN_ID
+                example: A72937592
+              modifiedOn:
+                title: Record Modification Date
+                type: string
+                description: "Most recent date the record was created or modified."
+                format: date
+                x-lineageReferenceObject: SHRINST_ACTIVITY_DATE
+                example: 2024-12-20
+              primaryInstructor:
+                title: Primary Instructor Indicator
+                maxLength: 1
+                type: string
+                description: "Indentifies the primary instructor for the course. Y - yes, primary instructor"
+                x-lineageReferenceObject: SHRINST_PRIMARY_IND
+                example: Y
+            required:
+              - bannerId
+              - modifiedOn
+        courseSectionAttributes:
+          title: Course Section Attributes
+          description: "Attribute applied to the course section."
+          type: array
+          items:
+            type: object
+            properties: 
+              attribute:
+                title: Attribute
+                maxLength: 4
+                type: string
+                description: "Attribute associated with the course section."
+                x-lineageReferenceObject: SHRATTC_ATTR_CODE
+                x-lineageLookupReferenceObject: STVATTR
+                example: HUMA
+              attributeDescription:
+                title: Attribute Description
+                maxLength: 30
+                type: string
+                x-lineageReferenceObject: STVATTR_DESC
+                example: Humanities
+              modifiedOn:
+                title: Record Modification Date
+                type: string
+                description: "Most recent date the record was created or modified."
+                format: date
+                x-lineageReferenceObject: SHRATTC_ACTIVITY_DATE
+                example: 2024-12-20
+            required:
+              - attribute
+              - modifiedOn
+        personCourseAttributes:
+          title: Person Course Attributes 
+          description: "Attributes applied to the course specifically for the student. These attributes take priority over course section attributes."
+          type: array
+          items:
+            type: object
+            properties: 
+              attribute:
+                title: Attribute
+                maxLength: 4
+                type: string
+                description: "Attribute associated with the course for this student."
+                x-lineageReferenceObject: SHRATTR_ATTR_CODE
+                x-lineageLookupReferenceObject: STVATTR
+                example: INTL
+              attributeDescription:
+                title: Attribute Description
+                maxLength: 30
+                type: string
+                x-lineageReferenceObject: STVATTR_DESC
+                example: International
+              modifiedOn:
+                title: Record Modification Date
+                type: string
+                description: "Most recent date the record was created or modified."
+                format: date
+                x-lineageReferenceObject: SHRATTR_ACTIVITY_DATE
+                example: 2024-12-20
+            required:
+              - attribute
+              - modifiedOn
+      required:
+        - id
+        - bannerId
+        - term
+        - courseSequenceNumber
+        - courseReferenceNumber
+        - subject
+        - courseNumber
+        - modifiedOn
+        - courseHiddenFromTranscript
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic
+

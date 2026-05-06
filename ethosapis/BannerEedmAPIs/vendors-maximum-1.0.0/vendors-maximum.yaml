@@ -1,0 +1,2475 @@
+openapi: 3.0.0
+info:
+  title: Vendors Maximum
+  description: >
+    The person or organization that offers products or services to an
+    institution. The information about the classification of vendor, the
+    conditions for vendor payment, the accounts payable source, the status of
+    the vendor, the hold reasons if a payment is put on hold, the dates when the
+    vendor was registered and last active, the default currency used to deal
+    with the vendor, address defaults, the federal tax id number, associated tax
+    forms, and any comments related to the vendor is published.
+
+
+    Vendors maximum is an alternate representation of vendors that exposes more attributes related to Banner vendors in FTVVEND than that are exposed in the vendors primary representation. The response also includes additional attributes from SPRADDR table for address information, vendor contact details and default address details from FTVVEND table.
+  version: 1.0.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Finance
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/vendors:
+    get:
+      summary: Returns resources from FTVVEND
+      description: |
+        Returns a paged list of records from FTVVEND in the Banner system.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_VENDORS
+      tags:
+        - vendors-maximum
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.vendors-maximum.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Organization  
+
+            Detail information of the organization acting as the vendor.
+
+            ```
+
+            /vendors?criteria={"vendorDetail":{"organization":{"id":"0d316912-b8d1-4cbf-ab62-e7bf1f2be576"}}}
+
+            ```
+
+            ### Person  
+
+            Detail information of the person acting as the vendor.
+
+            ```
+
+            /vendors?criteria={"vendorDetail":{"person":{"id":"0d316912-b8d1-4cbf-ab62-e7bf1f2be576"}}}
+
+            ```
+
+            ### Institution  
+
+            Not Supported in Banner
+
+            ```
+
+            /vendors?criteria={"vendorDetail":{"institution":{"id":"2daff712-165d-46d2-a12b-63e28afe5b6e"}}}
+
+            ```
+
+            ### Statuses  
+
+            The statuses (active, approved, stop payment) that apply to the vendor.
+
+            ```
+
+            /vendors?criteria={"statuses":["active","approved"]}
+
+            ```
+
+            ### Types  
+
+            The type(s) of vendor, i.e. Procurement, eProcurement, or Travel.
+
+            ```
+
+            /vendors?criteria={"types":["procurement","eProcurement"]}
+
+            ```
+
+            ### Addresses Detail  
+
+            The details associated with the address.
+
+            ```
+
+            /vendors?criteria={"addresses":[{"detail":{"id":"2daff712-165d-46d2-a12b-63e28afe5b6e"}}]}
+
+            ```
+
+            ### Tax ID  
+
+            The federal tax identification number for the vendor.
+
+            ```
+
+            /vendors?criteria={"taxId":"9900"}
+
+            ```
+        - name: vendorDetail
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Vendor Detail  
+
+            Filter based on the person, organization or institution acting as the vendor.
+
+            ```
+
+            /vendors?vendorDetail={"vendorDetail":{"id":"9c5e4f0e-b0e9-4399-835e-5e7f21da42d3"}}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-vendors-maximum.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.vendors-maximum.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/vendors/{id}:
+    get:
+      summary: Return the requested resource from FTVVEND
+      description: |
+        Returns a record from FTVVEND with the passed in identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_VENDORS
+      tags:
+        - vendors-maximum
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.vendors-maximum.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.vendors-maximum.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.vendors-maximum.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-vendors-maximum.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-vendors-maximum.json:
+      title: Vendors Maximum
+      description: A person or organization that offers products or services to an
+        institution.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the vendors maximum.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: FTVVEND_GUID
+        types:
+          title: Types
+          description: The type(s) of vendor, i.e. Procurement, eProcurement, or Travel.
+          type: array
+          items:
+            enum:
+              - procurement
+              - eProcurement
+              - travel
+            type: string
+            x-lineageReferenceObject: derived  
+            x-lineageDerivedLogic: If FTVVEND_EPROC_IND = Y, then display 'eProcurement' else if FTVVENDS_TRAVEL_IND='Y', then display 'travel'
+        vendorDetail:
+          title: Vendor Detail
+          description: The person, organization or educational institution acting as the
+            vendor.
+          oneOf:
+            - title: Person
+              description: Detail information of the person acting as the vendor.
+              type: object
+              properties:
+                person:
+                  title: Person
+                  description: Detail information of the person acting as the vendor.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Person.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: persons 
+                      x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+                      x-lineageDerivedLogic: A record in GORGUID where GORGUID_LDM_NAME='persons' and   GORGUID_DOMAIN_KEY= FTVVEND_PIDM and FTVVEND_ENTITY_IND = 'P'
+                  additionalProperties: false
+                  required:
+                    - id
+              additionalProperties: false
+              required:
+                - person
+            - title: Organization
+              description: Detail information of the organization acting as the vendor.
+              type: object
+              properties:
+                organization:
+                  title: Organization
+                  description: Detail information of the organization acting as the vendor.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Organization.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: organizations 
+                      x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = non-persons) 
+                      x-lineageDerivedLogic: A record in GORGUID where GORGUID_LDM_NAME='nonpersons' and   GORGUID_DOMAIN_KEY= FTVVEND_PIDM and FTVVEND_ENTITY_IND = 'C'
+                  additionalProperties: false
+                  required:
+                    - id
+              additionalProperties: false
+              required:
+                - organization
+            - title: Institution
+              description: Detail information of the educational institution acting as the
+                vendor.
+              type: object
+              properties:
+                institution:
+                  title: Institution
+                  description: Detail information of the educational institution acting as the
+                    vendor.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Institution.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: educational-institutions 
+                      x-lineageReferenceObject: unsupported
+                  additionalProperties: false
+                  required:
+                    - id
+              additionalProperties: false
+              required:
+                - institution
+        taxId:
+          title: Tax Id
+          description: The federal tax identification number for the vendor.
+          type: string
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: If FTVVEND_ENTITY_IND for the vendor = 'C', taxId should be displayed in the format- xx-xxxxxxx (2-7); If FTVVEND_ENTITY_IND for the vendor = 'P', taxId should be displayed in the format- xxx-xx-xxxx (3-2-4).
+        statuses:
+          title: Statuses
+          description: The statuses (active, approved, hold payment) that apply to the
+            vendor.
+          type: array
+          items:
+            enum:
+              - active
+              - holdPayment
+              - approved
+            type: string
+            x-lineageReferenceObject: derived  
+            x-lineageDerivedLogic: Display 'active', if system date is between FTVVEND_EFF_DATE) and Termination Date (FTVVEND_TERM_DATE); else display 'holdPayment' if FTVVEND_PMT_HOLD_RSN_CODE has any data; else display 'approved'
+        startOn:
+          title: Start On
+          description: The first date when the vendor was active/registered.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: FTVVEND_EFF_DATE(FTVVEND)
+            - type: string
+              maxLength: 0
+        endOn:
+          title: End On
+          description: The last date when the vendor was active.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: FTVVEND_TERM_DATE(FTVVEND)
+            - type: string
+              maxLength: 0
+        addresses:
+          title: Addresses
+          description: The address(es) associated with the vendor.
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                title: Code
+                description: A code used to uniquely identify the address type instance.
+                type: string
+                x-lineageReferenceObject: SPRADDR_SEQNO(SPRADDR)
+              addressLines:
+                title: Address Lines
+                description: The address lines of the vendor's location, such as a street
+                  address, post office box number, or city, region, and postal
+                  code.
+                type: array
+                items:
+                  minLength: 1
+                  type: string
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: Display the concatenated values of SPRADDR_STREET_LINE1, SPRADDR_STREET_LINE2, SPRADDR_STREET_LINE3, SPRADDR_STREET_LINE4.
+              place:
+                title: Place
+                description: A country specific postal region. Postal regions are expressed as a
+                  hierarchy of country, region, and sub-region, and as a
+                  locality with postal automation codes.
+                oneOf:
+                  - type: object
+                    format: place
+                    properties:
+                      country:
+                        title: Country
+                        description: The country specific postal region definition.
+                        oneOf:
+                          - title: Australia
+                            description: The postal region definition for Australia.
+                            type: object
+                            properties:
+                              code:
+                                title: Code
+                                description: The ISO 3166-1 alpha-3 country code for Australia.
+                                enum:
+                                  - AUS
+                                type: string
+                                x-lineageReferenceObject: SPRADDR_NATN_CODE(SPRADDR)
+                              title:
+                                title: Country
+                                description: The name of the country, as used in everyday speech.
+                                type: string
+                                x-lineageReferenceObject: derived  
+                                x-lineageDerivedLogic: Country description from STVNATN is displayed.
+                              postalTitle:
+                                title: Postal Country
+                                description: The name of the country when mail is being addressed from an
+                                  international sender.
+                                oneOf:
+                                  - type: string
+                                    enum:
+                                      - AUSTRALIA
+                                    x-lineageReferenceObject: derived  
+                                    x-lineageDerivedLogic: If place.country.code ='AUS', display AUSTRALIA
+                                  - type: string
+                                    maxLength: 0
+                              region:
+                                title: Region
+                                description: A region within the country
+                                oneOf:
+                                  - type: object
+                                    properties:
+                                      code:
+                                        title: Code
+                                        description: The ISO 3166-2 code used to identify the region within the country.
+                                        enum:
+                                          - AU-NSW
+                                          - AU-ACT
+                                          - AU-VIC
+                                          - AU-QLD
+                                          - AU-SA
+                                          - AU-WA
+                                          - AU-TAS
+                                          - AU-NT
+                                        type: string
+                                        x-lineageReferenceObject: SPRADDR_STAT_CODE(SPRADDR)
+                                      title:
+                                        title: Title
+                                        description: The full name of the region
+                                        type: string
+                                        x-lineageReferenceObject: derived  
+                                        x-lineageDerivedLogic: State description from STVSTAT is displayed.
+                                    additionalProperties: false
+                                    required:
+                                      - code
+                                  - type: object
+                                    maxProperties: 0
+                              subRegion:
+                                title: Subregion
+                                description: A subregion within the country and region
+                                type: object
+                                properties:
+                                  code:
+                                    title: Code
+                                    description: A code that may be used to identify the sub-region. This should be
+                                      the ISO 3166-2 code, if one exists,
+                                      otherwise, a user defined code may be
+                                      optionally specified.
+                                    type: string
+                                    x-lineageReferenceObject: SPRADDR_CNTY_CODE_ISO(SPRADDR) or SPRADDR_CNTY_CODE(SPRADDR) or STVCNTY_SCOD_CODE_ISO(STVCNTY)
+                                  title:
+                                    title: Title
+                                    description: The name of a subregion
+                                    type: string
+                                    x-lineageReferenceObject: derived  
+                                    x-lineageDerivedLogic: County description from STVCNTY is displayed SPRADDR_CNTY_TITLE(SPRADDR) or STVCNTY_DESC(STVCNTY)
+                                additionalProperties: false
+                              locality:
+                                title: city
+                                description: The name of the city or town.
+                                type: string
+                                x-lineageReferenceObject: SPRADDR_CITY(SPRADDR)
+                              postalCode:
+                                title: Postal Code
+                                description: The mailing postal code.
+                                oneOf:
+                                  - type: string
+                                    pattern: ^(0[289][0-9]{2})|([1345689][0-9]{3})|(2[0-8][0-9]{2})|(290[0-9])|(291[0-4])|(7[0-4][0-9]{2})|(7[8-9][0-9]{2})$
+                                    x-lineageReferenceObject: SPRADDR_ZIP(SPRADDR)
+                                  - type: string
+                                    maxLength: 0
+                            additionalProperties: false
+                            required:
+                              - code
+                          - title: Brazil
+                            description: The postal region definition for Brazil.
+                            type: object
+                            properties:
+                              code:
+                                title: Code
+                                description: The ISO 3166-1 alpha-3 country code for Brazil.
+                                enum:
+                                  - BRA
+                                type: string
+                                x-lineageReferenceObject: SPRADDR_NATN_CODE(SPRADDR)
+                              title:
+                                title: Country
+                                description: The name of the country, as used in everyday speech.
+                                type: string
+                                x-lineageReferenceObject: derived  
+                                x-lineageDerivedLogic: Country description from STVNATN is displayed.
+                              postalTitle:
+                                title: Postal Country
+                                description: The name of the country when mail is being addressed from an
+                                  international sender.
+                                oneOf:
+                                  - type: string
+                                    enum:
+                                      - BRAZIL
+                                    x-lineageReferenceObject: derived  
+                                    x-lineageDerivedLogic: If place.country.code ='BRA', display BRAZIL
+                                  - type: string
+                                    maxLength: 0
+                              region:
+                                title: Region
+                                description: A region within the country
+                                oneOf:
+                                  - type: object
+                                    properties:
+                                      code:
+                                        title: Code
+                                        description: The ISO 3166-2 code used to identify the region within the country.
+                                        enum:
+                                          - BR-AC
+                                          - BR-AL
+                                          - BR-AM
+                                          - BR-AP
+                                          - BR-BA
+                                          - BR-CE
+                                          - BR-DF
+                                          - BR-ES
+                                          - BR-GO
+                                          - BR-MA
+                                          - BR-MG
+                                          - BR-MS
+                                          - BR-MT
+                                          - BR-PA
+                                          - BR-PB
+                                          - BR-PE
+                                          - BR-PI
+                                          - BR-PR
+                                          - BR-RJ
+                                          - BR-RN
+                                          - BR-RO
+                                          - BR-RR
+                                          - BR-RS
+                                          - BR-SC
+                                          - BR-SE
+                                          - BR-SP
+                                          - BR-TO
+                                        type: string
+                                        x-lineageReferenceObject: SPRADDR_STAT_CODE(SPRADDR)
+                                      title:
+                                        title: Title
+                                        description: The full name of the region
+                                        type: string
+                                        x-lineageReferenceObject: derived  
+                                        x-lineageDerivedLogic: State description from STVSTAT is displayed.
+                                    additionalProperties: false
+                                    required:
+                                      - code
+                                  - type: object
+                                    maxProperties: 0
+                              subRegion:
+                                title: Subregion
+                                description: A subregion within the country and region
+                                type: object
+                                properties:
+                                  code:
+                                    title: Code
+                                    description: A code that may be used to identify the sub-region. This should be
+                                      the ISO 3166-2 code, if one exists,
+                                      otherwise, a user defined code may be
+                                      optionally specified.
+                                    type: string
+                                    x-lineageReferenceObject: SPRADDR_CNTY_CODE_ISO(SPRADDR) or SPRADDR_CNTY_CODE(SPRADDR) or STVCNTY_SCOD_CODE_ISO(STVCNTY)
+                                  title:
+                                    title: Title
+                                    description: The name of a subregion
+                                    type: string
+                                    x-lineageReferenceObject: derived  
+                                    x-lineageDerivedLogic: County description from STVCNTY is displayed SPRADDR_CNTY_TITLE(SPRADDR) or STVCNTY_DESC(STVCNTY)
+                                additionalProperties: false
+                              locality:
+                                title: city
+                                description: The name of the city or town.
+                                type: string
+                                x-lineageReferenceObject: SPRADDR_CITY(SPRADDR)
+                              postalCode:
+                                title: Postal Code
+                                description: The mailing postal code.
+                                oneOf:
+                                  - type: string
+                                    pattern: ^\d{5}\-\d{3}$
+                                    x-lineageReferenceObject: SPRADDR_ZIP(SPRADDR)
+                                  - type: string
+                                    maxLength: 0
+                            additionalProperties: false
+                            required:
+                              - code
+                          - title: Canada
+                            description: The postal region definition for Canada.
+                            type: object
+                            properties:
+                              code:
+                                title: Code
+                                description: The ISO 3166-1 alpha-3 country code for Canada.
+                                enum:
+                                  - CAN
+                                type: string
+                                x-lineageReferenceObject: SPRADDR_NATN_CODE(SPRADDR)
+                              title:
+                                title: Country
+                                description: The name of the country, as used in everyday speech.
+                                type: string
+                                x-lineageReferenceObject: derived  
+                                x-lineageDerivedLogic: Country description from STVNATN is displayed.
+                              postalTitle:
+                                title: Postal Country
+                                description: The name of the country when mail is being addressed from an
+                                  international sender.
+                                oneOf:
+                                  - type: string
+                                    enum:
+                                      - CANADA
+                                    x-lineageReferenceObject: derived  
+                                    x-lineageDerivedLogic: If place.country.code ='CAN', display CANADA
+                                  - type: string
+                                    maxLength: 0
+                              region:
+                                title: Region
+                                description: A region within the country
+                                oneOf:
+                                  - type: object
+                                    properties:
+                                      code:
+                                        title: Code
+                                        description: The ISO 3166-2 code used to identify the region within the country.
+                                        enum:
+                                          - CA-AB
+                                          - CA-BC
+                                          - CA-MB
+                                          - CA-NB
+                                          - CA-NL
+                                          - CA-NS
+                                          - CA-NT
+                                          - CA-NU
+                                          - CA-ON
+                                          - CA-PE
+                                          - CA-QC
+                                          - CA-SK
+                                          - CA-YT
+                                        type: string
+                                        x-lineageReferenceObject: SPRADDR_STAT_CODE(SPRADDR)
+                                      title:
+                                        title: Title
+                                        description: The full name of the region
+                                        type: string
+                                        x-lineageReferenceObject: derived  
+                                        x-lineageDerivedLogic: State description from STVSTAT is displayed.
+                                    additionalProperties: false
+                                    required:
+                                      - code
+                                  - type: object
+                                    maxProperties: 0
+                              subRegion:
+                                title: Subregion
+                                description: A subregion within the country and region
+                                type: object
+                                properties:
+                                  code:
+                                    title: Code
+                                    description: A code that may be used to identify the sub-region. This should be
+                                      the ISO 3166-2 code, if one exists,
+                                      otherwise, a user defined code may be
+                                      optionally specified.
+                                    type: string
+                                    x-lineageReferenceObject: SPRADDR_CNTY_CODE_ISO(SPRADDR) or SPRADDR_CNTY_CODE(SPRADDR) or STVCNTY_SCOD_CODE_ISO(STVCNTY)
+                                  title:
+                                    title: Title
+                                    description: The name of a subregion
+                                    type: string
+                                    x-lineageReferenceObject: derived  
+                                    x-lineageDerivedLogic: County description from STVCNTY is displayed SPRADDR_CNTY_TITLE(SPRADDR) or STVCNTY_DESC(STVCNTY)
+                                additionalProperties: false
+                              locality:
+                                title: city
+                                description: The name of the city or town.
+                                type: string
+                                x-lineageReferenceObject: SPRADDR_CITY(SPRADDR)
+                              postalCode:
+                                title: Postal Code
+                                description: The mailing postal code.
+                                oneOf:
+                                  - type: string
+                                    pattern: ^(?!.*[DFIOQU])[A-VXY][0-9][A-Z] ?[0-9][A-Z][0-9]$
+                                    x-lineageReferenceObject: SPRADDR_ZIP(SPRADDR)
+                                  - type: string
+                                    maxLength: 0
+                            additionalProperties: false
+                            required:
+                              - code
+                          - title: Mexico
+                            description: The postal region definition for Mexico.
+                            type: object
+                            properties:
+                              code:
+                                title: Code
+                                description: The ISO 3166-1 alpha-3 country code for Mexico.
+                                enum:
+                                  - MEX
+                                type: string
+                                x-lineageReferenceObject: SPRADDR_NATN_CODE(SPRADDR)
+                              title:
+                                title: Country
+                                description: The name of the country, as used in everyday speech.
+                                type: string
+                                x-lineageReferenceObject: derived  
+                                x-lineageDerivedLogic: Country description from STVNATN is displayed.
+                              postalTitle:
+                                title: Postal Country
+                                description: The name of the country when mail is being addressed from an
+                                  international sender.
+                                oneOf:
+                                  - type: string
+                                    enum:
+                                      - MEXICO
+                                    x-lineageReferenceObject: derived  
+                                    x-lineageDerivedLogic: If place.country.code ='MEX', display MEXICO
+                                  - type: string
+                                    maxLength: 0
+                              region:
+                                title: Region
+                                description: A region within the country
+                                oneOf:
+                                  - type: object
+                                    properties:
+                                      code:
+                                        title: Code
+                                        description: The ISO 3166-2 code used to identify the region within the country.
+                                        enum:
+                                          - MX-AGU
+                                          - MX-BCN
+                                          - MX-BCS
+                                          - MX-CAM
+                                          - MX-COA
+                                          - MX-COL
+                                          - MX-CHP
+                                          - MX-CHH
+                                          - MX-DIF
+                                          - MX-DUR
+                                          - MX-GUA
+                                          - MX-GRO
+                                          - MX-HID
+                                          - MX-JAL
+                                          - MX-MEX
+                                          - MX-MIC
+                                          - MX-MOR
+                                          - MX-NAY
+                                          - MX-NLE
+                                          - MX-OAX
+                                          - MX-PUE
+                                          - MX-QUE
+                                          - MX-ROO
+                                          - MX-SLP
+                                          - MX-SIN
+                                          - MX-SON
+                                          - MX-TAB
+                                          - MX-TAM
+                                          - MX-TLA
+                                          - MX-VER
+                                          - MX-YUC
+                                          - MX-ZAC
+                                        type: string
+                                        x-lineageReferenceObject: SPRADDR_STAT_CODE(SPRADDR)
+                                      title:
+                                        title: Title
+                                        description: The full name of the region
+                                        type: string
+                                        x-lineageReferenceObject: derived  
+                                        x-lineageDerivedLogic: State description from STVSTAT is displayed.
+                                    additionalProperties: false
+                                    required:
+                                      - code
+                                  - type: object
+                                    maxProperties: 0
+                              subRegion:
+                                title: Subregion
+                                description: A subregion within the country and region
+                                type: object
+                                properties:
+                                  code:
+                                    title: Code
+                                    description: A code that may be used to identify the sub-region. This should be
+                                      the ISO 3166-2 code, if one exists,
+                                      otherwise, a user defined code may be
+                                      optionally specified.
+                                    type: string
+                                    x-lineageReferenceObject: SPRADDR_CNTY_CODE_ISO(SPRADDR) or SPRADDR_CNTY_CODE(SPRADDR) or STVCNTY_SCOD_CODE_ISO(STVCNTY)
+                                  title:
+                                    title: Title
+                                    description: The name of a subregion
+                                    type: string
+                                    x-lineageReferenceObject: derived  
+                                    x-lineageDerivedLogic: County description from STVCNTY is displayed SPRADDR_CNTY_TITLE(SPRADDR) or STVCNTY_DESC(STVCNTY)
+                                additionalProperties: false
+                              locality:
+                                title: city
+                                description: The name of the city or town.
+                                type: string
+                                x-lineageReferenceObject: SPRADDR_CITY(SPRADDR)
+                              postalCode:
+                                title: Postal Code
+                                description: The mailing postal code.
+                                oneOf:
+                                  - type: string
+                                    pattern: ^\A\d{5,5}\Z$
+                                    x-lineageReferenceObject: SPRADDR_ZIP(SPRADDR)
+                                  - type: string
+                                    maxLength: 0
+                            additionalProperties: false
+                            required:
+                              - code
+                          - title: Netherlands
+                            description: The postal region definition for the Netherlands.
+                            type: object
+                            properties:
+                              code:
+                                title: Code
+                                description: The ISO 3166-1 alpha-3 country code for the Netherlands.
+                                enum:
+                                  - NLD
+                                type: string
+                                x-lineageReferenceObject: SPRADDR_NATN_CODE(SPRADDR)
+                              title:
+                                title: Country
+                                description: The name of the country, as used in everyday speech.
+                                type: string
+                                x-lineageReferenceObject: derived  
+                                x-lineageDerivedLogic: Country description from STVNATN is displayed.
+                              postalTitle:
+                                title: Postal Country
+                                description: The name of the country when mail is being addressed from an
+                                  international sender.
+                                oneOf:
+                                  - type: string
+                                    enum:
+                                      - NETHERLANDS
+                                    x-lineageReferenceObject: derived  
+                                    x-lineageDerivedLogic: If place.country.code ='NLD', display NETHERLANDS
+                                  - type: string
+                                    maxLength: 0
+                              region:
+                                title: Region
+                                description: A region within the country
+                                oneOf:
+                                  - type: object
+                                    properties:
+                                      code:
+                                        title: Code
+                                        description: The ISO 3166-2 code used to identify the region within the country.
+                                        enum:
+                                          - NL-DR
+                                          - NL-FL
+                                          - NL-FR
+                                          - NL-GE
+                                          - NL-GR
+                                          - NL-LI
+                                          - NL-NB
+                                          - NL-NH
+                                          - NL-OV
+                                          - NL-UT
+                                          - NL-ZE
+                                          - NL-ZH
+                                        type: string
+                                        x-lineageReferenceObject: SPRADDR_STAT_CODE(SPRADDR)
+                                      title:
+                                        title: Title
+                                        description: The full name of the region
+                                        type: string
+                                        x-lineageReferenceObject: derived  
+                                        x-lineageDerivedLogic: State description from STVSTAT is displayed.
+                                    additionalProperties: false
+                                    required:
+                                      - code
+                                  - type: object
+                                    maxProperties: 0
+                              subRegion:
+                                title: Subregion
+                                description: A subregion within the country and region
+                                type: object
+                                properties:
+                                  code:
+                                    title: Code
+                                    description: A code that may be used to identify the sub-region. This should be
+                                      the ISO 3166-2 code, if one exists,
+                                      otherwise, a user defined code may be
+                                      optionally specified.
+                                    type: string
+                                    x-lineageReferenceObject: SPRADDR_CNTY_CODE_ISO(SPRADDR) or SPRADDR_CNTY_CODE(SPRADDR) or STVCNTY_SCOD_CODE_ISO(STVCNTY)
+                                  title:
+                                    title: Title
+                                    description: The name of a subregion
+                                    type: string
+                                    x-lineageReferenceObject: derived  
+                                    x-lineageDerivedLogic: County description from STVCNTY is displayed SPRADDR_CNTY_TITLE(SPRADDR) or STVCNTY_DESC(STVCNTY)
+                                additionalProperties: false
+                              locality:
+                                title: city
+                                description: The name of the city or town.
+                                type: string
+                                x-lineageReferenceObject: SPRADDR_CITY(SPRADDR)
+                              postalCode:
+                                title: Postal Code
+                                description: The mailing postal code.
+                                oneOf:
+                                  - type: string
+                                    pattern: ^(NL-)?(\d{4})\s*([A-Z]{2})$
+                                    x-lineageReferenceObject: SPRADDR_ZIP(SPRADDR)
+                                  - type: string
+                                    maxLength: 0
+                            additionalProperties: false
+                            required:
+                              - code
+                          - title: United Kingdom of Great Britain and Northern Ireland
+                            description: The postal region definition for the United Kingdom of Great
+                              Britain and Northern Ireland.
+                            type: object
+                            properties:
+                              code:
+                                title: Code
+                                description: The ISO 3166-1 alpha-3 country code for the United Kingdom of Great
+                                  Britain and Northern Ireland.
+                                enum:
+                                  - GBR
+                                type: string
+                                x-lineageReferenceObject: SPRADDR_NATN_CODE(SPRADDR)
+                              title:
+                                title: Country
+                                description: The name of the country, as used in everyday speech.
+                                type: string
+                                x-lineageReferenceObject: derived  
+                                x-lineageDerivedLogic: Country description from STVNATN is displayed.
+                              postalTitle:
+                                title: Postal Country
+                                description: The name of the country when mail is being addressed from an
+                                  international sender.
+                                oneOf:
+                                  - type: string
+                                    enum:
+                                      - UNITED KINGDOM OF GREAT BRITAIN AND
+                                        NORTHERN IRELAND
+                                    x-lineageReferenceObject: derived  
+                                    x-lineageDerivedLogic: If place.country.code ='GBR', display UNITED KINDGOM OF GREAT BRITAIN AND NORTHERN IRELAND
+                                  - type: string
+                                    maxLength: 0
+                              region:
+                                title: Region
+                                description: A region within the country
+                                oneOf:
+                                  - type: object
+                                    properties:
+                                      code:
+                                        title: Code
+                                        description: The ISO 3166-2 code used to identify the region within the country.
+                                        enum:
+                                          - GB-ENG
+                                          - GB-NIR
+                                          - GB-SCT
+                                          - GB-WLS
+                                        type: string
+                                        x-lineageReferenceObject: SPRADDR_STAT_CODE(SPRADDR)
+                                      title:
+                                        title: Title
+                                        description: The name of a subregion
+                                        type: string
+                                        x-lineageReferenceObject: derived  
+                                        x-lineageDerivedLogic: State description from STVSTAT is displayed.
+                                    additionalProperties: false
+                                    required:
+                                      - code
+                                  - type: object
+                                    maxProperties: 0
+                              subRegion:
+                                title: Subregion
+                                description: A subregion within the country and region
+                                oneOf:
+                                  - type: object
+                                    properties:
+                                      code:
+                                        title: Code
+                                        description: The ISO 3166-2 code used to identify the sub-region within the
+                                          country.
+                                        enum:
+                                          - GB-BAS
+                                          - GB-BBD
+                                          - GB-BDF
+                                          - GB-BDG
+                                          - GB-BEN
+                                          - GB-BEX
+                                          - GB-BIR
+                                          - GB-BKM
+                                          - GB-BMH
+                                          - GB-BNE
+                                          - GB-BNH
+                                          - GB-BNS
+                                          - GB-BOL
+                                          - GB-BPL
+                                          - GB-BRC
+                                          - GB-BRD
+                                          - GB-BRY
+                                          - GB-BST
+                                          - GB-BUR
+                                          - GB-CAM
+                                          - GB-CBF
+                                          - GB-CHE
+                                          - GB-CHW
+                                          - GB-CLD
+                                          - GB-CMA
+                                          - GB-CMD
+                                          - GB-CON
+                                          - GB-COV
+                                          - GB-CRY
+                                          - GB-DAL
+                                          - GB-DBY
+                                          - GB-DER
+                                          - GB-DEV
+                                          - GB-DNC
+                                          - GB-DOR
+                                          - GB-DUD
+                                          - GB-DUR
+                                          - GB-EAL
+                                          - GB-ENF
+                                          - GB-ERY
+                                          - GB-ESS
+                                          - GB-ESX
+                                          - GB-GAT
+                                          - GB-GLS
+                                          - GB-GRE
+                                          - GB-HAL
+                                          - GB-HAM
+                                          - GB-HAV
+                                          - GB-HCK
+                                          - GB-HEF
+                                          - GB-HIL
+                                          - GB-HMF
+                                          - GB-HNS
+                                          - GB-HPL
+                                          - GB-HRT
+                                          - GB-HRW
+                                          - GB-HRY
+                                          - GB-IOS
+                                          - GB-IOW
+                                          - GB-ISL
+                                          - GB-KEC
+                                          - GB-KEN
+                                          - GB-KHL
+                                          - GB-KIR
+                                          - GB-KTT
+                                          - GB-KWL
+                                          - GB-LAN
+                                          - GB-LBH
+                                          - GB-LCE
+                                          - GB-LDS
+                                          - GB-LEC
+                                          - GB-LEW
+                                          - GB-LIN
+                                          - GB-LIV
+                                          - GB-LND
+                                          - GB-LUT
+                                          - GB-MAN
+                                          - GB-MDB
+                                          - GB-MDW
+                                          - GB-MIK
+                                          - GB-MRT
+                                          - GB-NBL
+                                          - GB-NEL
+                                          - GB-NET
+                                          - GB-NFK
+                                          - GB-NGM
+                                          - GB-NLN
+                                          - GB-NSM
+                                          - GB-NTH
+                                          - GB-NTT
+                                          - GB-NTY
+                                          - GB-NWM
+                                          - GB-NYK
+                                          - GB-OLD
+                                          - GB-OXF
+                                          - GB-PLY
+                                          - GB-POL
+                                          - GB-POR
+                                          - GB-PTE
+                                          - GB-RCC
+                                          - GB-RCH
+                                          - GB-RDB
+                                          - GB-RDG
+                                          - GB-RIC
+                                          - GB-ROT
+                                          - GB-RUT
+                                          - GB-SAW
+                                          - GB-SFK
+                                          - GB-SFT
+                                          - GB-SGC
+                                          - GB-SHF
+                                          - GB-SHN
+                                          - GB-SHR
+                                          - GB-SKP
+                                          - GB-SLF
+                                          - GB-SLG
+                                          - GB-SND
+                                          - GB-SOL
+                                          - GB-SOM
+                                          - GB-SOS
+                                          - GB-SRY
+                                          - GB-STE
+                                          - GB-STH
+                                          - GB-STN
+                                          - GB-STS
+                                          - GB-STT
+                                          - GB-STY
+                                          - GB-SWD
+                                          - GB-SWK
+                                          - GB-TAM
+                                          - GB-TFW
+                                          - GB-THR
+                                          - GB-TOB
+                                          - GB-TRF
+                                          - GB-TWH
+                                          - GB-WAR
+                                          - GB-WBK
+                                          - GB-WFT
+                                          - GB-WGN
+                                          - GB-WIL
+                                          - GB-WKF
+                                          - GB-WLL
+                                          - GB-WLV
+                                          - GB-WND
+                                          - GB-WNM
+                                          - GB-WOK
+                                          - GB-WOR
+                                          - GB-WRL
+                                          - GB-WRT
+                                          - GB-WSM
+                                          - GB-WSX
+                                          - GB-YOR
+                                          - GB-ABC
+                                          - GB-AND
+                                          - GB-ANN
+                                          - GB-BFS
+                                          - GB-CCG
+                                          - GB-DRS
+                                          - GB-FMO
+                                          - GB-LBC
+                                          - GB-MEA
+                                          - GB-MUL
+                                          - GB-NMD
+                                          - GB-ABD
+                                          - GB-ABE
+                                          - GB-AGB
+                                          - GB-ANS
+                                          - GB-CLK
+                                          - GB-DGY
+                                          - GB-DND
+                                          - GB-EAY
+                                          - GB-EDH
+                                          - GB-EDU
+                                          - GB-ELN
+                                          - GB-ELS
+                                          - GB-ERW
+                                          - GB-FAL
+                                          - GB-FIF
+                                          - GB-GLG
+                                          - GB-HLD
+                                          - GB-IVC
+                                          - GB-MLN
+                                          - GB-MRY
+                                          - GB-NAY
+                                          - GB-NLK
+                                          - GB-ORK
+                                          - GB-PKN
+                                          - GB-RFW
+                                          - GB-SAY
+                                          - GB-SCB
+                                          - GB-SLK
+                                          - GB-STG
+                                          - GB-WDU
+                                          - GB-WLN
+                                          - GB-ZET
+                                          - GB-AGY
+                                          - GB-BGE
+                                          - GB-BGW
+                                          - GB-CAY
+                                          - GB-CGN
+                                          - GB-CMN
+                                          - GB-CRF
+                                          - GB-CWY
+                                          - GB-DEN
+                                          - GB-FLN
+                                          - GB-GWN
+                                          - GB-MON
+                                          - GB-MTY
+                                          - GB-NTL
+                                          - GB-NWP
+                                          - GB-PEM
+                                          - GB-POW
+                                          - GB-RCT
+                                          - GB-SWA
+                                          - GB-TOF
+                                          - GB-VGL
+                                          - GB-WRX
+                                        type: string
+                                        x-lineageReferenceObject: SPRADDR_CNTY_CODE_ISO(SPRADDR) or SPRADDR_CNTY_CODE(SPRADDR) or STVCNTY_SCOD_CODE_ISO(STVCNTY)
+                                      title:
+                                        title: Title
+                                        description: The full name of the region
+                                        type: string
+                                        x-lineageReferenceObject: derived  
+                                        x-lineageDerivedLogic: County description from STVCNTY is displayed SPRADDR_CNTY_TITLE(SPRADDR) or STVCNTY_DESC(STVCNTY)
+                                    additionalProperties: false
+                                    required:
+                                      - code
+                                  - type: object
+                                    maxProperties: 0
+                              locality:
+                                title: city
+                                description: The name of the city or town.
+                                type: string
+                                x-lineageReferenceObject: SPRADDR_CITY(SPRADDR)
+                              postalCode:
+                                title: Postal Code
+                                description: The mailing postal code.
+                                oneOf:
+                                  - type: string
+                                    pattern: ^(GIR
+                                      0AA)|((([A-Z-[QVX]][0-9][0-9]?)|(([A-Z-[QVX]][A-Z-[IJZ]][0-9][0-9]?)|(([A-Z-[QVX]][0-9][A-HJKPSTUW])|([A-Z-[QVX]][A-Z-[IJZ]][0-9][ABEHMNPRVWXY]))))
+                                      [0-9][A-Z-[CIKMOV]]{2})$
+                                    x-lineageReferenceObject: SPRADDR_ZIP(SPRADDR)
+                                  - type: string
+                                    maxLength: 0
+                            additionalProperties: false
+                            required:
+                              - code
+                          - title: United States of America
+                            description: The postal region definition for the United States of America.
+                            type: object
+                            properties:
+                              code:
+                                title: Code
+                                description: The ISO 3166-1 alpha-3 country code the United States of America.
+                                enum:
+                                  - USA
+                                type: string
+                                x-lineageReferenceObject: SPRADDR_NATN_CODE(SPRADDR)
+                              title:
+                                title: Country
+                                description: The name of the country, as used in everyday speech.
+                                type: string
+                                x-lineageReferenceObject: derived  
+                                x-lineageDerivedLogic: Country description from STVNATN is displayed.
+                              postalTitle:
+                                title: Postal Country
+                                description: The name of the country when mail is being addressed from an
+                                  international sender.
+                                oneOf:
+                                  - type: string
+                                    enum:
+                                      - UNITED STATES OF AMERICA
+                                    x-lineageReferenceObject: derived  
+                                    x-lineageDerivedLogic: If place.country.code ='USA', display UNITED STATES OF AMERICA
+                                  - type: string
+                                    maxLength: 0
+                              region:
+                                title: Region
+                                description: A region within the country
+                                oneOf:
+                                  - type: object
+                                    properties:
+                                      code:
+                                        title: Code
+                                        description: The ISO 3166-2 code used to identify the region within the country,
+                                          if it exists, or the postal code for
+                                          the region.
+                                        enum:
+                                          - US-AL
+                                          - US-AK
+                                          - US-AZ
+                                          - US-AR
+                                          - US-CA
+                                          - US-CO
+                                          - US-CT
+                                          - US-DE
+                                          - US-DC
+                                          - US-FL
+                                          - US-GA
+                                          - US-HI
+                                          - US-ID
+                                          - US-IL
+                                          - US-IN
+                                          - US-IA
+                                          - US-KS
+                                          - US-KY
+                                          - US-LA
+                                          - US-ME
+                                          - US-MD
+                                          - US-MA
+                                          - US-MI
+                                          - US-MN
+                                          - US-MS
+                                          - US-MO
+                                          - US-MT
+                                          - US-NE
+                                          - US-NV
+                                          - US-NH
+                                          - US-NJ
+                                          - US-NM
+                                          - US-NY
+                                          - US-NC
+                                          - US-ND
+                                          - US-OH
+                                          - US-OK
+                                          - US-OR
+                                          - US-PA
+                                          - US-RI
+                                          - US-SC
+                                          - US-SD
+                                          - US-TN
+                                          - US-TX
+                                          - US-UT
+                                          - US-VT
+                                          - US-VA
+                                          - US-WA
+                                          - US-WV
+                                          - US-WI
+                                          - US-WY
+                                          - US-AS
+                                          - US-GU
+                                          - US-MP
+                                          - US-PR
+                                          - US-UM
+                                          - US-VI
+                                          - US-FM
+                                          - US-MH
+                                          - US-PW
+                                          - US-AA
+                                          - US-AE
+                                          - US-AP
+                                        type: string
+                                        x-lineageReferenceObject: SPRADDR_STAT_CODE(SPRADDR)
+                                      title:
+                                        title: Title
+                                        description: The full name of the region
+                                        type: string
+                                        x-lineageReferenceObject: derived  
+                                        x-lineageDerivedLogic: State description from STVSTAT is displayed.
+                                    additionalProperties: false
+                                    required:
+                                      - code
+                                  - type: object
+                                    maxProperties: 0
+                              subRegion:
+                                title: Subregion
+                                description: A subregion within the country and region
+                                type: object
+                                properties:
+                                  code:
+                                    title: Code
+                                    description: A code that may be used to identify the sub-region. This should be
+                                      the ISO 3166-2 code, if one exists,
+                                      otherwise, a user defined code may be
+                                      optionally specified.
+                                    type: string
+                                    x-lineageReferenceObject: SPRADDR_CNTY_CODE_ISO(SPRADDR) or SPRADDR_CNTY_CODE(SPRADDR) or STVCNTY_SCOD_CODE_ISO(STVCNTY)
+                                  title:
+                                    title: Title
+                                    description: The name of a subregion
+                                    type: string
+                                    x-lineageReferenceObject: derived  
+                                    x-lineageDerivedLogic: County description from STVCNTY is displayed SPRADDR_CNTY_TITLE(SPRADDR) or STVCNTY_DESC(STVCNTY)
+                                additionalProperties: false
+                              locality:
+                                title: city
+                                description: The name of the city or town.
+                                type: string
+                                x-lineageReferenceObject: SPRADDR_CITY(SPRADDR)
+                              postalCode:
+                                title: Postal Code
+                                description: The mailing postal code.
+                                oneOf:
+                                  - type: string
+                                    pattern: ^(\d{5}(-\d{4})?|[A-Z]\d[A-Z] *\d[A-Z]\d)$
+                                    x-lineageReferenceObject: SPRADDR_ZIP(SPRADDR)
+                                  - type: string
+                                    maxLength: 0
+                              deliveryPoint:
+                                title: Delivery Point
+                                description: A specific set of digits between 00 and 99 assigned to every
+                                  address. When combined with the ZIP + 4 code,
+                                  the delivery point provides a unique
+                                  identifier for every deliverable address
+                                  served by the US Postal Service.
+                                oneOf:
+                                  - type: string
+                                    pattern: ^[0-9][0-9]$
+                                    x-lineageReferenceObject: SPRADDR_DELIVERY_POINT(SPRADDR)
+                                  - type: string
+                                    maxLength: 0
+                              carrierRoute:
+                                title: Carrier Route
+                                description: A subdivision of a US zipcode.
+                                oneOf:
+                                  - type: string
+                                    pattern: ^(C|R|P)[0-9]{3}$
+                                    x-lineageReferenceObject: SPRADDR_CARRIER_ROUTE(SPRADDR)
+                                  - type: string
+                                    maxLength: 0
+                              correctionDigit:
+                                title: Correction Digit
+                                description: A number used to check for errors in a US ZIP code, delivery point,
+                                  or carrier route.
+                                oneOf:
+                                  - type: string
+                                    pattern: ^[0-9]$
+                                    x-lineageReferenceObject: SPRADDR_CORRECTION_DIGIT(SPRADDR)
+                                  - type: string
+                                    maxLength: 0
+                            additionalProperties: false
+                            required:
+                              - code
+                          - title: Generic
+                            description: The postal region definition for all other counties.
+                            type: object
+                            properties:
+                              code:
+                                title: Code
+                                description: The ISO 3166-1 alpha-3 country code.
+                                enum:
+                                  - ABW
+                                  - AFG
+                                  - AGO
+                                  - AIA
+                                  - ALA
+                                  - ALB
+                                  - AND
+                                  - ARE
+                                  - ARG
+                                  - ARM
+                                  - ASM
+                                  - ATA
+                                  - ATF
+                                  - ATG
+                                  - AUT
+                                  - AZE
+                                  - BDI
+                                  - BEL
+                                  - BEN
+                                  - BES
+                                  - BFA
+                                  - BGD
+                                  - BGR
+                                  - BHR
+                                  - BHS
+                                  - BIH
+                                  - BLM
+                                  - BLR
+                                  - BLZ
+                                  - BMU
+                                  - BOL
+                                  - BRB
+                                  - BRN
+                                  - BTN
+                                  - BVT
+                                  - BWA
+                                  - CAF
+                                  - CCK
+                                  - CHE
+                                  - CHL
+                                  - CHN
+                                  - CIV
+                                  - CMR
+                                  - COD
+                                  - COG
+                                  - COK
+                                  - COL
+                                  - COM
+                                  - CPV
+                                  - CRI
+                                  - CUB
+                                  - CUW
+                                  - CXR
+                                  - CYM
+                                  - CYP
+                                  - CZE
+                                  - DEU
+                                  - DJI
+                                  - DMA
+                                  - DNK
+                                  - DOM
+                                  - DZA
+                                  - ECU
+                                  - EGY
+                                  - ERI
+                                  - ESH
+                                  - ESP
+                                  - EST
+                                  - ETH
+                                  - FIN
+                                  - FJI
+                                  - FLK
+                                  - FRA
+                                  - FRO
+                                  - FSM
+                                  - GAB
+                                  - GEO
+                                  - GGY
+                                  - GHA
+                                  - GIB
+                                  - GIN
+                                  - GLP
+                                  - GMB
+                                  - GNB
+                                  - GNQ
+                                  - GRC
+                                  - GRD
+                                  - GRL
+                                  - GTM
+                                  - GUF
+                                  - GUM
+                                  - GUY
+                                  - HKG
+                                  - HMD
+                                  - HND
+                                  - HRV
+                                  - HTI
+                                  - HUN
+                                  - IDN
+                                  - IMN
+                                  - IND
+                                  - IOT
+                                  - IRL
+                                  - IRN
+                                  - IRQ
+                                  - ISL
+                                  - ISR
+                                  - ITA
+                                  - JAM
+                                  - JEY
+                                  - JOR
+                                  - JPN
+                                  - KAZ
+                                  - KEN
+                                  - KGZ
+                                  - KHM
+                                  - KIR
+                                  - KNA
+                                  - KOR
+                                  - KWT
+                                  - LAO
+                                  - LBN
+                                  - LBR
+                                  - LBY
+                                  - LCA
+                                  - LIE
+                                  - LKA
+                                  - LSO
+                                  - LTU
+                                  - LUX
+                                  - LVA
+                                  - MAC
+                                  - MAF
+                                  - MAR
+                                  - MCO
+                                  - MDA
+                                  - MDG
+                                  - MDV
+                                  - MHL
+                                  - MKD
+                                  - MLI
+                                  - MLT
+                                  - MMR
+                                  - MNE
+                                  - MNG
+                                  - MNP
+                                  - MOZ
+                                  - MRT
+                                  - MSR
+                                  - MTQ
+                                  - MUS
+                                  - MWI
+                                  - MYS
+                                  - MYT
+                                  - NAM
+                                  - NCL
+                                  - NER
+                                  - NFK
+                                  - NGA
+                                  - NIC
+                                  - NIU
+                                  - NOR
+                                  - NPL
+                                  - NRU
+                                  - NZL
+                                  - OMN
+                                  - PAK
+                                  - PAN
+                                  - PCN
+                                  - PER
+                                  - PHL
+                                  - PLW
+                                  - PNG
+                                  - POL
+                                  - PRI
+                                  - PRK
+                                  - PRT
+                                  - PRY
+                                  - PSE
+                                  - PYF
+                                  - QAT
+                                  - REU
+                                  - ROU
+                                  - RUS
+                                  - RWA
+                                  - SAU
+                                  - SDN
+                                  - SEN
+                                  - SGP
+                                  - SGS
+                                  - SHN
+                                  - SJM
+                                  - SLB
+                                  - SLE
+                                  - SLV
+                                  - SMR
+                                  - SOM
+                                  - SPM
+                                  - SRB
+                                  - SSD
+                                  - STP
+                                  - SUR
+                                  - SVK
+                                  - SVN
+                                  - SWE
+                                  - SWZ
+                                  - SXM
+                                  - SYC
+                                  - SYR
+                                  - TCA
+                                  - TCD
+                                  - TGO
+                                  - THA
+                                  - TJK
+                                  - TKL
+                                  - TKM
+                                  - TLS
+                                  - TON
+                                  - TTO
+                                  - TUN
+                                  - TUR
+                                  - TUV
+                                  - TWN
+                                  - TZA
+                                  - UGA
+                                  - UKR
+                                  - UMI
+                                  - URY
+                                  - UZB
+                                  - VAT
+                                  - VCT
+                                  - VEN
+                                  - VGB
+                                  - VIR
+                                  - VNM
+                                  - VUT
+                                  - WLF
+                                  - WSM
+                                  - YEM
+                                  - ZAF
+                                  - ZMB
+                                  - ZWE
+                                type: string
+                                x-lineageReferenceObject: SPRADDR_NATN_CODE(SPRADDR)
+                              title:
+                                title: Country
+                                description: The name of the country, as used in everyday speech.
+                                type: string
+                                x-lineageReferenceObject: derived  
+                                x-lineageDerivedLogic: Country description from STVNATN is displayed.
+                              postalTitle:
+                                title: Postal Country
+                                description: The name of the country when mail is being addressed from an
+                                  international sender.
+                                type: string
+                                x-lineageReferenceObject: derived  
+                                x-lineageDerivedLogic: Based on the place.country.code value, display the country name.
+                              region:
+                                title: Region
+                                description: A region within the country
+                                type: object
+                                properties:
+                                  code:
+                                    title: Code
+                                    description: The ISO 3166-2 code used to identify the region within the country.
+                                    type: string
+                                    x-lineageReferenceObject: SPRADDR_STAT_CODE(SPRADDR)
+                                  title:
+                                    title: Title
+                                    description: The full name of the region
+                                    type: string
+                                    x-lineageReferenceObject: derived  
+                                    x-lineageDerivedLogic: State description from STVSTAT is displayed.
+                                additionalProperties: false
+                              subRegion:
+                                title: Subregion
+                                description: A subregion within the country and region
+                                type: object
+                                properties:
+                                  code:
+                                    title: Code
+                                    description: A code that may be used to identify the sub-region. This should be
+                                      the ISO 3166-2 code, if one exists,
+                                      otherwise, a user defined code may be
+                                      optionally specified.
+                                    type: string
+                                    x-lineageReferenceObject: SPRADDR_CNTY_CODE_ISO(SPRADDR) or SPRADDR_CNTY_CODE(SPRADDR) or STVCNTY_SCOD_CODE_ISO(STVCNTY)
+                                  title:
+                                    title: Title
+                                    description: The name of a subregion
+                                    type: string
+                                    x-lineageReferenceObject: derived  
+                                    x-lineageDerivedLogic: County description from STVCNTY is displayed SPRADDR_CNTY_TITLE(SPRADDR) or STVCNTY_DESC(STVCNTY)
+                                additionalProperties: false
+                              locality:
+                                title: city
+                                description: The name of the city or town.
+                                type: string
+                                x-lineageReferenceObject: SPRADDR_CITY(SPRADDR)
+                              postalCode:
+                                title: Postal Code
+                                description: The mailing postal code.
+                                type: string
+                                x-lineageReferenceObject: SPRADDR_ZIP(SPRADDR)
+                            additionalProperties: false
+                            required:
+                              - code
+                    additionalProperties: false
+                    required:
+                      - country
+                  - type: object
+                    maxProperties: 0
+              detail:
+                title: Detail
+                description: The details associated with the address.
+                oneOf:
+                  - type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the Detail.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                        x-lineageLookupReferenceObject: addresses 
+                        x-lineageReferenceObject: SPRADDR_GUID(SPRADDR)
+                    additionalProperties: false
+                    required:
+                      - id
+                  - type: object
+                    maxProperties: 0
+              type:
+                title: Type
+                description: A type of address for a vendor. Includes a standard type (e.g.
+                  'business', 'mailing') and an optional, custom type to further
+                  identify the type of address.
+                type: object
+                properties:
+                  title:
+                    title: Title
+                    description: The title of the address type.
+                    type: string
+                    x-lineageReferenceObject: SPRADDR_ATYP_CODE(SPRADDR)
+                  code:
+                    title: Code
+                    description: The code used to identify the address type.
+                    type: string
+                    x-lineageReferenceObject: STVATYP_DESC(STVATYP)
+                  addressType:
+                    title: Address Type
+                    description: The standard type of address for the vendor.
+                    enum:
+                      - home
+                      - school
+                      - vacation
+                      - billing
+                      - shipping
+                      - mailing
+                      - business
+                      - parent
+                      - family
+                      - pobox
+                      - main
+                      - branch
+                      - region
+                      - support
+                      - matchingGifts
+                      - other
+                    type: string
+                    x-lineageReferenceObject: SPRADDR_ATYP_CODE(SPRADDR)
+                  detail:
+                    title: Detail
+                    description: Additional details about the type of address.
+                    oneOf:
+                      - type: object
+                        properties:
+                          id:
+                            title: ID
+                            description: The global identifier for the Detail.
+                            type: string
+                            format: guid
+                            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                            x-lineageLookupReferenceObject: address-types 
+                            x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = address-types) 
+                            x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME as 'address-types' will refer to the SPRADDR_ATYP_CODE
+                        additionalProperties: false
+                        required:
+                          - id
+                      - type: object
+                        maxProperties: 0
+                additionalProperties: false
+                required:
+                  - addressType
+              status:
+                title: Status
+                description: The status of the address (active or inactive).
+                oneOf:
+                  - type: string
+                    enum:
+                      - active
+                      - inactive
+                    x-lineageReferenceObject: derived  
+                    x-lineageDerivedLogic: If SPRADDER_TO_DATE is null and SPRADDER_STATUS_IND = I, display 'inactive'; if SPRADDER_TO_DATE is null and SPRADDER_STATUS_IND <> I, display 'active'; if SPRADDR_TO_DATE is not null and if current date falls between SPRADDR_FROM_DATE and SPRADDR_TO_DATE then display 'active' else display 'inactive'.
+                  - type: string
+                    maxLength: 0
+              phones:
+                title: Phones
+                description: The phones and phone-connected devices for this address at which
+                  the vendor can be contacted.
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type:
+                      title: Type
+                      description: A type of phone for a vendor at this address. Includes a standard
+                        type (e.g. 'mobile', 'business') and an optional, custom
+                        type to further identify the type of phone.
+                      type: object
+                      properties:
+                        phoneType:
+                          title: Type
+                          description: A type of phone contact for a vendor at this address.
+                          enum:
+                            - mobile
+                            - home
+                            - school
+                            - vacation
+                            - business
+                            - fax
+                            - pager
+                            - tdd
+                            - parent
+                            - family
+                            - main
+                            - branch
+                            - region
+                            - support
+                            - billing
+                            - matchingGifts
+                            - other
+                          type: string
+                          x-lineageReferenceObject: derived  
+                          x-lineageDerivedLogic: Phone type value corresponding to the SPRTELE_TELE_CODE that is mapped to a valid phone type enum in API configuration setting PHONES.PHONETYPE
+                        detail:
+                          title: Detail
+                          description: Additional details about the type of phone.
+                          oneOf:
+                            - type: object
+                              properties:
+                                id:
+                                  title: ID
+                                  description: The global identifier for the Detail.
+                                  type: string
+                                  format: guid
+                                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                                  x-lineageLookupReferenceObject: phone-types 
+                                  x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = phone-types) 
+                                  x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME as 'phone-types' will refer to the SPRTELE_TELE_CODE in SPRTELE
+                              additionalProperties: false
+                              required:
+                                - id
+                            - type: object
+                              maxProperties: 0
+                      additionalProperties: false
+                      required:
+                        - phoneType
+                    countryCallingCode:
+                      title: Country Calling Code
+                      description: The country calling code of telephone and/or mobile device when
+                        dialing internationally.
+                      oneOf:
+                        - type: string
+                          format: countryCallingCode
+                          pattern: ^\+?[1-9][0-9]{0,3}$
+                          x-lineageReferenceObject: SPRTELE_CTRY_CODE_PHONE(SPRTELE)
+                        - type: string
+                          maxLength: 0
+                    number:
+                      title: Number
+                      description: The number assigned to the phone.
+                      type: string
+                      minLength: 1
+                      x-lineageReferenceObject: SPRTELE_PHONE_NUMBER(SPRTELE)
+                    extension:
+                      title: Extension
+                      description: The extension used to connect to the phone when multiple phones
+                        share the same primary number.
+                      type: string
+                      x-lineageReferenceObject: SPRTELE_PHONE_EXT(SPRTELE)
+                  additionalProperties: false
+                  required:
+                    - number
+              startOn:
+                title: Start On
+                description: The earliest date that this address was valid for the vendor.
+                oneOf:
+                  - type: string
+                    format: date
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                    x-lineageReferenceObject: SPRADDR_FROM_DATE(SPRADDR)
+                  - type: string
+                    maxLength: 0
+              endOn:
+                title: End On
+                description: The latest date when this address was valid for the vendor.
+                oneOf:
+                  - type: string
+                    format: date
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                    x-lineageReferenceObject: SPRADDR_TO_DATE(SPRADDR)
+                  - type: string
+                    maxLength: 0
+            additionalProperties: false
+            required:
+              - addressLines
+        phones:
+          title: Phones
+          description: The phones and phone-connected devices at which a vendor can be
+            contacted.
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                title: Type
+                description: A type of phone for a vendor. Includes a standard type (e.g.
+                  'mobile', 'business') and an optional, custom type to further
+                  identify the type of phone.
+                type: object
+                properties:
+                  phoneType:
+                    title: Type
+                    description: A type of phone contact for a vendor.
+                    enum:
+                      - mobile
+                      - home
+                      - school
+                      - vacation
+                      - business
+                      - fax
+                      - pager
+                      - tdd
+                      - parent
+                      - family
+                      - main
+                      - branch
+                      - region
+                      - support
+                      - billing
+                      - matchingGifts
+                      - other
+                    type: string
+                    x-lineageReferenceObject: unsupported
+                  detail:
+                    title: Detail
+                    description: Additional details about the type of phone.
+                    oneOf:
+                      - type: object
+                        properties:
+                          id:
+                            title: ID
+                            description: The global identifier for the Detail.
+                            type: string
+                            format: guid
+                            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                            x-lineageLookupReferenceObject: phone-types 
+                            x-lineageReferenceObject: unsupported
+                        additionalProperties: false
+                        required:
+                          - id
+                      - type: object
+                        maxProperties: 0
+                additionalProperties: false
+                required:
+                  - phoneType
+              countryCallingCode:
+                title: Country Calling Code
+                description: The country calling code of telephone and/or mobile device when
+                  dialing internationally.
+                oneOf:
+                  - type: string
+                    format: countryCallingCode
+                    pattern: ^\+?[1-9][0-9]{0,3}$
+                    x-lineageReferenceObject: unsupported
+                  - type: string
+                    maxLength: 0
+              number:
+                title: Number
+                description: The number assigned to the phone.
+                type: string
+                minLength: 1
+                x-lineageReferenceObject: unsupported
+              extension:
+                title: Extension
+                description: The extension used to connect to the phone when multiple phones
+                  share the same primary number.
+                type: string
+                x-lineageReferenceObject: unsupported
+            additionalProperties: false
+            required:
+              - type
+              - number
+        defaultAddresses:
+          title: Default Addresses
+          description: The default address(es) associated with the vendor.
+          type: array
+          items:
+            type: object
+            properties:
+              address:
+                title: Address
+                description: The default address associated with the vendor.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Address.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: addresses 
+                    x-lineageReferenceObject: SPRADDR_GUID(SPRADDR)
+                additionalProperties: false
+                required:
+                  - id
+              usage:
+                title: Usage
+                description: The usage associated with the address.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Usage.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: vendor-address-usages 
+                    x-lineageReferenceObject: FTVVADUE_GUID(FTVVADUE)
+                additionalProperties: false
+                required:
+                  - id
+            additionalProperties: false
+            required:
+              - address
+              - usage
+        defaultTaxFormComponent:
+          title: Default Tax Form Component
+          description: The default tax form component associated with the vendor.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Default Tax Form Component.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: tax-form-components 
+                  x-lineageReferenceObject: FTVVEND_ITYP_SEQ_CODE(FTVVEND)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        defaultCurrency:
+          title: Default Currency
+          description: The default currency for the vendor.
+          oneOf:
+            - type: string
+              enum:
+                - AED
+                - AFN
+                - ALL
+                - AMD
+                - ANG
+                - AOA
+                - ARS
+                - AUD
+                - AWG
+                - AZN
+                - BAM
+                - BBD
+                - BDT
+                - BGN
+                - BHD
+                - BIF
+                - BMD
+                - BND
+                - BOB
+                - BRL
+                - BSD
+                - BTN
+                - BWP
+                - BYR
+                - BZD
+                - CAD
+                - CDF
+                - CHF
+                - CLP
+                - CNY
+                - COP
+                - CRC
+                - CUC
+                - CUP
+                - CVE
+                - CZK
+                - DJF
+                - DKK
+                - DOP
+                - DZD
+                - EGP
+                - ERN
+                - ETB
+                - EUR
+                - FJD
+                - FKP
+                - GBP
+                - GEL
+                - GHS
+                - GIP
+                - GMD
+                - GNF
+                - GTQ
+                - GYD
+                - HKD
+                - HNL
+                - HRK
+                - HTG
+                - HUF
+                - IDR
+                - ILS
+                - INR
+                - IQD
+                - IRR
+                - ISK
+                - JMD
+                - JOD
+                - JPY
+                - KES
+                - KGS
+                - KHR
+                - KMF
+                - KPW
+                - KRW
+                - KWD
+                - KYD
+                - KZT
+                - LAK
+                - LBP
+                - LKR
+                - LRD
+                - LSL
+                - LYD
+                - MAD
+                - MDL
+                - MGA
+                - MKD
+                - MMK
+                - MNT
+                - MOP
+                - MRO
+                - MUR
+                - MVR
+                - MWK
+                - MXN
+                - MYR
+                - MZN
+                - NAD
+                - NGN
+                - NIO
+                - NOK
+                - NPR
+                - NZD
+                - OMR
+                - PAB
+                - PEN
+                - PGK
+                - PHP
+                - PKR
+                - PLN
+                - PYG
+                - QAR
+                - RON
+                - RSD
+                - RUB
+                - RWF
+                - SAR
+                - SBD
+                - SCR
+                - SDG
+                - SEK
+                - SGD
+                - SHP
+                - SLL
+                - SOS
+                - SRD
+                - SSP
+                - STD
+                - SVC
+                - SYP
+                - SZL
+                - THB
+                - TJS
+                - TMT
+                - TND
+                - TOP
+                - TRY
+                - TTD
+                - TWD
+                - TZS
+                - UAH
+                - UGX
+                - USD
+                - UYU
+                - UZS
+                - VEF
+                - VND
+                - VUV
+                - WST
+                - XAF
+                - XCD
+                - XOF
+                - XPF
+                - YER
+                - ZAR
+                - ZMW
+                - ZWL
+              x-lineageReferenceObject: FTVVEND_CURR_CODE(FTVVEND)
+            - type: string
+              maxLength: 0
+        contacts:
+          title: Contacts
+          description: The contacts associated with a vendor.
+          type: array
+          items:
+            type: object
+            properties:
+              vendorContact:
+                title: Vendor Contact
+                description: The detail of the vendor contact.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Vendor Contact.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: vendor-contacts 
+                    x-lineageReferenceObject: (FTVVEND_CONTACT_GUID)
+                additionalProperties: false
+                required:
+                  - id
+              relationshipType:
+                title: Relationship Type
+                description: The type of relationship between the vendor and the contact.
+                oneOf:
+                  - type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the Relationship Type.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                        x-lineageLookupReferenceObject: relationship-types 
+                        x-lineageReferenceObject: unsupported
+                    additionalProperties: false
+                    required:
+                      - id
+                  - type: object
+                    maxProperties: 0
+              person:
+                title: Person
+                description: The person who is the vendor contact.
+                type: object
+                properties:
+                  detail:
+                    title: Detail
+                    description: The detail of the person who is the contact.
+                    oneOf:
+                      - type: object
+                        properties:
+                          id:
+                            title: ID
+                            description: The global identifier for the Detail.
+                            type: string
+                            format: guid
+                            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                            x-lineageLookupReferenceObject: persons 
+                            x-lineageReferenceObject: unsupported
+                        additionalProperties: false
+                        required:
+                          - id
+                      - type: object
+                        maxProperties: 0
+                  name:
+                    title: Name
+                    description: The name of the person who is the contact.
+                    type: string
+                    minLength: 1
+                    x-lineageReferenceObject: FTVVEND_CONTACT(FTVVEND)
+                additionalProperties: false
+                required:
+                  - name
+              phones:
+                title: Phones
+                description: The phone type, number and extension of the contact person.
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type:
+                      title: Type
+                      description: The type of phone.
+                      oneOf:
+                        - type: object
+                          properties:
+                            id:
+                              title: ID
+                              description: The global identifier for the Type.
+                              type: string
+                              format: guid
+                              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                              x-lineageLookupReferenceObject: phone-types 
+                              x-lineageReferenceObject: unsupported
+                          additionalProperties: false
+                          required:
+                            - id
+                        - type: object
+                          maxProperties: 0
+                    number:
+                      title: Number
+                      description: The number assigned to the phone.
+                      type: string
+                      minLength: 1
+                      x-lineageReferenceObject: derived  
+                      x-lineageDerivedLogic: Display the concatenated value of FTVVEND_PHONE_AREA and FTVVEND_PHONE_NUMBER column values.
+                    extension:
+                      title: Extension
+                      description: The extension used to connect to the phone when multiple phones
+                        share the same primary number.
+                      type: string
+                      x-lineageReferenceObject: FTVVEND_PHONE_EXT(FTVVEND)
+                  additionalProperties: false
+                  required:
+                    - number
+            additionalProperties: false
+            required:
+              - vendorContact
+              - person
+      required:
+        - id
+        - vendorDetail
+      additionalProperties: false

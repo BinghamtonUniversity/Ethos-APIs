@@ -1,0 +1,659 @@
+openapi: 3.0.0
+info:
+  title: Academic Programs
+  description: An offering by an institution that represents a combination of
+    courses and requirements leading to a degree, diploma, or certificate for a
+    defined set of majors, minors, or concentrations.
+  version: 15.1.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Student
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/academic-programs:
+    get:
+      summary: Return all resources
+      description: Returns a paged listing of all the resources in the system.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_ACADEMIC_PROGRAMS
+      tags:
+        - academic-programs
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v15+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Academic Level  
+
+            Returns all academic-programs for the academic level id passed.
+
+            ```
+
+            /academic-programs?criteria={"academicLevel":{"id":"47bffac4-202a-4835-a657-773763adf1f0"}}
+
+            ```
+        - name: academicCatalog
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Academic Catalog  
+
+            Returns an empty array for any academic catalog id passed.
+
+            ```
+
+            /academic-programs?academicCatalog={"academicCatalog":{"id":"57bffac4-202a-4835-a657-773763adf1f0"}}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-academic-programs.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v15.2.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/academic-programs/{id}:
+    get:
+      summary: Return the requested resource
+      description: Return the one resource with the passed in identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_ACADEMIC_PROGRAMS
+      tags:
+        - academic-programs
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Academic Programs for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v15+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v15.2.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v15.2.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-academic-programs.json"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-academic-programs.json:
+      title: Academic Programs
+      description: An offering by an institution that represents a combination of
+        courses and requirements leading to a degree, diploma, or certificate
+        for a defined set of majors, minors, or concentrations.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of an academic program.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = academic-programs) or SMRPRLE_GUID(SMRPRLE) or SOBCURR_GUID(SOBCURR)
+        title:
+          title: Title
+          description: The full name of an academic program.
+          type: string
+          minLength: 1
+          x-lineageReferenceObject: SMRPRLE_PROGRAM_DESC(SMRPRLE) or GORGUID_DOMAIN_KEY(custom-program) or derived  
+          x-lineageDerivedLogic: For SOBCURR record, display SMRPRLE program description and site description (SMRPRLE_PROGRAM_DESC + STVCAMP_DESC) if SOBCURR_PROGRAM is not null; or  
+            display SOBCURR level code, degree code, college  description and site description (SOBCURR_LEVL_CODE + SOBCURR_DEGC_CODE + STVCOLL_DESC + STVCAMP_DESC) if SOBCURR_PROGRAM is null.
+            Display 'custom-program', for the default program from GORGUID.
+        description:
+          title: Description
+          description: The description of an academic program.
+          type: string
+          x-lineageReferenceObject: unsupported
+        code:
+          title: Code
+          description: A code that identifies an academic program.
+          type: string
+          x-lineageReferenceObject: SOBCURR_PROGRAM(SOBCURR) or SMRPRLE_PROGRAM(SMRPRLE) or SOBCURR_CURR_RULE(SOBCURR)
+        authorizing:
+          title: Authorizing
+          description: The institutional unit that authorizes the academic program.
+          oneOf:
+            - title: institution
+              description: The institution that authorizes the academic program.
+              type: object
+              properties:
+                institution:
+                  title: Institution
+                  description: The institution that authorizes the academic program.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Institution.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: educational-institutions 
+                      x-lineageReferenceObject: unsupported
+                  additionalProperties: false
+                  required:
+                    - id
+              additionalProperties: false
+              required:
+                - institution
+            - title: institutionalUnit
+              description: The institutional unit that authorizes the academic program.
+              type: object
+              properties:
+                institutionalUnit:
+                  title: Institutional Unit
+                  description: The institutional unit that authorizes the academic program,
+                    typically a school or college within the institution.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Institutional Unit.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: educational-institution-units 
+                      x-lineageReferenceObject: unsupported
+                  additionalProperties: false
+                  required:
+                    - id
+              additionalProperties: false
+              required:
+                - institutionalUnit
+            - title: organization
+              description: The organization that authorizes the academic program.
+              type: object
+              properties:
+                organization:
+                  title: Organization
+                  description: The organization that authorizes the academic program.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Organization.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: organizations 
+                      x-lineageReferenceObject: unsupported
+                  additionalProperties: false
+                  required:
+                    - id
+              additionalProperties: false
+              required:
+                - organization
+            - type: object
+              maxProperties: 0
+        programOwners:
+          title: Program Owners
+          description: The owners of the academic program.
+          type: array
+          items:
+            title: Program Owners
+            description: The owners of the academic program.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Program Owners.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: educational-institution-units 
+                x-lineageReferenceObject: SMRPRLE_COLL_CODE(SMRPRLE) or SOBCURR_COLL_CODE(SOBCURR)
+                x-lineageDerivedLogic: A record from GORGUID with GORGUID_LDM_NAME as 'colleges' if the SMRPRLE record or the SOBCURR record is populated with the college code; else not published.
+            additionalProperties: false
+            required:
+              - id
+        sites:
+          title: Sites
+          description: The sites (campuses) the program is offered at
+          type: array
+          items:
+            title: Sites
+            description: The sites (campuses) the program is offered at
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Sites.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: sites
+                x-lineageReferenceObject: SMRPRLE_CAMP_CODE(SMRPRLE) or SOBCURR_CAMP_CODE(SOBCURR)
+                x-lineageDerivedLogic: A record from GORGUID with GORGUID_LDM_NAME as 'sites' if the SOBCURR record or the SMRPRLE record is populated with the site code else, not published.
+            additionalProperties: false
+            required:
+              - id
+        academicLevel:
+          title: Academic Level
+          description: The level of academic progress that is associated with an academic
+            program.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Academic Level.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: academic-levels 
+                  x-lineageReferenceObject: SMRPRLE_LEVL_CODE(SMRPRLE) or SOBCURR_LEVL_CODE(SOBCURR)
+                  x-lineageDerivedLogic: A record from GORGUID with GORGUID_LDM_NAME as 'academic-levels' if the SMRPRLE record or the SOBCURR record is populated with the level code.
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        credentials:
+          title: Credentials
+          description: The academic credentials that can be awarded for completing an
+            academic program.
+          type: array
+          items:
+            title: Credentials
+            description: The academic credentials that can be awarded for completing an
+              academic program.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Credentials.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: academic-credentials 
+                x-lineageReferenceObject: SOBCURR_DEGC_CODE(SOBCURR) or SMRPRLE_DEGC_CODE(SMRPRLE)
+                x-lineageDerivedLogic: A record from GORGUID with GORGUID_LDM_NAME as 'academic-credentials' if the SOBCURR record or the SMRPRLE record is populated with the degree code.
+            additionalProperties: false
+            required:
+              - id
+        disciplines:
+          title: Discipline
+          description: The academic disciplines offered as part of an academic program.
+          type: array
+          items:
+            type: object
+            properties:
+              discipline:
+                title: Discipline
+                description: An academic discipline associated with the academic program.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Discipline.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: academic-disciplines 
+                    x-lineageReferenceObject: SORCMJR_MAJR_CODE(SORCMJR) or SORCMNR_MAJR_CODE_MINR(SORCMNR) or SORCCON_MAJR_CODE_CONC(SORCCON)
+                    x-lineageDerivedLogic: A record from GORGUID with GORGUID_LDM_NAME as 'academic-disciplines' if the SOBCURR record is populated with major, minor, or concentration code.
+                additionalProperties: false
+                required:
+                  - id
+              startOn:
+                title: Start On
+                description: The start date of the discipline's relationship to the program.
+                type: string
+                format: date
+                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                x-lineageReferenceObject: derived  
+                x-lineageDerivedLogic: For the derived disciplines. administrativePeriodStart.id, display STVTERM_START_DATE, if the record source is SOBCURR.
+              endOn:
+                title: End On
+                description: The end date of the discipline's relationship to the program.
+                oneOf:
+                  - type: string
+                    format: date
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                    x-lineageReferenceObject: derived  
+                    x-lineageDerivedLogic: For the derived disciplines. administrativePeriodEnd.id, display STVTERM_START_DATE, if the record source is SOBCURR.
+                  - type: string
+                    maxLength: 0
+              administeringInstitutionUnit:
+                title: Administering Institution Unit
+                description: The institution unit that administers the discipline (major, minor,
+                  concentration), typically a department within a school or
+                  college.
+                oneOf:
+                  - type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the Administering Institution Unit.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                        x-lineageLookupReferenceObject: educational-institution-units 
+                        x-lineageReferenceObject: SORCMJR_DEPT_CODE(SORCMJR)
+                        x-lineageDerivedLogic: A record from GORGUID with GORGUID_LDM_NAME as 'departments' if the SOBCURR record is populated with the department code.
+                    additionalProperties: false
+                    required:
+                      - id
+                  - type: object
+                    maxProperties: 0
+              programConstraint:
+                title: Program Constraint
+                description: The state of the relationship of the discipline to the program
+                  within the given start and end dates. Required disciplines are
+                  part of the fundamental definition of the program and must be
+                  included for the program to be valid when the program is
+                  associated with a person.
+                x-lineageReferenceObject: derived  
+                x-lineageDerivedLogic: Display 'requiredDiscipline' only if the record source is SORCMJR and there is only one major rule defined.
+                oneOf:
+                  - type: string
+                    enum:
+                      - requiredDiscipline
+                  - type: string
+                    maxLength: 0
+              administrativePeriodStart:
+                title: Administrative Period Start
+                description: The earliest administrative period the discipline can be applied to
+                  the program when associated with a student.
+                oneOf:
+                  - type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the Administrative Period Start.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                        x-lineageLookupReferenceObject: administrative-periods 
+                        x-lineageReferenceObject: SORCMJR_TERM_CODE_EFF(SORCMJR) or SORCMNR_TERM_CODE_EFF(SORCMNR) or SORCCON_TERM_CODE_EFF(SORCCON)
+                    additionalProperties: false
+                    required:
+                      - id
+                  - type: object
+                    maxProperties: 0
+              administrativePeriodEnd:
+                title: Administrative Period End
+                description: The latest administrative period the discipline can be applied to
+                  the program when associated with a student.
+                oneOf:
+                  - type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the Administrative Period End.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                        x-lineageLookupReferenceObject: administrative-periods 
+                        x-lineageReferenceObject: SORCMJR_TERM_CODE_EFF(SORCMJR) or SORCMNR_TERM_CODE_EFF(SORCMNR) or SORCCON_TERM_CODE_EFF(SORCCON)
+                        x-lineageDerivedLogic: If the record source is SORCMJR, SORCMNR, or SORCCON, select min term code effective greater than the term of SOBCURR record being processed, 
+                          if no ending term code is retrieved then display '999999' as the default ending term code.
+                    additionalProperties: false
+                    required:
+                      - id
+                  - type: object
+                    maxProperties: 0
+              parentDiscipline:
+                title: Parent Discipline
+                description: The academic discipline that is one level higher in the discipline
+                  hierarchy.
+                oneOf:
+                  - type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the Parent Discipline.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                        x-lineageLookupReferenceObject: academic-disciplines 
+                        x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = academic-disciplines) 
+                        x-lineageDerivedLogic: A record from GORGUID with GORGUID_LDM_NAME as 'academic-disciplines'.
+                    additionalProperties: false
+                    required:
+                      - id
+                  - type: object
+                    maxProperties: 0
+              subdisciplines:
+                title: Subdisciplines
+                description: A list of academic disciplines that are subordinate to the
+                  discipline.
+                type: array
+                items:
+                  type: object
+                  properties:
+                    subdiscipline:
+                      title: Subdiscipline
+                      description: An academic discipline that is subordinate to the discipline.
+                      type: object
+                      properties:
+                        id:
+                          title: ID
+                          description: The global identifier for the Subdiscipline.
+                          type: string
+                          format: guid
+                          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                          x-lineageLookupReferenceObject: academic-disciplines 
+                          x-lineageReferenceObject: unsupported
+                      additionalProperties: false
+                      required:
+                        - id
+                  additionalProperties: false
+                  required:
+                    - subdiscipline
+            additionalProperties: false
+            required:
+              - discipline
+              - startOn
+        status:
+          title: Status
+          description: The status of an academic program.
+          x-lineageReferenceObject: derived 
+          x-lineageDerivedLogic: Display 'inactive' if the SOBCURR lock indicator is 'N' and current rule indicator is 'Y' else display 'active'.
+          enum:
+            - active
+            - inactive
+          type: string
+        startOn:
+          title: Start Date
+          description: The date that an academic program starts.
+          type: string
+          format: date
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: For the SOBCURR record, if administrativePeriodStart.id is determined display STVTERM_START_DATE of this effective term, else display SMRPRLE_ACTIVITY_DATE.
+        endOn:
+          title: End Date
+          description: The date that an academic program ends.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: For the SOBCURR record, if administrativePeriodEnd.id is determined display STVTERM_START_DATE of this effective term, else do not publish end on.
+            - type: string
+              maxLength: 0
+        administrativePeriodStart:
+          title: Administrative Period Start
+          description: The earliest administrative period the program can be assigned to a
+            student.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Administrative Period Start.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: administrative-periods 
+                  x-lineageReferenceObject: SOBCURR_TERM_CODE_INIT(SOBCURR)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        administrativePeriodEnd:
+          title: Administrative Period End
+          description: The latest administrative period the program can be assigned to a
+            student.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Administrative Period End.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: administrative-periods 
+                  x-lineageReferenceObject: STVTERM_GUID(STVTERM)
+                  x-lineageDerivedLogic: If the record source is SOBCURR, then If the maximum effective term defined in SORCMRL record for the curriculum rule being processed where 
+                    SORMCRL_CURR_RULE =SOBCURR_CURR_RULE has SORMCRL_REC_IND= 'N' and SORMCRL_ADM_IND = 'N' and SORMCRL_STU_IND = 'N' and SORMCRL_HIS_IND = 'N' and SORMCRL_DAU_IND ='N' 
+                    then report that effective term as the administrativePeriodEnd term otherwise display '999999' as the administrativePeriodEnd term.
+                    If the record source is SMRPRLE, do not report an end period.
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+      required:
+        - id
+        - title
+        - status
+        - startOn
+      additionalProperties: false

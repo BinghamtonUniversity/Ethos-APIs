@@ -1,0 +1,469 @@
+openapi: 3.0.0
+info:
+  title: Federal Award Paid Totals
+  description: >
+    The Federal Award Paid Totals API returns the amounts paid for Federal Work
+    Study funds (RFRBASE_FUND_ID = 'CWS') at the term, award and fund
+    level.  The API allows the total amount of "CWS" funds paid to a student for
+    a specified period/aid year (RPRATRM_PAID_AMT) to be updated, triggering
+    updates of RPRAWRD and RFRASPC.  The RPRATRM_PAID_AMT should be the
+    cumulative amount for the period/aid year.
+  version: 1.0.0
+  x-source-domain: Financial Aid
+  x-source-name: RGRMGMT, RPRAWRD, RPRATRM
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-audience: all
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/federal-award-paid-totals:
+    get:
+      tags:
+        - federal-award-paid-totals
+      summary: Returns applicant award and aid year records from RPRATRM, RPRAWRD and
+        RFRASPC.
+      description: Returns all applicant award and aid year records from RPRATRM,
+        RPRAWRD and RFRASPC for Federal Work Study funds (where RFRBASE_FUND_ID
+        = 'CWS').
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: |
+            ```
+            application/vnd.hedtech.integration.v1+json
+            ```     
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Aid Year (required)
+
+            Returns all applicant award and fund records for the specified aid
+            year.
+
+            ```
+
+            /federal-award-paid-totals?criteria={"aidYear":"2324"}
+
+            ```
+
+            ### Banner Id (required)
+
+            Returns all award and aid year records for an applicant.
+
+            ```
+
+            /federal-award-paid-totals?criteria={"bannerId":"999888777"}
+
+            ```
+
+            ### Period
+
+            Returns all applicant award and aid year records for the specified
+            period.
+
+            ```
+
+            /federal-award-paid-totals?criteria={"period":"202310"}
+
+            ```
+
+            ### Fund Code 
+
+            Returns all applicant award and aid year records for the specified
+            Fund.
+
+            ```
+
+            /federal-award-paid-totals?criteria={"fundCode":"FWS"}
+
+            ```
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/federal-award-paid-totals-1.0.0_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - BasicAuth: []
+          EthosIntegrationBearer: []
+      x-method-permissions: API_FEDERAL_AWARD_PAID_TOTALS
+  /api/federal-award-paid-total/{id}:
+    put:
+      tags:
+        - federal-award-paid-totals
+      summary: Cumulative payments of Federal Work Study funds to an applicant for a
+        specified period/aid year are updated.
+      description: The RPRATRM_PAID_AMT for a student's Federal Work Study funds are
+        updated in the Applicant Award Schedule Table.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Any random number
+          schema:
+            type: number
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: |
+            ```
+            application/vnd.hedtech.integration.v1+json
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: |
+            ```
+            application/vnd.hedtech.integration.v1+json
+            ```
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.1.0.0+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/federal-award-paid-totals-1.0.0_put_request"
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/federal-award-paid-totals-1.0.0_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - BasicAuth: []
+          EthosIntegrationBearer: []
+      x-method-permissions: API_FEDERAL_AWARD_PAID_TOTALS
+components:
+  schemas:
+    federal-award-paid-totals-1.0.0_put_request:
+      type: object
+      required:
+        - bannerId
+        - aidYear
+        - fundCode
+        - period
+        - periodPaidAmt
+      properties:
+        bannerId:
+          title: Banner ID
+          maxLength: 9
+          type: string
+          description: Applicant Banner ID
+          format: string
+          x-lineageReferenceObject: SPRIDEN_ID
+        aidYear:
+          title: Aid Year
+          maxLength: 4
+          type: string
+          description: The aid year associated with the award schedule.
+          x-lineageLookupReferenceObject: RPRATRM_AIDY_CODE
+        fundCode:
+          title: Fund Code
+          maxLength: 6
+          type: string
+          description: The fund code associated with the award schedule.
+          x-lineageReferenceObject: RPRATRM_FUND_CODE
+        period:
+          title: Period
+          maxLength: 6
+          type: string
+          description: The period associated with the award schedule.
+          x-lineageReferenceObject: RPRATRM_PERIOD
+        periodPaidAmt:
+          title: Period Award Amount
+          maxLength: 11
+          type: number
+          description: The cumulative paid dollar amount of the award for this period.
+          format: string
+          x-lineageReferenceObject: RPRATRM_PAID_AMT
+    federal-award-paid-totals-1.0.0_response:
+      type: object
+      required:
+        - bannerId
+        - aidYear
+        - fundCode
+        - period
+      properties:
+        fundTitle:
+          title: Fund Title
+          maxLength: 30
+          type: string
+          description: Dollar amout of awards that have been paid for the fund in the
+            specified aid year.
+          x-lineageReferenceObject: RFRBASE_FUND_TITLE
+        federalFundId:
+          title: Federal ID associated with the fund.
+          maxLength: 4
+          type: string
+          description: Dollar amout of awards that have been paid for the fund in the
+            specified aid year.
+          x-lineageReferenceObject: RFRBASE_FED_FUND_ID
+        fundPaidAmt:
+          title: Total Paid Amount for RFRASPC.
+          maxLength: 17
+          type: number
+          description: Dollar amout of awards that have been paid for the fund in the
+            specified aid year.
+          x-lineageReferenceObject: RFRASPC_PAID_AMT
+        bannerId:
+          title: Banner ID
+          maxLength: 9
+          type: string
+          description: Applicant Banner ID
+          format: string
+          x-lineageReferenceObject: SPRIDEN_ID
+        aidYear:
+          title: Aid Year
+          maxLength: 4
+          type: string
+          description: The aid year associated with the award schedule.
+          x-lineageLookupReferenceObject: RPRATRM_AIDY_CODE
+        fundCode:
+          title: Fund Code
+          maxLength: 6
+          type: string
+          description: The fund code associated with the award schedule.
+          x-lineageReferenceObject: RPRATRM_FUND_CODE
+        period:
+          title: Period
+          maxLength: 6
+          type: string
+          description: The period associated with the award schedule.
+          x-lineageReferenceObject: RPRATRM_PERIOD
+        periodPaidAmt:
+          title: Period Award Amount
+          maxLength: 11
+          type: number
+          description: The cumulative paid dollar amount of the award for this period.
+          format: string
+          x-lineageReferenceObject: RPRATRM_PAID_AMT
+        awardPaidAmt:
+          title: Award Paid Amount
+          maxLength: 11
+          type: number
+          description: The cumulative paid dollar amount of the award.
+          format: string
+          x-lineageReferenceObject: RPRAWRD_PAID_AMT
+        updatedOn:
+          title: Activity Date
+          maxLength: 9
+          type: string
+          description: The date that the information in this record was entered or last
+            updated.
+          format: string
+          x-lineageReferenceObject: RPRATRM_ACTIVITY_DATE
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary
+                  data entity used to create the resource. This is useful for
+                  referencing the source item through the applications
+                  administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

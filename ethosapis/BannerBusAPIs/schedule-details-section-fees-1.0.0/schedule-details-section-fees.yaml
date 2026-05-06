@@ -1,0 +1,421 @@
+openapi: 3.0.0
+info:
+  title: schedule-details-section-fees
+  description: API for SSADETL administrative page
+  version: 1.0.0
+  x-audience: all
+  x-release-status: beta
+  x-source-name: SSADETL
+  x-source-domain: Student
+  x-source-title: Schedule Detail
+  x-source-system: banner
+  x-api-type: bus-poc
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/schedule-details-section-fees:
+    get:
+      tags:
+        - schedule-details-section-fees
+      summary: Return resources from SSADETL
+      parameters:
+        - name: X-SDE-Expand
+          in: header
+          description: The comma seperated value list of block names
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: The maximum number of resources requesting for this result set.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          description: The filter criteria as a single URL query parameter. Use this
+            parameter or the individual parameters listed. Must be a JSON
+            representation of the property searching for. This can be any of the
+            properties listed on the URL or QAPI and must be a json
+            representation that can be validated against the GET schema. Limit
+            and Offset are the only supported additional parameters on the URL.
+          required: false
+          schema:
+            type: string
+        - name: ssasectTermCode
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: ssasectCrn
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schedule-details-section-fees-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+  /qapi/schedule-details-section-fees:
+    post:
+      tags:
+        - schedule-details-section-fees QAPI (Query by POST)
+      summary: Return resources from SSADETL
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/schedule-details-section-fees-1.0.0_get_request"
+            example:
+              ssasectTermCode: 1010
+              ssasectCrn: 10009
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schedule-details-section-fees-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+components:
+  schemas:
+    schedule-details-section-fees-1.0.0_qapi_post:
+      required:
+        - ssasectTermCode
+      type: object
+      properties:
+        ssasectTermCode:
+          type: string
+        ssasectCrn:
+          type: string
+    schedule-details-section-fees-1.0.0_get_response:
+      required:
+        - amount
+        - detlCode
+        - ftypCode
+      type: object
+      properties:
+        vtypCode:
+          title: Visa Type
+          maxLength: 2
+          type: string
+          description: "Lineage reference object : SSRFEES_VTYP_CODE, Lookup lineage
+            reference object : stvvtyp"
+          x-lineageReferenceObject: SSRFEES_VTYP_CODE
+          x-lineageLookupReferenceObject: stvvtyp
+        stypCodeCurric:
+          title: Curricula Student Type
+          maxLength: 2
+          type: string
+          description: "Lineage reference object : SSRFEES_STYP_CODE_CURRIC, Lookup
+            lineage reference object : stvstyp"
+          x-lineageReferenceObject: SSRFEES_STYP_CODE_CURRIC
+          x-lineageLookupReferenceObject: stvstyp
+        duntCode:
+          title: Duration Unit
+          maxLength: 4
+          type: string
+        levlCodeStdn:
+          title: Level
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : SSRFEES_LEVL_CODE_STDN, Lookup lineage
+            reference object : stvlevl"
+          x-lineageReferenceObject: SSRFEES_LEVL_CODE_STDN
+          x-lineageLookupReferenceObject: stvlevl
+        primSecCde:
+          title: Curricula
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : SSRFEES_PRIM_SEC_CDE"
+          x-lineageReferenceObject: SSRFEES_PRIM_SEC_CDE
+        detlCode:
+          title: Detail Code
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : SSRFEES_DETL_CODE"
+          x-lineageReferenceObject: SSRFEES_DETL_CODE
+        degcCode:
+          title: Degree
+          maxLength: 6
+          type: string
+          description: "Lineage reference object : SSRFEES_DEGC_CODE, Lookup lineage
+            reference object : stvdegc"
+          x-lineageReferenceObject: SSRFEES_DEGC_CODE
+          x-lineageLookupReferenceObject: stvdegc
+        program:
+          title: Program
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : SSRFEES_PROGRAM, Lookup lineage
+            reference object : smrprle"
+          x-lineageReferenceObject: SSRFEES_PROGRAM
+          x-lineageLookupReferenceObject: smrprle
+        majrCode:
+          title: Field of Study Code
+          maxLength: 4
+          type: string
+          description: "Lineage reference object : SSRFEES_MAJR_CODE, Lookup lineage
+            reference object : stvmajr"
+          x-lineageReferenceObject: SSRFEES_MAJR_CODE
+          x-lineageLookupReferenceObject: stvmajr
+        rateCode:
+          title: Student Rate
+          maxLength: 5
+          type: string
+          description: "Lineage reference object : SSRFEES_RATE_CODE, Lookup lineage
+            reference object : stvrate"
+          x-lineageReferenceObject: SSRFEES_RATE_CODE
+          x-lineageLookupReferenceObject: stvrate
+        lfstCode:
+          title: Field of Study Type
+          maxLength: 15
+          type: string
+          description: "Lineage reference object : SSRFEES_LFST_CODE, Lookup lineage
+            reference object : gtvlfst"
+          x-lineageReferenceObject: SSRFEES_LFST_CODE
+          x-lineageLookupReferenceObject: gtvlfst
+        feeDescription:
+          title: Description
+          type: string
+        activityDate:
+          title: Activity Date
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : SSRFEES_ACTIVITY_DATE"
+          format: date-time
+          x-lineageReferenceObject: SSRFEES_ACTIVITY_DATE
+        chrtCode:
+          title: Cohort
+          maxLength: 10
+          type: string
+          description: "Lineage reference object : SSRFEES_CHRT_CODE, Lookup lineage
+            reference object : stvchrt"
+          x-lineageReferenceObject: SSRFEES_CHRT_CODE
+          x-lineageLookupReferenceObject: stvchrt
+        rateCodeCurric:
+          title: Curricula Rate
+          maxLength: 5
+          type: string
+          description: "Lineage reference object : SSRFEES_RATE_CODE_CURRIC, Lookup
+            lineage reference object : stvrate"
+          x-lineageReferenceObject: SSRFEES_RATE_CODE_CURRIC
+          x-lineageLookupReferenceObject: stvrate
+        campCode:
+          title: Campus
+          maxLength: 3
+          type: string
+          description: "Lineage reference object : SSRFEES_CAMP_CODE, Lookup lineage
+            reference object : stvcamp"
+          x-lineageReferenceObject: SSRFEES_CAMP_CODE
+          x-lineageLookupReferenceObject: stvcamp
+        clasCode:
+          title: Class
+          maxLength: 2
+          type: string
+          description: "Lineage reference object : SSRFEES_CLAS_CODE, Lookup lineage
+            reference object : stvclas"
+          x-lineageReferenceObject: SSRFEES_CLAS_CODE
+          x-lineageLookupReferenceObject: stvclas
+        amount:
+          title: Amount
+          maxLength: 17
+          type: number
+          description: "Lineage reference object : SSRFEES_AMOUNT"
+          x-lineageReferenceObject: SSRFEES_AMOUNT
+        resdCode:
+          title: Residency
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : SSRFEES_RESD_CODE, Lookup lineage
+            reference object : stvresd"
+          x-lineageReferenceObject: SSRFEES_RESD_CODE
+          x-lineageLookupReferenceObject: stvresd
+        userId:
+          title: User ID
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : SSRFEES_USER_ID"
+          x-lineageReferenceObject: SSRFEES_USER_ID
+        attsCode:
+          title: Student Attribute
+          maxLength: 4
+          type: string
+          description: "Lineage reference object : SSRFEES_ATTS_CODE, Lookup lineage
+            reference object : stvatts"
+          x-lineageReferenceObject: SSRFEES_ATTS_CODE
+          x-lineageLookupReferenceObject: stvatts
+        termCodeAdmit:
+          title: Admission Term
+          maxLength: 10
+          type: string
+          description: "Lineage reference object : SSRFEES_TERM_CODE_ADMIT, Lookup lineage
+            reference object : stvterm"
+          x-lineageReferenceObject: SSRFEES_TERM_CODE_ADMIT
+          x-lineageLookupReferenceObject: stvterm
+        stypCode:
+          title: Student Type
+          maxLength: 2
+          type: string
+          description: "Lineage reference object : SSRFEES_STYP_CODE, Lookup lineage
+            reference object : stvstyp"
+          x-lineageReferenceObject: SSRFEES_STYP_CODE
+          x-lineageLookupReferenceObject: stvstyp
+        collCode:
+          title: College
+          maxLength: 2
+          type: string
+          description: "Lineage reference object : SSRFEES_COLL_CODE, Lookup lineage
+            reference object : stvcoll"
+          x-lineageReferenceObject: SSRFEES_COLL_CODE
+          x-lineageLookupReferenceObject: stvcoll
+        ftypCode:
+          title: Fee Type
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : SSRFEES_FTYP_CODE, Lookup lineage
+            reference object : stvftyp"
+          x-lineageReferenceObject: SSRFEES_FTYP_CODE
+          x-lineageLookupReferenceObject: stvftyp
+        deptCode:
+          title: Department
+          maxLength: 4
+          type: string
+          description: "Lineage reference object : SSRFEES_DEPT_CODE, Lookup lineage
+            reference object : stvdept"
+          x-lineageReferenceObject: SSRFEES_DEPT_CODE
+          x-lineageLookupReferenceObject: stvdept
+        levlCode:
+          title: Level
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : SSRFEES_LEVL_CODE, Lookup lineage
+            reference object : stvlevl,scrlevl,scrlevl"
+          x-lineageReferenceObject: SSRFEES_LEVL_CODE
+          x-lineageLookupReferenceObject: stvlevl,scrlevl,scrlevl
+      x-lineageReferenceObject: ssrfees
+    errors-2.0.0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+              description:
+                type: string
+    schedule-details-section-fees-1.0.0_get_request:
+      required:
+        - ssasectTermCode
+      type: object
+      properties:
+        ssasectTermCode:
+          title: Term
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : ssasectTermCode, Lookup lineage
+            reference object : stvterm"
+          x-lineageReferenceObject: ssasectTermCode
+          x-lineageLookupReferenceObject: stvterm
+        ssasectCrn:
+          title: CRN
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : ssasectCrn"
+          x-lineageReferenceObject: ssasectCrn
+      x-lineageReferenceObject: KEY_BLOCK
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EllucianOAuthUserToken:
+      type: http
+      scheme: bearer
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

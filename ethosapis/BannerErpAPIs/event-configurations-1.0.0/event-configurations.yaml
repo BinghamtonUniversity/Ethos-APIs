@@ -1,0 +1,198 @@
+openapi: 3.0.0
+info:
+  title: event-configurations
+  description: |
+    This API updates the status of one or more events based on a provided list of event names or resource names, along with the desired status. Additionally, it retrieves event lists with their corresponding statuses when a resource name is provided.
+    
+    This API is accessible to only those users who have access to security object __API_EVENT_CONFIGURATIONS__. The BAN_GENERAL_API_C class users are already assigned to this security object.
+  version: "1.0.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Foundation
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: event-configurations
+paths:
+  /api/event-configurations:
+    get:
+      description: >
+       Retrieves the list of events with their corresponding statuses based on the provided resource name.
+      security:
+        - EthosIntegrationBearer: []
+      tags:
+        - event-configurations
+      parameters:
+        - name: resource
+          in: query
+          description: "Name of the resouce to retrieve event configurations\r\n\r\n<b>/api/event-configurations?resource={resourceName}</b>"
+          required: true
+          schema:
+            type: string
+          example: 'resource=persons'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/event-configurations-response"
+            application/xml:
+              schema:
+                type: object
+                $ref: "#/components/schemas/event-configurations-response"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errors_2_0_0"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/errors_2_0_0"
+  /api/event-configurations/1  :
+    put:
+      security:
+        - EthosIntegrationBearer: []
+      tags:
+        - event-configurations
+      description: >
+       Updates the status of one or more events based on a provided list of event names or resource names, along with the desired status, and returns the updated list of events with their corresponding statuses.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              oneOf:
+                - $ref: "#/components/schemas/event-update-request-body"
+                - $ref: "#/components/schemas/resource-update-request-body"
+                  
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/event-configurations-response"
+            application/xml:
+              schema:
+                type: object
+                $ref: "#/components/schemas/event-configurations-response"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errors_2_0_0"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/errors_2_0_0"
+      
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas :
+      event-update-request-body:
+          type: object
+          properties:
+            events:
+              type: array
+              items:
+                type: string
+              description: 
+               List of event names to be updated.
+            status:
+              type: string
+              enum: ["enabled", "disabled"]
+              description: Status to be updated for the events. Can be either "enabled" or "disabled".
+              
+      resource-update-request-body:
+        type: object
+        properties:
+          resources:
+            type: array
+            items:
+              type: string
+            description:  List of resource names for which corresponding events are to be updated.
+          status:
+            type: string
+            enum: ["enabled", "disabled"]
+            description: Status to be update for the events found from the resources. Can be either "enabled" or "disabled".
+            
+      event-configurations-response:
+        type: array
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+              description: "The name of the event"
+            status:
+              type: string
+              description: "The updated status of the event"
+ 
+      errors_2_0_0:
+        required:
+          - errors
+        type: object
+        properties:
+          errors:
+            type: array
+            items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: The global identifier of the resource in error.
+                  sourceId:
+                    type: string
+                    description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                  code:
+                    type: string
+                    description: The error message code used to describe the error details.
+                  description:
+                    type: string
+                    description: The error description used to describe the error details.
+                  message:
+                    type: string
+                    description: The detailed actionable error message.
+
+    
+              
+      

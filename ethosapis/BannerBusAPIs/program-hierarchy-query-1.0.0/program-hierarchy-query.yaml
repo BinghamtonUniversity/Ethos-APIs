@@ -1,0 +1,300 @@
+openapi: 3.0.0
+info:
+  title: program-hierarchy-query
+  description: API for FTIPRGH administrative page
+  version: 1.0.0
+  x-audience: all
+  x-release-status: beta
+  x-source-name: FTIPRGH
+  x-source-domain: Finance
+  x-source-title: Program Hierarchy Query
+  x-source-system: banner
+  x-api-type: bus-poc
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/program-hierarchy-query:
+    get:
+      tags:
+        - program-hierarchy-query
+      summary: Return resources from FTIPRGH
+      parameters:
+        - name: X-SDE-Expand
+          in: header
+          description: The comma seperated value list of block names
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: The maximum number of resources requesting for this result set.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          description: The filter criteria as a single URL query parameter. Use this
+            parameter or the individual parameters listed. Must be a JSON
+            representation of the property searching for. This can be any of the
+            properties listed on the URL or QAPI and must be a json
+            representation that can be validated against the GET schema. Limit
+            and Offset are the only supported additional parameters on the URL.
+          required: false
+          schema:
+            type: string
+        - name: ftxprghCoasCode
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: ftxprghProgCode
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/program-hierarchy-query-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+  /qapi/program-hierarchy-query:
+    post:
+      tags:
+        - program-hierarchy-query QAPI (Query by POST)
+      summary: Return resources from FTIPRGH
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/program-hierarchy-query-1.0.0_get_request"
+            example:
+              ftxprghCoasCode: B
+              ftxprghProgCode: 21
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/program-hierarchy-query-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+components:
+  schemas:
+    errors-2.0.0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+              description:
+                type: string
+    program-hierarchy-query-1.0.0_get_request:
+      type: object
+      properties:
+        ftxprghCoasCode:
+          title: COA
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : ftxprghCoasCode, Lookup lineage
+            reference object : ftvcoas"
+          x-lineageReferenceObject: ftxprghCoasCode
+          x-lineageLookupReferenceObject: ftvcoas
+        ftxprghProgCode:
+          title: Program
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : ftxprghProgCode"
+          x-lineageReferenceObject: ftxprghProgCode
+      x-lineageReferenceObject: KEY_BLOCK
+    program-hierarchy-query-1.0.0_get_response:
+      type: object
+      properties:
+        level5:
+          maxLength: 6
+          type: string
+          description: "Lineage reference object : level5"
+          x-lineageReferenceObject: level5
+        level4:
+          maxLength: 6
+          type: string
+          description: "Lineage reference object : level4"
+          x-lineageReferenceObject: level4
+        hpPredProgCode:
+          title: Predecessor Program
+          maxLength: 6
+          type: string
+          description: "Lineage reference object : hpPredProgCode"
+          x-lineageReferenceObject: hpPredProgCode
+        titl1:
+          maxLength: 35
+          type: string
+          description: "Lineage reference object : titl1"
+          x-lineageReferenceObject: titl1
+        titl2:
+          maxLength: 35
+          type: string
+          description: "Lineage reference object : titl2"
+          x-lineageReferenceObject: titl2
+        titl3:
+          maxLength: 35
+          type: string
+          description: "Lineage reference object : titl3"
+          x-lineageReferenceObject: titl3
+        titl4:
+          maxLength: 35
+          type: string
+          description: "Lineage reference object : titl4"
+          x-lineageReferenceObject: titl4
+        predTitle:
+          type: string
+          description: "Lineage reference object : predTitle"
+          x-lineageReferenceObject: predTitle
+        head1:
+          maxLength: 20
+          type: string
+          description: "Lineage reference object : head1"
+          x-lineageReferenceObject: head1
+        head2:
+          maxLength: 20
+          type: string
+          description: "Lineage reference object : head2"
+          x-lineageReferenceObject: head2
+        head3:
+          maxLength: 20
+          type: string
+          description: "Lineage reference object : head3"
+          x-lineageReferenceObject: head3
+        head4:
+          maxLength: 20
+          type: string
+          description: "Lineage reference object : head4"
+          x-lineageReferenceObject: head4
+        level1:
+          maxLength: 6
+          type: string
+          description: "Lineage reference object : level1"
+          x-lineageReferenceObject: level1
+        titl5:
+          maxLength: 35
+          type: string
+          description: "Lineage reference object : titl5"
+          x-lineageReferenceObject: titl5
+        head5:
+          maxLength: 20
+          type: string
+          description: "Lineage reference object : head5"
+          x-lineageReferenceObject: head5
+        level3:
+          maxLength: 6
+          type: string
+          description: "Lineage reference object : level3"
+          x-lineageReferenceObject: level3
+        level2:
+          maxLength: 6
+          type: string
+          description: "Lineage reference object : level2"
+          x-lineageReferenceObject: level2
+      x-lineageReferenceObject: prog_hierarchy
+    program-hierarchy-query-1.0.0_qapi_post:
+      type: object
+      properties:
+        ftxprghCoasCode:
+          type: string
+        ftxprghProgCode:
+          type: string
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EllucianOAuthUserToken:
+      type: http
+      scheme: bearer
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

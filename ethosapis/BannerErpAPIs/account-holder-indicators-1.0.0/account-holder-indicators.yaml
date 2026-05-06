@@ -1,0 +1,299 @@
+openapi: 3.0.0
+info:
+  title: Account Holder Indicators
+  description: The Account Holder Indicators API provides information on key
+    status indicators such as billing and delinquency for an account.
+  version: 1.0.0
+  x-source-domain: Student
+  x-source-name: TTVDELI, TTVBILL, TBBACCT
+  x-source-title: null
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-audience: all
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/account-holder-indicators:
+    get:
+      summary: Returns listing of all the key indicators.
+      description: Return all information on key status indicators for an account.
+      security:
+        - EthosIntegrationBearer: []
+      tags:
+        - account-holder-indicators
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards for more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Banner Id 
+
+            Returns the account with information on key indicators based on
+            person Id.
+
+            ```
+
+            /account-holder-indicators?criteria={"bannerId":"HOSARF001"}
+
+            ```
+
+            ### Delinquency Code 
+
+            Returns the list of accounts with information on key indicators
+            having specific delinquency code.
+
+            ```
+
+            /account-holder-indicators?criteria={"deliCode":"01"}
+
+            ```
+
+            ### Bill Code 
+
+            Returns the list of accounts with information on key indicators
+            having specific bill code.
+
+            ```
+
+            /account-holder-indicators?criteria={"billCode":"SP"}
+
+            ```
+
+            ### Refund Indicator
+
+            Returns the list of accounts with information on key indicators
+            having specific refund indicator.
+
+            ```
+
+            /account-holder-indicators?criteria={"refundInd":"Y"}
+
+            ```
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/account-holder-indicators-1.0.0_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the clientâ€™s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      x-method-permissions: API_ACCOUNT_HOLDER_INDICATORS
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    account-holder-indicators-1.0.0_response:
+      title: account-holder-indicators-1.0.0_response
+      description: Information on key status indicators for an account.
+      type: object
+      properties:
+        acctActivityDate:
+          title: Activity Date
+          description: Date when the student account was created or last updated.
+          type: string
+          x-lineageReferenceObject: TBBACCT_ACTIVITY_DATE
+        bannerId:
+          title: Banner ID
+          description: Banner ID of the student holding the account.
+          type: string
+          maxLength: 9
+          x-lineageReferenceObject: SPRIDEN_ID
+        billCode:
+          title: Bill Code
+          description: It indicates why a bill is on hold.
+          type: string
+          maxLength: 2
+          x-lineageReferenceObject: TBBACCT_BILL_CODE
+        billCodeDesc:
+          title: Bill Code Description
+          description: It gives the description of bill code.
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: TTVBILL_DESC
+        deliCode:
+          title: Delinquency Code
+          description: Delinquency code associated with the student's account.
+          type: string
+          maxLength: 2
+          x-lineageReferenceObject: TBBACCT_DELI_CODE
+        deliCodeDesc:
+          title: Delinquency Code description
+          description: It gives the description of delinquency code.
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: TTVDELI_DESC
+        firstName:
+          title: First Name
+          description: First name of the account holder.
+          type: string
+          maxLength: 60
+          x-lineageReferenceObject: SPRIDEN_FIRST_NAME
+        lastName:
+          title: Last Name
+          description: Last name of the account holder.
+          type: string
+          maxLength: 60
+          x-lineageReferenceObject: SPRIDEN_LAST_NAME
+        refundInd:
+          title: Refund Indicator
+          description: It indicates whether the credit balance is to be automatically
+            refunded.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: TBBACCT_REFUND_IND
+      required:
+        - bannerId
+        - acctActivityDate
+        - firstName
+        - lastName
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary
+                  data entity used to create the resource. This is useful for
+                  referencing the source item through the applications
+                  administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.

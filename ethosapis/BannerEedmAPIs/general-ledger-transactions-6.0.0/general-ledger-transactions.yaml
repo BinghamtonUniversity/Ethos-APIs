@@ -1,0 +1,622 @@
+openapi: 3.0.0
+info:
+  title: General Ledger Transactions
+  description: The details of transactions to be entered into the general ledger.
+  version: "6.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Finance
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/general-ledger-transactions:
+    get:
+      summary: Return all resources
+      description: Returns a paged listing of all the resources in the system.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_GENERAL_LEDGERS
+      tags:
+        - general-ledger-transactions
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v6+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-general-ledger-transactions.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v6.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new resource
+      description: Create a new resource
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_GENERAL_LEDGERS
+      tags:
+        - general-ledger-transactions
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v6+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v6+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v6.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v6.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-general-ledger-transactions.json"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v6+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-general-ledger-transactions.json"
+  /api/general-ledger-transactions/{id}:
+    get:
+      summary: Return the requested resource
+      description: Return the one resource with the passed in identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_GENERAL_LEDGERS
+      tags:
+        - general-ledger-transactions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of General Ledger Transactions for use in all
+            external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v6+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v6.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v6.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-general-ledger-transactions.json"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-general-ledger-transactions.json:
+      title: General Ledger Transactions
+      description: The details of transactions to be entered into the general ledger.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the general ledger transaction.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+        processMode:
+          title: Process Mode
+          description: An indicator that specifies if the authoritative source should just
+            validate the accounting string or if it should post/update a general
+            ledger transaction.
+          enum:
+            - update
+            - validate
+          type: string
+        transactions:
+          title: Transactions
+          description: A list of associated general ledger transactions.
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                title: Type
+                description: The type of the general ledger transaction (e.g. journal entry,
+                  encumbrance, budget).
+                enum:
+                  - approvedBudget
+                  - contingentBudget
+                  - approvedBudgetAdjustment
+                  - temporaryBudget
+                  - temporaryBudgetAdjustment
+                  - encumbranceOpenBalance
+                  - generalEncumbranceCreate
+                  - generalEncumbranceAdjust
+                  - generalEncumbranceLiquidation
+                  - generalEncumbranceClose
+                  - payrollEncumbranceCreate
+                  - payrollEncumbranceAdjust
+                  - payrollEncumbranceLiquidation
+                  - payrollEncumbranceClose
+                  - travelEncumbranceCreate
+                  - travelEncumbranceAdjust
+                  - travelEncumbranceClose
+                  - donation
+                  - donationEndowed
+                  - pledge
+                  - pledgeEndowed
+                  - financialAidTransmittal
+                  - studentCharge
+                  - studentInvoice
+                  - studentPayment
+                  - grantCharge
+                  - grantInvoice
+                  - grantPayment
+                  - otherCharge
+                  - otherInvoice
+                  - otherPayment
+                  - paymentAllocation
+                  - depositAllocation
+                  - miscCashReceipt
+                  - cashDisbursement
+                  - purchaseCardCharge
+                  - miscGeneralLedgerTransaction
+                  - purchaseJournal
+                  - travelAdvance
+                  - travelExpense
+                  - yearEndCloseEntry
+                  - payroll
+                  - payrollWithLiquidation
+                  - actualOpenBalance
+                type: string
+              referenceNumber:
+                title: Reference Number
+                description: A source reference number/document number for the transaction.
+                type: string
+              transactionNumber:
+                title: Transaction Number
+                description: A sequential number associated with the transaction.
+                type: string
+              ledgerDate:
+                title: Ledger Date
+                description: The date the transaction is credited/debited to the account in the
+                  general ledger (i.e. posting date).
+                type: string
+                format: date-time
+                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+              transactionTypeReferenceDate:
+                title: Transaction Type Reference Date
+                description: A supplementary date assigned to the transaction based on the
+                  transaction type.
+                oneOf:
+                  - type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                  - type: string
+                    maxLength: 0
+              referenceOrganization:
+                title: Reference Organization
+                description: ""
+                type: string
+              reference:
+                title: Reference
+                description: The person or organization associated with the transaction.
+                oneOf:
+                  - title: Person
+                    description: The person associated with the transaction.
+                    type: object
+                    properties:
+                      person:
+                        title: Person
+                        description: The person associated with the transaction.
+                        type: object
+                        properties:
+                          id:
+                            title: ID
+                            description: The global identifier for the Person.
+                            type: string
+                            format: guid
+                            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                            x-lineageLookupReferenceObject: persons
+                        additionalProperties: false
+                        required:
+                          - id
+                    additionalProperties: false
+                    required:
+                      - person
+                  - title: Organization
+                    description: The organization associated with the transaction.
+                    type: object
+                    properties:
+                      organization:
+                        title: Organization
+                        description: The organization associated with the transaction.
+                        type: object
+                        properties:
+                          id:
+                            title: ID
+                            description: The global identifier for the Organization.
+                            type: string
+                            format: guid
+                            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                            x-lineageLookupReferenceObject: organizations
+                        additionalProperties: false
+                        required:
+                          - id
+                    additionalProperties: false
+                    required:
+                      - organization
+                  - type: object
+                    maxProperties: 0
+              transactionDetailLines:
+                title: Transaction Detail Lines
+                description: The detailed accounting lines associated with the transaction.
+                type: array
+                items:
+                  type: object
+                  properties:
+                    sequenceNumber:
+                      title: Sequence Number
+                      description: An optional tracking number for the detailed accounting line.
+                      oneOf:
+                        - type: number
+                        - type: string
+                          nullable: true
+                    accountingString:
+                      title: Accounting String
+                      description: The accounting string associated with the transaction detail line.
+                      type: string
+                    description:
+                      title: Description
+                      description: The description of the detailed accounting line.
+                      type: string
+                    type:
+                      title: Type
+                      description: The type of detailed accounting line (credit/debit).
+                      enum:
+                        - credit
+                        - debit
+                      type: string
+                    amount:
+                      title: Amount
+                      description: The amount of the credit or debit.
+                      format: currency
+                      type: object
+                      properties:
+                        value:
+                          title: Value
+                          description: The monetary value
+                          type: number
+                        currency:
+                          title: Currency
+                          description: The ISO 4217 currency code
+                          enum:
+                            - AED
+                            - AFN
+                            - ALL
+                            - AMD
+                            - ANG
+                            - AOA
+                            - ARS
+                            - AUD
+                            - AWG
+                            - AZN
+                            - BAM
+                            - BBD
+                            - BDT
+                            - BGN
+                            - BHD
+                            - BIF
+                            - BMD
+                            - BND
+                            - BOB
+                            - BRL
+                            - BSD
+                            - BTN
+                            - BWP
+                            - BYR
+                            - BZD
+                            - CAD
+                            - CDF
+                            - CHF
+                            - CLP
+                            - CNY
+                            - COP
+                            - CRC
+                            - CUC
+                            - CUP
+                            - CVE
+                            - CZK
+                            - DJF
+                            - DKK
+                            - DOP
+                            - DZD
+                            - EGP
+                            - ERN
+                            - ETB
+                            - EUR
+                            - FJD
+                            - FKP
+                            - GBP
+                            - GEL
+                            - GHS
+                            - GIP
+                            - GMD
+                            - GNF
+                            - GTQ
+                            - GYD
+                            - HKD
+                            - HNL
+                            - HRK
+                            - HTG
+                            - HUF
+                            - IDR
+                            - ILS
+                            - INR
+                            - IQD
+                            - IRR
+                            - ISK
+                            - JMD
+                            - JOD
+                            - JPY
+                            - KES
+                            - KGS
+                            - KHR
+                            - KMF
+                            - KPW
+                            - KRW
+                            - KWD
+                            - KYD
+                            - KZT
+                            - LAK
+                            - LBP
+                            - LKR
+                            - LRD
+                            - LSL
+                            - LYD
+                            - MAD
+                            - MDL
+                            - MGA
+                            - MKD
+                            - MMK
+                            - MNT
+                            - MOP
+                            - MRO
+                            - MUR
+                            - MVR
+                            - MWK
+                            - MXN
+                            - MYR
+                            - MZN
+                            - NAD
+                            - NGN
+                            - NIO
+                            - NOK
+                            - NPR
+                            - NZD
+                            - OMR
+                            - PAB
+                            - PEN
+                            - PGK
+                            - PHP
+                            - PKR
+                            - PLN
+                            - PYG
+                            - QAR
+                            - RON
+                            - RSD
+                            - RUB
+                            - RWF
+                            - SAR
+                            - SBD
+                            - SCR
+                            - SDG
+                            - SEK
+                            - SGD
+                            - SHP
+                            - SLL
+                            - SOS
+                            - SRD
+                            - SSP
+                            - STD
+                            - SVC
+                            - SYP
+                            - SZL
+                            - THB
+                            - TJS
+                            - TMT
+                            - TND
+                            - TOP
+                            - TRY
+                            - TTD
+                            - TWD
+                            - TZS
+                            - UAH
+                            - UGX
+                            - USD
+                            - UYU
+                            - UZS
+                            - VEF
+                            - VND
+                            - VUV
+                            - WST
+                            - XAF
+                            - XCD
+                            - XOF
+                            - XPF
+                            - YER
+                            - ZAR
+                            - ZMW
+                            - ZWL
+                          type: string
+                      additionalProperties: false
+                      required:
+                        - value
+                        - currency
+                  additionalProperties: false
+                  required:
+                    - accountingString
+                    - description
+                    - type
+                    - amount
+            additionalProperties: false
+            required:
+              - type
+              - ledgerDate
+              - transactionDetailLines
+      required:
+        - id
+        - processMode
+        - transactions
+      additionalProperties: false

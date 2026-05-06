@@ -1,0 +1,559 @@
+openapi: 3.0.0
+info:
+  title: Purchase Card Transaction Details
+  description: >
+    This API provides information about purchase card transactions, specifically
+    "fed" and "unfed" transactions, as well allowing update of feed-related
+    information based on certain criteria.\
+     Note: The API has specific application for sites with customized purchase card processing, and should not be considered for use in conjunction with baseline purchase card processing.
+  version: 1.0.0
+  x-source-domain: Finance
+  x-source-name: FABINVT
+  x-source-title: null
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-audience: all
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/purchase-card-transaction-details:
+    get:
+      tags:
+        - purchase-card-transaction-details
+      summary: Return resources from FABINVT.
+      description: Returns all purchase card transactions meeting the submitted criteria.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: |
+            ```
+            application/vnd.hedtech.integration.v1+json
+            ```     
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Feed Indicator
+
+            Returns all purchase card transactions where the the feed indicator
+            is equal to the submitted value.
+
+            ```
+
+            /purchase-card-transaction-details?criteria={"feedInd":"F"}
+
+            ```
+
+            ### User Id
+
+            Returns all purchase card transactions where the User Id is equal to
+            the submitted value.
+
+            ```
+
+            /purchase-card-transaction-details?criteria={"userId":"systest04"}
+
+            ```
+
+            ### Card Code
+
+            Returns all purchase card transactions where the card code is equal
+            to the submitted value.
+
+            ```
+
+            /purchase-card-transaction-details?criteria={"cardCode":"9999999999999998"}
+
+            ```
+
+            ### Feed Document Code
+
+            Returns all purchase card transactions where the feed document code
+            is equal to the submitted value.
+
+            ```
+
+            /purchase-card-transaction-details?criteria={"feedDocCode":"S00002A"}
+
+            ```
+
+            ### Bank Post Date
+
+            Returns all purchase card transactions where the bank post date is
+            equal to the submitted value.
+
+            ```
+
+            /purchase-card-transaction-details?criteria={"bankPostDate":"2023-07-27"}
+
+            ```
+
+            ### Bank Post Date Range
+
+            Returns all purchase card transactions where the bank post date
+            falls between the submitted bank post start date and bank post end
+            date.
+
+            ```
+
+            /purchase-card-transaction-details?criteria={"bankPostStartDate":
+            "2023-07-26","bankPostEndDate":"2023-07-28"}
+
+            ```
+
+            ### Surrogate Id
+
+            Returns all purchase card transactions where the Surrogate ID equals
+            the submitted value.
+
+            ```
+
+            /purchase-card-transaction-details?criteria={"id":674}
+
+            ```
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/purchase-card-transaction-details-1.0.0_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - BasicAuth: []
+          EthosIntegrationBearer: []
+      x-method-permissions: API_PURCHASE_CARD_TRANSACTION
+  /api/purchase-card-transaction-details/{id}:
+    put:
+      summary: Update purchase card transaction details.
+      description: >
+        ### This request will update all unfed transactions with the submitted
+        feed indicator and document code.
+
+        ```
+
+        {
+            "criteria.feedInd": "N",
+            "feedDocCode":"S000023",
+            "feedInd":"F"
+        }
+
+        ```
+
+        ### This request will update the feed indicator and document code for
+        unfed transactions related to a specific purchase card.
+
+        ```
+
+        {
+            "criteria.cardCode": "98112112112",
+            "criteria.feedInd": "N",
+            "feedDocCode":"TESTDOC2",
+            "feedInd":"F"
+        }
+
+        ```
+
+        ### This request will update the feed doc code and feed indicator for a
+        transaction with given surrogate Id.
+
+        ```
+
+        {
+            "criteria.id": "674",
+            "feedDocCode":"TESTDOC2",
+            "feedInd":"F"
+        }
+
+        ```            
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      tags:
+        - purchase-card-transaction-details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: This can be any random number and is not specific to a particular
+            purchase card transaction.  A value must be included in the API
+            request.
+          schema:
+            type: number
+            minimum: 1
+            items:
+              $ref: "#/components/schemas/purchase-card-transaction-details-1.0.0_put_request"
+        - name: accept
+          in: header
+          required: true
+          description: |
+            ```
+            application/vnd.hedtech.integration.v1+json
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: |
+            ```
+            application/vnd.hedtech.integration.v1+json
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/purchase-card-transaction-details-1.0.0_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                          description: The error message code used to describe the error details.
+                          example: Global.SchemaValidation.Error
+                        description:
+                          type: string
+                          description: The error description used to describe the error details.
+                          example: Errors parsing input JSON.
+                        message:
+                          type: string
+                          description: The detailed actionable error message.
+                          example: Purchase card transaction details record not found.
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      x-method-permissions: API_PURCHASE_CARD_TRANSACTION
+components:
+  schemas:
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary
+                  data entity used to create the resource. This is useful for
+                  referencing the source item through the applications
+                  administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+    purchase-card-transaction-details-1.0.0_put_request:
+      type: object
+      properties:
+        criteria.feedInd:
+          title: Feed Indicator
+          description: Indicator used to determine if the transaction has been fed to
+            Finance or waiting to be fed.  Values are (F)ed and (N)ot fed which
+            is the default.
+          maxLength: 1
+          type: string
+          x-lineageReferenceObject: FABINVT_FEED_IND
+        criteria.cardCode:
+          title: Card Code
+          description: The unique number assigned to a credit card.
+          maxLength: 16
+          type: string
+          x-lineageReferenceObject: FABINVT_CARD_CODE
+        criteria.id:
+          title: Surrogate ID
+          description: Internal unique identification number generated from a sequence
+            which represents the primary key of the database record.
+          maxLength: 19
+          type: number
+          x-lineageReferenceObject: FABINVT_SURROGATE_ID
+        feedDocCode:
+          title: Feed Doc Code
+          description: The invoice document number assigned to this transaction as it was
+            fed into Banner Finance.
+          maxLength: 8
+          type: string
+          x-lineageReferenceObject: FABINVT_FEED_DOC_CODE
+        feedInd:
+          title: Feed Indicator
+          description: Indicator used to determine if the transaction has been fed to
+            Finance or waiting to be fed.  Values are (F)ed and (N)ot fed which
+            is the default.
+          maxLength: 1
+          type: string
+          x-lineageReferenceObject: FABINVT_FEED_IND
+    purchase-card-transaction-details-1.0.0_response:
+      required:
+        - feedInd
+        - userId
+        - cardCode
+        - feedDocCode
+        - bankPostDate
+        - tranNum
+        - id
+      type: object
+      properties:
+        bankPostDate:
+          title: Bank Posting Date
+          description: The date that the vendors transaction posted at the
+            bank.  Information only.  The banking post date from the source
+            transaction.
+          maxLength: 24
+          type: string
+          example: 2023-07-27
+          x-lineageReferenceObject: FABINVT_BANK_POST_DATE
+        cardCode:
+          title: Card Code
+          description: The unique number assigned to a credit card.
+          maxLength: 16
+          type: string
+          example: 98112112112
+          x-lineageReferenceObject: FABINVT_CARD_CODE
+        feedDocCode:
+          title: Feed Doc Code
+          description: The invoice document number assigned to this transaction as it was
+            fed into Banner Finance.
+          maxLength: 8
+          type: string
+          example: TESTDOC2
+          x-lineageReferenceObject: FABINVT_FEED_DOC_CODE
+        feedInd:
+          title: Feed Indicator
+          description: Indicator used to determine if the transaction has been fed to
+            Finance or waiting to be fed.  Values are (F)ed and (N)ot fed which
+            is the default.
+          maxLength: 1
+          type: string
+          example: F
+          x-lineageReferenceObject: FABINVT_FEED_IND
+        id:
+          title: Surrogate ID
+          description: Internal unique identification number generated from a sequence
+            which represents the primary key of the database record.
+          maxLength: 19
+          type: number
+          example: 674
+          x-lineageReferenceObject: FABINVT_SURROGATE_ID
+        tranNum:
+          title: Transaction Number
+          description: A one up number assigned to make the transaction unique within
+            SYSTEM_ID, and SYSTEM_TIME_STAMP.
+          maxLength: 4
+          type: number
+          example: 1
+          x-lineageReferenceObject: FABINVT_TRAN_NUM
+        userId:
+          title: User Identification
+          description: The unique identification code of the user usually defined in table
+            FOBPROF.
+          maxLength: 30
+          type: string
+          example: systest02
+          x-lineageReferenceObject: FABINVT_USER_ID
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

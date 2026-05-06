@@ -1,0 +1,522 @@
+openapi: 3.0.0
+info:
+  title: Prospect Opportunities Submissions
+  description: >
+    The prospect-opportunities-submissions API is an alternate representation of
+    the prospect-opportunities API. The API is used to create and update recruit
+    records and their associated curriculum, major, minor, and concentration
+    details.
+
+
+    Please refer to the 'Additional information for the prospect-opportunities-submissions API' section in Banner Ethos API Handbook for processing details of creating and updating the recruit records.
+
+
+    Please refer to the section 'API Integration Configuration Settings' in Banner Ethos API Handbook for all the configuration settings needed for this API.
+  version: 1.0.0-beta
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Recruitment
+  x-audience: all
+  x-release-status: beta
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/prospect-opportunities:
+    post:
+      summary: Create a new resource in SRBRECR
+      description: >
+        POST requests must include a nil GUID value
+        ("00000000-0000-0000-0000-000000000000") for the root id property.
+
+
+        In addition to the required properties defined in the data model, the following are required for a POST request: entryAcademicPeriod
+
+
+        Creates a prospect opportunity record in SRBRECR table, creates associated curriculum records in SORLCUR, and associated field of study – major, minor and concentration records in SORLFOS. Only active and current RECRUIT SORLCUR records are created. Institution-enabled validations are performed based on the configurations in curriculum checkings, SOACTRL page and the curriculum rules, SOACURR page.
+
+
+        The API response conforms to the prospect-opportunities data model.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PROSPECT_OPPORTUNITIES
+      tags:
+        - prospect-opportunities-submissions
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.prospect-opportunities-submissions.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-prospect-opportunities-submissions.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v16+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-prospect-opportunities-submissions.json"
+  /api/prospect-opportunities/{id}:
+    put:
+      summary: Update the requested resource from SRBRECR
+      description: >
+        Updates an prospect opportunity record in SRBRECR with the passed in
+        identifier.
+
+
+        The API response conforms to the prospect-opportunities data model.
+
+
+        Properties that are not updatable: id, prospect.id, entryAcademicPeriod.id, academicLevel.id, programOwner.id, credentials.id
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PROSPECT_OPPORTUNITIES
+      tags:
+        - prospect-opportunities-submissions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Prospect Opportunities Submissions for use
+            in all external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.prospect-opportunities-submissions.v1+json 
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-prospect-opportunities-submissions.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v16+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-prospect-opportunities-submissions.json"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-prospect-opportunities-submissions.json:
+      title: Prospect Opportunities Submissions
+      description: The opportunities submission for a prospective student at an institution.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the prospect opportunity.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+        prospect:
+          title: Prospect
+          description: The person who is interested in attending the institution.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Prospect.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          additionalProperties: false
+          required:
+            - id
+        recruitAcademicPrograms:
+          title: Recruit Academic Programs
+          description: The academic program(s) the prospect is considering at the
+            institution.
+          type: array
+          items:
+            type: object
+            properties:
+              program:
+                title: Program
+                description: The academic program the prospect is considering at the
+                  institution.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Program.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                additionalProperties: false
+                required:
+                  - id
+              academicLevel:
+                title: Academic Level
+                description: The academic level of study the prospect is considering at the
+                  institution.
+                oneOf:
+                  - type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the Academic Level.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    additionalProperties: false
+                    required:
+                      - id
+                  - type: object
+                    maxProperties: 0
+              credentials:
+                title: Credentials
+                description: The academic credentials associated with the academic program.
+                type: array
+                items:
+                  title: Credentials
+                  description: The academic credentials associated with the academic program.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Credentials.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  additionalProperties: false
+                  required:
+                    - id
+              programOwner:
+                title: Program Owner
+                description: The program owner of the academic program.
+                oneOf:
+                  - type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the Program Owner.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    additionalProperties: false
+                    required:
+                      - id
+                  - type: object
+                    maxProperties: 0
+              disciplines:
+                title: Disciplines
+                description: The academic disciplines associated with the academic program.
+                type: array
+                items:
+                  type: object
+                  properties:
+                    discipline:
+                      title: Discipline
+                      description: The academic discipline associated with the academic program.
+                      type: object
+                      properties:
+                        id:
+                          title: ID
+                          description: The global identifier for the Discipline.
+                          type: string
+                          format: guid
+                          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      additionalProperties: false
+                      required:
+                        - id
+                    administeringInstitutionUnit:
+                      title: Administering Institution Unit
+                      description: The administering institution unit associated with the discipline.
+                      oneOf:
+                        - type: object
+                          properties:
+                            id:
+                              title: ID
+                              description: The global identifier for the Administering Institution Unit.
+                              type: string
+                              format: guid
+                              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                          additionalProperties: false
+                          required:
+                            - id
+                        - type: object
+                          maxProperties: 0
+                    startOn:
+                      title: Start On
+                      description: The start date of the program.
+                      oneOf:
+                        - type: string
+                          format: date
+                          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                        - type: string
+                          maxLength: 0
+                  additionalProperties: false
+                  required:
+                    - discipline
+            additionalProperties: false
+            required:
+              - program
+        entryAcademicPeriod:
+          title: Entry Academic Period
+          description: The academic period the prospect is interested in beginning
+            attendance at the institution.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Entry Academic Period.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        admissionPopulation:
+          title: Admission Population
+          description: The admission population the prospect would be included in at the
+            institution if they attend the institution.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Admission Population.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        site:
+          title: Site
+          description: The institution site (campus) the prospect is considering.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Site.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        opportunitySource:
+          title: Opportunity Source
+          description: The source associated with the prospect opportunity.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Opportunity Source.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        personSource:
+          title: Person Source
+          description: The source associated with the prospect.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Person Source.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        educationalGoal:
+          title: Educational Goal
+          description: The educational goal associated with the prospect opportunity.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Educational Goal.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        careerGoals:
+          title: Career Goals
+          description: The career goals associated with the prospect opportunity.
+          type: array
+          items:
+            title: Career Goals
+            description: The career goals associated with the prospect opportunity.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Career Goals.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+            additionalProperties: false
+            required:
+              - id
+      required:
+        - id
+        - prospect
+        - recruitAcademicPrograms
+      additionalProperties: false

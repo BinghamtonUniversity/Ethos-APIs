@@ -1,0 +1,439 @@
+openapi: 3.0.0
+info:
+  title: ca-calstrs-reporting-activity
+  description: API for PVACSRT administrative page
+  version: 1.0.0
+  x-audience: all
+  x-release-status: ga
+  x-source-name: PVACSRT
+  x-source-domain: Human Resources
+  x-source-title: CalSTRS Reporting Activity (California)
+  x-source-system: banner
+  x-api-type: bus-poc
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/ca-calstrs-reporting-activity:
+    get:
+      tags:
+        - ca-calstrs-reporting-activity
+      summary: Return resources from PVACSRT
+      parameters:
+        - name: X-SDE-Expand
+          in: header
+          description: The comma seperated value list of block names
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: The maximum number of resources requesting for this result set.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          description: The filter criteria as a single URL query parameter. Use this
+            parameter or the individual parameters listed. Must be a JSON
+            representation of the property searching for. This can be any of the
+            properties listed on the URL or QAPI and must be a json
+            representation that can be validated against the GET schema. Limit
+            and Offset are the only supported additional parameters on the URL.
+          required: false
+          schema:
+            type: string
+        - name: reportType
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: emprCode
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: batchId
+          in: query
+          description: Batch ID
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: PDBCSRH_BATCH_ID
+        - name: id
+          in: query
+          description: ID
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ca-calstrs-reporting-activity-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+  /qapi/ca-calstrs-reporting-activity:
+    post:
+      tags:
+        - ca-calstrs-reporting-activity QAPI (Query by POST)
+      summary: Return resources from PVACSRT
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/ca-calstrs-reporting-activity-1.0.0_get_request"
+            example:
+              reportType: CB
+              emprCode: 199
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ca-calstrs-reporting-activity-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+components:
+  schemas:
+    errors-2.0.0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+              description:
+                type: string
+    ca-calstrs-reporting-activity-1.0.0_get_response:
+      type: object
+      properties:
+        pdrcsrt:
+          type: array
+          items:
+            type: object
+            properties:
+              csetTypeDesc:
+                type: string
+              earnAmt:
+                title: Earnings
+                type: number
+                description: "Lineage reference object : PDRCSRT_EARN_AMT"
+                x-lineageReferenceObject: PDRCSRT_EARN_AMT
+              csstCodeDesc:
+                type: string
+              coasCode:
+                title: COAS Code
+                type: string
+                description: "Lineage reference object : PDRCSRT_COAS_CODE"
+                x-lineageReferenceObject: PDRCSRT_COAS_CODE
+              bdplCodeDesc:
+                type: string
+              cstbCode:
+                title: Time Base
+                type: string
+                description: "Lineage reference object : PDRCSRT_CSTB_CODE, Lookup lineage
+                  reference object : NTVCSTB"
+                x-lineageReferenceObject: PDRCSRT_CSTB_CODE
+                x-lineageLookupReferenceObject: NTVCSTB
+              suff:
+                title: Suffix
+                type: string
+                description: "Lineage reference object : PDRCSRT_SUFF"
+                x-lineageReferenceObject: PDRCSRT_SUFF
+              finalizedInd:
+                title: Final Indicator
+                type: string
+                description: "Lineage reference object : PDRCSRT_FINALIZED_IND"
+                x-lineageReferenceObject: PDRCSRT_FINALIZED_IND
+              csppCode:
+                title: Expected Pay Period
+                type: string
+                description: "Lineage reference object : PDRCSRT_CSPP_CODE, Lookup lineage
+                  reference object : NTVCSPP"
+                x-lineageReferenceObject: PDRCSRT_CSPP_CODE
+                x-lineageLookupReferenceObject: NTVCSPP
+              bdplCode:
+                title: Plan
+                type: string
+                description: "Lineage reference object : PDRCSRT_BDPL_CODE, Lookup lineage
+                  reference object : PTRBDPL"
+                x-lineageReferenceObject: PDRCSRT_BDPL_CODE
+                x-lineageLookupReferenceObject: PTRBDPL
+              jobsAnnSalary:
+                title: Annualized Pay Rate
+                type: number
+                description: "Lineage reference object : PDRCSRT_JOBS_ANN_SALARY"
+                x-lineageReferenceObject: PDRCSRT_JOBS_ANN_SALARY
+              bdcaCodeDesc:
+                type: string
+              csetType:
+                title: Earnings Type
+                type: string
+                description: "Lineage reference object : PDRCSRT_CSET_TYPE, Lookup lineage
+                  reference object : PTVCSET"
+                x-lineageReferenceObject: PDRCSRT_CSET_TYPE
+                x-lineageLookupReferenceObject: PTVCSET
+              csstCode:
+                title: Service Type
+                type: string
+                description: "Lineage reference object : PDRCSRT_CSST_CODE, Lookup lineage
+                  reference object : NTVCSST"
+                x-lineageReferenceObject: PDRCSRT_CSST_CODE
+                x-lineageLookupReferenceObject: NTVCSST
+              cstbCodeDesc:
+                type: string
+              bdcaCode:
+                title: Benefit
+                type: string
+                description: "Lineage reference object : PDRCSRT_BDCA_CODE"
+                x-lineageReferenceObject: PDRCSRT_BDCA_CODE
+              payPeriodStartDate:
+                title: Period Start Date
+                type: string
+                description: "Lineage reference object : PDRCSRT_PAY_PERIOD_START_DATE"
+                format: date-time
+                x-lineageReferenceObject: PDRCSRT_PAY_PERIOD_START_DATE
+              dednEmployerAmt:
+                title: Employer Amount
+                type: number
+                description: "Lineage reference object : PDRCSRT_DEDN_EMPLOYER_AMT"
+                x-lineageReferenceObject: PDRCSRT_DEDN_EMPLOYER_AMT
+              strsAssnCodeDesc:
+                type: string
+              payPeriodEndDate:
+                title: Period End Date
+                type: string
+                description: "Lineage reference object : PDRCSRT_PAY_PERIOD_END_DATE"
+                format: date-time
+                x-lineageReferenceObject: PDRCSRT_PAY_PERIOD_END_DATE
+              posn:
+                title: Position
+                type: string
+                description: "Lineage reference object : PDRCSRT_POSN"
+                x-lineageReferenceObject: PDRCSRT_POSN
+              fiscYear:
+                title: Fiscal Year Code
+                type: string
+                description: "Lineage reference object : PDRCSRT_FISC_YEAR"
+                x-lineageReferenceObject: PDRCSRT_FISC_YEAR
+              transactionType:
+                title: Transaction Type
+                type: string
+                description: "Lineage reference object : PDRCSRT_TRANSACTION_TYPE"
+                x-lineageReferenceObject: PDRCSRT_TRANSACTION_TYPE
+              dednEmployeeAmt:
+                title: Employee Amount
+                type: number
+                description: "Lineage reference object : PDRCSRT_DEDN_EMPLOYEE_AMT"
+                x-lineageReferenceObject: PDRCSRT_DEDN_EMPLOYEE_AMT
+              csppCodeDesc:
+                type: string
+              strsAssnCode:
+                title: Assignment Code
+                type: string
+                description: "Lineage reference object : PDRCSRT_STRS_ASSN_CODE"
+                x-lineageReferenceObject: PDRCSRT_STRS_ASSN_CODE
+              strsFtBaseHrs:
+                title: Full Time Base Hours
+                type: number
+                description: "Lineage reference object : PDRCSRT_STRS_FT_BASE_HRS"
+                x-lineageReferenceObject: PDRCSRT_STRS_FT_BASE_HRS
+              effectiveDate:
+                title: Effective Date
+                type: string
+                description: "Lineage reference object : PDRCSRT_EFFECTIVE_DATE"
+                format: date-time
+                x-lineageReferenceObject: PDRCSRT_EFFECTIVE_DATE
+              strsHrsDay:
+                title: Work Hours Per Day
+                type: number
+                description: "Lineage reference object : PDRCSRT_STRS_HRS_DAY"
+                x-lineageReferenceObject: PDRCSRT_STRS_HRS_DAY
+            x-lineageReferenceObject: pdrcsrt
+        pdbcsrh:
+          type: array
+          items:
+            type: object
+            properties:
+              firstName:
+                title: First Name
+                type: string
+                description: "Lineage reference object : PDBCSRH_FIRST_NAME"
+                x-lineageReferenceObject: PDBCSRH_FIRST_NAME
+              lastName:
+                title: Last Name
+                type: string
+                description: "Lineage reference object : PDBCSRH_LAST_NAME"
+                x-lineageReferenceObject: PDBCSRH_LAST_NAME
+              clientId:
+                title: STRS ID
+                type: number
+                description: "Lineage reference object : PDBCSRH_CLIENT_ID"
+                x-lineageReferenceObject: PDBCSRH_CLIENT_ID
+              empdetails:
+                type: string
+              strsMemberCde:
+                title: Member Code
+                type: string
+                description: "Lineage reference object : PDBCSRH_STRS_MEMBER_CDE"
+                x-lineageReferenceObject: PDBCSRH_STRS_MEMBER_CDE
+              id:
+                title: ID
+                type: string
+              batchId:
+                title: Batch ID
+                type: string
+                description: "Lineage reference object : PDBCSRH_BATCH_ID"
+                x-lineageReferenceObject: PDBCSRH_BATCH_ID
+              mi:
+                title: Middle Initial
+                type: string
+                description: "Lineage reference object : PDBCSRH_MI"
+                x-lineageReferenceObject: PDBCSRH_MI
+            x-lineageReferenceObject: pdbcsrh
+    ca-calstrs-reporting-activity-1.0.0_get_request:
+      required:
+        - reportType
+        - emprCode
+      type: object
+      properties:
+        reportType:
+          title: Report Type
+          maxLength: 2
+          type: string
+          description: "Lineage reference object : reportType"
+          x-lineageReferenceObject: reportType
+        emprCode:
+          title: Employer Code
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : emprCode, Lookup lineage reference
+            object : PTREMPR"
+          x-lineageReferenceObject: emprCode
+          x-lineageLookupReferenceObject: PTREMPR
+        id:
+          title: Employee ID
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : id"
+          x-lineageReferenceObject: id
+        batchId:
+          title: Batch ID
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : batchId, Lookup lineage reference
+            object : PDBCSRH"
+          x-lineageReferenceObject: batchId
+          x-lineageLookupReferenceObject: PDBCSRH
+      x-lineageReferenceObject: KEY_BLOCK
+    ca-calstrs-reporting-activity-1.0.0_qapi_post:
+      required:
+        - emprCode
+        - reportType
+      type: object
+      properties:
+        reportType:
+          type: string
+        emprCode:
+          type: string
+        batchId:
+          title: Batch ID
+          type: string
+          description: "Lineage reference object : PDBCSRH_BATCH_ID"
+          x-lineageReferenceObject: PDBCSRH_BATCH_ID
+        id:
+          title: ID
+          type: string
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EllucianOAuthUserToken:
+      type: http
+      scheme: bearer
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

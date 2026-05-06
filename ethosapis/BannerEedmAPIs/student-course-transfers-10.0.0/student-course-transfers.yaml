@@ -1,0 +1,445 @@
+openapi: 3.0.0
+info:
+  title: Student Course Transfers
+  description: Coursework completed at external institutions for which students
+    have been awarded credit at the home institution.
+  version: "10.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Student
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/student-course-transfers:
+    get:
+      summary: Return all resources from SHRTRCE
+      description: Returns a paged listing of all the student course transfer records
+        from SHRTRCE table. The API will not return the transfer records if the
+        equivalent course is not defined in SCBCRSE.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STUDENT_COURSE_TRANSFERS
+      tags:
+        - student-course-transfers
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-student-course-transfers.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v10+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/student-course-transfers/{id}:
+    get:
+      summary: Return the requested resource from SHRTRCE
+      description: Return the single student course transfer record with the passed in
+        identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STUDENT_COURSE_TRANSFERS
+      tags:
+        - student-course-transfers
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Student Course Transfers for use in all
+            external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v10+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v10+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-student-course-transfers.json"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-student-course-transfers.json:
+      title: Student Course Transfers
+      description: Coursework completed at external institutions for which students
+        have been awarded credit at the home institution.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the student course transfer.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: SHRTRCE_GUID(SHRTRCE)
+        student:
+          title: Student
+          description: The student who received credit for the transferred course from an
+            external institution.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Student.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+              x-lineageDerivedLogic: Display GUID from GORGUID where GORGUID_LDM_NAME is 'persons' and GORGUID_DOMAIN_KEY matches SHRTRCE_PIDM
+          additionalProperties: false
+          required:
+            - id
+        equivalentCourse:
+          title: Equivalent Course
+          description: The home institution course equivalent to the course at the
+            external institution.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Equivalent Course.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: courses 
+              x-lineageReferenceObject: SCBCGID_GUID(SCBCGID)
+          additionalProperties: false
+          required:
+            - id
+        transferredFrom:
+          title: Transferred From
+          description: The external institution where the course was originally completed.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Transferred From.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: educational-institutions 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = external-educations-trit) 
+              x-lineageDerivedLogic: For the SHRTRCE_PIDM, fetch the matching record from SHRTRIT. For this record from SHRTRIT display GUID from GORGUID where GORGUID_LDM_NAME is  'external-educations-trit' and GORGUID_DOMAIN_KEY matches 'SHRTRIT_PIDM + SHRTRIT_SBGI_CODE'
+          additionalProperties: false
+          required:
+            - id
+        academicLevel:
+          title: Academic Level
+          description: The academic level (for example, 'Under Graduate' or 'Graduate')
+            associated with the transferred course.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Academic Level.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: academic-levels 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = academic-levels) 
+              x-lineageDerivedLogic: Display academicLevel GUID from GORGUID where GORGUID_LDM_NAME is  'academic-levels' and GORGUID_DOMAIN_KEY matches 'SHRTRCE_LEVL_CODE'
+          additionalProperties: false
+          required:
+            - id
+        academicProgram:
+          title: Academic Program
+          description: The academic program to which the transferred course has been
+            applied.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Academic Program.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: academic-programs 
+                  x-lineageReferenceObject: unsupported
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        academicPeriod:
+          title: Academic Period
+          description: The academic period assigned to the transferred course.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Academic Period.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: academic-periods 
+                  x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = term) 
+                  x-lineageDerivedLogic: Display GUID from GORGUID where GORGUID_LDM_NAME is 'term' and GORGUID_DOMAIN_KEY matches SHRTRCE_TERM_CODE_EFF
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        awardGradeScheme:
+          title: Award Grade Scheme
+          description: The grade scheme that was used to award a grade to the transferred
+            course.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Award Grade Scheme.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: grade-schemes 
+              x-lineageReferenceObject: SHRGSCH_GUID(SHRGSCH)
+          additionalProperties: false
+          required:
+            - id
+        grade:
+          title: Grade
+          description: A unit of measurement of how well a student completed a course.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Grade.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: grade-definitions 
+              x-lineageReferenceObject: SHRGDID_GUID(SHRGDID)
+          additionalProperties: false
+          required:
+            - id
+        qualityPoints:
+          title: Quality Points
+          description: A value, based on the grade awarded, that represents the student's
+            performance at the external institution that may be used to
+            determine a student's overall performance.
+          oneOf:
+            - type: number
+              x-lineageReferenceObject: SHRGRDE_QUALITY_POINTS(SHRGRDE)
+            - type: string
+              nullable: true
+        credit:
+          title: Credit
+          description: The unit specification that was awarded to the transferred course.
+          type: object
+          properties:
+            creditCategory:
+              title: Credit Category
+              description: The category of credit associated with the transferred course.
+              type: object
+              properties:
+                creditType:
+                  title: Credit Type
+                  description: The higher-level category of academic credits.
+                  enum:
+                    - ce
+                    - institution
+                    - transfer
+                    - exchange
+                    - exam
+                    - workLifeExperience
+                    - other
+                    - noCredit
+                  type: string
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: Always display as 'transfer'
+                detail:
+                  title: Detail
+                  description: The institutionally defined credit category assigned to the
+                    transferred course.
+                  oneOf:
+                    - type: object
+                      properties:
+                        id:
+                          title: ID
+                          description: The global identifier for the Detail.
+                          type: string
+                          format: guid
+                          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                          x-lineageLookupReferenceObject: credit-categories 
+                          x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = credit-categories) 
+                          x-lineageDerivedLogic: Display GUID from GORGUID where GORGUID_LDM_NAME is 'credit-categories' and GORGUID_DOMAIN_KEY matches 'Transfer'
+                      additionalProperties: false
+                      required:
+                        - id
+                    - type: object
+                      maxProperties: 0
+              additionalProperties: false
+              required:
+                - creditType
+            measure:
+              title: Measure
+              description: A unit or standard of measurement for the credit.
+              oneOf:
+                - type: string
+                  enum:
+                    - credit
+                    - ceu
+                    - hour
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: Always display as 'hour'
+                - type: string
+                  maxLength: 0
+            awardedCredit:
+              title: Awarded Credit
+              description: The credit awarded for the transferred course.
+              oneOf:
+                - type: number
+                  x-lineageReferenceObject: SHRTRCE_CREDIT_HOURS(SHRTRCE)
+                - type: string
+                  nullable: true
+          additionalProperties: false
+          required:
+            - creditCategory
+        equivalencyAppliedOn:
+          title: Equivalency Applied On
+          description: The date when the equivalency was officially applied to the
+            student's record at the home institution.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: SHRTRCE_ACTIVITY_DATE(SHRTRCE)
+            - type: string
+              maxLength: 0
+      required:
+        - id
+        - student
+        - equivalentCourse
+        - transferredFrom
+        - academicLevel
+        - awardGradeScheme
+        - grade
+        - credit
+      additionalProperties: false

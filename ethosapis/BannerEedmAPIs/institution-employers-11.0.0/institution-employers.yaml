@@ -1,0 +1,456 @@
+openapi: 3.0.0
+info:
+  title: Institution Employers
+  description: Information about the institution that employs people.
+  version: "11.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Human Resources
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhostn
+paths:
+  /api/institution-employers:
+    get:
+      summary: Return all resources from PTREMPR
+      description: Returns a paged listing of all the institution employer records
+        from PTREMPR table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_INSTITUTION_EMPLOYERS
+      tags:
+        - institution-employers
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-institution-employers.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11.1.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/institution-employers/{id}:
+    get:
+      summary: Return the requested resource from PTREMPR
+      description: Return the one resource with the passed in identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_INSTITUTION_EMPLOYERS
+      tags:
+        - institution-employers
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Institution Employers for use in all
+            external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v11.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-institution-employers.json"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-institution-employers.json:
+      title: Institution Employers
+      description: Information about the institution that employs people.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the institution employer.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+        title:
+          title: Title
+          description: The full name of the institution employer.
+          type: string
+          minLength: 1
+        code:
+          title: Code
+          description: A code that may be used to identify the institution employer.
+          type: string
+        address:
+          title: Address
+          description: The physical address associated with the institution employer.
+          type: object
+          properties:
+            addressLines:
+              title: Address Lines
+              description: The address lines of the address, such as a street address, post
+                office box number, or city, region, and postal code.
+              type: array
+              minItems: 1
+              items:
+                type: string
+            city:
+              title: City
+              description: The city associated with the employer.
+              type: string
+              minLength: 1
+            state:
+              title: State
+              description: The state associated with the employer.
+              type: string
+              minLength: 1
+            country:
+              title: Country
+              description: The ISO 3166-1 alpha-3 code of the country associated with the
+                employer.
+              enum:
+                - AFG
+                - AGO
+                - ALB
+                - AND
+                - ARE
+                - ARG
+                - ARM
+                - ATG
+                - AUS
+                - AUT
+                - AZE
+                - BDI
+                - BEL
+                - BEN
+                - BES
+                - BFA
+                - BGD
+                - BGR
+                - BHR
+                - BHS
+                - BIH
+                - BLR
+                - BLZ
+                - BOL
+                - BRA
+                - BRB
+                - BRN
+                - BTN
+                - BWA
+                - CAF
+                - CAN
+                - CHE
+                - CHL
+                - CHN
+                - CIV
+                - CMR
+                - COD
+                - COG
+                - COL
+                - COM
+                - CPV
+                - CRI
+                - CUB
+                - CUW
+                - CYP
+                - CZE
+                - DEU
+                - DJI
+                - DMA
+                - DNK
+                - DOM
+                - DZA
+                - ECU
+                - EGY
+                - ERI
+                - ESH
+                - ESP
+                - EST
+                - ETH
+                - FIN
+                - FJI
+                - FRA
+                - FSM
+                - GAB
+                - GBR
+                - GEO
+                - GHA
+                - GIN
+                - GLP
+                - GMB
+                - GNB
+                - GNQ
+                - GRC
+                - GRD
+                - GTM
+                - GUY
+                - HND
+                - HRV
+                - HTI
+                - HUN
+                - IDN
+                - IMN
+                - IND
+                - IRL
+                - IRN
+                - IRQ
+                - ISL
+                - ISR
+                - ITA
+                - JAM
+                - JOR
+                - JPN
+                - KAZ
+                - KEN
+                - KGZ
+                - KHM
+                - KIR
+                - KNA
+                - KOR
+                - KWT
+                - LAO
+                - LBN
+                - LBR
+                - LBY
+                - LCA
+                - LIE
+                - LKA
+                - LSO
+                - LTU
+                - LUX
+                - LVA
+                - MAR
+                - MCO
+                - MDA
+                - MDG
+                - MDV
+                - MEX
+                - MHL
+                - MKD
+                - MLI
+                - MLT
+                - MMR
+                - MNE
+                - MNG
+                - MNP
+                - MOZ
+                - MRT
+                - MUS
+                - MWI
+                - MYS
+                - NAM
+                - NER
+                - NGA
+                - NIC
+                - NLD
+                - NOR
+                - NPL
+                - NRU
+                - NZL
+                - OMN
+                - PAK
+                - PAN
+                - PCN
+                - PER
+                - PHL
+                - PLW
+                - PNG
+                - POL
+                - PRI
+                - PRK
+                - PRT
+                - PRY
+                - PSE
+                - QAT
+                - ROU
+                - RUS
+                - RWA
+                - SAU
+                - SDN
+                - SEN
+                - SGP
+                - SLB
+                - SLE
+                - SLV
+                - SMR
+                - SOM
+                - SRB
+                - SSD
+                - STP
+                - SUR
+                - SVK
+                - SVN
+                - SWE
+                - SWZ
+                - SXM
+                - SYC
+                - SYR
+                - TCD
+                - TGO
+                - THA
+                - TJK
+                - TKM
+                - TLS
+                - TON
+                - TTO
+                - TUN
+                - TUR
+                - TUV
+                - TWN
+                - TZA
+                - UGA
+                - UKR
+                - URY
+                - USA
+                - UZB
+                - VAT
+                - VCT
+                - VEN
+                - VNM
+                - VUT
+                - WSM
+                - YEM
+                - ZAF
+                - ZMB
+                - ZWE
+              type: string
+            postalCode:
+              title: Postal Code
+              description: The postal code associated with the employer.
+              type: string
+              minLength: 1
+          additionalProperties: false
+          required:
+            - addressLines
+            - city
+            - state
+            - country
+            - postalCode
+        phoneNumber:
+          title: Phone Number
+          description: The phone number associated with the employer.
+          type: string
+      required:
+        - id
+        - title
+        - address
+      additionalProperties: false

@@ -1,0 +1,144 @@
+openapi: 3.0.0
+info:
+  title: ca-mis-success-support-services-batches
+  description: Process to load Education Opportunity Programs and Services into SVAMSTD
+  version: 1.0.0-beta
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: beta
+  x-source-domain: Student
+  x-source-title: CA MIS Success Support Services Batches
+paths:
+  /api/ca-mis-success-support-services-batches:
+    post:
+      tags:
+        - ca-mis-success-support-services-batches
+      summary: Add a new CaMisSupportBach to the store
+      description: Add a new CaMisSupportBach to the store
+      operationId: addCaMisSupportBach
+      requestBody:
+        description: Create a new CaMisSupportBach in the store
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CaMisSupportBachRequest"
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/astdResponse"
+        "405":
+          description: Invalid input
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_CA_MIS_SUCC_SERV_BATCHES
+components:
+  schemas:
+    CaMisSupportBachRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          description: tab to process from the SVAMSTD page
+          example: ORIENTATION
+        term:
+          type: string
+          description: Term Specific Code used to define the MIS Success and Support
+            Services Data
+          example: "202320"
+        districtId:
+          type: string
+          description: The district or division associated with a student.
+          example: "123"
+        astd:
+          type: array
+          items:
+            type: object
+            properties:
+              StudentId:
+                type: string
+                description: Student Id
+                example: A00000719
+              serviceCode:
+                type: string
+                description: Name of the tab
+                example: IO
+              serviceDate:
+                type: string
+                description: Date this service was performed
+                example: 12/12/2012
+              providerId:
+                type: string
+                description: The identification number of the person that performed this service
+                example: APROVIDER
+              providerOrigin:
+                type: string
+                description: Identifies the originator (the originator department, for example)
+                  of this service.
+                example: ADMS
+              status:
+                type: string
+                description: Status of the service
+                example: SR
+              overrideDuplicate:
+                type: string
+                description: Y(yes) means that when this record was last saved, it was duplicate
+                  of another record that already existed. N(no) means that this
+                  record was a not duplicate when it was last saved.
+                example: ""
+              group:
+                type: string
+                description: Service group code
+                example: HSIC
+      required:
+        - file
+        - term
+        - districtId
+        - StudentId
+    astdResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          studentId:
+            type: string
+          service:
+            type: string
+          serviceDetail:
+            type: string
+          serviceDate:
+            type: string
+          providerId:
+            type: string
+          providerOrigin:
+            type: string
+          message:
+            type: string
+  requestBodies:
+    CaMisSupportBachRequest:
+      description: CaMisSupportBach object that needs to be added to the store
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CaMisSupportBachRequest"
+  responses:
+    "200":
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/astdResponse"
+    "400":
+      description: Invalid ID supplied
+    "404":
+      description: Not found
+    "405":
+      description: Validation exception
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

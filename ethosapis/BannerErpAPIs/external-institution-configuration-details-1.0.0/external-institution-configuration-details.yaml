@@ -1,0 +1,285 @@
+openapi: 3.0.0
+info:
+  title: External Institution Configuration Details
+  description: This API provides details about external institution configurations, including general information, transfer levels, accreditations, and comments.
+  version: 1.0.0
+  x-source-domain: Student
+  x-source-name: SORBTAG, SORBTAL, SORBTAI, SORBTAP, SORBTAC
+  x-source-system: banner
+  x-api-type: erp
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/external-institution-configuration-details:
+    get:
+      tags:
+        - external-institution-configuration-details
+      summary: Retrieve external institution configuration details.
+      description: Provides details about external institution configurations, including general information, transfer levels, accreditations, and comments.
+      parameters:
+        - name: sbgiCode
+          in: query
+          description: Institution code to filter the results.
+          required: false
+          schema:
+            type: string
+        - name: effectiveTermCode
+          in: query
+          description: Effective term code to filter the results.
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Maximum number of records to return.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: Number of records to skip before starting to return results.
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/external-institution-configuration-details-v1_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ErrorsObj'
+        '401':
+          description: Failure. Unauthorized.
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '500':
+          description: Server error. Unexpected configuration or data.
+      security:
+        - BasicAuth: []
+        - EthosIntegrationBearer: []
+      x-method-permission: API_EXT_INST_CONFIG_DETAILS
+components:
+  schemas:
+    external-institution-configuration-details-v1_response:
+      type: object
+      properties:
+        sbgiCode:
+          "type": string
+          "description": The unique code identifying the institution.
+          "maxLength": 20
+          "x-lineageReferenceObject": STVSBGI.STVSBGI_CODE
+        sbgiDesc:
+          "type": string
+          "description": The description of the institution.
+          "maxLength": 100
+          "x-lineageReferenceObject": STVSBGI.STVSBGI_DESC
+        general:
+          "description": General information about the institution.
+          "type": array
+          items:
+            "type": object
+            properties:
+              termEffective:
+                "type": string
+                "description": Effective term code.
+                "maxLength": 6
+                "x-lineageReferenceObject": SORBTAG.SORBTAG_TERM_CODE_EFF
+              highestDegreeLevelOffered:
+                "type": string
+                "description": Highest degree level offered.
+                "maxLength": 3
+                "x-lineageReferenceObject": SORBTAG.SORBTAG_HLWK_CODE
+              highestDegreeLevelOfferedDesc:
+                "type": string
+                "description": Description of the highest degree level offered.
+                "maxLength": 30
+                "x-lineageReferenceObject": STVHLWK.STVHLWK_DESC
+              acceptancePractice:
+                "type": string
+                "description": Acceptance practice code.
+                "maxLength": 3
+                "x-lineageReferenceObject": SORBTAG.SORBTAG_ACPR_CODE
+              acceptancePracticeDesc:
+                "type": string
+                "description": Description of the acceptance practice.
+                "maxLength": 30
+                "x-lineageReferenceObject": STVACPR.STVACPR_DESC
+              calendarType:
+                "type": string
+                "description": Calendar type code.
+                "maxLength": 4
+                "x-lineageReferenceObject": SORBTAG.SORBTAG_CALD_CODE
+              calendarTypeDesc:
+                "type": string
+                "description": Description of the calendar type.
+                "maxLength": 30
+                "x-lineageReferenceObject": STVCALD.STVCALD_DESC
+              multiplier:
+                "type": number
+                "description": Multiplier value.
+                "format": float
+                "x-lineageReferenceObject": STVCALD.STVCALD_MULTIPLIER
+              acceptanceAuthority:
+                "type": string
+                "description": Acceptance authority code.
+                "maxLength": 3
+                "x-lineageReferenceObject": SORBTAG.SORBTAG_TAAU_CODE
+              acceptanceAuthorityDesc:
+                "type": string
+                "description": Description of the acceptance authority.
+                "maxLength": 30
+                "x-lineageReferenceObject": STVTAAU.STVTAAU_DESC
+              reportedBy:
+                "type": string
+                "description": Reported by.
+                "maxLength": 25
+                "x-lineageReferenceObject": SORBTAG.SORBTAG_REPORTED_BY
+              reportedInformation:
+                "type": string
+                "description": Reported information.
+                "maxLength": 25
+                "x-lineageReferenceObject": SORBTAG.SORBTAG_REPORTED_INFO
+        transferLevels:
+          title: Transfer Levels
+          "description": Transfer levels information.
+          "type": array
+          items:
+            "type": object
+            properties:
+              termEffective:
+                "type": string
+                "description": Effective term code.
+                "maxLength": 6
+                "x-lineageReferenceObject": SORBTAL.SORBTAL_TERM_CODE_EFF
+              transferLevel:
+                "type": string
+                "description": Transfer level code.
+                "maxLength": 2
+                "x-lineageReferenceObject": SORBTAL.SORBTAL_TLVL_CODE
+              transferLevelDesc:
+                "type": string
+                "description": Description of the transfer level.
+                "maxLength": 30
+                "x-lineageReferenceObject": STVTLVL.STVTLVL_DESC
+        accreditations:
+          title: Institution Accreditations
+          "description": Accreditation details of the institution.
+          "type": array
+          items:
+            "type": object
+            properties:
+              termEffective:
+                "type": string
+                "description": Effective term code.
+                "maxLength": 6
+                "x-lineageReferenceObject": SORBTAI.SORBTAI_TERM_CODE_EFF
+              accreditation:
+                "type": string
+                "description": Accreditation code.
+                "maxLength": 3
+                "x-lineageReferenceObject": SORBTAI.SORBTAI_ACST_CODE
+              accreditationDesc:
+                "type": string
+                "description": Description of the accreditation.
+                "maxLength": 30
+                "x-lineageReferenceObject": STVACST.STVACST_DESC
+              accreditationDate:
+                "type": string
+                "description": Accreditation date.
+                "x-lineageReferenceObject": SORBTAI.SORBTAI_ACST_DATE
+        programAccreditations:
+          title: Program Accreditations
+          "description": Accreditation details of the institution's programs.
+          "type": array
+          items:
+            "type": object
+            properties:
+              termEffective:
+                "type": string
+                "description": Effective term code.
+                "maxLength": 6
+                "x-lineageReferenceObject": SORBTAP.SORBTAP_TERM_CODE_EFF
+              programAccreditation:
+                "type": string
+                "description": Program accreditation code.
+                "maxLength": 8
+                "x-lineageReferenceObject": SORBTAP.SORBTAP_PRGA_CODE
+              programAccreditationDesc:
+                "type": string
+                "description": Description of the program accreditation.
+                "maxLength": 30
+                "x-lineageReferenceObject": STVPRGA.STVPRGA_DESC
+        comments:
+          title: Comments
+          "description": Comments associated with the institution.
+          "type": array
+          items:
+            "type": object
+            properties:
+              termEffective:
+                "type": string
+                "description": Effective term code.
+                "maxLength": 6
+                "x-lineageReferenceObject": SORBTAC.SORBTAC_TERM_CODE_EFF
+              seqNo:
+                "type": number
+                "description": Sequence number.
+                "format": float
+                "x-lineageReferenceObject": SORBTAC.SORBTAC_SEQNO
+              comments:
+                "type": string
+                "description": Comment text.
+                "maxLength": 60
+                "x-lineageReferenceObject": SORBTAC.SORBTAC_TEXT
+    ErrorsObj:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        message:
+          type: string
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

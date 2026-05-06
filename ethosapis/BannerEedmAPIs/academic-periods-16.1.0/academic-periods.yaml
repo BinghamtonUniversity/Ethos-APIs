@@ -1,0 +1,520 @@
+openapi: 3.0.0
+info:
+  title: Academic Periods
+  description: >
+    A specified interval of time used by higher education institutions (for
+    example, Academic Year or Term).
+  version: 16.1.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Student
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/academic-periods:
+    get:
+      summary: Returns resources
+      description: >
+        Returns a paged listing of all the academic period records of category
+        year, term and subterm.
+
+
+        The year records are retrieved from STVACYR table, the term records are retrieved from STVTERM table, the subterm records of type part of term are retrieved from STVPTRM table and subterm records with Open Learning rules are retrieved from SOBODTE table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_ACADEMIC_PERIODS
+      tags:
+        - academic-periods
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Registration  
+
+            Returns all academic periods for the registration passed.
+
+            ```
+
+            /academic-periods?criteria={"registration":"open"}
+
+            ```
+
+            ### Code  
+
+            Returns all academic periods for the code passed.
+
+            ```
+
+            /academic-periods?criteria={"code":"201410"}
+
+            ```
+
+            ### Category Type  
+
+            Returns all academic periods for the category passed.
+
+            ```
+
+            /academic-periods?criteria={"category":{"type":"term"}}
+
+            ```
+
+            ### StartOn  
+
+            Supported operators are $gte or the default of equals if operator is not specified.
+
+
+            Returns all academic periods for the start on date passed.
+
+            ```
+
+            /academic-periods?criteria={"startOn":"2016-03-07T00:00:00Z"}
+
+            ```
+
+            ```
+
+            /academic-periods?criteria={"startOn":{"$eq":"2016-03-07T00:00:00Z"}}
+
+            ```
+
+            Returns all academic periods with start date greater than or equals to the start on date passed.
+
+            ```
+
+            /academic-periods?criteria={"startOn":{"$gte":"2016-03-07T00:00:00Z"}}
+
+            ```
+
+            ### EndOn  
+
+            Supported operators are $lte or the default of equals if operator is not specified.
+
+
+            Returns all academic periods for the end on date passed.
+
+            ```
+
+            /academic-periods?criteria={"endOn":"2025-09-30T00:00:00Z"}
+
+            ```
+
+            ```
+
+            /academic-periods?criteria={"endOn":{"$eq":"2025-09-30T00:00:00Z"}}
+
+            ```
+
+            Returns all academic periods with end date less than or equals to the end on date passed.
+
+            ```
+
+            /academic-periods?criteria={"endOn":{"$lte":"2025-09-30T00:00:00Z"}}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-academic-periods.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.1.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/academic-periods/{id}:
+    get:
+      summary: Return the requested resource
+      description: |
+        Returns a single academic period record with the requested identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_ACADEMIC_PERIODS
+      tags:
+        - academic-periods
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-academic-periods.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-academic-periods.json:
+      title: Academic Periods
+      description: A specified interval of time used by higher education institutions
+        (for example, Academic Year or Term).
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: A global identifier of an academic period.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = year) or GORGUID_GUID(LDM_NAME = term) or GORGUID_GUID(LDM_NAME = subterm)
+        code:
+          title: Code
+          description: A code that identifies an academic period.
+          type: string
+          x-lineageReferenceObject: STVACYR_CODE(STVACYR) or STVPTRM_CODE(STVPTRM) or STVTERM_CODE(STVTERM) or (SOBODTE_TERM_CODE||'(OLR)'||SOBODTE_INSM_CODE)
+        title:
+          title: Title
+          description: The full name of an academic period (for example, 'Fall 2014').
+          type: string
+          minLength: 1
+          x-lineageReferenceObject: STVACYR_DESC(STVACYR) or SOBPTRM_DESC(SOBPTRM) or STVTERM_DESC(STVTERM) or derived
+          x-lineageDerivedLogic: "select SOBODTE_TERM_CODE||' Open Learning Rule '||'INSM: '||SOBODTE_INSM_CODE||' SCHD: '||nvl(SOBODTE_SCHD_CODE,'None')||'CAMP: '||nvl(SOBODTE_CAMP_CODE,'None')||' COLL: '||nvl(SOBODTE_COLL_CODE,'None')||' DEPT: '||nvl(SOBODTE_DEPT_CODE,'None') from SOBODTE"
+        description:
+          title: Description
+          description: A description of an academic period.
+          type: string
+          x-lineageReferenceObject: unsupported
+        startOn:
+          title: Start On
+          description: The date on which an academic period begins.
+          type: string
+          format: date-time
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+          x-lineageReferenceObject: STVACYR_START_DATE(STVACYR) or STVTERM_START_DATE(STVTERM) or SOBPTRM_START_DATE(SOBPTRM) or SOBODTE_REG_START_DATE(SOBODTE)
+        endOn:
+          title: End On
+          description: The date on which an academic period ends.
+          type: string
+          format: date-time
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+          x-lineageReferenceObject: STVACYR_END_DATE(STVACYR) or STVTERM_END_DATE(STVTERM) or SOBPTRM_END_DATE(SOBPTRM) or SOBODTE_REG_END_DATE(SOBODTE)
+        censusDates:
+          title: Census Dates
+          description: The default dates at which section enrollment/headcount is
+            determined for the academic period.
+          type: array
+          items:
+            pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+            x-lineageReferenceObject: SOBPTRM_CENSUS_DATE(SOBPTRM) or SOBPTRM_CENSUS_2_DATE(SOBPTRM) or SOBODTE_CENSUS_DATE_ONE(SOBODTE) or SOBODTE_CENSUS_DATE_TWO(SOBODTE)
+            type: string
+            format: date
+        category:
+          title: Category
+          description: A category for the academic period.
+          oneOf:
+            - title: Year
+              description: An academic year.
+              type: object
+              properties:
+                type:
+                  title: Type
+                  description: A type of academic period.
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: type will be 'year' enum
+                  enum:
+                    - year
+                  type: string
+              additionalProperties: false
+              required:
+                - type
+            - title: Term
+              description: A term within an academic year (for example, Semester).
+              type: object
+              properties:
+                type:
+                  title: Type
+                  description: A type of period within an academic year.
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: type will be 'term' enum
+                  enum:
+                    - term
+                  type: string
+                parent:
+                  title: Parent
+                  description: The academic period or year in which a term occurs.
+                  oneOf:
+                    - title: Academic Period
+                      description: The academic period in which a term occurs.
+                      type: object
+                      properties:
+                        academicPeriod:
+                          title: Academic Period
+                          description: The academic period in which a term occurs.
+                          type: object
+                          properties:
+                            id:
+                              title: ID
+                              description: The global identifier for the Academic Period.
+                              type: string
+                              format: guid
+                              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                              x-lineageLookupReferenceObject: academic-periods 
+                              x-lineageReferenceObject: STVACYR_CODE(STVACYR)
+                              x-lineageDerivedLogic: GORGUID_GUID where GORGUID_LDM_NAME = 'year'and GORGUID_DOMAIN_KEY = STVTERM_ACYR_CODE
+                          additionalProperties: false
+                          required:
+                            - id
+                      additionalProperties: false
+                      required:
+                        - academicPeriod
+                    - title: Academic Year
+                      description: The academic year in which a term occurs.
+                      type: object
+                      properties:
+                        academicYear:
+                          title: Academic Year
+                          description: The academic year in which a term occurs.
+                          type: number
+                          x-lineageReferenceObject: unsupported
+                      additionalProperties: false
+                      required:
+                        - academicYear
+                preceding:
+                  title: Preceding Term
+                  description: The term that immediately precedes the current academic term.
+                  oneOf:
+                    - type: object
+                      properties:
+                        id:
+                          title: ID
+                          description: The global identifier for the Preceding Term.
+                          type: string
+                          format: guid
+                          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                          x-lineageLookupReferenceObject: academic-periods
+                          x-lineageReferenceObject: unsupported
+                      additionalProperties: false
+                      required:
+                        - id
+                    - type: object
+                      maxProperties: 0
+              additionalProperties: false
+              required:
+                - type
+            - title: Subterm
+              description: A subterm within an academic term (for example, Part of a
+                Semester).
+              type: object
+              properties:
+                type:
+                  title: Type
+                  description: A type of period within a term.
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: type will be 'subterm' enum
+                  enum:
+                    - subterm
+                  type: string
+                parent:
+                  title: Term
+                  description: The term in which the current subterm occurs.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Term.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: academic-periods 
+                      x-lineageReferenceObject: SOBPTRM_TERM_CODE(SOBPTRM)
+                      x-lineageDerivedLogic: If record source is SOBPTRM, GORGUID_GUID where GORGUID_LDM_NAME = 'term' and GORGUID_DOMAIN_KEY = SOBPTRM_TERM_CODE.
+                        If record source is SOBODTE, GORGUID_GUID where GORGUID_LDM_NAME = 'term' and GORGUID_DOMAIN_KEY = SOBODTE_TERM_CODE.
+                  additionalProperties: false
+                  required:
+                    - id
+                preceding:
+                  title: Preceding Subterm
+                  description: The subterm that immediately precedes the current subterm.
+                  oneOf:
+                    - type: object
+                      properties:
+                        id:
+                          title: ID
+                          description: The global identifier for the Preceding Subterm.
+                          type: string
+                          format: guid
+                          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                          x-lineageLookupReferenceObject: academic-periods
+                          x-lineageReferenceObject: unsupported
+                      additionalProperties: false
+                      required:
+                        - id
+                    - type: object
+                      maxProperties: 0
+                sectionDateOverride:
+                  title: Section Date Override
+                  description: An indicator as to whether section date override has been disabled.
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: If record source is SOBPTRM, publish 'notAllowed' if SOBTRM_SECT_OVER_IND = 'N'.
+                    If record source is SOBODTE, publish 'notAllowed' if SOBODTE_OVERRIDE_IND = 'N'.
+                  oneOf:
+                    - type: string
+                      enum:
+                        - notAllowed
+                    - type: string
+                      maxLength: 0
+              additionalProperties: false
+              required:
+                - type
+                - parent
+        registration:
+          title: Registration
+          description: The registration status for the academic period.
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: select nvl((select 'open' FROM SORRTRM, SOBTERM a, STVTERM where trunc(SYSDATE) between SORRTRM_START_DATE And SORRTRM_END_DATE
+            and SORRTRM_TERM_CODE = STVTERM_CODE and SORRTRM_TERM_CODE = a.SOBTERM_TERM_CODE and a.SOBTERM_TERM_CODE = c.SOBTERM_TERM_CODE
+            and a.SOBTERM_DYNAMIC_SCHED_TERM_IND = 'Y' and a.SOBTERM_REG_ALLOWED = 'Y'),'closed') from SOBTERM c;
+          oneOf:
+            - type: string
+              enum:
+                - open
+                - closed
+            - type: string
+              maxLength: 0
+      required:
+        - id
+        - title
+        - startOn
+        - endOn
+        - category
+      additionalProperties: false

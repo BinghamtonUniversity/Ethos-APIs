@@ -1,0 +1,242 @@
+openapi: 3.0.0
+info:
+  title: Student Transcript Grades Adjustments
+  description: >
+    The student transcript grade adjustments API is an alternate representation
+    of student transcript grades API. The API is used to submit grade
+    adjustments for a transcript grade.
+
+
+    Please refer to "API Integration Configuration Settings" section in the Banner Ethos API Handbook for details on API configuration settings that needs to be configured for this API.
+  version: 1.0.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Student
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/student-transcript-grades/{id}:
+    put:
+      summary: Update the requested resource from SHRTCKN
+      description: >
+        Updates an existing student transcript grade record in SHRTCKN. Even
+        though a grade change is received as an update request, a new record is
+        inserted into the SHRTCKG table with no changes done to the existing
+        grades.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STUDENT_TRANSCRIPT_GRADES
+      tags:
+        - student-transcript-grades-adjustments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Student Transcript Grades Adjustments for
+            use in all external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.student-transcript-grades-adjustments.v1+json 
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-student-transcript-grades-adjustments.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-student-transcript-grades-adjustments.json"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-student-transcript-grades-adjustments.json:
+      title: Student Transcript Grades Adjustments
+      description: The grade adjustments submitted for the student transcript.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the student transcript grade.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+        detail:
+          title: Detail
+          description: The details of the adjustments to the student transcript.
+          type: object
+          properties:
+            grade:
+              title: Grade
+              description: The grade supplied for the adjustment.
+              oneOf:
+                - type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Grade.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  additionalProperties: false
+                  required:
+                    - id
+                - type: object
+                  maxProperties: 0
+            incompleteGrade:
+              title: Incomplete Grade
+              description: The adjustments to be applied to the default incomplete final grade
+                and/or the extension date.
+              type: object
+              properties:
+                extensionDate:
+                  title: Extension Date
+                  description: The adjusted date after which the default final grade may be
+                    applied.
+                  oneOf:
+                    - type: string
+                      format: date
+                      pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                    - type: string
+                      maxLength: 0
+                finalGrade:
+                  title: Final Grade
+                  description: The adjusted default final grade to be applied.
+                  oneOf:
+                    - type: object
+                      properties:
+                        id:
+                          title: ID
+                          description: The global identifier for the Final Grade.
+                          type: string
+                          format: guid
+                          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      additionalProperties: false
+                      required:
+                        - id
+                    - type: object
+                      maxProperties: 0
+              additionalProperties: false
+            changeReason:
+              title: Change Reason
+              description: The reason specified for the adjustment.
+              oneOf:
+                - type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Change Reason.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  additionalProperties: false
+                  required:
+                    - id
+                - type: object
+                  maxProperties: 0
+          additionalProperties: false
+          minProperties: 1
+      required:
+        - id
+        - detail
+      additionalProperties: false

@@ -1,0 +1,245 @@
+openapi: 3.0.0
+info:
+  title: Student Registration Eligibilities
+  description: >-
+    It provides information on the registration eligibility of the student.
+
+
+    Student eligibility includes checking the student is a student with an student type that does not prevent registration; if the student has an enrollment status for the term the status does not prevent registration; academic status does not prevent registration; holds do not prevent registration; the student is not deceased; student does not require re-admission for the term; time tickets are in progress and student’s assigned time tickets are for current date and time.
+  version: "9.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Student
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/student-registration-eligibilities:
+    get:
+      summary: Return all resources
+      description: >-
+        Returns a paged listing of all the resources in the system.
+
+
+        Standard named query ‘criteria’ should be provided with properties ‘student’ and ‘academicPeriod’ to access the API.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STU_REG_ELIGIBILITIES
+      tags:
+        - student-registration-eligibilities
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v9+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Student Academic Period
+
+            The student with the academic period.
+
+            ```
+
+            /student-registration-eligibilities?criteria={"student":"ff36f9a7-21e4-48fb-94af-a1cb9d8f46f1","academicPeriod":"00012b90-b14c-468a-be21-a1f2f1e72c4a"}
+
+            ```
+
+
+            ```
+
+            /student-registration-eligibilities?criteria={"student":{"id":"ff36f9a7-21e4-48fb-94af-a1cb9d8f46f1"},"academicPeriod":{"id":"00012b90-b14c-468a-be21-a1f2f1e72c4a"}}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-student-registration-eligibilities.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v9+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-student-registration-eligibilities.json:
+      title: Student Registration Eligibilities
+      description: It provides information on the registration eligibility of the student.
+      type: object
+      properties:
+        student:
+          title: Student
+          description: The student for which registration eligibility is provided.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Student.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+              x-lineageDerivedLogic: The API requires student and academicPeriod properties to be sent in the URL to determine if the given student is eligible to register in the given term. Display person GUID from GORGUID where GORGUID_LDM_NAME is 'persons' and GORGUID_DOMAIN_KEY matches the person GUID sent in request criteria. Primary source UI is not supported.
+          additionalProperties: false
+          required:
+            - id
+        academicPeriod:
+          title: Academic Period
+          description: The academic period for which registration eligibility is provided.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Academic Period.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: academic-periods 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = term) 
+              x-lineageDerivedLogic: Display term GUID from GORGUID where GORGUID_LDM_NAME is 'term' and GORGUID_DOMAIN_KEY matches the academic period sent in request criteria
+          additionalProperties: false
+          required:
+            - id
+        startOn:
+          title: Start On
+          description: The date when a student may first register for the academic period.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: SORRTRM_START_DATE(SORRTRM)
+            - type: string
+              maxLength: 0
+        endOn:
+          title: End On
+          description: The last date when a student may register for the academic period.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: SORRTRM_END_DATE(SORRTRM)
+            - type: string
+              maxLength: 0
+        alternatePin:
+          title: Alternate Pin
+          description: An indication if an alternate pin is required for the student to
+            register.
+          oneOf:
+            - type: string
+              enum:
+                - required
+                - notRequired
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: For GTVSDAX_INTERNAL_CODE = 'WEBALTPINA' - If GTVSDAX_EXTERNAL_CODE = 'Y' then display as 'required', else display as 'nonRequired'
+            - type: string
+              maxLength: 0
+        eligibilityStatus:
+          title: Eligibility Status
+          description: The indication if the student is eligible to register for the
+            academic period.
+          enum:
+            - eligible
+            - ineligible
+          type: string
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: For the person GUID and academic period GUID sent in the request, if the student matches the criteria in the request then display as 'eligible', else display as 'ineligible'
+        ineligibilityReasons:
+          title: Ineligibility Reasons
+          description: The reasons the student is not eligibile to register.
+          type: array
+          items:
+            type: string
+            x-lineageReferenceObject: derived  
+            x-lineageDerivedLogic: If eligibility status is 'ineligible', then always display 'ineligibilityReasons' as 'You must be a student for the term.'. If eligibility status is 'eligible', then 'ineligibilityReasons' is not displayed
+        priorityRegistrationTimeSlots:
+          title: Priority Registration Time Slots
+          description: Time periods when the student is assigned priority registration.
+          type: array
+          items:
+            type: object
+            properties:
+              startOn:
+                title: Start On
+                description: The date and time when the student's priority registration starts.
+                type: string
+                format: date-time
+                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                x-lineageReferenceObject: derived  
+                x-lineageDerivedLogic: For the person PIDM and academic period sent in the request criteria, if a record exist in SFBRGRP then for the SFBRGRP_RGRP_CODE fetch a matching record from SFBWCTL table. For the term code and SFBWCTL_PRIORITY, fetch the matching record in SFRWCTL and display 'priorityRegistrationTimeSlots.startOn' by concatenating the date and time value from SFRWCTL_BEGIN_DATE and SFRWCTL_HOUR_BEGIN
+              endOn:
+                title: End On
+                description: The date and time when the student's priority registration ends.
+                type: string
+                format: date-time
+                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                x-lineageReferenceObject: derived  
+                x-lineageDerivedLogic: For the person PIDM and academic period sent in the request criteria, if a record exist in SFBRGRP then for the SFBRGRP_RGRP_CODE fetch a matching record from SFBWCTL table. For the term code and SFBWCTL_PRIORITY, fetch the matching record in SFRWCTL and display 'priorityRegistrationTimeSlots.startOn' by concatenating the date and time value from SFRWCTL_END_DATE and SFRWCTL_HOUR_END
+            additionalProperties: false
+            required:
+              - startOn
+              - endOn
+      required:
+        - student
+        - academicPeriod
+        - eligibilityStatus
+      additionalProperties: false

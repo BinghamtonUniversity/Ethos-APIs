@@ -1,0 +1,771 @@
+openapi: 3.0.0
+info:
+  title: Section Registrations
+  description: >
+    Section registrations records a student's interaction with a course section
+    for a specific registration. Supports both OLR (open-learning) and non-OLR
+    (traditional) registrations.
+
+
+    This version of the API supports mapping multiple Banner regitration status values from STVRSTS to a same status.sectionRegistrationStatusReason Ethos enumeration in API configuration setting REGISTRATION.STATUS.REASON.V4. Please refer to "Map multiple Banner values to an Ethos enumeration" section in Banner Ethos API handbook for details on API behavior when multiple mappings are available in these setting for the same Ethos enumeration.
+
+
+    Please refer to "API Integration Configuration Settings" section in the Banner Ethos API Handbook for details on API configuration settings that needs to be configured for this API.
+  version: 16.0.0
+  x-source-system: banner
+  x-release-status: ga
+  x-api-type: ethos
+  x-audience: all
+  x-source-domain: Student
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: section-registrations
+paths:
+  /api/section-registrations:
+    get:
+      summary: Returns resources from SFRSTCR
+      description: >
+        Returns a paged listing of section registrations records from SFRSTCR
+        excluding the registration records with 'pending' status.
+
+
+        If the registration status code (STVRSTS_CODE) is mapped to a valid registration sectionRegistrationStatusReason enumeration (registered, withdrawn, dropped, canceled) in the API configuration setting REGISTRATION.STATUS.REASON.V4, the API publishes the registration status property with the associated registration 'status.detail.id'. If the registration status code on a registration record is not mapped to a valid enumeration on this setting, the API only retrieves registration status enumeration but does not publish the 'status.detail.id' property.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_SECTION_REGISTRATIONS
+      tags:
+        - section-registrations
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 100 and upper limit is 500.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Registrant  
+
+            A person registered for a section.
+
+            ```
+
+            /section-registrations?criteria={"registrant":{"id":"5674f28b-b216-4055-b236-81a922d93b4c"}}
+
+            ```
+
+            ### Section  
+
+            An instance of a course for which a person is registering.
+
+            ```
+
+            /section-registrations?criteria={"section":{"id":"cfa09192-7e0b-46ca-aaa3-13b0c659f9cc"}}
+
+            ```
+        - name: academicPeriod
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Academic Period  
+
+            Filter to return section registrations associated with a specific term / academic period.
+
+            ```
+
+            /section-registrations?academicPeriod={"academicPeriod":{"id":"86a94f19-9216-4c52-a4b0-31e3bf674280"}}
+
+            ```
+        - name: sectionInstructor
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Section Instructor  
+
+            Filter to return section registrations associated with a specific instructor/faculty
+
+            ```
+
+            /section-registrations?sectionInstructor={"sectionInstructor":{"id":"86a94f19-9216-4c52-a4b0-31e3bf674280"}}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-section-registrations.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.1.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new resource in SFRSTCR
+      description: >
+        POST requests must include a nil GUID value
+        ("00000000-0000-0000-0000-000000000000") for the root id property.
+
+
+        Creates a new section registration record in SFRSTCR. A general student record in SGBSTDN must exist in order to register a student successfully.
+
+
+        The properties 'approvals' and 'override' are not supported. Create request sent with these properties will be rejected with an error message.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_SECTION_REGISTRATIONS
+      tags:
+        - section-registrations
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-section-registrations.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v16+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-section-registrations.json"
+  /api/section-registrations/{id}:
+    get:
+      summary: Return the requested resource from SFRSTCR
+      description: >
+        Returns a single section registrations record from SFRSTCR with the
+        requested identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_SECTION_REGISTRATIONS
+      tags:
+        - section-registrations
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-section-registrations.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    put:
+      summary: Update the requested resource from SFRSTCR
+      description: >
+        Updates an existing section registration record.
+
+
+        Note that the properties 'registrant.id', 'section. id' and 'originallyRegisteredOn' cannot be changed.
+
+
+        The properties 'approvals' and 'override' are not supported. Update request sent with these properties will be rejected with an error message.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_SECTION_REGISTRATIONS
+      tags:
+        - section-registrations
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Section Registrations for use in all
+            external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json 
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-section-registrations.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v16+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-section-registrations.json"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-section-registrations.json:
+      title: Section Registrations
+      description: The records of a student's interaction with a course section for a
+        specific registration.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the section registration.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          minLength: 1
+          x-lineageReferenceObject: SFRRGID_GUID(SFRRGID)
+        registrant:
+          title: Registrant
+          description: A person registered for a section.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Registrant.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: SFRSTCR_PIDM(SFRSTCR)
+          additionalProperties: false
+          required:
+            - id
+        section:
+          title: Section
+          description: An instance of a course for which a person is registering.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Section.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: sections 
+              x-lineageReferenceObject: SFRSTCR_CRN(SFRSTCR)
+          additionalProperties: false
+          required:
+            - id
+        academicLevel:
+          title: Academic Level
+          description: The academic level at which the student is registering for the
+            course (The level specified should match one of the levels allowed
+            for the section).
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Academic Level.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: academic-levels 
+              x-lineageReferenceObject: SFRSTCR_LEVEL_CODE(SFRSTCR)
+          additionalProperties: false
+          required:
+            - id
+        originallyRegisteredOn:
+          title: Originally Registered On
+          description: The date on which the student originally registered for the section.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: SFRSTCR_ADD_DATE(SFRSTCR)
+            - type: string
+              maxLength: 0
+        status:
+          title: Status
+          description: The status of this person's registration in the section.
+          oneOf:
+            - title: Not registered
+              description: A person is not registered in the section.
+              type: object
+              properties:
+                registrationStatus:
+                  title: Registration Status
+                  description: The status of this person's registration in the section.
+                  enum:
+                    - notRegistered
+                  type: string
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: Display 'notRegistered' if SFRRSTS_RSTS_CODE dropped, withdrawn, or cancelled based on the value defined in GORICCR REGISTRATION.STATUS.REASON.V4 settings Display 'registered' if SFRSTCR_RSTS_CODE is considered registered based on the value defined in GORICCR REGISTRATION.STATUS.REASON.V4 settings
+                sectionRegistrationStatusReason:
+                  title: Section Registration Status Reason
+                  description: Status reason for non-registration.
+                  enum:
+                    - dropped
+                    - withdrawn
+                    - canceled
+                  type: string
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: Display GORICCR_VALUE based on SFRSTCR_RSTS_CODE and GORICCR setting = REGISTRATION.STATUS.REASON.V4.
+                detail:
+                  title: Detail
+                  description: Additional details about the status.
+                  oneOf:
+                    - type: object
+                      properties:
+                        id:
+                          title: ID
+                          description: The global identifier for the Detail.
+                          type: string
+                          format: guid
+                          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                          x-lineageLookupReferenceObject: section-registration-statuses 
+                          x-lineageReferenceObject: SFRSTCR_RSTS_CODE(SFRSTCR)
+                      additionalProperties: false
+                      required:
+                        - id
+                    - type: object
+                      maxProperties: 0
+              additionalProperties: false
+              required:
+                - registrationStatus
+                - sectionRegistrationStatusReason
+            - title: Registered
+              description: A person is registered in the section.
+              type: object
+              properties:
+                registrationStatus:
+                  title: Registration Status
+                  description: The status of this person's registration in the section.
+                  enum:
+                    - registered
+                  type: string
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: Display 'notRegistered' if SFRRSTS_RSTS_CODE dropped, withdrawn, or cancelled based on the value defined in GORICCR REGISTRATION.STATUS.REASON.V4 settings Display 'registered' if SFRSTCR_RSTS_CODE is considered registered based on the value defined in GORICCR REGISTRATION.STATUS.REASON.V4 settings
+                sectionRegistrationStatusReason:
+                  title: Section Registration Status Reason
+                  description: A person was registered.
+                  enum:
+                    - registered
+                  type: string
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: Display GORICCR_VALUE based on SFRSTCR_RSTS_CODE and GORICCR setting = REGISTRATION.STATUS.REASON.V4.
+                detail:
+                  title: Detail
+                  description: Additional details about the status.
+                  oneOf:
+                    - type: object
+                      properties:
+                        id:
+                          title: ID
+                          description: The global identifier for the Detail.
+                          type: string
+                          format: guid
+                          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                          x-lineageLookupReferenceObject: section-registration-statuses 
+                          x-lineageReferenceObject: SFRSTCR_RSTS_CODE(SFRSTCR)
+                      additionalProperties: false
+                      required:
+                        - id
+                    - type: object
+                      maxProperties: 0
+              additionalProperties: false
+              required:
+                - registrationStatus
+                - sectionRegistrationStatusReason
+        statusDate:
+          title: Status Date
+          description: The date on which the status was set.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: SFRSTCR_RSTS_DATE(SFRSTCR)
+            - type: string
+              maxLength: 0
+        approvals:
+          title: Approval
+          description: The method of approval.
+          type: array
+          items:
+            type: object
+            properties:
+              approvalType:
+                title: Type
+                description: The type of approval granted.
+                enum:
+                  - all
+                type: string
+                minLength: 1
+                x-lineageReferenceObject: unsupported
+              approvalEntity:
+                title: Entity
+                description: The entity granting approval.
+                enum:
+                  - user
+                  - system
+                type: string
+                minLength: 1
+                x-lineageReferenceObject: unsupported
+            additionalProperties: false
+            required:
+              - approvalType
+              - approvalEntity
+        credit:
+          title: Credit
+          description: Unit specification that can be awarded for completing a section.
+          type: object
+          properties:
+            measure:
+              title: Measure
+              description: A unit or standard of measurement.
+              oneOf:
+                - type: string
+                  enum:
+                    - credit
+                    - ceu
+                    - hour
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: Display 'hour' or 'ce' depending on the course.
+                - type: string
+                  maxLength: 0
+            registrationCredit:
+              title: Registration Credit
+              description: The credits that the student could potentially earn.
+              oneOf:
+                - type: number
+                  x-lineageReferenceObject: SFRSTCR_CREDIT_HR(SFRSTCR)
+                - type: string
+                  nullable: true
+          additionalProperties: false
+        gradingOption:
+          title: Grading Option
+          description: Details on how the student elected to have their grades recorded.
+          type: object
+          properties:
+            gradeScheme:
+              title: Grade Scheme
+              description: The grading scheme that will be used to record the student's grade
+                for the section.
+              oneOf:
+                - type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Grade Scheme.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: grade-schemes 
+                      x-lineageReferenceObject: SFRSTCR_GMOD_CODE(SFRSTCR)
+                  additionalProperties: false
+                  required:
+                    - id
+                - type: object
+                  maxProperties: 0
+            mode:
+              title: Mode
+              description: The manner in which a student's grade will be reported.
+              oneOf:
+                - type: string
+                  enum:
+                    - standard
+                    - passFail
+                    - audit
+                  x-lineageReferenceObject: unsupported
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        involvement:
+          title: Involvement
+          description: The range of dates between which a student was involved with a
+            section.
+          type: object
+          properties:
+            startOn:
+              title: Start On
+              description: The date when the section was first attended or accessed online.
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                  x-lineageReferenceObject: SFRSTCRS_START_DATE(SFRSTCRS)
+                - type: string
+                  maxLength: 0
+            endOn:
+              title: End On
+              description: The date when the section was last attended or accessed online.
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                  x-lineageReferenceObject: SFRSTCRS_END_DATE(SFRSTCRS)
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        override:
+          title: Override
+          description: Properties defined for the section that may be overridden for
+            individual registrations.
+          type: object
+          properties:
+            academicPeriod:
+              title: Academic Period
+              description: The academic period for the registration.
+              oneOf:
+                - type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Academic Period.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: academic-periods 
+                      x-lineageReferenceObject: unsupported
+                  additionalProperties: false
+                  required:
+                    - id
+                - type: object
+                  maxProperties: 0
+            site:
+              title: Site
+              description: The primary location within the organization where a section's
+                meetings will be held for the registration.
+              oneOf:
+                - type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Site.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: sites 
+                      x-lineageReferenceObject: unsupported
+                  additionalProperties: false
+                  required:
+                    - id
+                - type: object
+                  maxProperties: 0
+          additionalProperties: false
+      required:
+        - id
+        - registrant
+        - section
+        - academicLevel
+        - status
+      additionalProperties: false

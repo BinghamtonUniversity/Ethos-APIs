@@ -1,0 +1,233 @@
+openapi: 3.0.0
+info:
+  title: Credit Categories
+  description: A category of academic credit.
+  version: "6.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Student
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/credit-categories:
+    get:
+      summary: Return all resources
+      description: Returns a paged listing of all the credit categories from GORGUID table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_CREDIT_CATEGORIES
+      tags:
+        - credit-categories
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v6+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-credit-categories.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v6.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/credit-categories/{id}:
+    get:
+      summary: Return the requested resource
+      description: Return the single credit category record with the passed in identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_CREDIT_CATEGORIES
+      tags:
+        - credit-categories
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Credit Categories for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v6+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v6.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v6.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-credit-categories.json"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-credit-categories.json:
+      title: Credit Categories
+      description: A category of academic credit.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: A global identifier of a credit category.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: GORGUID_GUID(LDM_NAME= credit-categories)
+          x-lineageDerivedLogic: This API is not backed by Banner baseline table/page. There is no corresponding Banner primary UI available.
+        code:
+          title: Code
+          description: A human-readable reference code to identify a particular credit
+            category.
+          type: string
+          x-lineageReferenceObject: unsupported
+        title:
+          title: Title
+          description: The full name of a credit category.
+          type: string
+          minLength: 1
+          x-lineageReferenceObject: GORGUID_DOMAIN_KEY(LDM_NAME= credit-categories)
+        description:
+          title: Description
+          description: A description of the substance and nature of a credit category.
+          type: string
+          x-lineageReferenceObject: unsupported
+        creditType:
+          title: Credit Type
+          description: The higher level category of academic credits.
+          x-lineageReferenceObject: derived
+          x-lineageDerivedLogic: For GORGUID_DOMAIN_KEY = Continuing Education, display creditType = ce; for GORGUID_DOMAIN_KEY = Institutional, display creditType = institution; 
+            for GORGUID_DOMAIN_KEY = Transfer, display creditType = transfer; for GORGUID_DOMAIN_KEY = Exchange, display creditType = exchange; for GORGUID_DOMAIN_KEY = Exam, display creditType = exam; 
+            for GORGUID_DOMAIN_KEY = Work Life Experience, display creditType = workLifeExperience; for GORGUID_DOMAIN_KEY = Other, display creditType = other; for GORGUID_DOMAIN_KEY = No Credit, display creditType = noCredit
+          enum:
+            - ce
+            - institution
+            - transfer
+            - exchange
+            - exam
+            - workLifeExperience
+            - other
+            - noCredit
+          type: string
+      required:
+        - id
+        - title
+        - creditType
+      additionalProperties: false

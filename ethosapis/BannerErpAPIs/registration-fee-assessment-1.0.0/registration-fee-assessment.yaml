@@ -1,0 +1,129 @@
+openapi: 3.0.0
+info:
+  title: registration-fee-assessment
+  description: >
+    The assess fee/tuition is optional and usually executed after the student
+    has registered for classes. The response returns all charges.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Student
+  x-source-title: Registration Fee Assessment
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: registration-fee-assessment
+paths:
+  /api/registration-fee-assessment:
+    post:
+      description: >
+        Accepts bannerID and term details in url path 
+         
+         __Returns One Of these data__
+            
+         __Fee assessment results:__ Returns a JSON-formatted string of data.
+         
+         __No Fee assessment for Student:__ Returns a message saying no fees are due.
+         
+         __When Fee assessment is disabled for term:__ Returns a message saying fee assessment is not enabled.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_REGISTRATION
+      tags:
+        - registration-fee-assessment
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          schema:
+            type: string
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+              application/vnd.hedtech.integration.v1.0.0+json
+            ```
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/registration-fee-assessment-request"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                oneOf:
+                  - $ref: "#/components/schemas/registration-fee-assessment-response"
+                  - $ref: "#/components/schemas/registration-fee-assessment-response-message"
+            application/vnd.hedtech.integration.v1.0.0+xml:
+              schema:
+                type: object
+                $ref: "#/components/schemas/registration-fee-assessment-response"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    registration-fee-assessment-request:
+      type: object
+      properties:
+        bannerId:
+          type: string
+        term:
+          type: string
+    registration-fee-assessment-response:
+      type: object
+      properties:
+        feeAmount:
+          type: number
+          format: double
+        feeDetailCode:
+          type: string
+        feeDetailDescription:
+          type: string
+    registration-fee-assessment-response-message:
+      type: object
+      properties:
+        feeMessage:
+          type: string

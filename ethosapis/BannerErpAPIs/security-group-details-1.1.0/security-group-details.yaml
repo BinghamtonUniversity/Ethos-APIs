@@ -1,0 +1,761 @@
+openapi: 3.0.0
+info:
+  title: Security Group Details
+  description: >
+    The Security Group Details API is used to create or maintain Banner Security Groups as shown on the Security Groups tab on the GSADSEC administrative page in Banner Access Management.
+
+
+    Note: To maintain strict access control, the required security object must be assigned directly to individual users. 
+    Assignment via security classes is not supported for this API.
+  version: 1.1.0
+  x-api-type: erp
+  x-release-status: ga
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Foundation
+  x-source-name: GSASDEC
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /api/security-group-details:
+    get:
+      tags:
+      - security-group-details
+      summary: Returns security group details.
+      description: Returns resources from GTVSGRP, GUROGRP, GURCGRP AND GURUGRP.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description:  |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Security Group
+
+            Returns all records for the Security Group passed.
+
+            ```
+
+            /security-group-details?criteria={"securityGroup":"CASHIERS"}
+
+
+            ```    
+
+            ### Assigned Object
+
+            Returns all security group records associated with the Object(s) passed.
+
+            ```
+
+            /security-group-details?criteria={"assignedObjects":{"object":["TestObject","TestObject2"]}} 
+
+            ```   
+
+            ### Assigned Class
+
+            Returns all security group records associated with the Class(es) passed.
+
+            ```
+
+            /security-group-details?criteria={"assignedClasses":["USR_GEN_EVENTS_QUERY_C","USR_GEN_GTV_QUERY_C"]}
+
+            ```               
+
+            ### Assigned User
+
+            Returns all security group records associated with the User(s) passed.
+
+            ```
+
+            /security-group-details?criteria={"assignedUsers":["Public"]}
+
+            ```   
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/security-group-details-1.1.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SECURITY_GROUP_DETAILS
+    post:
+      tags:
+        - security-group-details 
+      summary: Creates security group details.
+      description: Creates resources in GTVSGRP.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.1.0.0+json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/security-group-details-1.1.0_post_request'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/security-group-details-1.1.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'     
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permissions: API_SECURITY_GROUP_DETAILS
+  /api/security-group-details/{id}:
+    get:
+      summary: Returns the requested resource from GTVSGRP.
+      description: |
+        Returns a record from GTVSGRP with the passed in identifier.
+      tags:
+        - security-group-details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references.
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page.
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/security-group-details-1.1.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SECURITY_GROUP_DETAILS
+    put:
+      tags:
+        - security-group-details 
+      summary: Updates the security group details for the specified resource.
+      description: Updates security group details for the specified resource in GTVSGRP.
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/security-group-details-1.1.0_put_request'
+      parameters:
+        - name: id
+          in: path
+          description: |
+              A global identifier of the resource for use in all external references.
+          required: true
+          schema:
+            type: string
+            minimum: 1            
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json 
+
+            ```
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/security-group-details-1.1.0_response"
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permissions: API_SECURITY_GROUP_DETAILS
+    delete:
+      summary: Removes the specified security group details.
+      description: Deletes the specified security group details from GTVSGRP.
+      tags:
+        - security-group-details 
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description:  A global identifier of the resource for use in all external references.
+
+          schema:
+            type: string
+            format: guid
+            minimum: 1
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Resource not found
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SECURITY_GROUP_DETAILS          
+components:
+  schemas:
+    security-group-details-1.1.0_post_request:
+      type: object
+      required:
+        - securityGroup
+        - description
+      properties:
+        securityGroup:
+          title: Security Group Code
+          description: "The name of the security group."
+          type: string
+          x-lineageReferenceObject: GTVSGRP_CODE
+          example: "CASHIERS"
+          maxLength: 30   
+        description:
+          title: Description
+          description: "Description of the Security Group."
+          type: string
+          x-lineageReferenceObject: GTVSGRP_DESC
+          example: 'All Cashiers'
+          maxLength: 60                 
+        owner:
+          title: Owner
+          description: "The owner of the security group. Defaults to PUBLIC if not included in request."
+          type: string
+          x-lineageReferenceObject: GTVSGRP_OWNER
+          example: "BANSECR"
+          maxLength: 30                    
+    security-group-details-1.1.0_put_request:
+      type: object
+      properties:
+        securityGroup:
+          title: Security Group Code
+          description: "The name of the security group."
+          type: string
+          x-lineageReferenceObject: GTVSGRP_CODE
+          example: "CASHIERS"
+          maxLength: 30   
+        description:
+          title: Description
+          description: "Description of the Security Group."
+          type: string
+          x-lineageReferenceObject: GTVSGRP_DESC
+          example: 'All Cashiers'
+          maxLength: 60                 
+        owner:
+          title: Owner
+          description: "The owner of the security group. Defaults to PUBLIC if not included in request."
+          type: string
+          x-lineageReferenceObject: GTVSGRP_OWNER
+          example: "BANSECR"
+          maxLength: 30               
+    security-group-details-1.1.0_response:
+      type: object
+      required:
+        - id
+        - securityGroup 
+        - owner    
+      properties:
+        id:
+          title: Security Group ID
+          description: "Unique identifier for the security group."
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: GTVSGRP_GUID
+          example: 49eqfc68-3t89-4036-852c-341aa9d8501a          
+          maxLength: 36
+        securityGroup:
+          title: Security Group Code
+          description: "The name of the security group."
+          type: string
+          x-lineageReferenceObject: GTVSGRP_CODE
+          example: "CASHIERS"
+          maxLength: 30   
+        description:
+          title: Description
+          description: "Description of the Security Group."
+          type: string
+          x-lineageReferenceObject: GTVSGRP_DESC
+          example: 'All Cashiers'
+          maxLength: 60                 
+        owner:
+          title: Owner
+          description: "The owner of the security group."
+          type: string
+          x-lineageReferenceObject: GTVSGRP_OWNER
+          example: "BANSECR"
+          maxLength: 30 
+        assignedObjects:
+          title: Assigned Objects
+          type: array
+          items:
+            required: 
+            - object
+            - role
+            type: object
+            properties:
+              object:
+                title: Object
+                description: "Object assigned to the security group."
+                x-lineageReferenceObject: GUROGRP_OBJECT
+                example: "TSAAREV"
+                maxLength: 30
+              role:
+                title: Role
+                description: "Security role assigned to the object."
+                x-lineageReferenceObject: GUROGRP_ROLE
+                example: "BAN_DEFAULT_M"
+                maxLength: 30
+        assignedClasses: 
+          title: Assigned Classes
+          description: "Class(es) assigned to the security group."
+          x-lineageReferenceObject: GURCGRP_CLASS
+          example: "BAN_ARSYS_C"
+          type: array
+          minItems: 1
+          items: 
+            minLength: 1
+            maxLength: 30
+            type: string                                 
+        assignedUsers: 
+          title: Assigned Users
+          type: array
+          description: "User(s) assigned to the security group."
+          x-lineageReferenceObject: GURUGRP_USER
+          example: "CSZKARAD22"
+          minItems: 1
+          items: 
+            minLength: 1
+            maxLength: 30
+            type: string  
+        modifiedOn:
+          title: Activity Date
+          description: This field identifies the most recent date a record was created or updated.
+          format: date-time
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+          example: 2024-11-17 06:39:14.000
+          x-lineageReferenceObject: GTVSGRP_ACTIVITY_DATE
+        modifiedBy:
+          title: Modified By User ID
+          maxLength:  30
+          type:  string
+          description:  User who inserted or last updated the data.
+          x-lineageReferenceObject: GTVSGRP_USER_ID
+          example: SAISUSR                                        
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

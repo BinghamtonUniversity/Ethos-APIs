@@ -1,0 +1,357 @@
+openapi: 3.0.0
+info:
+  title: Section Details
+  description: The purpose of this API is to get the CRNS taught by the faculty,
+    and the details of the CRN like Title, Number of students graded, Number of
+    students registered etc.
+  version: 1.1.0
+  x-source-system: banner
+  x-api-type: erp
+  x-audience: all
+  x-release-status: ga
+  x-source-domain: Student
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/section-details:
+    get:
+      tags:
+        - section-details
+      summary: The API information will be shown on Experience on the home page under
+        the Faculty Grading card.
+      description: The GET API is used to request list of CRNs assigned for the
+        faculty and the related CRN data.
+      parameters:
+        - name: facultyId
+          in: query
+          description: Returns the list of CRNs assigned for the faculty and the related
+            CRN data.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1.1.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/section-details-1.1.0_get_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client's
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - BasicAuth: []
+          EthosIntegrationBearer: []
+      x-method-permissions: API_SECTION_DETAILS
+components:
+  schemas:
+    section-details-1.1.0_get_response:
+      type: object
+      properties:
+        crn:
+          title: Crn
+          maxLength: 6
+          type: string
+          description: The CRN(s) taught by the faculty.
+          x-lineagereferenceobject: COURSEREFERENCENUMBER
+        crnTitle:
+          title: Crn Title
+          maxLength: 30
+          type: string
+          description: The Course title which describes the CRN.
+          x-lineagereferenceobject: COURSETITLE
+        term:
+          title: Term
+          maxLength: 6
+          type: string
+          description: The code value that identifies the student term.
+          x-lineagereferenceobject: TERM
+        termDescription:
+          title: Term Description
+          maxLength: 30
+          type: string
+          description: The term description which describes the term value.
+          x-lineagereferenceobject: TERMDESC
+        subject:
+          title: Subject
+          maxLength: 4
+          type: string
+          description: The subject for the CRN.
+          x-lineagereferenceobject: SUBJECTCODE
+        subjectDescription:
+          title: Subject Description
+          maxLength: 30
+          type: string
+          description: The Subject which describes the Subject code.
+          x-lineagereferenceobject: SUBJECTDESC
+        courseNumber:
+          title: Course Number
+          maxLength: 5
+          type: string
+          description: The course for the CRN.
+          x-lineagereferenceobject: COURSENUMBER
+        crnSection:
+          title: Crn Section
+          maxLength: 3
+          type: string
+          description: "\tThe Section for the CRN."
+          x-lineagereferenceobject: SEQUENCENUMBER
+        finalGradedRosterCount:
+          title: Final Graded Roster Count
+          maxLength: 4
+          type: number
+          description: The number of students graded with Final grades for a term and CRN.
+          x-lineagereferenceobject: ROSTER_GRADED_COUNT
+        finalGradableRosterCount:
+          title: Final Gradable Roster Count
+          maxLength: 4
+          type: number
+          description: The number of students who can be graded with Final grades for a
+            term and CRN.
+          x-lineagereferenceobject: GRADABLE_ROSTER_COUNT
+        midtermGradedRosterCount:
+          title: Midterm Graded Roster Count
+          maxLength: 4
+          type: number
+          description: The number of students graded with Midterm grades for a term.
+          x-lineagereferenceobject: ROSTER_MIDTERM_GRADED_COUNT
+        midtermGradableRosterCount:
+          title: Midterm Gradable Roster Count
+          maxLength: 4
+          type: number
+          description: The number of students who can be graded with Midterm grades for a
+            term and CRN.
+          x-lineagereferenceobject: MIDTERM_GRADABLE_ROSTER_COUNT
+        anonymousGradingInd:
+          title: Anonymous Grading Indicator
+          maxLength: 1
+          type: string
+          description: Indicator for whether the section can be graded by Anonymous ID. Valid values are Y - Yes, N - No. Default value is N.
+          x-lineagereferenceobject: ANONYMOUS_GRADING_IND
+        courseAlias:
+          title: Course Alias
+          maxLength: 20
+          type: string
+          description: Additional identifier value associated with the course, example (Course Alias or Common Course Number).
+          x-lineagereferenceobject: COURSE_ALIAS
+        courseIdentifierDisplay:
+          type: string
+          maxLength: 20
+          description: System-managed course identifier that should be displayed for the course (e.g., Course Number, Course Alias, or Common Course Number).
+          x-lineagereferenceobject: COURSE_IDENTIFIER_DISPLAY
+    section-details-1.1.0_query_request:
+      type: object
+      properties:
+        crn:
+          title: Crn
+          maxLength: 6
+          type: string
+          description: The CRN(s) taught by the faculty.
+          x-lineagereferenceobject: COURSEREFERENCENUMBER
+        crnTitle:
+          title: Crn Title
+          maxLength: 30
+          type: string
+          description: The Course title which describes the CRN.
+          x-lineagereferenceobject: COURSETITLE
+        term:
+          title: Term
+          maxLength: 6
+          type: string
+          description: The code value that identifies the student term.
+          x-lineagereferenceobject: TERM
+        termDescription:
+          title: Term Description
+          maxLength: 30
+          type: string
+          description: The term description which describes the term value.
+          x-lineagereferenceobject: TERMDESC
+        subject:
+          title: Subject
+          maxLength: 4
+          type: string
+          description: The subject for the CRN.
+          x-lineagereferenceobject: SUBJECTCODE
+        subjectDescription:
+          title: Subject Description
+          maxLength: 30
+          type: string
+          description: The Subject which describes the Subject code.
+          x-lineagereferenceobject: SUBJECTDESC
+        courseNumber:
+          title: Course Number
+          maxLength: 5
+          type: string
+          description: The course for the CRN.
+          x-lineagereferenceobject: COURSENUMBER
+        crnSection:
+          title: Crn Section
+          maxLength: 3
+          type: string
+          description: "\tThe Section for the CRN."
+          x-lineagereferenceobject: SEQUENCENUMBER
+        finalGradedRosterCount:
+          title: Final Graded Roster Count
+          maxLength: 4
+          type: number
+          description: The number of students graded with Final grades for a term and CRN.
+          x-lineagereferenceobject: ROSTER_GRADED_COUNT
+        finalGradableRosterCount:
+          title: Final Gradable Roster Count
+          maxLength: 4
+          type: number
+          description: The number of students who can be graded with Final grades for a
+            term and CRN.
+          x-lineagereferenceobject: GRADABLE_ROSTER_COUNT
+        midtermGradedRosterCount:
+          title: Midterm Graded Roster Count
+          maxLength: 4
+          type: number
+          description: The number of students graded with Midterm grades for a term.
+          x-lineagereferenceobject: ROSTER_MIDTERM_GRADED_COUNT
+        midtermGradableRosterCount:
+          title: Midterm Gradable Roster Count
+          maxLength: 4
+          type: number
+          description: The number of students who can be graded with Midterm grades for a
+            term and CRN.
+          x-lineagereferenceobject: MIDTERM_GRADABLE_ROSTER_COUNT
+        anonymousGradingInd:
+          title: Anonymous Grading Indicator
+          maxLength: 1
+          type: string
+          description: Indicator for whether the section can be graded by Anonymous ID. Valid values are Y - Yes, N - No. Default value is N.
+          x-lineagereferenceobject: ANONYMOUS_GRADING_IND
+        courseAlias:
+          title: Course Alias
+          maxLength: 20
+          type: string
+          description: Additional identifier value associated with the course, example (Course Alias or Common Course Number).
+          x-lineagereferenceobject: COURSE_ALIAS
+        courseIdentifierDisplay:
+          type: string
+          maxLength: 20
+          description: System-managed course identifier that should be displayed for the course (e.g., Course Number, Course Alias, or Common Course Number).
+          x-lineagereferenceobject: COURSE_IDENTIFIER_DISPLAY
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              facultyId:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary
+                  data entity used to create the resource. This is useful for
+                  referencing the source item through the applications
+                  administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

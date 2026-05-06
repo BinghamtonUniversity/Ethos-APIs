@@ -1,0 +1,923 @@
+openapi: 3.0.0
+info:
+  title: Student Charges
+  description: >
+    The Student Charges API contains information about charges incurred by a
+    student.
+
+
+    This version of student charges API supports U.S. 1098T tax reporting student charges transactions. 
+
+
+    Please refer to "API Integration Configuration Settings" section in the Banner Ethos API Handbook for details on API configuration settings that needs to be configured for this API.
+  version: 16.0.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Student
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: student-charges
+paths:
+  /api/student-charges:
+    get:
+      summary: Returns resources from TBRACCD and TBREACD
+      description: >
+        Returns a paged listing of all the student charges transactions from
+        TBRACCD and tax reporting charges transactions from TBREACD tables
+        excluding the records with term code ‘ARTERM’. The charge trasactions in
+        TBRACCD and TBREACD are identified through the TBBDETC_TYPE_IND of the
+        accounting code associated with the student charge record in
+        TBRACCD_DETAIL_CODE and TBREACD_DETAIL_CODE.  The TBBDETC_TYPE_IND type
+        of 'C' denotes the transaction as a Charge. The student charges API
+        publishes the non student charges along with student related charges if
+        the configuration setting 'STUD-CHARGES-NONPERSONS' is set to 'Y'. 
+
+
+        Note: The API does not allow to create a non student charge record. For non student charges, the student.id will not be published though it is a required property.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STUDENT_CHARGES
+      tags:
+        - student-charges
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Student  
+
+            The person (student) who incurred the charge.
+
+            ```
+
+            /student-charges?criteria={"student": {"id": "5674f28b-b216-4055-b236-81a922d93b4c"}}
+
+            ```
+
+            ### Funding Source  
+
+            The accounting code of the funding source associated with the student charge.
+
+            ```
+
+            /student-charges?criteria={"fundingSource": {"id": "16da50f1-94d7-4e64-9e4d-3e6a049bf532"}}
+
+            ```
+
+            ### Funding Destination  
+
+            The accounting code of the funding destination associated with the student charge.
+
+            ```
+
+            /student-charges?criteria={"fundingDestination": {"id": "a37ff472-ee18-49e4-afdf-9a1508b80cb5"}}
+
+            ```
+
+            ### Academic Period  
+
+            The term in which charges were incurred.
+
+            ```
+
+            /student-charges?criteria={"academicPeriod": {"id": "060d0dd1-75aa-4c43-989c-0015b6f01d6e"}}
+
+            ```
+
+            ### Usage  
+
+            The usage associated with the charge (i.e. tax reporting only).
+
+            ```
+
+            /student-charges?criteria={"reportingDetail":{"usage":"taxReportingOnly"}}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-student-charges.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new resource in TBRACCD and TBREACD
+      description: >
+        POST requests must include a nil GUID value
+        ("00000000-0000-0000-0000-000000000000") for the root id property.
+
+
+        Creates a new student charge record. A create request sent with 'reportingDetail' property will create a tax reporting charge transaction record in TBREACD table. A create request sent without 'reportingDetail' property will create a student charge record in TBRACCD table.
+
+
+        For a student charge transaction create request, the API configuration setting 'STUDENT.CHARGES.SOURCE.CODE' can be used to map the appropriate source code from TTVSRCE with TTVSRCE_INPUT_IND = 'Y' to populate the source code value for the transaction in TBRACCD_SRCE_CODE.
+
+
+        The properties 'chargedAmount.unitCost','reportingDetail.activityDates.startOn' and 'reportingDetail.activityDates.endOn' are not supported.
+
+
+        Below are the API behavior details for fundingSource and chargeableOn properties on a create request:
+
+
+        fundingSource:
+
+
+        - The accounting code GUID sent as fundingSource.id should match the fundingDestination.id
+
+        - If the fundingDestination.id is not equal to fundingSource.id, the create request will be rejected with an error message
+
+
+        chargeableOn:
+
+
+        - A create request sent for a student charge transaction without reportingDetail property will not allow backdating chargeableOn. Future dates are permitted.
+
+        - A create request sent for a tax reporting charge transaction with reportingDetail property will allow backdating chargeableOn.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STUDENT_CHARGES
+      tags:
+        - student-charges
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-student-charges.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v16+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-student-charges.json"
+  /api/student-charges/{id}:
+    get:
+      summary: Return the requested resource from TBRACCD and TBREACD
+      description: >
+        Returns a single student charge record from TBRACCD or TBREACD table
+        with the requested identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STUDENT_CHARGES
+      tags:
+        - student-charges
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-student-charges.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-student-charges.json:
+      title: Student Charges
+      description: Charges incurred by a student.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the student charge.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: TSRTGID_GUID(TSRTGID) or TBREACD_GUID(TBREACD)
+        student:
+          title: Student
+          description: The person (student) who incurred the charge.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Student.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+              x-lineageDerivedLogic: Display GUID from GORGUID where GORGUID_LDM_NAME is 'persons' and GORGUID_DOMAIN_KEY matches TBREACD_PIDM or TBRACCD_PIDM
+          additionalProperties: false
+          required:
+            - id
+        fundingSource:
+          title: Funding Source
+          description: The accounting code of the funding source associated with the
+            student charge.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Funding Source.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: accounting-codes 
+                  x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = accounting-codes) 
+                  x-lineageDerivedLogic: Display GUID from GORGUID where GORGUID_LDM_NAME is 'accounting-codes' and GORGUID_DOMAIN_KEY matches TBREACD_DETAIL_CODE or TBRACCD_DETAIL_CODE
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        fundingDestination:
+          title: Funding Destination
+          description: The accounting code of the funding destination associated with the
+            student charge.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Funding Destination.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: accounting-codes 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = accounting-codes) 
+              x-lineageDerivedLogic: Display GUID from GORGUID where GORGUID_LDM_NAME is 'accounting-codes' and GORGUID_DOMAIN_KEY matches TBREACD_DETAIL_CODE or TBRACCD_DETAIL_CODE
+          additionalProperties: false
+          required:
+            - id
+        academicPeriod:
+          title: Academic Period
+          description: The term in which charges were incurred.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Academic Period.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: academic-periods 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = term) 
+              x-lineageDerivedLogic: Display GUID from GORGUID where GORGUID_LDM_NAME is 'term' and GORGUID_DOMAIN_KEY matches TBRACCD_TERM_CODE or TBREACD_TERM_CODE
+          additionalProperties: false
+          required:
+            - id
+        chargeableOn:
+          title: Chargeable On
+          description: The date when the student becomes liable for the charge.
+          type: string
+          format: date-time
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+          x-lineageReferenceObject: TBRACCD_EFFECTIVE_DATE(TBRACCD) or TBREACD_EFFECTIVE_DATE(TBREACD)
+        chargedAmount:
+          title: Charged Amount
+          description: The amount of the charge.
+          oneOf:
+            - title: Amount
+              description: The amount of the charge.
+              type: object
+              properties:
+                amount:
+                  title: Amount
+                  description: The amount of the charge.
+                  format: currency
+                  type: object
+                  properties:
+                    value:
+                      title: Value
+                      description: The monetary value
+                      type: number
+                      x-lineageReferenceObject: TBREACD_AMOUNT(TBREACD) or TBRACCD_AMOUNT(TBRACCD)
+                    currency:
+                      title: Currency
+                      description: The ISO 4217 currency code
+                      enum:
+                        - AED
+                        - AFN
+                        - ALL
+                        - AMD
+                        - ANG
+                        - AOA
+                        - ARS
+                        - AUD
+                        - AWG
+                        - AZN
+                        - BAM
+                        - BBD
+                        - BDT
+                        - BGN
+                        - BHD
+                        - BIF
+                        - BMD
+                        - BND
+                        - BOB
+                        - BRL
+                        - BSD
+                        - BTN
+                        - BWP
+                        - BYR
+                        - BZD
+                        - CAD
+                        - CDF
+                        - CHF
+                        - CLP
+                        - CNY
+                        - COP
+                        - CRC
+                        - CUC
+                        - CUP
+                        - CVE
+                        - CZK
+                        - DJF
+                        - DKK
+                        - DOP
+                        - DZD
+                        - EGP
+                        - ERN
+                        - ETB
+                        - EUR
+                        - FJD
+                        - FKP
+                        - GBP
+                        - GEL
+                        - GHS
+                        - GIP
+                        - GMD
+                        - GNF
+                        - GTQ
+                        - GYD
+                        - HKD
+                        - HNL
+                        - HRK
+                        - HTG
+                        - HUF
+                        - IDR
+                        - ILS
+                        - INR
+                        - IQD
+                        - IRR
+                        - ISK
+                        - JMD
+                        - JOD
+                        - JPY
+                        - KES
+                        - KGS
+                        - KHR
+                        - KMF
+                        - KPW
+                        - KRW
+                        - KWD
+                        - KYD
+                        - KZT
+                        - LAK
+                        - LBP
+                        - LKR
+                        - LRD
+                        - LSL
+                        - LYD
+                        - MAD
+                        - MDL
+                        - MGA
+                        - MKD
+                        - MMK
+                        - MNT
+                        - MOP
+                        - MRO
+                        - MUR
+                        - MVR
+                        - MWK
+                        - MXN
+                        - MYR
+                        - MZN
+                        - NAD
+                        - NGN
+                        - NIO
+                        - NOK
+                        - NPR
+                        - NZD
+                        - OMR
+                        - PAB
+                        - PEN
+                        - PGK
+                        - PHP
+                        - PKR
+                        - PLN
+                        - PYG
+                        - QAR
+                        - RON
+                        - RSD
+                        - RUB
+                        - RWF
+                        - SAR
+                        - SBD
+                        - SCR
+                        - SDG
+                        - SEK
+                        - SGD
+                        - SHP
+                        - SLL
+                        - SOS
+                        - SRD
+                        - SSP
+                        - STD
+                        - SVC
+                        - SYP
+                        - SZL
+                        - THB
+                        - TJS
+                        - TMT
+                        - TND
+                        - TOP
+                        - TRY
+                        - TTD
+                        - TWD
+                        - TZS
+                        - UAH
+                        - UGX
+                        - USD
+                        - UYU
+                        - UZS
+                        - VEF
+                        - VND
+                        - VUV
+                        - WST
+                        - XAF
+                        - XCD
+                        - XOF
+                        - XPF
+                        - YER
+                        - ZAR
+                        - ZMW
+                        - ZWL
+                      type: string
+                      x-lineageReferenceObject: GUBINST_BASE_CURR_CODE(GUBINST)
+                  additionalProperties: false
+                  required:
+                    - value
+                    - currency
+              additionalProperties: false
+              required:
+                - amount
+            - title: Unit Cost
+              description: The amount of the charge.
+              type: object
+              properties:
+                unitCost:
+                  title: Unit Cost
+                  description: The amount of the charge.
+                  type: object
+                  properties:
+                    quantity:
+                      title: Quantity
+                      description: The quantity being charged.
+                      type: number
+                      x-lineageReferenceObject: unsupported
+                    cost:
+                      title: Cost
+                      description: Cost of each unit being charged.
+                      format: currency
+                      type: object
+                      properties:
+                        value:
+                          title: Value
+                          description: The monetary value
+                          type: number
+                          x-lineageReferenceObject: unsupported
+                        currency:
+                          title: Currency
+                          description: The ISO 4217 currency code
+                          enum:
+                            - AED
+                            - AFN
+                            - ALL
+                            - AMD
+                            - ANG
+                            - AOA
+                            - ARS
+                            - AUD
+                            - AWG
+                            - AZN
+                            - BAM
+                            - BBD
+                            - BDT
+                            - BGN
+                            - BHD
+                            - BIF
+                            - BMD
+                            - BND
+                            - BOB
+                            - BRL
+                            - BSD
+                            - BTN
+                            - BWP
+                            - BYR
+                            - BZD
+                            - CAD
+                            - CDF
+                            - CHF
+                            - CLP
+                            - CNY
+                            - COP
+                            - CRC
+                            - CUC
+                            - CUP
+                            - CVE
+                            - CZK
+                            - DJF
+                            - DKK
+                            - DOP
+                            - DZD
+                            - EGP
+                            - ERN
+                            - ETB
+                            - EUR
+                            - FJD
+                            - FKP
+                            - GBP
+                            - GEL
+                            - GHS
+                            - GIP
+                            - GMD
+                            - GNF
+                            - GTQ
+                            - GYD
+                            - HKD
+                            - HNL
+                            - HRK
+                            - HTG
+                            - HUF
+                            - IDR
+                            - ILS
+                            - INR
+                            - IQD
+                            - IRR
+                            - ISK
+                            - JMD
+                            - JOD
+                            - JPY
+                            - KES
+                            - KGS
+                            - KHR
+                            - KMF
+                            - KPW
+                            - KRW
+                            - KWD
+                            - KYD
+                            - KZT
+                            - LAK
+                            - LBP
+                            - LKR
+                            - LRD
+                            - LSL
+                            - LYD
+                            - MAD
+                            - MDL
+                            - MGA
+                            - MKD
+                            - MMK
+                            - MNT
+                            - MOP
+                            - MRO
+                            - MUR
+                            - MVR
+                            - MWK
+                            - MXN
+                            - MYR
+                            - MZN
+                            - NAD
+                            - NGN
+                            - NIO
+                            - NOK
+                            - NPR
+                            - NZD
+                            - OMR
+                            - PAB
+                            - PEN
+                            - PGK
+                            - PHP
+                            - PKR
+                            - PLN
+                            - PYG
+                            - QAR
+                            - RON
+                            - RSD
+                            - RUB
+                            - RWF
+                            - SAR
+                            - SBD
+                            - SCR
+                            - SDG
+                            - SEK
+                            - SGD
+                            - SHP
+                            - SLL
+                            - SOS
+                            - SRD
+                            - SSP
+                            - STD
+                            - SVC
+                            - SYP
+                            - SZL
+                            - THB
+                            - TJS
+                            - TMT
+                            - TND
+                            - TOP
+                            - TRY
+                            - TTD
+                            - TWD
+                            - TZS
+                            - UAH
+                            - UGX
+                            - USD
+                            - UYU
+                            - UZS
+                            - VEF
+                            - VND
+                            - VUV
+                            - WST
+                            - XAF
+                            - XCD
+                            - XOF
+                            - XPF
+                            - YER
+                            - ZAR
+                            - ZMW
+                            - ZWL
+                          type: string
+                          x-lineageReferenceObject: unsupported
+                      additionalProperties: false
+                      required:
+                        - value
+                        - currency
+                  additionalProperties: false
+                  required:
+                    - quantity
+                    - cost
+              additionalProperties: false
+              required:
+                - unitCost
+        reportingDetail:
+          title: Reporting Detail
+          description: Attributes specific to the transaction when identified for tax
+            reporting only.
+          oneOf:
+            - type: object
+              properties:
+                usage:
+                  title: Usage
+                  description: The usage associated with the charge (i.e. tax reporting only).
+                  enum:
+                    - taxReportingOnly
+                  type: string
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: Always defaults to 'taxReportingOnly'
+                originatedOn:
+                  title: Originated On
+                  description: The date the charge originated for consideration in tax report
+                    generation.
+                  type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                  x-lineageReferenceObject: TBREACD_ENTRY_DATE(TBREACD)
+                activityDates:
+                  title: Activity Dates
+                  description: The activity dates (e.g., section start and end date) associated
+                    with the charge for tax reporting purposes.
+                  oneOf:
+                    - type: object
+                      properties:
+                        startOn:
+                          title: Start On
+                          description: The start date of the activity associated with the charge.
+                          type: string
+                          format: date
+                          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                          x-lineageReferenceObject: TBREACDS_START_DATE(TBREACDS)
+                        endOn:
+                          title: End On
+                          description: The end date of the activity associated with the charge.
+                          type: string
+                          format: date
+                          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                          x-lineageReferenceObject: TBREACDS_END_DATE(TBREACDS)
+                      additionalProperties: false
+                      required:
+                        - startOn
+                        - endOn
+                    - type: object
+                      maxProperties: 0
+              additionalProperties: false
+              required:
+                - usage
+                - originatedOn
+            - type: object
+              maxProperties: 0
+        overrideDescription:
+          title: Override Description
+          description: The override description associated with the charge.
+          type: string
+          x-lineageReferenceObject: TBREACD_DESC(TBREACD) or TBRACCD_DESC(TBRACCD)
+        comments:
+          title: Comments
+          description: The comments associated with the charge.
+          type: array
+          items:
+            type: string
+            x-lineageReferenceObject: TBRACDT_TEXT(TBRACDT) or TBREACDM_COMMENT(TBREACDM)
+      required:
+        - id
+        - student
+        - fundingDestination
+        - academicPeriod
+        - chargeableOn
+        - chargedAmount
+      additionalProperties: false

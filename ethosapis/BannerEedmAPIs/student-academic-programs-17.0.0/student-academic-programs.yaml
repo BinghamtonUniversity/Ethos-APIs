@@ -1,0 +1,814 @@
+openapi: 3.0.0
+info:
+  title: Student Academic Programs
+  description: >
+    The academic programs in the home institution in which a prospect,
+    applicant, current student or graduate has expressed interest in, or been
+    enrolled.
+
+
+    Please refer to the section 'Additional information for the student-academic-programs API' in Banner Ethos API Handbook for more details.
+  version: 17.0.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Student
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: student-academic-programs
+paths:
+  /api/student-academic-programs:
+    get:
+      summary: Returns resources from SORLCUR
+      description: >
+        Returns all records of active and inactive academic program details from
+        SORLCUR table. This includes matriculated, outcome, recruited, and
+        applied curriculum objective records. Retrieves only the current
+        curriculum records with SORLCUR_CURRENT_CDE = 'Y'.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STUDENT_ACADEMIC_PROGRAMS
+      tags:
+        - student-academic-programs
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v17+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Student  
+
+            The person id of the student who is enrolled in an academic program.
+
+            ```
+
+            /student-academic-programs?criteria={"student": {"id": "5674f28b-b216-4055-b236-81a922d93b4c"}}
+
+            ```
+
+            ### Program  
+
+            The academic program in which a student is enrolled.
+
+            ```
+
+            /student-academic-programs?criteria={"program": {"id": "3befa8ca-11dc-4bed-aa2c-f07b21713bab"}}
+
+            ```
+
+            ### Site  
+
+            The site (campus) at which the student is enrolled in the program.
+
+            ```
+
+            /student-academic-programs?criteria={"site": {"id": "5503039a-16a9-496a-9d1a-3baa923a8d70"}}
+
+            ```
+
+            ### Academic Level  
+
+            The academic level associated with the enrollment of the student in the academic program.
+
+            ```
+
+            /student-academic-programs?criteria={"academicLevel": {"id": "c6aab4d0-d3c7-40d9-96a6-09db8deaf403"}}
+
+            ```
+
+            ### Credentials  
+
+            The academic credentials that can be awarded for completing an academic program.
+
+            ```
+
+            /student-academic-programs?criteria={"credentials": [{"id": "1e8ba315-b506-4bc0-ba4a-e64453359804"}]}
+
+            ```
+
+            ### Start On  
+
+            The date on which an academic program begins.
+
+            ```
+
+            /student-academic-programs?criteria={"startOn": "2009-01-01"}
+
+            ```
+
+            ### End On  
+
+            The date on which an academic program ends.
+
+            ```
+
+            /student-academic-programs?criteria={"endOn": "2010-09-01"}
+
+            ```
+
+            ### Enrollment Status  
+
+            The status of the academic program enrollment.
+
+            ```
+
+            /student-academic-programs?criteria={"enrollmentStatus":{"status":"active"}}
+
+            ```
+
+            ### Curriculum Objective  
+
+            The curriculum objective associated with the student's academic program.
+
+            ```
+
+            /student-academic-programs?criteria={"curriculumObjective": "matriculated"}
+
+            ```
+        - name: personFilter
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Person Filter  
+
+            Retrieve information for a specified population.
+
+            ```
+
+            /student-academic-programs?personFilter={"personFilter": {"id": "9a8f748a-47c8-4f70-8809-3a93e0b96abe"}}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-student-academic-programs.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v17.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/student-academic-programs/{id}:
+    get:
+      summary: Return the requested resource from SORLCUR
+      description: >
+        Returns the detail of student academic program from SORLCUR table for
+        the passed in identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STUDENT_ACADEMIC_PROGRAMS
+      tags:
+        - student-academic-programs
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v17+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v17.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v17.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-student-academic-programs.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-student-academic-programs.json:
+      title: Student Academic Programs
+      description: The academic programs in the home institution in which a prospect,
+        applicant, current student or graduate has expressed interest in, or
+        been enrolled.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the student academic program.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: SORLCUR_GUID(SORLCUR)
+        student:
+          title: Student
+          description: The student who is enrolled in an academic program.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Student.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+              x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME as 'persons'
+          additionalProperties: false
+          required:
+            - id
+        program:
+          title: Academic Program
+          description: The academic program in which a student is enrolled.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Academic Program.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: academic-programs 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = academic-programs) or SORLCUR_PROGRAM(SORLCUR) or SORLCUR_CURR_RULE(SORLCUR)
+              x-lineageDerivedLogic: If SORLCUR_CURR_RULE is null and SORLCUR_PROGRAM is NULL then display GORGUID with GORGUID_LDM_NAME as 'academic-programs'
+          additionalProperties: false
+          required:
+            - id
+        curriculumObjective:
+          title: Curriculum Objective
+          description: The curriculum objective associated with the student's academic
+            program.
+          enum:
+            - matriculated
+            - outcome
+            - recruited
+            - applied
+          type: string
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: If SORLCUR_LMOD_CODE = 'LEARNER' then display 'matriculated' ; if  SORLCUR_LMOD_CODE = 'OUTCOME' then display 'outcome' ; if SORLCUR_LMOD_CODE = 'RECRUIT' then display 'recruited' ; if  SORLCUR_LMOD_CODE = 'ADMISSIONS' then display 'applied'.'
+        preference:
+          title: Preference
+          description: Indicates the primary academic program of the student.  Only one
+            academic program should be set to preferred for a student.
+          oneOf:
+            - type: string
+              enum:
+                - primary
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: Display 'primary' if the SORLCUR_PRIORITY_NO is lowest of all SORLCUR records associated to the curriculum record where SOBCACT_ACTIVE_IND = 'Y' for the SORLCUR_CACT_CODE and SORLCUR_CURRENT_CDE = 'Y' and  SORLCUR_TERM_CODE_END is null.
+            - type: string
+              maxLength: 0
+        programOwner:
+          title: Program Owner
+          description: The owner of the academic program.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Program Owner.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: educational-institution-units 
+                  x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = colleges) 
+                  x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME as 'colleges' and GORGUID_DOMAIN_KEY = SORLCUR_COLL_CODE
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        site:
+          title: Site
+          description: The site (campus) at which the student is enrolled in the program.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Site.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: sites 
+                  x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = campuses) 
+                  x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME as 'campuses' for GORGUID_DOMAIN_KEY = SORLCUR_CAMP_CODE
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        catalog:
+          title: Academic Catalog
+          description: The academic catalog that defines the requirements for a student's
+            enrollment in a program.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Academic Catalog.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: academic-catalogs 
+                  x-lineageReferenceObject: SORLCUR_TERM_CODE_CTLG(SORLCUR)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        academicLevel:
+          title: Academic Level
+          description: The academic level associated with the enrollment of the student in
+            the academic program.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Academic Level.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: academic-levels 
+                  x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = academic-levels) 
+                  x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME as 'academic-levels' for GORGUID_DOMAIN_KEY = SORLCUR_LEVL_CODE.
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        credentials:
+          title: Credentials
+          description: The academic credentials that can be awarded for completing an
+            academic program.
+          type: array
+          items:
+            title: Credentials
+            description: The academic credentials that can be awarded for completing an
+              academic program.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Credentials.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: academic-credentials 
+                x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = academic-credentials) 
+                x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME as 'academic-credentials' for GORGUID_DOMAIN_KEY = SORLCUR_DEGC_CODE
+            additionalProperties: false
+            required:
+              - id
+        disciplines:
+          title: Disciplines
+          description: The academic disciplines offered as part of the academic program.
+          type: array
+          items:
+            type: object
+            properties:
+              discipline:
+                title: Discipline
+                description: An academic discipline associated with an academic program.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Discipline.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: academic-disciplines 
+                    x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = academic-disciplines) 
+                    x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME as 'academic-disciplines' for GORGUID_DOMAIN_KEY = SORLFOS_MAJR_CODE^ SORLFOS_LFST_CODE(lowercase)
+                additionalProperties: false
+                required:
+                  - id
+              administeringInstitutionUnit:
+                title: Administering Institution Unit
+                description: The institutional unit that administers the discipline (major,
+                  minor, concentration), typically a department within a school
+                  or college.
+                oneOf:
+                  - type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the Administering Institution Unit.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                        x-lineageLookupReferenceObject: educational-institution-units 
+                        x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = departments) 
+                        x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME as 'departments' for GORGUID_DOMAIN_KEY = SORLFOS_DEPT_CODE
+                    additionalProperties: false
+                    required:
+                      - id
+                  - type: object
+                    maxProperties: 0
+              startOn:
+                title: Start On
+                description: The date on which the discipline begins for the student academic
+                  program.
+                oneOf:
+                  - type: string
+                    format: date
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                    x-lineageReferenceObject: derived  
+                    x-lineageDerivedLogic: Display STVTERM_START_DATE from STVTERM where STVTERM_CODE= SORLFOS_TERM_CODE.
+                  - type: string
+                    maxLength: 0
+              endOn:
+                title: End On
+                description: The date on which the discipline ends for the student academic
+                  program.
+                oneOf:
+                  - type: string
+                    format: date
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                    x-lineageReferenceObject: derived  
+                    x-lineageDerivedLogic: Display STVTERM_START_DATE from STVTERM where STVTERM_CODE=SORLCUR_TERM_CODE_END
+                  - type: string
+                    maxLength: 0
+              overrideStartOn:
+                title: Override Start On
+                description: The starting date of the discipline to be used for reporting.
+                oneOf:
+                  - type: string
+                    format: date
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                    x-lineageReferenceObject: SORLFOS_START_DATE(SORLFOS)
+                  - type: string
+                    maxLength: 0
+              overrideEndOn:
+                title: Override End On
+                description: The ending date of the discipline to be used for reporting.
+                oneOf:
+                  - type: string
+                    format: date
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                    x-lineageReferenceObject: SORLFOS_END_DATE(SORLFOS)
+                  - type: string
+                    maxLength: 0
+              parentDiscipline:
+                title: Parent Discipline
+                description: The academic discipline that is one level higher in the discipline
+                  hierarchy.
+                oneOf:
+                  - type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the Parent Discipline.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                        x-lineageLookupReferenceObject: academic-disciplines 
+                        x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = academic-disciplines) 
+                        x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME as 'academic-disciplines' for GORGUID_DOMAIN_KEY =SORLFOS_MAJR_CODE_ATTACH^SORLFOS_LFST_CODE(lowercase) for the concentration discipline record attached to major.
+                    additionalProperties: false
+                    required:
+                      - id
+                  - type: object
+                    maxProperties: 0
+              status:
+                title: Status
+                description: The state of a student's discipline within a program.
+                oneOf:
+                  - type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the Status.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                        x-lineageLookupReferenceObject: enrollment-statuses 
+                        x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = enrollment-statuses) 
+                        x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME as 'enrollment-statuses' for GORGUID_DOMAIN_KEY =SORLFOS_CACT_CODE
+                    additionalProperties: false
+                    required:
+                      - id
+                  - type: object
+                    maxProperties: 0
+            additionalProperties: false
+            required:
+              - discipline
+        startOn:
+          title: Start Date
+          description: The date on which an academic program begins.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: Display STVTERM_START_DATE from STVTERM where STVTERM_CODE= SORLCUR_TERM_CODE.
+            - type: string
+              maxLength: 0
+        endOn:
+          title: End Date
+          description: The date on which an academic program ends.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: Display STVTERM_START_DATE from STVTERM where STVTERM_CODE= SORLCUR_TERM_CODE_END.
+            - type: string
+              maxLength: 0
+        overrideStartOn:
+          title: Override Start On
+          description: The starting date of the program to be used for reporting.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: SORLCUR_START_DATE(SORLCUR)
+            - type: string
+              maxLength: 0
+        overrideEndOn:
+          title: Override End On
+          description: The ending date of the program to be used for reporting.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: SORLCUR_END_DATE(SORLCUR)
+            - type: string
+              maxLength: 0
+        academicPeriods:
+          title: Academic Periods
+          description: Various academic periods related to a student's progression in a
+            program.
+          type: object
+          properties:
+            starting:
+              title: Starting
+              description: The starting academic period of student's enrollment in the program
+              oneOf:
+                - type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Starting.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: academic-periods 
+                      x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = term) 
+                      x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME as 'terms' for GORGUID_DOMAIN_KEY = SORLCUR_TERM_CODE
+                  additionalProperties: false
+                  required:
+                    - id
+                - type: object
+                  maxProperties: 0
+            expectedGraduation:
+              title: Expected Graduation
+              description: The academic period in which the student is expected to graduate.
+              oneOf:
+                - type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Expected Graduation.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageReferenceObject: SORLCUR_EXP_GRAD_DATE(SORLCUR)
+                  additionalProperties: false
+                  required:
+                    - id
+                - type: object
+                  maxProperties: 0
+          additionalProperties: false
+        enrollmentStatus:
+          title: Enrollment Status
+          description: The current state of a student's academic program enrollment.
+          type: object
+          properties:
+            status:
+              title: Enrollment Status
+              description: The status of the academic program enrollment.
+              enum:
+                - active
+                - inactive
+                - complete
+              type: string
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: 1. For all SORLCUR records except for OUTCOME, for the SORLCUR_CACT_CODE if SOBCACT_ACTIVE_IND = N, then the value is displayed as 'inactive'. If SOBCACT_ACTIVE_IND = Y, then the value is displayed as 'active'. 2. For all OUTCOME SORLCUR record, for the SORLCUR_CACT_CODE if SOBCACT_ACTIVE_IND = N, then the value is displayed as 'inactive'. If SOBCACT_ACTIVE_IND = Y and STVDEGS_AWARD_STATUS_IND ='A' for the SHRDGMR_DEGS_CODE,  then the value is displayed as 'complete' ; if  SOBCACT_ACTIVE_IND = Y and STVDEGS_AWARD_STATUS_IND is not 'A' for the SHRDGMR_DEGS_CODE, then the value is displayed as 'active'.
+            detail:
+              title: Detail
+              description: Details related to the academic enrollment.
+              oneOf:
+                - type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Detail.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: enrollment-statuses 
+                      x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = enrollment-statuses) 
+                      x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME as 'enrollment-statuses' for GORGUID_DOMAIN_KEY = SORLCUR_CACT_CODE
+                  additionalProperties: false
+                  required:
+                    - id
+                - type: object
+                  maxProperties: 0
+          additionalProperties: false
+          required:
+            - status
+        expectedGraduationDate:
+          title: Expected Graduation Date
+          description: The date on which the student is expected to graduate from the
+            academic program.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: SORLCUR_EXP_GRAD_DATE(SORLCUR)
+            - type: string
+              maxLength: 0
+        admissionClassification:
+          title: Admission Classification
+          description: The admission classification and/or the type typically captured
+            upon admission to the program.
+          type: object
+          properties:
+            admissionCategory:
+              title: Admission Category
+              description: The student's admission category (e.g. first-time, transfer,
+                returning, freshman).
+              oneOf:
+                - type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Admission Category.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: admission-populations 
+                      x-lineageReferenceObject: SORLCUR_STYP_CODE(SORLCUR)
+                  additionalProperties: false
+                  required:
+                    - id
+                - type: object
+                  maxProperties: 0
+          additionalProperties: false
+        associatedCurriculum:
+          title: Associated Curriculum
+          description: The associated, matriculated, or outcome curriculum record of the
+            program.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Associated Curriculum.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: student-academic-programs 
+                  x-lineageReferenceObject: SORLCUR_GUID(SORLCUR)
+                  x-lineageDerivedLogic: The OUTCOME SORLCUR record where SORLCUR_ROLLED_SEQNO = SORLCUR_SEQNO and SORLCUR_LMOD_CODE = 'OUTCOME' and SORLCUR_CURRENT_CDE = 'Y'. Published only for LERANER records.
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+      required:
+        - id
+        - student
+        - program
+        - curriculumObjective
+        - enrollmentStatus
+      additionalProperties: false

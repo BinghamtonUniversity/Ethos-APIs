@@ -1,0 +1,458 @@
+openapi: 3.0.0
+info:
+  title: Catalog Course Requisites and Equivalents Adjustments Process
+  description: >
+  
+    The Catalog Course Requisites and Equivalents Adjustments Process API is used to create and maintain catalog course requisites and course equivalents.
+    
+
+    Catalog Course Requisites and Equivalents details can be queried using catalog-course-requisites-and-equivalents.
+
+  version: 1.0.0-beta
+  x-api-type: erp
+  x-release-status: beta
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Student
+  x-source-name: SCRCORQ SCREQIV SCRRTST
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /api/catalog-course-requisites-and-equivalents-adjustments-process:
+    post:
+      tags:
+      - catalog-course-requisites-and-equivalents-adjustments-process
+      summary: Creates or updates resources in SCRRTST, SCRCORQ and SCREQIV.
+      description: >
+        A catalog course requisite and equivalent record will be created or updated with a POST request in or all of the following - SCRRTST, SCRCORQ and SCREQIV.
+        
+
+        API Behavior details
+
+        
+        For catalog course requisites and equivalents with no existing requisites or equivalents, the Post request inserts course requisites and equivalents as requested.
+
+
+        For existing catalog course requisite and equivalent records, the POST request replaces the effective term record with the course requisites and equivalents details included in the POST request.This means that the POST request 
+        removes any existing data and replaces it with the data provided in the request.
+
+        This API does not support submission of CAPP area prerequisites. 
+
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string            
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/catalog-course-requisites-and-equivalents-adjustments-process-1.0.0_post_request"
+      responses:
+        '201':
+          description: Success
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object                
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_CRSE_PREREQ_EQUIV_ADJ_PROC
+components:
+  schemas:
+    catalog-course-requisites-and-equivalents-adjustments-process-1.0.0_post_request:
+      type: object
+      required:
+        - subject
+        - courseNumber
+        - fromTerm        
+      properties:              
+        subject:
+          title: Subject
+          maxLength: 4
+          type: string
+          description: "The subject area of the course."
+          x-lineageReferenceObject: SCBCRKY_SUBJ_CODE
+          x-lineageLookupReferenceObject: STVSUBJ
+          example: MATH
+        courseNumber: 
+          title: Course Number
+          maxLength: 5
+          type: string
+          description: "The course number associated with the subject for the course."
+          x-lineageReferenceObject: SCBCRKY_CRSE_NUMB
+          example: ENGL1        
+        fromTerm:
+          title: Effective Term
+          maxLength: 6
+          type: string
+          description: "The term that this version of the course requisites, correquisites, and/or equivalents become effective."
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202201    
+        courseCorequisite:
+          title: Course Corequisite
+          type: object        
+          properties:
+            corequisites:
+              title: Corequisites
+              type: array
+              items:
+                type: object     
+                required:
+                  - courseSubject
+                  - courseNumber 
+                properties:
+                  courseSubject:
+                    title:  Corequisite Course Code
+                    maxLength:  4
+                    type:  string
+                    description:  The corequisite subjects for a course.
+                    x-lineageReferenceObject:  SCRCORQ_SUBJ_CODE_CORQ
+                    x-lineageLookupReferenceObject: STVSUBJ
+                    example: ENGL
+                  courseNumber:
+                    title:  Corequisite Course Number
+                    maxLength:  5
+                    type:  string
+                    description:  "The course number associated with the subject for the course."
+                    x-lineageReferenceObject:  SCRCORQ_CRSE_NUMB_CORQ
+                    example: 100
+        courseEquivalent:
+          title: Course Equivalent
+          type: object
+          properties:
+            equivalents:
+              title: Equivalents
+              type: array
+              items:
+                type: object     
+                required:
+                  - courseSubject
+                  - courseNumber
+                properties:              
+                  courseSubject:
+                    title:  Equivalent Course Code
+                    maxLength:  4
+                    type:  string
+                    description:  "The subject area of the course."
+                    x-lineageReferenceObject:  SCREQIV_SUBJ_CODE_EQIV
+                    example: MATH
+                  courseNumber:
+                    title:  Equivalent Course Number
+                    maxLength:  5
+                    type:  string
+                    description:  the course number of the equivalent course.
+                    x-lineageReferenceObject:  SCREQIV_CRSE_NUMB_EQIV
+                    example: 1     
+                  courseStartTerm:
+                    title: Equivalent Course Start Term
+                    maxLength: 6
+                    type: string
+                    description: The start term of the course version which is equivalent to the course entered in the Query Term.
+                    x-lineageReferenceObject: SCREQIV_START_TERM
+                    x-lineageLookupReferenceObject: STVTERM
+                    example: 201910
+                  courseEndTerm:
+                    title: Equivalent Course End Term
+                    maxLength: 6
+                    type: string
+                    description: The end term of the course version which is equivalent.
+                    x-lineageReferenceObject: SCREQIV_END_TERM    
+                    x-lineageLookupReferenceObject: STVTERM                    
+                    example: 202010                                
+        coursePrerequisite:
+          title: Course Prerequisite
+          type: object
+          properties:
+            checkMethodDetail:
+              type: object
+              title: Course Check Method Detail
+              properties:
+                checkMethod:
+                  title: Check Method
+                  oneOf:
+                    - type: string
+                      enum:
+                      - basic
+                      - degreeworks
+                    - type: string
+                  maxLength: 1
+                  description: Type of prerequisite checking. B=Banner Basic, D=DegreeWorks. This API does not support submission of CAPP area prerequisites. Field will default as Basic if property is not submitted.
+                  x-lineageReferenceObject: SCBCRSE_PREREQ_CHK_METHOD_CDE
+            prerequisite:
+              title: Prerequisite
+              description: The basic prerequisite identified for the target course.
+              type: object
+              properties:
+                basicPrerequisites:
+                  title: Basic Prerequisites
+                  description: The basic prerequisites identified for the target course.
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      lineOrderSequence:
+                        title: Line Order Sequence
+                        maxLength: 23
+                        type: number
+                        description: The line order sequence number is used to insure the record will be in the correct order.
+                        x-lineageReferenceObject: SCRRTST_SEQNO
+                        example: 2  
+                      logicalOperator:
+                        title: Logical Operator
+                        description: The logical operator for the requirement (and, or).
+                        oneOf:
+                        - type: string
+                          enum:
+                          - and
+                          - or
+                        - type: string
+                        x-lineageReferenceObject: SCRRTST_CONNECTOR
+                        example: or
+                      leftParenthesis:
+                        title: Left Parenthesis
+                        maxLength: 1
+                        description: The parenthesis for the requirement (left parenthesis equals true).
+                        type: boolean
+                        x-lineageReferenceObject: SCRRTST_LPAREN 
+                        example: true
+                      requirement:
+                        title: Requirement
+                        description: The requirement associated with the basic prerequisite.
+                        oneOf:
+                        - title: Course
+                          description: The course identified as a prerequisite of the target
+                            course.
+                          type: object
+                          x-lineageReferenceObject: SCRRTST_CRSE_NUMB_PREQ
+                          properties:
+                            course:
+                              title: Course
+                              description: The course identified as a prerequisite of the
+                                target course.
+                              type: object
+                              properties:
+                                subject:
+                                  title: Subject
+                                  description: "The subject area of the course."
+                                  x-lineageReferenceObject: SCRRTST_SUBJ_CODE_PREQ
+                                  type: object
+                                  example: ECON
+                                number:
+                                  title: Number
+                                  description: The course number.
+                                  type: string
+                                  minLength: 1
+                                  x-lineageReferenceObject: SCRRTST_CRSE_NUMB_PREQ
+                                  example: 100
+                                concurrentEnrollment:
+                                  title: Concurrent Enrollment
+                                  description: An indicator of whether concurrent enrollment
+                                    is allowed or not allowed.
+                                  x-lineageReferenceObject: SCRRTST_CONCURRENCY_IND
+                                  oneOf:
+                                  - type: string
+                                    enum:
+                                    - allowed
+                                    - notAllowed
+                                  - type: string
+                                    maxLength: 0
+                                  example: notAllowed
+                                minimumGrade:
+                                  title: Minimum Grade
+                                  description: The minimum grade for the prerequisite course.
+                                  x-lineageReferenceObject: SCRRTST_MIN_GRDE
+                                  x-lineageLookupReferenceObject: SHRGRDE
+                                academicLevel:
+                                  title: Academic Level
+                                  description: The academic level associated with the prerequisite
+                                    course.
+                                  x-lineageReferenceObject: SHRGRDE_LEVEL_CODE
+                                  x-lineageReferenceLookupObject: STVLEVL
+                                  example: UG
+                              required:
+                              - subject
+                              - number
+                          required:
+                          - course
+                        - title: Assessment
+                          description: The assessment identified as a prerequisite of the
+                            target course.
+                          type: object
+                          properties:
+                            assessment:
+                              title: Assessment
+                              description: The assessment and minimum test score identified
+                                as a prerequisite of the target course.
+                              type: object
+                              properties:
+                                minimumTestScore:
+                                  title: Minimum Test Score
+                                  description: The minimum test score for the assessment.
+                                  x-lineageReferenceObject: SCRRTST_TEST_SCORE
+                                  type: string
+                                  minLength: 1
+                                assessment:
+                                  title: Assessment
+                                  description: The assessment identified as a prerequisite
+                                    of the target course.
+                                  x-lineageReferenceObject: SCRRTST_TESC_CODE
+                                  x-lineageReferenceLookupObject: STVTESC
+                              required:
+                              - minimumTestScore
+                              - assessment
+                          required:
+                          - assessment
+                      rightParenthesis:
+                        title: Right Parenthesis 
+                        maxLength: 1
+                        type: boolean
+                        description: The parenthesis for the requirement (right parenthesis = true).
+                        x-lineageReferenceObject: SCRRTST_RPAREN
+                        example: true  
+                    required:
+                    - requirement
+                    - lineOrderSequence           
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

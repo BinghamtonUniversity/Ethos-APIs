@@ -1,0 +1,675 @@
+openapi: 3.0.0
+info:
+  title: tcc-student-report-registrations
+  description:
+    The TCC Student Report Registrations is designed to maintain cb registration data for students.
+    It supports options to post cb registration data requests in batches and retrieve records
+    through get requests.
+  version: 1.0.0
+  x-api-type: erp
+  x-release-status: ga
+  x-source-system: banner
+  x-audience: all
+  x-deprecated-on:
+  x-source-domain: student
+  x-source-name: SZRSCRR
+  x-source-title: 
+  x-sunset-on:
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /api/tcc-student-report-registrations:
+    get:
+      tags:
+      - tcc-student-report-registrations
+      summary: "This returns the requested student data from SZRSCRR."
+      description: "This request will retrieve the specified student data from SZRSCRR"
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description:  |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: bannerId
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >
+
+            Returns all records for the Banner ID passed.
+
+            ```
+
+            /tcc-student-report-registrations?bannerId=TCC123456
+
+            ```
+        - name: termCode
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >
+
+            Returns all records for the Term Code passed.
+
+            ```
+
+            /tcc-student-report-registrations?termCode=202510
+
+            ```
+        - name: crn
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >
+
+            Returns all records for the crn passed.
+
+            ```
+
+            /tcc-student-report-registrations?crn=1314
+
+            ```
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/tcc-student-report-registrations-1.0.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_TCC_STUDENT_REPORT_REGS
+  /api/tcc-student-report-registrations/batches:
+    post:
+      tags:
+        - tcc-student-report-registrations/batches
+      summary: "Creates a new sections of batch request to update or create SZRSCRR records."
+      description: "The TCC Student Report Registrations API is designed to maintain cb report override data for students. It supports options to post student cb report registration data requests in batches."
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              $ref: '#/components/schemas/tcc-student-report-registrations-1.0.0_post_request'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                $ref: '#/components/schemas/tcc-student-report-registrations-1.0.0-batch-response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permissions: API_TCC_STUDENT_REPORT_REGS
+  "/api/tcc-student-report-registrations/{id}":
+    get:
+      summary: This returns the requested student data from SZRSCRR
+      description: "This request will retrieve the specified student data from SZRSCRR"
+      tags:
+        - tcc-student-report-registrations/{id}
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: number
+            format: int64
+            minimum: 1
+      responses:
+       '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/tcc-student-report-registrations-1.0.0_response"
+       '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '401':
+          description: Failure. Unauthorized.
+       '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+       '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permissions: API_TCC_STUDENT_REPORT_REGS
+components:
+  schemas:
+    tcc-student-report-registrations-1.0.0_response:
+      type: object
+      properties:
+        id:
+          title: id
+          description: "Immutable unique key"
+          type: integer
+          format: int64
+          x-lineageReferenceObject: SZRSCRR_SURROGATE_ID
+          x-lineageLookupReferenceObject: SZRSCRR
+          x-product-region: student
+          example: 12345
+        bannerId:
+          title: bannerId
+          description: "This field defines the identnumber used to access person on-line."
+          maxLength: 9
+          type: string
+          format: text
+          x-lineageReferenceObject: SPRIDEN_ID
+          x-lineageLookupReferenceObject: SPRIDEN
+          x-product-region: Student
+          example: "TCC000001"
+        termCode:
+          title: termCode
+          description: "Term for with this student has manual overrides."
+          maxLength: 6
+          type: string
+          format: text
+          x-lineageReferenceObject: SZRSCRR_TERM_CODE
+          x-lineageLookupReferenceObject: SZRSCRR
+          x-product-region: student
+          example: "202510"
+        crn:
+          title: crn
+          description: "CRN of the course registration for which overrides exist."
+          maxLength: 5
+          type: string
+          format: text
+          x-lineageReferenceObject: SZRSCRR_CRN
+          x-lineageLookupReferenceObject: SZRSCRR
+          x-product-region: student
+          example: "1315"
+        threePeat:
+          title: threePeat
+          description: "Manual override of the calculated value for 3-peat reporting. Y is a 3-peat. N, Null or Blank in NOT a 3-peat."
+          maxLength: 1
+          type: string
+          format: text
+          x-lineageReferenceObject: SZRSCRR_TERM_CODE
+          x-lineageLookupReferenceObject: SZRSCRR
+          x-product-region: student
+          example: "N"
+        reported:
+          title: reported
+          description: "Manual override of the SZASXRF Not Reported flag. Y indicates the CRN is reported. N, Null or Blank indicates the CRN is NOT reported."
+          maxLength: 1
+          type: string
+          format: text
+          x-lineageReferenceObject: SZRSCRR_REPORTED
+          x-lineageLookupReferenceObject: SZRSCRR
+          x-product-region: student
+          example: "Y"
+        exceedsDevelopmentalFunding:
+          title: ExceedsDevelopmentalFunding
+          description: "Manual override of the system calculated value for Exceeds Developmental Funding. N, Null or Blank indicates the crn is NOT reported as Exceeded Developmental Funding."
+          maxLength: 1
+          type: string
+          format: text
+          x-lineageReferenceObject: SZRSCRR_EXC_DEV_FUNDING
+          x-lineageLookupReferenceObject: SZRSCRR
+          x-product-region: student
+          example: "Y"
+        notFoundedReason:
+          title: notFoundedReason
+          description: "Manual override of the system calculated value for Not Funded Reason."
+          maxLength: 1
+          type: string
+          format: text
+          x-lineageReferenceObject: SZRSCRR_NOT_FD_REASON
+          x-lineageLookupReferenceObject: SZRSCRR
+          x-product-region: student
+          example: "N"
+        hsCreditStatus:
+          title: hsCreditStatus
+          description: "Manual override of the default value for HS credit Status."
+          maxLength: 1
+          type: string
+          format: text
+          x-lineageReferenceObject: SZRSCRR_HS_CR_STATUS
+          x-lineageLookupReferenceObject: SZRSCRR
+          x-product-region: student
+          example: "N"
+      required:
+        - id
+        - bannerId
+        - termCode
+        - crn
+    tcc-student-report-registrations-1.0.0_post_request:
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/tcc-student-report-registrations-items-1.0.0_post_request'
+      required:
+        - items
+    tcc-student-report-registrations-items-1.0.0_post_request:
+      type: object
+      properties:
+        bannerId:
+          title: bannerId
+          description: "This field defines the identification number used to access person on-line."
+          maxLength: 9
+          type: string
+          format: text
+          x-lineageReferenceObject: SPRIDEN_ID
+          x-lineageLookupReferenceObject: SPRIDEN
+          x-product-region: Student
+          example: "TCC000123"
+        termCode:
+          title: termCode
+          description: "Term for with this student has manual overrides."
+          maxLength: 6
+          type: string
+          format: text
+          x-lineageReferenceObject: SZRSCRR_TERM_CODE
+          x-lineageLookupReferenceObject: SZRSCRR
+          x-product-region: student
+          example: "202520"
+        crn:
+          title: crn
+          description: "CRN of the course registration for which overrides exist."
+          maxLength: 5
+          type: string
+          format: text
+          x-lineageReferenceObject: SZRSCRR_CRN
+          x-lineageLookupReferenceObject: SZRSCRR
+          x-product-region: student
+          example: "1314"
+        threePeat:
+          title: threePeat
+          description: "Manual override of the calculated value for 3-peat reporting. Y is a 3-peat. N, Null or Blank in NOT a 3-peat."
+          maxLength: 1
+          type: string
+          format: text
+          x-lineageReferenceObject: SZRSCRR_3_PEAT
+          x-lineageLookupReferenceObject: SZRSCRR
+          x-product-region: student
+          example: "Y"
+        reported:
+          title: reported
+          description: "Manual override of the SZASXRF Not Reported flag. Y indicates the CRN is reported. N, Null or Blank indicates the CRN is NOT reported."
+          maxLength: 1
+          type: string
+          format: text
+          x-lineageReferenceObject: SZRSCRR_REPORTED
+          x-lineageLookupReferenceObject: SZRSCRR
+          x-product-region: student
+          example: "Y"
+        exceedsDevelopmentalFunding:
+          title: exceedsDevelopmentalFunding
+          description: "Manual override of the system calculated value for Exceeds Developmental Funding. N, Null or Blank indicates the crn is NOT reported as Exceeded Developmental Funding."
+          maxLength: 1
+          type: string
+          format: text
+          x-lineageReferenceObject: SZRSCRR_EXC_DEV_FUNDING
+          x-lineageLookupReferenceObject: SZRSCRR
+          x-product-region: student
+          example: "Y"
+        notFoundedReason:
+          title: notFoundedReason
+          description: "Manual override of the system calculated value for Not Funded Reason."
+          maxLength: 1
+          type: string
+          format: text
+          x-lineageReferenceObject: SZRSCRR_NOT_FD_REASON
+          x-lineageLookupReferenceObject: SZRSCRR
+          x-product-region: student
+          example: "N"
+        hsCreditStatus:
+          title: hsCreditStatus
+          description: "Manual override of the default value for HS credit Status."
+          maxLength: 1
+          type: string
+          format: text
+          x-lineageReferenceObject: SZRSCRR_HS_CR_STATUS
+          x-lineageLookupReferenceObject: SZRSCRR
+          x-product-region: student
+          example: "N"
+      required:
+        - bannerId
+        - termCode
+        - crn
+    tcc-student-report-registrations-1.0.0-batch-response:
+      properties:
+        items:
+          type: array
+          items:
+            - $ref: "#/components/schemas/tcc-student-report-registrations-1.0.0_success_batch_response"
+            - $ref: "#/components/schemas/tcc-student-report-registrations-1.0.0_error_batch_response"
+      required:
+        - items
+    tcc-student-report-registrations-1.0.0_success_batch_response:
+      type: object
+      properties:
+        id:
+          title: id
+          description: "Immutable unique key"
+          type: integer
+          format: int64
+          x-lineageReferenceObject: SZRSCRR_SURROGATE_ID
+          x-lineageLookupReferenceObject: SZRSCRR
+          x-product-region: student
+          example: 12345
+    tcc-student-report-registrations-1.0.0_error_batch_response:
+      type: object
+      properties:
+        code:
+          title: code
+          description: "The error message code used to describe the error details."
+          type: string
+          format: text
+          example: "Global.SchemaValidation.Error"
+        description:
+          title: description
+          description: "The error description used to describe the error details."
+          type: string
+          format: text
+          example: "Errors parsing input JSON."
+        message:
+          title: message
+          description: "The detailed actionable error message."
+          type: string
+          format: text
+          example: "hsCreditStatus (G) is not a valid. Valid values are: Y or N."
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

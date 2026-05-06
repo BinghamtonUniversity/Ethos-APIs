@@ -1,0 +1,303 @@
+openapi: 3.0.0
+info:
+  title: Grade Definitions
+  description: A unit of measurement of how well a student completed a course.
+  version: "6.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Student
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/grade-definitions:
+    get:
+      summary: Return all resources from SHRGDID
+      description: Returns a paged listing of all the grade definition records from
+        SHRGDID table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_GRADE_DEFINITIONS
+      tags:
+        - grade-definitions
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v6+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-grade-definitions.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v6+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/grade-definitions/{id}:
+    get:
+      summary: Return the requested resource from SHRGDID
+      description: Returns a single grade definition record with the passed in identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_GRADE_DEFINITIONS
+      tags:
+        - grade-definitions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Grade Definitions for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v6+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v6+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v6+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-grade-definitions.json"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-grade-definitions.json:
+      title: Grade Definitions
+      description: A unit of measurement of how well a student completed a course.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: Id
+          description: The global identifier of the grade.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: SHRGDID_GUID(SHRGDID)
+        scheme:
+          title: Grade Scheme
+          description: The grade scheme that defines the context of the grade scheme item.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Grade Scheme.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: grade-schemes 
+              x-lineageReferenceObject: SHRGDID_GRADE_SCHEME(SHRGDID)
+          additionalProperties: false
+          required:
+            - id
+        grade:
+          title: Grade
+          description: The literal value or numeric range of the grade.
+          oneOf:
+            - title: Literal Value
+              description: The item is defined as a literal
+              type: object
+              properties:
+                type:
+                  title: Type
+                  description: The type of the grade.
+                  enum:
+                    - literal
+                  type: string
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: Always 'literal' is displayed.
+                value:
+                  title: Value
+                  description: The literal value of the grade.
+                  type: string
+                  x-lineageReferenceObject: SHRGDID_GRADE(SHRGDID)
+              additionalProperties: false
+              required:
+                - type
+                - value
+            - title: Numeric Range
+              description: The numeric range that defines the grade
+              type: object
+              properties:
+                type:
+                  title: Type
+                  description: The type of the grade.
+                  enum:
+                    - numeric
+                  type: string
+                  x-lineageReferenceObject: unsupported
+                minValue:
+                  title: Minimum Value
+                  description: The lower boundary of the numeric range of the grade.
+                  type: number
+                  x-lineageReferenceObject: unsupported
+                maxValue:
+                  title: Maximum Value
+                  description: The upper boundary of the numeric range of the grade.
+                  type: number
+                  x-lineageReferenceObject: unsupported
+                increment:
+                  title: Increment
+                  description: The size of the allowable incremental steps between the lower and
+                    upper boundaries of the range.
+                  type: number
+                  x-lineageReferenceObject: unsupported
+              additionalProperties: false
+              required:
+                - type
+                - minValue
+                - maxValue
+        credit:
+          title: Credit
+          description: What degree of credit this grade qualifies for.
+          oneOf:
+            - type: string
+              enum:
+                - full
+                - none
+              x-lineageReferenceObject: unsupported
+            - type: string
+              maxLength: 0
+        equivalentTo:
+          title: Equivalent Grades
+          description: A list of mappings to equivalent grades from other grade schemes.
+          type: array
+          items:
+            title: Equivalent Grades
+            description: A list of mappings to equivalent grades from other grade schemes.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Equivalent Grades.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: grade-definitions 
+                x-lineageReferenceObject: unsupported
+            additionalProperties: false
+            required:
+              - id
+      required:
+        - id
+        - scheme
+        - grade
+      additionalProperties: false

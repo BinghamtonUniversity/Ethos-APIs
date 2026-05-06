@@ -1,0 +1,228 @@
+openapi: 3.0.0
+info:
+  title: Section Deletions Process
+  description: >
+
+    The Section Deletions Process API is used to request a section and its related records in the Banner scheduling module be deleted. 
+
+
+    Sections may not be deleted if there are dependent student registration records. If the section delete is permitted, it is 
+    immediate. Deleted section records are not recoverable. 
+    
+    
+    A successful request to delete a section will process the delete for records from SSBSECT, SSBWLSC, SORSATR, SORATMT, SSRMEET, SIRASGN, SSRLINK, SSRCORQ, 
+    SSRFEES, SSRTEXT, SSRRATT, SSRRCHR, SSRRDEP, SSBWLSC, SSRROL, SSRRDEG, SSRRPRG, SSRRARE, SSRRCMP, SSRRMAJ, SSRRCLS, SSRRLVL, SSRRESV, SSRATTR, SSRXLST, SSRBLCK, 
+    SSRSCCD, SSBOVRR, SSRRTST, SSREVAL, SSRSPRT, SSRMPRT, SSRSRDF, SSRMRDF, SSBSSEC, SSBFSEC, SSRRSTS, SSREXTN, SSRRFND, SSBDESC, SSRSYLN, SSRSYLO, SSRSYRM, SSRSYTR, 
+    SHRGCOM, SHRSCOM, SSRCLBD, SFBDRSC and SSRANGD.
+
+
+  version: 1.0.0-beta
+  x-api-type: erp
+  x-release-status: beta
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Student
+  x-source-name: SSASECT
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /api/section-deletions-process:
+    post:
+      tags:
+      - section-deletions-process
+      summary: Delete base section and related section scheduling records.
+      description: >
+
+        Delete records from SSBSECT, SSBWLSC, SORSATR, SORATMT, SSRMEET, SIRASGN, SSRLINK, 
+        SSRCORQ, SSRFEES, SSRTEXT, SSRRATT, SSRRCHR, SSRRDEP, SSBWLSC, SSRROL, SSRRDEG, SSRRPRG, 
+        SSRRARE, SSRRCMP, SSRRMAJ, SSRRCLS, SSRRLVL, SSRRESV, SSRATTR, SSRXLST, SSRBLCK, SSRSCCD, 
+        SSBOVRR, SSRRTST, SSREVAL, SSRSPRT, SSRMPRT, SSRSRDF, SSRMRDF, SSBSSEC, SSBFSEC, SSRRSTS, 
+        SSREXTN, SSRRFND, SSBDESC, SSRSYLN, SSRSYLO, SSRSYRM, SSRSYTR, SHRGCOM, SHRSCOM, SSRCLBD, 
+        SFBDRSC and SSRANGD for the specified term + crn combination.
+          
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string            
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/section-deletions-process-1.0.0_post_request"
+      responses:
+        '201':
+          description: Success
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object                
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SECTION_DELETIONS_PROCESS
+components:
+  schemas:
+    section-deletions-process-1.0.0_post_request:
+      type: object
+      required: 
+      - term
+      - crn
+      properties:
+        term:
+          title: Term
+          maxLength: 6
+          type: string
+          description: "The term of the section."
+          x-lineageReferenceObject: SSBSECT_TERM_CODE
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202410
+        crn: 
+          title: Course Reference Number (CRN)
+          maxLength: 5
+          type: string
+          description: "The course reference number (CRN) of the section."
+          x-lineageReferenceObject: SSBSECT_CRN
+          example: 10015   
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

@@ -1,0 +1,541 @@
+openapi: 3.0.0
+info:
+  title: External Education
+  description: >
+    **API Deprecation Notice**
+
+
+
+    Deprecated on: 31-Dec-2019
+
+
+
+    Sunset on: 31-Dec-2021
+
+
+
+    Description: V1.0.0 of person-external-education replaces external-education which better represents external education a person has received.
+
+
+
+    ----
+
+
+    The External Education API contains information about person's education at an institution other than the home institution.
+  version: "7.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Student
+  x-deprecated-on: 2019-12-31
+  x-sunset-on: 2021-12-31
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/external-education:
+    get:
+      summary: Returns resources
+      description: >
+        Returns a paged listing of all the external education records with
+        credentials and attendance periods for high school, college and transfer
+        institution from SORHSCH, SORPCOL, SORDEGR, SHRTRIT and SHRTRAM tables.
+
+
+        The high school records are retrieved from SORHSCH table. Prior college records from SORPCOL and its corresponding credential records from SORDEGR. Transfer Institution record from SHRTRIT and its corresponding attendance period records from SHRTRAM table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EXTERNAL_EDUCATIONS
+      tags:
+        - external-education
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v7+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: |
+            ### Persn  
+            Returns all external education records for the person guid passed.
+            ```
+            /external-education?person=af7bf8a1-6138-41f1-ae03-4a4c582ed533
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-external-education.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v7+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      deprecated: true
+  /api/external-education/{id}:
+    get:
+      summary: Return the requested resource
+      description: >
+        Returns a single external education record with the requested identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EXTERNAL_EDUCATIONS
+      tags:
+        - external-education
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v7+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v7+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v7+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-external-education.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      deprecated: true
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-external-education.json:
+      title: External Education
+      description: A record of person's education outside of the home institution.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the external education.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: GORGUID_GUID(LDM_NAME= external-educations-degr) or GORGUID_GUID(LDM_NAME= external-educations-hs)
+          x-lineageDerivedLogic: Prior college - Display the GUID from GORGUID where GORGUID_LDM_NAME is 'external-educations-degr' and GORGUID_DOMAIN_KEY is the concatenated value of SORDEGR_PIDM, SORDEGR_SBGI_CODE and SORDEGR_DEGR_SEQ_NO.
+            Transfer institution - Display the GUID from GORGUID where GORGUID_LDM_NAME is 'external-educations-degr' and GORGUID_DOMAIN_KEY is the concatenated value of SHRTRAM_PIDM, SHRTRAM_TRIT_SEQ_NO and SHRTRAM_SEQ_NO. 
+            High school - Display the GUID from GORGUID where GORGUID_LDM_NAME is 'external-educations-hs' and GORGUID_DOMAIN_KEY is the concatenated value of SORHSCH_PIDM and SORHSCH_SBGI_CODE.
+        person:
+          title: Person
+          description: The person who was educated at the institution.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Person.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+              x-lineageDerivedLogic: Prior college - Display the GUID from GORGUID where GORGUID_LDM_NAME is 'persons' and GORGUID_DOMAIN_KEY matches SORDEGR_PIDM.
+                Transfer institution - Display the GUID from GORGUID where GORGUID_LDM_NAME is 'persons' and GORGUID_DOMAIN_KEY matches SHRTRAM_PIDM.
+                High school records - Display the GUID from GORGUID where GORGUID_LDM_NAME is 'persons' and GORGUID_DOMAIN_KEY matches SORHSCH_PIDM.
+          additionalProperties: false
+          required:
+            - id
+        institution:
+          title: Institution
+          description: The educational institution where the person studied.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Institution.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: educational-institutions 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = external-educations-trit) or GORGUID_GUID(LDM_NAME = external-educations-hs) or GORGUID_GUID(LDM_NAME = external-educations-degr) 
+              x-lineageDerivedLogic: Prior college - Display the GUID from GORGUID where GORGUID_LDM_NAME is 'educational-institutions' and GORGUID_DOMAIN_KEY matches SORDEGR_SBGI_CODE.
+                Transfer institution - For the SHRTRAM_PIDM and SHRTRAM_TRIT_SEQ_NO fetch the matching record from SHRTRIT. Display the GUID from GORGUID where GORGUID_LDM_NAME is 'persons' and GORGUID_DOMAIN_KEY matches SHRTRIT_SBGI_CODE.
+                High school - Display the GUID from GORGUID where GORGUID_LDM_NAME is 'educational-institutions' and GORGUID_DOMAIN_KEY matches SORHSCH_SBGI_CODE.
+          additionalProperties: false
+          required:
+            - id
+        credential:
+          title: Credential
+          description: The academic credential (degree, diploma, etc.) the person was
+            awarded at the institution.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Credential.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: academic-credentials 
+                  x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = academic-credentials) 
+                  x-lineageDerivedLogic: Prior college - Display the GUID from GORGUID where GORGUID_LDM_NAME is 'academic-credentials' and GORGUID_DOMAIN_KEY matches SORDEGR_DEGC_CODE. 
+                    'credential' is not supported for high school and transfer institution.
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        disciplines:
+          title: Disciplines
+          description: The academic disciplines associated with the person's course of
+            study at the institution.
+          type: array
+          items:
+            title: Disciplines
+            description: The academic disciplines associated with the person's course of
+              study at the institution.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Disciplines.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: academic-disciplines 
+                x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = academic-disciplines) 
+                x-lineageDerivedLogic: Prior college - For the SORDEGR_PIDM, SORDEGR_SBGI_CODE and SORDEGR_DEGC_CODE fetch the matching records from SORMAJR, SORMINR and SORCONC. 
+                  If matching records exists in SORMAJR, display the GUID from GORGUID where GORGUID_LDM_NAME is 'academic-disciplines' and GORGUID_DOMAIN_KEY matches SORMAJR_MAJR_CODE_MAJOR.
+                  If matching records exists in SORMINR, display the GUID from GORGUID where GORGUID_LDM_NAME is 'academic-disciplines' and GORGUID_DOMAIN_KEY matches SORMINR_MAJR_CODE_MINOR.
+                  If matching records exists in SORCONC, display the GUID from GORGUID where GORGUID_LDM_NAME is 'academic-disciplines' and GORGUID_DOMAIN_KEY matches SORCONC_MAJR_CODE_CONC.
+                  'discipline' is not supported for high school and transfer institution.
+            additionalProperties: false
+            required:
+              - id
+        startOn:
+          title: Start Date
+          description: The date when the person's education at the institution began.
+          oneOf:
+            - type: object
+              properties:
+                year:
+                  title: Year
+                  description: The year portion of the date.
+                  minimum: 0
+                  type: number
+                  format: positiveInteger
+                  x-lineageReferenceObject: SORDEGR_ATTEND_FROM(SORDEGR)
+                  x-lineageDerivedLogic: Prior college - Display year value after parsing SORDEGR_ATTEND_FROM into day, month and year.
+                    'startOn.year' is not supported for high school and transfer institution.
+                month:
+                  title: Month
+                  description: The month portion of the date
+                  x-lineageReferenceObject: SORDEGR_ATTEND_FROM(SORDEGR)
+                  x-lineageDerivedLogic: Prior college - Display month value after parsing SORDEGR_ATTEND_FROM into day, month and year.
+                    'startOn.month' is not supported for high school and transfer institution.
+                  oneOf:
+                    - type: number
+                      minimum: 0
+                      format: positiveInteger
+                    - type: string
+                      nullable: true
+                day:
+                  title: Day
+                  description: The day portion of a date.
+                  x-lineageReferenceObject: SORDEGR_ATTEND_FROM(SORDEGR)
+                  x-lineageDerivedLogic: Prior college - Display day value after parsing SORDEGR_ATTEND_FROM into day, month and year.
+                    'startOn.day' is not supported for high school and transfer institution.
+                  oneOf:
+                    - type: number
+                      minimum: 0
+                      format: positiveInteger
+                    - type: string
+                      nullable: true
+              additionalProperties: false
+              required:
+                - year
+            - type: object
+              maxProperties: 0
+        endOn:
+          title: End Date
+          description: The date when the person's education at the institution ended.
+          oneOf:
+            - type: object
+              properties:
+                year:
+                  title: Year
+                  description: The year part of the date.
+                  minimum: 0
+                  type: number
+                  format: positiveInteger
+                  x-lineageReferenceObject: SORDEGR_ATTEND_TO(SORDEGR)
+                  x-lineageDerivedLogic: Prior college - Display year value after parsing SORDEGR_ATTEND_TO into day, month and year.
+                    'endOn.year' is not supported for high school and transfer institution.
+                month:
+                  title: Month
+                  description: The month part of the date.
+                  x-lineageReferenceObject: SORDEGR_ATTEND_TO(SORDEGR)
+                  x-lineageDerivedLogic: Prior college - Display month value after parsing SORDEGR_ATTEND_TO into day, month and year.
+                    'endOn.month' is not supported for high school and transfer institution.
+                  oneOf:
+                    - type: number
+                      minimum: 0
+                      format: positiveInteger
+                    - type: string
+                      nullable: true
+                day:
+                  title: Day
+                  description: The day part of the date.
+                  x-lineageReferenceObject: SORDEGR_ATTEND_TO(SORDEGR)
+                  x-lineageDerivedLogic: Prior college - Display day value after parsing SORDEGR_ATTEND_TO into day, month and year.
+                    'endOn.day' is not supported for high school and transfer institution.
+                  oneOf:
+                    - type: number
+                      minimum: 0
+                      format: positiveInteger
+                    - type: string
+                      nullable: true
+              additionalProperties: false
+              required:
+                - year
+            - type: object
+              maxProperties: 0
+        performanceMeasure:
+          title: Performance Measure
+          description: A measurement of the student's educational performance at the
+            institution (e.g. GPA).
+          type: string
+          x-lineageReferenceObject: SORHSCH_GPA(SORHSCH)
+          x-lineageDerivedLogic: High school - Display SORHSCH_GPA. 'performanceMeasure' is not supported for prior college and transfer institution.
+        recognitions:
+          title: Recognitions
+          description: Academic recognitions received by the person at the institution.
+          type: array
+          items:
+            title: Recognitions
+            description: Academic recognitions received by the person at the institution.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Recognitions.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: academic-honors 
+                x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = institutional-honors) 
+                x-lineageDerivedLogic: Prior college - Display the GUID from GORGUID where GORGUID_LDM_NAME is 'academic-honors' and GORGUID_DOMAIN_KEY matches SORDEGR_HONR_CODE .
+                  'recognitions' is not supported for high school and transfer institution.
+            additionalProperties: false
+            required:
+              - id
+        graduatedOn:
+          title: Graduated On
+          description: The date the student graduated from the institution.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: SORHSCH_GRADUATION_DATE(SORHSCH)
+              x-lineageDerivedLogic: High school - Display SORHSCH_GRADUATION_DATE. 'graduatedOn' is not supported for prior college and transfer institution.
+            - type: string
+              maxLength: 0
+        credentialsDate:
+          title: Credentials Date
+          description: The date when the institution awarded a credential (e.g. degree) to
+            the person.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: SORDEGR_DEGC_DATE(SORDEGR)
+              x-lineageDerivedLogic: Prior college - Display SORDEGR_DEGC_DATE. 'credentialDate' is not supported for high school and transfer institution.
+            - type: string
+              maxLength: 0
+        transcriptReceivedOn:
+          title: Transcript Received On
+          description: The date that the transcript for the student's education was
+            received.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: SHRTRIT_TRANS_DATE_RCVD(SHRTRIT) or SORPCOL_TRANS_RECV_DATE(SORPCOL) or SORHSCH_TRANS_RECV_DATE(SORHSCH)
+              x-lineageDerivedLogic: Transfer institution - For the SHRTRAM_PIDM and SHRTRAM_TRIT_SEQ_NO fetch the matching record from SHRTRIT. Display SHRTRIT_TRANS_DATE_RCVD. 
+                Prior college - For the SORDEGR_PIDM and SORDEGR_SBGI_CODE fetch the matching record from SORPCOL and display SORPCOL_TRANS_RECV_DATE. 
+                High school - Display SORHSCH_TRANS_RECV_DATE.
+            - type: string
+              maxLength: 0
+        thesisTitle:
+          title: Thesis Title
+          description: The title of the thesis (dissertation).
+          type: string
+          x-lineageReferenceObject: unsupported
+        creditsEarned:
+          title: Credits Earned
+          description: The number of credits earned during the person's course of study at
+            the institution.
+          x-lineageReferenceObject: unsupported
+          oneOf:
+            - type: number
+              minimum: 0
+              format: positiveNumber
+            - type: string
+              nullable: true
+        classSize:
+          title: Class Size
+          description: The size of the class associate with the person's course of study.
+          x-lineageReferenceObject: SORHSCH_CLASS_SIZE(SORHSCH)
+          x-lineageDerivedLogic: High school - Display SORHSCH_CLASS_SIZE. 'classSize' is not supported for prior college and transfer institution.
+          oneOf:
+            - type: number
+              minimum: 0
+              format: positiveNumber
+            - type: string
+              nullable: true
+        classPercentile:
+          title: Class Percentile
+          description: The person's class percentile.
+          x-lineageReferenceObject: SORHSCH_PERCENTILE(SORHSCH)
+          x-lineageDerivedLogic: High school - Display SORHSCH_PERCENTILE. 'classPercentile' is not supported for prior college and transfer institution.
+          oneOf:
+            - type: number
+              minimum: 0
+              format: positiveNumber
+            - type: string
+              nullable: true
+        classRank:
+          title: Class Rank
+          description: The person's class rank.
+          x-lineageReferenceObject: SORHSCH_CLASS_RANK(SORHSCH)
+          x-lineageDerivedLogic: High school - Display SORHSCH_CLASS_RANK. 'classRank' is not supported for prior college and transfer institution.
+          oneOf:
+            - type: number
+              minimum: 0
+              format: positiveInteger
+            - type: string
+              nullable: true
+      required:
+        - id
+        - person
+        - institution
+      additionalProperties: false

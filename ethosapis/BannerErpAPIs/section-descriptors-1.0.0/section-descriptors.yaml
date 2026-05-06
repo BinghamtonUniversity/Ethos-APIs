@@ -1,0 +1,409 @@
+openapi: 3.0.0
+info:
+  title: Section Descriptors
+  description: >
+    The Section Descriptors API returns details pertaining to a section's title, URL, student learning objectives, 
+    required materials, technical requirements and the section's description and text as seen on the SSASYLB and SSATEXT administrative pages. 
+
+    
+    Section descriptor details can be created or maintained using section-descriptors-adjustments-process.
+  version: 1.0.0-beta
+  x-api-type: erp
+  x-release-status: beta
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Student
+  x-source-name: SSASYLB SSATEXT
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /qapi/section-descriptors:
+    post:
+      tags:
+        - section-descriptors QAPI
+      summary: Returns resources from SSRSYLN, SSRSYLO, SSRSYRM, SSRSYTR, SSBDESC, and SSRTEXT.
+      description: Queries for the requested resource using a set of attributes provided in the post
+        request body.  Please note the path to the server is overridden to use /qapi/{resource} 
+        in the URL and not /api/{resource}.
+        
+        
+        Returns the SSRSYLN, SSRSYLO, SSRSYRM, SSRSYTR, SSBDESC, and SSRTEXT records meeting the required submitted 
+        criteria of term and crn. Any SSRSYLN, SSRSYLO, SSRSYRM, SSRSYTR, SSBDESC, and SSRTEXT records associated 
+        with the term and crn are also returned in the response.  
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description:  |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer            
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.1.0.0+json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/section-descriptors-1.0.0_qapi_post_request'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1-WholeVersion+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/section-descriptors-1.0.0_qapi_post_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permissions: API_SECTION_DESCRIPTORS
+components:
+  schemas:
+    section-descriptors-1.0.0_qapi_post_request:
+      type: object
+      required:
+        - term
+      properties:
+        term:
+          title: Term
+          maxLength: 6
+          type: string
+          description: A user provided value. The term code is used 
+            to retrieve the section descriptor details that are equal to the provided value.
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202201 
+        crn:
+          title: Course Reference Number
+          maxLength: 5
+          type: string
+          description: The Course Reference Number (CRN) assigned to this course section.
+          x-lineageReferenceObject: SSBSECT_CRN
+          example: 101  
+    section-descriptors-1.0.0_qapi_post_response: 
+          type: object
+          required:
+            - term
+            - crn
+          properties:
+            term:
+              title: Term
+              maxLength: 6
+              type: string
+              description: The term code for the set of section descriptor details.
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202201        
+            crn:
+              title: Course Reference Number
+              maxLength: 5
+              type: string
+              description: The Course Reference Number (CRN) of the section associated with the descriptor details.
+              x-lineageReferenceObject: SSBSECT_CRN             
+              example: 101     
+            longTitleAndUrl:
+              title: Long Section Title and URL
+              type: object
+              properties:       
+                modifiedOn:
+                  title: Modified On
+                  maxLength: 11
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                  example: 2024-05-05T04:00:00Z
+                  description: Most current date the record was created or changed.
+                  x-lineageReferenceObject: SSRSYLN_ACTIVITY_DATE
+                modifiedBy:
+                  title: Modified By
+                  maxLength: 30
+                  type: string
+                  example: SAISUSR
+                  description: User who inserted or last updated the data.
+                  x-lineageReferenceObject: SSRSYLN_USER_ID
+                longSectionTitle:
+                  title: Long Section Title
+                  maxLength: 100
+                  type: string
+                  example: Negotiations and Mediation Seminar
+                  description: The long title of the section.
+                  x-lineageReferenceObject: SSRSYLN_LONG_COURSE_TITLE
+                sectionUrl:
+                  title: Section URL
+                  maxLength: 100
+                  type: string
+                  example: www.ellucian.com
+                  description: The URL provided will be displayed for Banner Self-Service users as an active hypertext link.
+                  x-lineageReferenceObject: SSRSYLN_SECTION_URL
+            learningObjective:
+              title: Learning Objective
+              type: object
+              properties:
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    example: 2024-05-05T04:00:00Z
+                    description: Most current date the record was created or changed.
+                    x-lineageReferenceObject: SSRSYLO_ACTIVITY_DATE
+                  modifiedBy:
+                    title: Modified By
+                    maxLength: 30
+                    type: string
+                    example: SAISUSR
+                    description: User who inserted or last updated the data.
+                    x-lineageReferenceObject: SSRSYLO_USER_ID
+                  objective:
+                    title: Objective
+                    maxLength: 32760
+                    type: string
+                    example: Students should develop an understanding and appreciation of human biological, linguistic, and cultural diversity, especially those features that separates humans from other species.
+                    description: This is a CLOB field which can contain a large amount of text used for the learning objectives of the section.
+                    x-lineageReferenceObject: SSRSYLO_LEARNING_OBJECTIVES
+            requiredMaterial:
+              title: Required Material
+              type: object
+              properties:
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    example: 2024-05-05T04:00:00Z
+                    description: Most current date the record was created or changed.
+                    x-lineageReferenceObject: SSRSYRM_ACTIVITY_DATE
+                  modifiedBy:
+                    title: Modified By
+                    maxLength: 30
+                    type: string
+                    example: SAISUSR
+                    description: User who inserted or last updated the data.
+                    x-lineageReferenceObject: SSRSYRM_USER_ID
+                  requiredSectionMaterial:
+                    title: Required Section Material
+                    maxLength: 32760
+                    type: string
+                    example: Required textbook and instituion issued laptop. 
+                    description: The required materials of the section.
+                    x-lineageReferenceObject: SSRSYRM_REQUIRED_MATERIALS
+            technicalRequirement:
+              title: Technical Requirement
+              type: object
+              properties:
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    example: 2024-05-05T04:00:00Z
+                    description: Most current date the record was created or changed.
+                    x-lineageReferenceObject: SSRSYTR_ACTIVITY_DATE
+                  modifiedBy:
+                    title: Modified By
+                    maxLength: 30
+                    type: string
+                    example: SAISUSR
+                    description: User who inserted or last updated the data.
+                    x-lineageReferenceObject: SSRSYTR_USER_ID
+                  sectionTechnicalRequirement:
+                    title: Section Technical Requirement
+                    maxLength: 32760
+                    type: string
+                    example: Students must be able to join online discussion sessions.
+                    description: The technical requirements of the section.
+                    x-lineageReferenceObject: SSRSYTR_TECHNICAL_REQUIREMENT
+            sectionDescription:
+              type: object
+              title: Section Description
+              properties:
+                description:
+                  title: Description
+                  maxLength: 32760
+                  type: string
+                  description: A free form field for the section description.
+                  x-lineageReferenceObject: SSBDESC_TEXT_NARRATIVE
+                modifiedOn:
+                  title: Modified On
+                  maxLength: 11
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                  example: 2024-05-05T04:00:00Z
+                  description: Most current date the record was created or changed.
+                  x-lineageReferenceObject: SSBDESC_ACTIVITY_DATE
+                modifiedBy:
+                  title: Modified By
+                  maxLength: 30
+                  type: string
+                  description: User who inserted or last updated the data.
+                  x-lineageReferenceObject: SSBDESC_USER_ID
+                  example: SAISUSR
+            textLines:
+              type: array
+              title: Section Text Lines
+              items:
+                type: object
+                properties:
+                  text:
+                    title: Section Text Line
+                    maxLength: 60
+                    type: string
+                    example: Initial introductory section in the study of anthropology.
+                    description: A free form field for section text. 
+                    x-lineageReferenceObject: SSRTEXT_TEXT
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    example: 2024-05-05T04:00:00Z
+                    description: Most current date the record was created or changed.
+                    x-lineageReferenceObject: SSRTEXT_ACTIVITY_DATE
+                  modifiedBy:
+                    title: Modified By
+                    maxLength: 30
+                    type: string
+                    example: SAISUSR
+                    description: User who inserted or last updated the data.
+                    x-lineageReferenceObject: SSRTEXT_USER_ID
+                  sequenceNumber:                  
+                    title: Text Line Sequence Number
+                    maxLength: 23          
+                    type: number
+                    example: 1
+                    description: The sequence number of the text line.
+                    x-lineageReferenceObject: SSRTEXT_SEQNO
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

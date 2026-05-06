@@ -1,0 +1,147 @@
+openapi: 3.0.0
+info:
+  title: advisee-searches
+  description: >
+    This API allows you to search for advisees or students for a specified term.
+    The search option uses two modes: search by ID or search By Name.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Student
+  x-source-title: Advisee Searches
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: advisee-searches
+paths:
+  /api/advisors/{id}/advisee-searches:
+    get:
+      description: >
+        Whether to search within advisees of given advisor or within all
+        students of given term will be determined by two configuration settings,
+        SIBINST_OVERRIDE_PROCESS_IND and GTVOTYP (ADVISEE_SEARCH_ADVR_REQ).
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_ADVISEE_SEARCHES
+      tags:
+        - advisee-searches
+      parameters:
+        - name: term
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "202014"
+        - name: id
+          in: path
+          required: true
+          example: 710000028
+          schema:
+            type: string
+            minimum: 1
+        - name: criteria
+          in: query
+          schema:
+            type: string
+          description: >
+            Atleast one filter criterion on any one of allowed search fields
+            firstName, lastName, middleInitial, surnamePrefix. The allowed
+            operators for all the four search fields are ‘equals’,
+            ‘equalsignorecase’, ‘contains’, ‘startswith’.
+          required: true
+        - name: onlyActive
+          in: query
+          schema:
+            type: string
+          description: >
+            By default it is Y and fetches only active students. Set it as N if
+            both active and inactive students to be fetched.
+          required: false
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+             ```
+            application/vnd.hedtech.integration.v1.0.0+json
+             ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/advisee-searches"
+            application/xml:
+              schema:
+                type: object
+                $ref: "#/components/schemas/advisee-searches"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    advisee-searches:
+      type: array
+      items:
+        type: object
+        properties:
+          bannerId:
+            type: string
+          confidential:
+            type: string
+          firstName:
+            type: string
+          lastName:
+            type: string
+          surnamePrefix:
+            type: string
+          middleInitial:
+            type: string
+          effectiveTermCode:
+            type: string
+          effectiveTermDescription:
+            type: string
+          email:
+            type: string
+          deceased:
+            type: string

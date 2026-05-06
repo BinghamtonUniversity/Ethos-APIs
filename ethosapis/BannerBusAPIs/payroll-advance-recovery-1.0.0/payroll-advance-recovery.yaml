@@ -1,0 +1,340 @@
+openapi: 3.0.0
+info:
+  title: payroll-advance-recovery
+  description: API for PEAPADV administrative page
+  version: 1.0.0
+  x-audience: all
+  x-release-status: beta
+  x-source-name: PEAPADV
+  x-source-domain: Human Resources
+  x-source-title: Payroll Advanced Recovery
+  x-source-system: banner
+  x-api-type: bus-poc
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/payroll-advance-recovery:
+    get:
+      tags:
+        - payroll-advance-recovery
+      summary: Return resources from PEAPADV
+      parameters:
+        - name: X-SDE-Expand
+          in: header
+          description: The comma seperated value list of block names
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: The maximum number of resources requesting for this result set.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          description: The filter criteria as a single URL query parameter. Use this
+            parameter or the individual parameters listed. Must be a JSON
+            representation of the property searching for. This can be any of the
+            properties listed on the URL or QAPI and must be a json
+            representation that can be validated against the GET schema. Limit
+            and Offset are the only supported additional parameters on the URL.
+          required: false
+          schema:
+            type: string
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: posn
+          in: query
+          description: Position
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: PERPADV_POSN
+        - name: suff
+          in: query
+          description: Suffix
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: PERPADV_SUFF
+        - name: advanceActiveInd
+          in: query
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: PERPADV_ADVANCE_ACTIVE_IND
+        - name: advanceAmt
+          in: query
+          description: Per Pay Recovery Amount
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: PERPADV_ADVANCE_AMT
+        - name: advanceBalance
+          in: query
+          description: Advance Balance
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: PERPADV_ADVANCE_BALANCE
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/payroll-advance-recovery-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+  /qapi/payroll-advance-recovery:
+    post:
+      tags:
+        - payroll-advance-recovery QAPI (Query by POST)
+      summary: Return resources from PEAPADV
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/payroll-advance-recovery-1.0.0_get_request"
+            example:
+              executeBtn: Z001
+              suff: 0
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/payroll-advance-recovery-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+components:
+  schemas:
+    payroll-advance-recovery-1.0.0_get_response:
+      required:
+        - posn
+        - suff
+      type: object
+      properties:
+        activityDate:
+          maxLength: 26
+          type: string
+          description: "Lineage reference object : PERPADV_ACTIVITY_DATE"
+          format: date-time
+          x-lineageReferenceObject: PERPADV_ACTIVITY_DATE
+        suff:
+          title: Suffix
+          maxLength: 2
+          type: string
+          description: "Lineage reference object : PERPADV_SUFF"
+          x-lineageReferenceObject: PERPADV_SUFF
+        advanceBalance:
+          title: Advance Balance
+          maxLength: 15
+          type: number
+          description: "Lineage reference object : PERPADV_ADVANCE_BALANCE"
+          x-lineageReferenceObject: PERPADV_ADVANCE_BALANCE
+        advanceActiveInd:
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : PERPADV_ADVANCE_ACTIVE_IND"
+          x-lineageReferenceObject: PERPADV_ADVANCE_ACTIVE_IND
+        advanceAmt:
+          title: Per Pay Recovery Amount
+          maxLength: 15
+          type: number
+          description: "Lineage reference object : PERPADV_ADVANCE_AMT"
+          x-lineageReferenceObject: PERPADV_ADVANCE_AMT
+        userId:
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : PERPADV_USER_ID"
+          x-lineageReferenceObject: PERPADV_USER_ID
+        posn:
+          title: Position
+          maxLength: 6
+          type: string
+          description: "Lineage reference object : PERPADV_POSN"
+          x-lineageReferenceObject: PERPADV_POSN
+      x-lineageReferenceObject: perpadv
+    errors-2.0.0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+              description:
+                type: string
+    payroll-advance-recovery-1.0.0_get_request:
+      required:
+        - posn
+        - suff
+      type: object
+      properties:
+        suff:
+          title: Suffix
+          maxLength: 2
+          type: string
+          description: "Lineage reference object : PERPADV_SUFF"
+          x-lineageReferenceObject: PERPADV_SUFF
+        advanceBalance:
+          title: Advance Balance
+          maxLength: 15
+          type: number
+          description: "Lineage reference object : PERPADV_ADVANCE_BALANCE"
+          x-lineageReferenceObject: PERPADV_ADVANCE_BALANCE
+        id:
+          title: ID
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : id"
+          x-lineageReferenceObject: id
+        advanceActiveInd:
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : PERPADV_ADVANCE_ACTIVE_IND"
+          x-lineageReferenceObject: PERPADV_ADVANCE_ACTIVE_IND
+        advanceAmt:
+          title: Per Pay Recovery Amount
+          maxLength: 15
+          type: number
+          description: "Lineage reference object : PERPADV_ADVANCE_AMT"
+          x-lineageReferenceObject: PERPADV_ADVANCE_AMT
+        posn:
+          title: Position
+          maxLength: 6
+          type: string
+          description: "Lineage reference object : PERPADV_POSN"
+          x-lineageReferenceObject: PERPADV_POSN
+      x-lineageReferenceObject: PERPADV
+    payroll-advance-recovery-1.0.0_qapi_post:
+      required:
+        - id
+      type: object
+      properties:
+        id:
+          type: string
+        posn:
+          title: Position
+          maxLength: 6
+          type: string
+          description: "Lineage reference object : PERPADV_POSN"
+          x-lineageReferenceObject: PERPADV_POSN
+        suff:
+          title: Suffix
+          maxLength: 2
+          type: string
+          description: "Lineage reference object : PERPADV_SUFF"
+          x-lineageReferenceObject: PERPADV_SUFF
+        advanceActiveInd:
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : PERPADV_ADVANCE_ACTIVE_IND"
+          x-lineageReferenceObject: PERPADV_ADVANCE_ACTIVE_IND
+        advanceAmt:
+          title: Per Pay Recovery Amount
+          maxLength: 15
+          type: number
+          description: "Lineage reference object : PERPADV_ADVANCE_AMT"
+          x-lineageReferenceObject: PERPADV_ADVANCE_AMT
+        advanceBalance:
+          title: Advance Balance
+          maxLength: 15
+          type: number
+          description: "Lineage reference object : PERPADV_ADVANCE_BALANCE"
+          x-lineageReferenceObject: PERPADV_ADVANCE_BALANCE
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EllucianOAuthUserToken:
+      type: http
+      scheme: bearer
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

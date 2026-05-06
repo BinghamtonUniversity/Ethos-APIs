@@ -1,0 +1,516 @@
+openapi: 3.0.0
+info:
+  title: Grade Details
+  description: The purpose of this API is to get the grade codes for grading the
+    student based on the Student's registration details.
+  version: 1.1.0
+  x-source-system: banner
+  x-api-type: erp
+  x-audience: all
+  x-release-status: ga
+  x-source-domain: Student
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/grade-details:
+    get:
+      tags:
+        - grade-details
+      summary: The response from the API will be used to load the Faculty grade entry
+        page where the Faculty can grade the students using their anonymous IDs.
+      description: The GET API is used to request for all the grades for the students,
+        for the faculty to select the grade.
+      parameters:
+        - name: crn
+          in: query
+          description: The CRN(s) taught by the faculty.
+          required: true
+          schema:
+            type: string
+        - name: term
+          in: query
+          description: Code value that identifies the student term.
+          required: true
+          schema:
+            type: string
+        - name: gradeType
+          in: query
+          description: The type of grades which is Final Grade or Midterm Grade.
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Filtering the response to have maximum records.
+          required: false
+          schema:
+            type: string
+        - name: order
+          in: query
+          description: Sorting the response based on ascending or descending.
+          required: false
+          schema:
+            type: string
+        - name: offset
+          in: query
+          description: Retrieve the records by specifying the starting position.
+          required: false
+          schema:
+            type: number
+        - name: sort
+          in: query
+          description: Sorting the records based on studentId.
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1.1.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/grade-details-1.1.0_get_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client's
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - BasicAuth: []
+          EthosIntegrationBearer: []
+      x-method-permissions: API_GRADE_DETAILS
+components:
+  schemas:
+    grade-details-1.1.0_get_response:
+      type: object
+      properties:
+        gradeAdjustment:
+          title: Grade Adjustment
+          maxLength: 1
+          type: string
+          description: The status of Grade Adjustment.
+          x-lineagereferenceobject: SHBANGD_ADJUST_GRADING_IND
+        studentId:
+          title: Student ID
+          maxLength: 9
+          type: string
+          description: An ID assigned in Banner that uniquely identifies a student.
+          x-lineagereferenceobject: STUDENT_ID
+        crn:
+          title: CRN (Course Reference Number)
+          maxLength: 6
+          type: string
+          description: The CRN(s) taught by the faculty.
+          x-lineagereferenceobject: SFRSTCR_CRN
+        term:
+          title: Term
+          maxLength: 6
+          type: string
+          description: Code value that identifies the student term.
+          x-lineagereferenceobject: SFRSTCR_TERM_CODE
+        gradingModeCode:
+          title: Grade mode
+          maxLength: 1
+          type: string
+          description: Grade mode for the registered section.
+          x-lineagereferenceobject: COURSEREFERENCENUMBER
+        gradeType:
+          title: Final Grade or Midterm Grade
+          maxLength: 1
+          type: string
+          description: The Final Grade or Midterm Grade.
+        termFinalGradeEnabled:
+          title: Term Final Grade Enabled Indicator
+          maxLength: 1
+          type: string
+          description: Indicator to check if the part of term is Final grade enabled.
+        termMidGradeEnabled:
+          title: Term Midterm Grade Enabled Indicator
+          maxLength: 1
+          type: string
+          description: Indicator to check if the part of term is Midterm grade enabled.
+        finalGradeCode:
+          title: Assigned Final grade assigned to the student
+          maxLength: 6
+          type: string
+          description: Final grade assigned to the student.
+          x-lineagereferenceobject: SUBJECTCODE
+        midtermGradeCode:
+          title: Assigned Midterm grade assigned to the student
+          maxLength: 6
+          type: string
+          description: Midterm grade assigned to the student.
+          x-lineagereferenceobject: SUBJECTDESC
+        incompleteFinalGrade:
+          title: Assigned Incomplete final grade
+          maxLength: 6
+          type: string
+          description: Incomplete final grade if the Final grade assigned is Incomplete.
+          x-lineagereferenceobject: SFRSTCR_GRDE_CODE_INCMP_FINAL
+        incompleteExtensionDate:
+          title: Assigned Incomplete extension date
+          type: string
+          format: date
+          description: Incomplete extension date if the Final grade assigned is incomplete.
+          x-lineagereferenceobject: SFRSTCR_INCOMPLETE_EXT_DATE
+        lastAttendedDate:
+          title: Assigned Last Attended date
+          type: string
+          format: date
+          description: Date student last attended this class.
+          x-lineagereferenceobject: SFRSTCR_LAST_ATTEND
+        hoursAttended:
+          title: Assigned Hours attended
+          maxLength: 9
+          type: number
+          description: This contains the number of hours the student attended this class.
+          x-lineagereferenceobject: SFRSTCR_ATTEND_HR
+        narrativeGradeComments:
+          title: Assigned Narrative grade comments
+          maxLength: 4000
+          type: string
+          description: The number of students graded with Midterm grades for a term.
+          x-lineagereferenceobject: SFRGRIC_FINAL_GRADE_COMMENT
+        gradeDate:
+          title: Assigned Grade date
+          type: string
+          format: date
+          description: Assigned grade date to see if the grade is rolled or not.
+        incompleteDateOverType:
+          title: Incomplete Date Override Type
+          maxLength: 1
+          type: string
+          description: Type to indicate whether instructors can override the extension date for incompletes. Values are S-allow only to shorten, L-allow only to lengthen, A-allow any date or N-not allowed.
+          x-lineagereferenceobject: SHRINCG_INCMP_DATE_OVER_TYPE
+        incompleteGradeOverIndicator:
+          title: Incomplete Grade Override Indicator
+          maxLength: 1
+          type: string
+          description: Indicator for whether faculty can override the default incomplete final grades. Valid Values are Y or N.
+          x-lineagereferenceobject: SHRINCG_INCMP_GRDE_OVER_IND
+        grades:
+          title: Identifier for the list of grades
+          type: object
+          properties:
+            grade:
+              title: Grade
+              maxLength: 6
+              type: string
+              description: The Grade codes for grading the student based on the CRN and Term.
+              x-lineagereferenceobject: SHRGRDE_CODE
+            lastDateAttendanceIndicator:
+              title: Last attended date Indicator
+              type: boolean
+              description: The indicator that decides if the last attended date is mandatory
+                or not.
+              x-lineagereferenceobject: SHRGRDE_LAST_DATE_ATTEND_IND
+            narrativeGradeCommentIndicator:
+              title: Narrative grade comment indicator
+              maxLength: 1
+              type: string
+              description: The indicator that decides if narrative grade comments is
+                mandatory.
+              x-lineagereferenceobject: SHRGRDC_GRADE_CMNT_IND
+            incompleteIndicator:
+              title: INCOMPLETE GRADE INDICATOR
+              type: boolean
+              description: The indicator that decides if the grade is incomplete grade.
+              x-lineagereferenceobject: SHRGRDE_IMPCMP_IND
+            gradeIncompleteFinal:
+              title: Incomplete Final grade
+              maxLength: 6
+              type: string
+              description: The final grade for Incomplete grade.
+              x-lineagereferenceobject: SHRGRDE_GRDE_CODE_INCMP_FINAL
+            extDateIncompleteFinal:
+              title: Incomplete extension date
+              type: string
+              format: date
+              description: The extension date for incomplete grade.
+              x-lineagereferenceobject: SOBPTRM_END_DATE
+    grade-details-1.1.0_query_request:
+      type: object
+      properties:
+        gradeAdjustment:
+          title: Grade Adjustment
+          maxLength: 1
+          type: string
+          description: The status of Grade Adjustment.
+          x-lineagereferenceobject: SHBANGD_ADJUST_GRADING_IND
+        studentId:
+          title: Student ID
+          maxLength: 9
+          type: string
+          description: An ID assigned in Banner that uniquely identifies a student.
+          x-lineagereferenceobject: STUDENT_ID
+        crn:
+          title: CRN (Course Reference Number)
+          maxLength: 6
+          type: string
+          description: The CRN(s) taught by the faculty.
+          x-lineagereferenceobject: SFRSTCR_CRN
+        term:
+          title: Term
+          maxLength: 6
+          type: string
+          description: Code value that identifies the student term.
+          x-lineagereferenceobject: SFRSTCR_TERM_CODE
+        gradingModeCode:
+          title: Grade mode
+          maxLength: 1
+          type: string
+          description: Grade mode for the registered section.
+          x-lineagereferenceobject: COURSEREFERENCENUMBER
+        gradeType:
+          title: Final Grade or Midterm Grade
+          maxLength: 1
+          type: string
+          description: The Final Grade or Midterm Grade.
+        termFinalGradeEnabled:
+          title: Term Final Grade Enabled Indicator
+          maxLength: 1
+          type: string
+          description: Indicator to check if the part of term is Final grade enabled.
+        termMidGradeEnabled:
+          title: Term Midterm Grade Enabled Indicator
+          maxLength: 1
+          type: string
+          description: Indicator to check if the part of term is Midterm grade enabled.
+        finalGradeCode:
+          title: Assigned Final grade assigned to the student
+          maxLength: 6
+          type: string
+          description: Final grade assigned to the student.
+          x-lineagereferenceobject: SUBJECTCODE
+        midtermGradeCode:
+          title: Assigned Midterm grade assigned to the student
+          maxLength: 6
+          type: string
+          description: Midterm grade assigned to the student.
+          x-lineagereferenceobject: SUBJECTDESC
+        incompleteFinalGrade:
+          title: Assigned Incomplete final grade
+          maxLength: 6
+          type: string
+          description: Incomplete final grade if the Final grade assigned is Incomplete.
+          x-lineagereferenceobject: SFRSTCR_GRDE_CODE_INCMP_FINAL
+        incompleteExtensionDate:
+          title: Assigned Incomplete extension date
+          type: string
+          format: date
+          description: Incomplete extension date if the Final grade assigned is incomplete.
+          x-lineagereferenceobject: SFRSTCR_INCOMPLETE_EXT_DATE
+        lastAttendedDate:
+          title: Assigned Last Attended date
+          type: string
+          format: date
+          description: Date student last attended this class.
+          x-lineagereferenceobject: SFRSTCR_LAST_ATTEND
+        hoursAttended:
+          title: Assigned Hours attended
+          maxLength: 9
+          type: number
+          description: This contains the number of hours the student attended this class.
+          x-lineagereferenceobject: SFRSTCR_ATTEND_HR
+        narrativeGradeComments:
+          title: Assigned Narrative grade comments
+          maxLength: 4000
+          type: string
+          description: The number of students graded with Midterm grades for a term.
+          x-lineagereferenceobject: SFRGRIC_FINAL_GRADE_COMMENT
+        gradeDate:
+          title: Assigned Grade date
+          type: string
+          format: date
+          description: Assigned grade date to see if the grade is rolled or not.
+          x-lineagereferenceobject: SFRSTCR_GRDE_DATE
+        incompleteDateOverType:
+          title: Incomplete Date Override Type
+          maxLength: 1
+          type: string
+          description: Type to indicate whether instructors can override the extension date for incompletes. Values are S-allow only to shorten, L-allow only to lengthen, A-allow any date or N-not allowed.
+          x-lineagereferenceobject: SHRINCG_INCMP_DATE_OVER_TYPE
+        incompleteGradeOverIndicator:
+          title: Incomplete Grade Override Indicator
+          maxLength: 1
+          type: string
+          description: Indicator for whether faculty can override the default incomplete final grades. Valid Values are Y or N.
+          x-lineagereferenceobject: SHRINCG_INCMP_GRDE_OVER_IND
+        grades:
+          title: Identifier for the list of grades
+          type: object
+          properties:
+            grade:
+              title: Grade
+              maxLength: 6
+              type: string
+              description: The Grade codes for grading the student based on the CRN and Term.
+              x-lineagereferenceobject: SHRGRDE_CODE
+            lastDateAttendanceIndicator:
+              title: Last attended date Indicator
+              type: boolean
+              description: The indicator that decides if the last attended date is mandatory
+                or not.
+              x-lineagereferenceobject: SHRGRDE_LAST_DATE_ATTEND_IND
+            narrativeGradeCommentIndicator:
+              title: Narrative grade comment indicator
+              maxLength: 1
+              type: string
+              description: The indicator that decides if narrative grade comments is
+                mandatory.
+              x-lineagereferenceobject: SHRGRDC_GRADE_CMNT_IND
+            incompleteIndicator:
+              title: INCOMPLETE GRADE INDICATOR
+              type: boolean
+              description: The indicator that decides if the grade is incomplete grade.
+              x-lineagereferenceobject: SHRGRDE_IMPCMP_IND
+            gradeIncompleteFinal:
+              title: Incomplete Final grade
+              maxLength: 6
+              type: string
+              description: The final grade for Incomplete grade.
+              x-lineagereferenceobject: SHRGRDE_GRDE_CODE_INCMP_FINAL
+            extDateIncompleteFinal:
+              title: Incomplete extension date
+              type: string
+              format: date
+              description: The extension date for incomplete grade.
+              x-lineagereferenceobject: SOBPTRM_END_DATE
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              crn:
+                type: string
+                description: The global identifier of the resource in error.
+              term:
+                type: string
+                description: The global identifier of the resource in error.
+              gradeType:
+                type: string
+                description: The global identifier of the resource in error.
+              limit:
+                type: number
+                description: The global identifier of the resource in error.
+              order:
+                type: string
+                description: The global identifier of the resource in error.
+              offset:
+                type: number
+                description: The global identifier of the resource in error.
+              sort:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary
+                  data entity used to create the resource. This is useful for
+                  referencing the source item through the applications
+                  administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

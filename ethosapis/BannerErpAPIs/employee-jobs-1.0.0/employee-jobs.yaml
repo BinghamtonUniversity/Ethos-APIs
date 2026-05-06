@@ -1,0 +1,1234 @@
+openapi: 3.0.0
+info:
+  title: Employee Jobs
+  description: >
+    This API can be used to retrieve, post, or delete an employee's job data.
+    This information is displayed in the Banner administrative page NBAJOBS.
+    Additionally, the API supports the option to create or update employee jobs data in batches.
+  version: 1.0.0-beta
+  x-audience: all
+  x-release-status: beta
+  x-source-domain: Human Resources
+  x-source-system: banner
+  x-source-name: NBRBJOB
+  x-api-type: erp
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/employee-jobs:
+    get:
+      tags:
+        - employee-jobs
+      summary: Get employee jobs
+      description: Query and retrieve employee job data for a given criteria. Data is extracted from NBRBJOB.
+      parameters:
+        - name: limit
+          in: query
+          description:
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/employee-jobs-1.0.0_get_request_criteria'
+          description: >
+            ### Person ID
+            
+            Returns the employee job information for this Person ID.  This filter should not be used if a Banner ID filter is used.
+            
+            ```
+
+            /employee-jobs?criteria={"personId": "085df706-ee15-4947-93f8-8c260e64795e"}
+
+            ```
+
+            ### Banner ID
+            
+            Returns the employee job information for this Banner ID.   This filter should not be used if a Person ID filter is used.
+            
+            ```
+
+            /employee-jobs?criteria={bannerId":"123456789"}
+            
+            ```
+
+            ### Position
+
+            Returns the employee job information for this Position.
+
+            ```
+
+            /employee-jobs?criteria={"position":"A000001"}
+
+            ```
+            
+            ### Suffix
+
+            Returns the employee job information for this position suffix.
+
+            ```
+
+            /employee-jobs?criteria={"suffix":"00"}
+
+            ```
+            
+            ### Contract Type
+
+            Returns the employee job information for this contract type.
+            
+            ```
+
+            /employee-jobs?criteria={"contractType":"primary"}
+            
+            ```            
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/employee-jobs-1.0.0_get_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+    post:
+      tags:
+        - employee-jobs
+      summary: Creates a new resource in NBRBJOB.
+      description: >
+        Creates a new job for an employee including data for NBRBJOB (base), NBRJOBS (detail), NBREARN (default earnings), NBRWKSH (default work schedules), and NBRJLBD (labor distributions) resources.
+      
+      
+        Note: Either regularRate or annualSalary must be specified when a salaryStep of zero (0) is specified.
+
+
+        POST requests must include a nil GUID value
+        ("00000000-0000-0000-0000-000000000000") for the root id property.
+        
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.1.0.0+json:
+            schema:
+              $ref: '#/components/schemas/employee-jobs-1.0.0_post_request'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                $ref: '#/components/schemas/employee-jobs-1.0.0_post_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+  /api/employee-jobs/{id}:
+    get:
+      summary: Return the requested resource from NBRBJOB
+      description: |
+        Returns a single employee job record with the requested global identifier.
+      tags:
+        - employee-jobs
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier (GUID) of the resource for use in all external
+            references.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                $ref: "#/components/schemas/employee-jobs-1.0.0_get_response"
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+    put:
+      tags:
+        - employee-jobs
+      summary: Updates an existing NBRBJOB resource.
+      description: Update the employee job resource for an employee.
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: '#/components/schemas/employee-jobs-1.0.0_put_request'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the employee job resource.
+          schema:
+            type: string
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+            
+            ```
+            
+            application/vnd.hedtech.integration.v1.0.0+json
+            
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+            
+            ```
+            
+            application/vnd.hedtech.integration.v1.0.0+json
+            
+            ```
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                $ref: "#/components/schemas/employee-jobs-1.0.0_put_response"
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+    delete:
+      summary: Removes an employee job resource from NBRBJOB.
+      description: >
+        Removes an job from the employee.
+      tags:
+        - employee-jobs
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID for the employee job resource.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: No Content
+        '204':
+          description: No Content
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Resource not found
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+  /api/employee-jobs/batches:
+    post:
+      tags:
+        - employee-jobs
+      summary: "Submit a batch of employee jobs to be created or updated."
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/employee-jobs-batch-2.0.0_post_request"
+      responses:
+        "201":
+          "description": "Created or Updated"
+          "headers":
+            "X-Media-Type":
+              "description": "The full semantic version with the media type of the response."
+              "required": true
+              "schema":
+                "type": "string"
+            "X-Content-Restricted":
+              "description": "If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included."
+              "schema":
+                "type": "string"
+          "content":
+            "application/vnd.hedtech.integration.v1.0.0+json":
+              "schema":
+                "$ref": "#/components/schemas/employee-jobs-batch-2.0.0_post_response"
+        "400":
+          "description": "Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+        "401":
+          "description": "Failure. Unauthorized."
+        "403":
+          "description": "Failure. Forbidden. The user does not have the required permissions for the resource."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+        "404":
+          "description": "Failure. Not Found. Cannot map the URI to a resource."
+        "405":
+          "description": "Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+        "406":
+          "description": "Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+        "500":
+          "description": "Server error. Unexpected configuration or data."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    employee-jobs-1.0.0_get_request_criteria:
+      type: object
+      properties:
+        personId:
+          title: Person ID
+          description: The global identifier for the Person.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageLookupReferenceObject: persons 
+          x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+          x-lineageDerivedLogic: A record from GORGUID where GORGUID_LDM_NAME = 'persons' and GORGUID_DOMAIN_KEY matches the PIDM value 
+        bannerId:
+          title: Banner ID
+          description: Banner ID of the employee.
+          type: string
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: "123456789"      
+        position:
+          title: Position
+          description: The position to which the job is attached.
+          type: string
+          x-lineageReferenceObject: NBRBJOB_POSN
+          example: "ADM001"
+        suffix:
+          title: Suffix
+          description: Used to uniquely create multiple jobs in the same position.
+          type: string
+          x-lineageReferenceObject: NBRBJOB_SUFF
+          example: "00"
+    employee-jobs-1.0.0_get_response:
+      properties:
+        id:
+          title: Id
+          type: string
+          description: "The global identifier of the employee job."
+          x-lineageReferenceObject: NBRBJOB_GUID
+          example: 085df706-ee15-4947-93f8-8c260e64795e
+        bannerId:
+          title: Banner ID
+          description: Banner ID of the employee.
+          type: string
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: "123456789"          
+        position:
+          title: Position
+          description: The position to which the job is attached.
+          type: string
+          x-lineageReferenceObject: NBRBJOB_POSN
+          example: "ADM001"
+        suffix:
+          title: Suffix
+          description: Used to uniquely create multiple jobs in the same position.
+          type: string
+          x-lineageReferenceObject: NBRBJOB_SUFF
+          example: "00"
+        startOn:
+          title: Starts On Date
+          type: string
+          format: date
+          description: "Begin date of the job assignment."
+          x-lineageReferenceObject: NBRBJOB_BEGIN_DATE
+          example: "2024-03-15"
+        endOn:
+          title: Ends on date
+          type: string
+          format: date
+          description: "The date the job assignment will terminate."
+          x-lineageReferenceObject: NBRBJOB_END_DATE
+          example: "2025-15-31"
+        coasCode:
+          title: Chart of Accounts
+          description: The  Chart of Accounts code for the employee.
+          type: string
+          example: "B"
+          x-lineageReferenceObject: PEBEMPL_COAS_CODE_HOME
+        contractType:
+          title: Contract Type
+          description: >
+            Indicates the type of job assignment. Valid values are:
+              * `primary` Primary job
+              * `overload` Overload job
+              * `secondary` Secondary job
+          type: string
+          enum:
+            - primary
+            - overload
+            - secondary
+          example: "primary"
+          x-lineageReferenceObject: NBRBJOB_CONTRACT_TYPE
+        contractStartOn:
+          title: Contract Start Date
+          type: string
+          format: date
+          description: "The date on which a contract begins. This date is significant to the encumbering process."
+          x-lineageReferenceObject: NBRBJOB_CONTRACT_BEGIN_DATE
+          example: "2024-03-15"
+        contractEndOn:
+          title: Contract End Date
+          type: string
+          format: date
+          description: "The date on which a contract ends. This date is significant to the encumbering process."
+          x-lineageReferenceObject: NBRBJOB_CONTRACT_END_DATE
+          example: "2025-05-31"
+        salaryEncumbrance: 
+          title: Salary Encumbrance
+          description: The amount of money that this person will be paid in this job during the current fiscal year.
+          type: number
+          x-lineageReferenceObject: NBRBJOB_SALARY_ENCUMBRANCE
+          example: 60000.55  
+        fringeEncumbrance: 
+          title: Fringe Encumbrance
+          description: The cost of fringe benefits that this person will be paid in this job during the current fiscal year.                                
+          type: number
+          x-lineageReferenceObject: NBRBJOB_FRINGE_ENCUMBRANCE
+          example: 5000.34
+        hasEncumbranceAmountChange:
+          title: Encumbrance Change Indicator
+          description: Indicates if the encumbrance amount has changed for this job.
+          type: boolean
+          x-lineageReferenceObject: NBRBJOB_ENCUMBRANCE_CHANGE_IND
+          example: false          
+        totalEncumbranceHours: 
+          title: Total Encumbrance Hours
+          description: The sum of the Job Detail Encumbrance Hours for the currently active fiscal year.
+          type: number
+          x-lineageReferenceObject: NBRBJOB_TOTAL_ENCUMBRANCE_HRS
+          example: 2020.55  
+        totalContractHours: 
+          title: Total Contract Hours
+          description: The total number of hours of the contract.
+          type: number
+          x-lineageReferenceObject: NBRBJOB_TOTAL_CONTRACT_HRS
+          example: 2000.34 
+        stepIncreaseMonth:
+          title: Step Increase Month
+          description:  Month in which an automatic step increase is to take place.
+          type: string
+          example: "01"
+          x-lineageReferenceObject: NBRBJOB_STEP_INCR_MON
+        stepIncreaseDay:
+          title: Step Increase Day
+          description: Day of which an automatic step increase is to take place.
+          type: string
+          example: "30"
+          x-lineageReferenceObject: NBRBJOB_STEP_INCR_DAY
+        eligibleOn:
+          title: Step Increase Eligibility Date
+          description: "Eligibility Date for the Step Increase."
+          type: string
+          format: date
+          x-lineageReferenceObject: NBRBJOB_ELIGIBLE_DATE
+          example: "2024-03-15"
+        deferBalance: 
+          title: Deferred Balance
+          description: The amount of deferred pay accumulated for this job.
+          type: number
+          x-lineageReferenceObject: NBRBJOB_DEFER_BAL
+          example: 2100.99
+        probationStartOn:
+          title: Probation Start Date
+          type: string
+          format: date
+          description: "The begin date of Probationary Period."
+          x-lineageReferenceObject: NBRBJOB_PROBATION_BEGIN_DATE
+          example: "2024-03-15"
+        probationEndOn:
+          title: Probation End Date
+          type: string
+          format: date
+          description: "The end date of Probationary Period. This data is calculated based on the Probationary Period and Probation Begin Date, but may be overridden. Overriding this value will NOT change the Probationary Period or Probation Begin Date."
+          x-lineageReferenceObject: NBRBJOB_PROBATION_END_DATE
+          example: "2025-05-31"
+        probationUnits:
+          title: Probation Units
+          description: Identifies the number of Probationary Units. Will represent months or days depending on the Probationary Period Units institutional setting.
+          type: integer
+          x-lineageReferenceObject: NBRBJOB_PROBATION_UNITS
+          example: 20
+        canAccrueLeave:
+          title: Determines whether Leave is accrued for this job.
+          description: Internal Identification Number of the employee.
+          type: boolean
+          x-lineageReferenceObject: NBRBJOB_ACCRUE_LEAVE_IND
+          example: true
+        isCivilServiceJob:
+          title: Civil Service Indicator
+          description: Indicates if this assignment is a civil service job.
+          type: boolean
+          x-lineageReferenceObject: NBRBJOB_CIVIL_SERVICE_IND
+          example: false
+        isReportableOnIpeds:
+          title: IPEDS Report Indicator
+          description: Indicates if this job should be reported on the IPEDS report.
+          type: boolean
+          x-lineageReferenceObject: NBRBJOB_IPEDS_REPT_IND
+          example: false
+        isReportableOnStatscan:
+          title: Statitics Canada Report Indicator
+          description: This indicator will allow the Canadian user to gather data that is necessary for reporting of the Annual Faculty STATSCAN reports.
+          type: boolean
+          x-lineageReferenceObject: NBRBJOB_FACL_STATSCAN_REPT_IND
+          example: false
+        futureSalaryEncumbrance: 
+          title: Future Salary Encumbrance
+          description: The estimated amount a person will be paid in a job in future fiscal years.
+          type: number
+          x-lineageReferenceObject: NBRBJOB_FUTURE_SALARY_ENC
+          example: 60000.55  
+        futureFringeEncumbrance: 
+          title: Future Fringe Encumbrance
+          description: The estimated cost of fringe benefits a person will be paid in a job in future fiscal years.                                
+          type: number
+          x-lineageReferenceObject: NBRBJOB_FUTURE_FRINGE_ENC
+          example: 5000.34
+        person:
+          $ref: '#/components/schemas/person' 
+        warnings:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+                description: The detailed warning message.          
+    employee-jobs-1.0.0_post_request:
+      type: object
+      properties:
+        id:
+          title: Id
+          type: string
+          description: "The global identifier of the employee job."
+          x-lineageReferenceObject: NBRBJOB_GUID
+          example: "00000000-0000-0000-0000-000000000000"
+        bannerId:
+          title: Banner ID
+          description: Banner ID of the employee.
+          type: string
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: "123456789" 
+        position:
+          title: Position
+          description: The position to which the job is attached.
+          type: string
+          x-lineageReferenceObject: NBRBJOB_POSN
+          example: "ADM001"
+        suffix:
+          title: Suffix
+          description: Used to uniquely create multiple jobs in the same position.
+          type: string
+          x-lineageReferenceObject: NBRBJOB_SUFF
+          example: "00"
+        startOn:
+          title: Starts On Date
+          type: string
+          format: date
+          description: "Begin date of the job assignment."
+          x-lineageReferenceObject: NBRBJOB_BEGIN_DATE
+          example: "2024-03-15"
+        contractType:
+          title: Contract Type
+          description: >
+            Indicates the type of job assignment. Valid values are:
+              * `primary` Primary job
+              * `overload` Overload job
+              * `secondary` Secondary job
+          type: string
+          enum:
+            - primary
+            - overload
+            - secondary
+          example: "primary"
+          x-lineageReferenceObject: NBRBJOB_CONTRACT_TYPE
+        salaryStep:
+          title: Salary Step
+          description: The Salary Step attached to the job.
+          type: integer
+          x-lineageReferenceObject: NBRJOBS_SAL_STEP
+          example: 1
+        regularRate:
+          title: Regular Rate
+          description: The regular rate attached to the job.  This is required if the Salary Step is zero.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_REG_RATE
+          example: 1250.50
+        annualSalary:
+          title: Annual Salary
+          description: The annual salary attached to the job based on the calendar year.  This is required if the Salary Step is zero.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_ANN_SALARY
+          example: 1250.50
+        contractStartOn:
+          title: Contract Start Date
+          type: string
+          format: date
+          description: "The date on which a contract begins. This date is significant to the encumbering process."
+          x-lineageReferenceObject: NBRBJOB_CONTRACT_BEGIN_DATE
+          example: "2024-03-15"
+        contractEndOn:
+          title: Contract End Date
+          type: string
+          format: date
+          description: "The date on which a contract ends. This date is significant to the encumbering process."
+          x-lineageReferenceObject: NBRBJOB_CONTRACT_END_DATE
+          example: "2025-05-31"
+        salaryEncumbrance: 
+          title: Salary Encumbrance
+          description: The amount of money that this person will be paid in this job during the current fiscal year.
+          type: number
+          x-lineageReferenceObject: NBRBJOB_SALARY_ENCUMBRANCE
+          example: 60000.55  
+        totalEncumbranceHours: 
+          title: Total Encumbrance Hours
+          description: The sum of the Job Detail Encumbrance Hours for the currently active fiscal year.
+          type: number
+          x-lineageReferenceObject: NBRBJOB_TOTAL_ENCUMBRANCE_HRS
+          example: 2020.55  
+        totalContractHours: 
+          title: Total Contract Hours
+          description: The total number of hours of the contract.               
+          type: number
+          x-lineageReferenceObject: NBRBJOB_TOTAL_CONTRACT_HRS
+          example: 2000.34 
+        stepIncreaseMonth:
+          title: Step Increase Month
+          description:  Month in which an automatic step increase is to take place.
+          type: string
+          example: "01"
+          x-lineageReferenceObject: NBRBJOB_STEP_INCR_MON
+        stepIncreaseDay:
+          title: Step Increase Day
+          description: Day of which an automatic step increase is to take place.
+          type: string
+          example: "30"
+          x-lineageReferenceObject: NBRBJOB_STEP_INCR_DAY
+        eligibleOn:
+          title: Step Increase Eligibility Date
+          description: "Eligibility Date for the Step Increase."
+          type: string
+          format: date
+          x-lineageReferenceObject: NBRBJOB_ELIGIBLE_DATE
+          example: "2024-03-15"
+        probationStartOn:
+          title: Probation Start Date
+          type: string
+          format: date
+          description: "The begin date of Probationary Period."
+          x-lineageReferenceObject: NBRBJOB_PROBATION_BEGIN_DATE
+          example: "2024-03-15"
+        probationEndOn:
+          title: Probation End Date
+          type: string
+          format: date
+          description: "The end date of Probationary Period. This data is calculated based on the Probationary Period and Probation Begin Date, but may be overridden. Overriding this value will NOT change the Probationary Period or Probation Begin Date."
+          x-lineageReferenceObject: NBRBJOB_PROBATION_END_DATE
+          example: "2025-05-31"
+        probationUnits:
+          title: Probation Units
+          description: Identifies the number of Probationary Units. Will represent months or days depending on the Probationary Period Units institutional setting.
+          type: integer
+          x-lineageReferenceObject: NBRBJOB_PROBATION_UNITS
+          example: 20
+        canAccrueLeave:
+          title: Determines whether Leave is accrued for this job.
+          description: Internal Identification Number of the employee.
+          type: boolean
+          x-lineageReferenceObject: NBRBJOB_ACCRUE_LEAVE_IND
+          example: true
+        isCivilServiceJob:
+          title: Civil Service Indicator
+          description: Indicates if this assignment is a civil service job.
+          type: boolean
+          x-lineageReferenceObject: NBRBJOB_CIVIL_SERVICE_IND
+          example: false
+        isReportableOnIpeds:
+          title: IPEDS Report Indicator
+          description: Indicates if this job should be reported on the IPEDS report.
+          type: boolean
+          x-lineageReferenceObject: NBRBJOB_IPEDS_REPT_IND
+          example: false
+        isReportableOnStatscan:
+          title: Statitics Canada Report Indicator
+          description: This indicator will allow the Canadian user to gather data that is necessary for reporting of the Annual Faculty STATSCAN reports.
+          type: boolean
+          x-lineageReferenceObject: NBRBJOB_FACL_STATSCAN_REPT_IND
+          example: false
+      required:
+        - id
+        - bannerId
+        - position
+        - suffix
+        - startOn
+        - contractType
+        - salaryStep
+    employee-jobs-1.0.0_post_response:
+      $ref: '#/components/schemas/employee-jobs-1.0.0_get_response'
+    employee-jobs-1.0.0_put_request:
+      type: object
+      properties:
+        contractType:
+          title: Contract Type
+          description: >
+            Indicates the type of job assignment. Valid values are:
+              * `primary` Primary job
+              * `overload` Overload job
+              * `secondary` Secondary job
+          type: string
+          enum:
+            - primary
+            - overload
+            - secondary
+          example: "primary"
+          x-lineageReferenceObject: NBRBJOB_CONTRACT_TYPE   
+        contractStartOn:
+          title: Contract Start Date
+          type: string
+          format: date
+          description: "The date on which a contract begins. This date is significant to the encumbering process."
+          x-lineageReferenceObject: NBRBJOB_CONTRACT_BEGIN_DATE
+          example: "2024-03-15"
+        contractEndOn:
+          title: Contract End Date
+          type: string
+          format: date
+          description: "The date on which a contract ends. This date is significant to the encumbering process."
+          x-lineageReferenceObject: NBRBJOB_CONTRACT_END_DATE
+          example: "2025-05-31"
+        salaryEncumbrance: 
+          title: Salary Encumbrance
+          description: The amount of money that this person will be paid in this job during the current fiscal year.
+          type: number
+          x-lineageReferenceObject: NBRBJOB_SALARY_ENCUMBRANCE
+          example: 60000.55  
+        totalEncumbranceHours: 
+          title: Total Encumbrance Hours
+          description: The sum of the Job Detail Encumbrance Hours for the currently active fiscal year.
+          type: number
+          x-lineageReferenceObject: NBRBJOB_TOTAL_ENCUMBRANCE_HRS
+          example: 2020.55  
+        totalContractHours: 
+          title: Total Contract Hours
+          description: The total number of hours of the contract.               
+          type: number
+          x-lineageReferenceObject: NBRBJOB_TOTAL_CONTRACT_HRS
+          example: 2000.34 
+        stepIncreaseMonth:
+          title: Step Increase Month
+          description:  Month in which an automatic step increase is to take place.
+          type: string
+          example: "01"
+          x-lineageReferenceObject: NBRBJOB_STEP_INCR_MON
+        stepIncreaseDay:
+          title: Step Increase Day
+          description: Day of which an automatic step increase is to take place.
+          type: string
+          example: "30"
+          x-lineageReferenceObject: NBRBJOB_STEP_INCR_DAY
+        eligibleOn:
+          title: Step Increase Eligibility Date
+          description: "Eligibility Date for the Step Increase."
+          type: string
+          format: date
+          x-lineageReferenceObject: NBRBJOB_ELIGIBLE_DATE
+          example: "2024-03-15"
+        deferBalance: 
+          title: Deferred Balance
+          description: The amount of deferred pay accumulated for this job.
+          type: number
+          x-lineageReferenceObject: NBRBJOB_DEFER_BAL
+          example: 2100.99
+        probationStartOn:
+          title: Probation Start Date
+          type: string
+          format: date
+          description: "The begin date of Probationary Period."
+          x-lineageReferenceObject: NBRBJOB_PROBATION_BEGIN_DATE
+          example: "2024-03-15"
+        probationEndOn:
+          title: Probation End Date
+          type: string
+          format: date
+          description: "The end date of Probationary Period. This data is calculated based on the Probationary Period and Probation Begin Date, but may be overridden. Overriding this value will NOT change the Probationary Period or Probation Begin Date."
+          x-lineageReferenceObject: NBRBJOB_PROBATION_END_DATE
+          example: "2025-05-31"
+        probationUnits:
+          title: Probation Units
+          description: Identifies the number of Probationary Units. Will represent months or days depending on the Probationary Period Units institutional setting.
+          type: integer
+          x-lineageReferenceObject: NBRBJOB_PROBATION_UNITS
+          example: 20
+        canAccrueLeave:
+          title: Determines whether Leave is accrued for this job.
+          description: Internal Identification Number of the employee.
+          type: boolean
+          x-lineageReferenceObject: NBRBJOB_ACCRUE_LEAVE_IND
+          example: false
+        isCivilServiceJob:
+          title: Civil Service Indicator
+          description: Indicates if this assignment is a civil service job.
+          type: boolean
+          x-lineageReferenceObject: NBRBJOB_CIVIL_SERVICE_IND
+          example: true
+        isReportableOnIpeds:
+          title: IPEDS Report Indicator
+          description: Indicates if this job should be reported on the IPEDS report.
+          type: boolean
+          x-lineageReferenceObject: NBRBJOB_IPEDS_REPT_IND
+          example: false
+        isReportableOnStatscan:
+          title: Statitics Canada Report Indicator
+          description: This indicator will allow the Canadian user to gather data that is necessary for reporting of the Annual Faculty STATSCAN reports.
+          type: boolean
+          x-lineageReferenceObject: NBRBJOB_FACL_STATSCAN_REPT_IND
+          example: false
+    employee-jobs-1.0.0_put_request_batch:
+      allOf: # Combines the id with the put request model
+        - type: object
+          required:
+            - id
+          properties:
+            id:
+              title: Id
+              type: string
+              description: "The global identifier of the employee job."
+              x-lineageReferenceObject: PEBEMPL_GUID
+              example: 085df706-ee15-4947-93f8-8c260e64795e
+        - $ref: '#/components/schemas/employee-jobs-1.0.0_put_request'
+    employee-jobs-1.0.0_put_response:
+      $ref: '#/components/schemas/employee-jobs-1.0.0_get_response'
+    employee-jobs-batch-2.0.0_post_request:
+      type: object
+      properties:
+        items:
+          title: items
+          description: List of items to be processed.
+          type: array
+          items:
+            type: object
+            oneOf:
+              - $ref: "#/components/schemas/employee-jobs-1.0.0_post_request"
+              - $ref: "#/components/schemas/employee-jobs-1.0.0_put_request_batch"
+      required:
+        - items
+    employee-jobs-batch-2.0.0_post_response:
+      description: >
+        Returns the list of Ids for those employee jobs that were successfully created.
+        For those that did not, it returns the list of error messages.
+      type: object
+      x-last-modified:
+      properties:
+        id:
+          title: ID
+          description: A globally unique identifier of a batch to be used in all external references.
+          type: string
+          example: 085df706-ee15-4947-93f8-8c260e64795e
+        status:
+          title: status
+          description: status of the batch.
+          type: string
+          enum:
+            - completed
+            - inProgress
+            - aborted
+          example: completed
+        resource:
+          title: Resource
+          description: The affected resource.
+          type: object
+          properties:
+            name:
+              title: Resource Name
+              description: The pluralized name of the affected resource
+              type: string
+              example: employee-jobs
+            version:
+              title: Resource version
+              description: The version of the resource
+              type: string
+              example: 2.0.0
+          additionalProperties: false
+          required:
+            - name
+            - version
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+            oneOf:
+              - $ref: '#/components/schemas/employee-jobs-1.0.0_get_response'
+              - $ref: '#/components/schemas/errors_2_0_0'
+            required:
+              - items
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+    person:
+      title: Person
+      description: A reference to link an employee job to the common persons entity.
+      type: object
+      properties:
+        id:
+          title: ID
+          description: The global identifier for the Person.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageLookupReferenceObject: persons 
+          x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+          x-lineageDerivedLogic: A record from GORGUID where GORGUID_LDM_NAME = 'persons' and GORGUID_DOMAIN_KEY matches the PIDM value

@@ -1,0 +1,1371 @@
+openapi: 3.0.0
+info:
+  title: 1099-reporting
+  description: API for FAA1099 administrative page
+  version: 1.0.0
+  x-audience: all
+  x-release-status: beta
+  x-source-name: FAA1099
+  x-source-domain: Finance
+  x-source-title: 1099 Reporting
+  x-source-system: banner
+  x-api-type: bus-poc
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/1099-reporting:
+    get:
+      tags:
+        - 1099-reporting
+      summary: Return resources from FAA1099
+      parameters:
+        - name: X-SDE-Expand
+          in: header
+          description: The comma seperated value list of block names
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: The maximum number of resources requesting for this result set.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          description: The filter criteria as a single URL query parameter. Use this
+            parameter or the individual parameters listed. Must be a JSON
+            representation of the property searching for. This can be any of the
+            properties listed on the URL or QAPI and must be a json
+            representation that can be validated against the GET schema. Limit
+            and Offset are the only supported additional parameters on the URL.
+          required: false
+          schema:
+            type: string
+        - name: faa1099VendCode
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: faa1099RptYr
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: taxID
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: ftvvendVendOwner
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: nameOwner
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: tin
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: invhCode
+          in: query
+          description: Document
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: FAB1099_INVH_CODE
+        - name: rptAmt
+          in: query
+          description: Reported Amount
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: FAB1099_RPT_AMT
+        - name: checkDate
+          in: query
+          description: Check Date
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: FAB1099_CHECK_DATE
+        - name: cardNotPresent
+          in: query
+          description: Card Not Present
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: FAB1099_CARD_NOT_PRESENT
+        - name: checkNum
+          in: query
+          description: Check Number
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: FAB1099_CHECK_NUM
+        - name: rptId
+          in: query
+          description: 1099 Reporting ID
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: FAB1099_RPT_ID
+        - name: itypCode
+          in: query
+          description: Income Type
+          required: false
+          schema:
+            type: string
+        - name: fedWholdAmt
+          in: query
+          description: Federal Withheld
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: FAB1099_FED_WHOLD_AMT
+        - name: bankCode
+          in: query
+          description: Bank
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: FAB1099_BANK_CODE
+        - name: stWholdAmt
+          in: query
+          description: State Withheld
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: FAB1099_ST_WHOLD_AMT
+        - name: coasCode
+          in: query
+          description: Chart
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: FAB1099_COAS_CODE
+        - name: fedPaidOverAmt
+          in: query
+          description: Federal Previously Paid
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: FAB1099_FED_PAID_OVER_AMT
+        - name: instTin
+          in: query
+          description: Payer TIN
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: FAB1099_INST_TIN
+        - name: stPaidOverAmt
+          in: query
+          description: State Previously Paid
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: FAB1099_ST_PAID_OVER_AMT
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/1099-reporting-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+    put:
+      tags:
+        - 1099-reporting
+      summary: Updates an existing resource in FAA1099
+      parameters: []
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/1099-reporting-1.0.0_put_request"
+            example:
+              bankCode: 2
+              fab1099StWholdAmt: 9
+              checkNum: 1
+              cardNotPresent: 11
+              coasCode: B
+              fab1099FedWholdAmt: 10
+              checkDate: 2021-08-12
+              criteria.invhCode: 5
+              fab1099ItypCode: AD
+              faa1099VendCode: LMRFND002
+              fab1099StPaidOverAmt: 6
+              taxID: 10
+              rptAmt: 12
+              fab1099InstTin: 444444445
+              fab1099FedPaidOverAmt: 8
+              faa1099RptYr: 21
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/1099-reporting-1.0.0_put_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+    post:
+      tags:
+        - 1099-reporting
+      summary: Creates a new resource in FAA1099
+      parameters: []
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/1099-reporting-1.0.0_post_request"
+            example:
+              faa1099VendCode: LMRFND002
+              taxID: 10
+              fab1099:
+                - fab1099ItypCode: AD
+                  bankCode: A1
+                  checkNum: INV00003
+                  coasCode: B
+                  fab1099InvhCode: INV00003
+                  fab1099InstTin: 222222222
+                  checkDate: 2022-11-02
+                - fab1099ItypCode: AD
+                  bankCode: A1
+                  checkNum: INV00002
+                  coasCode: B
+                  fab1099InvhCode: INV00002
+                  fab1099InstTin: 222222222
+                  checkDate: 2022-11-02
+              faa1099RptYr: 21
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/1099-reporting-1.0.0_post_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+  /qapi/1099-reporting:
+    post:
+      tags:
+        - 1099-reporting QAPI (Query by POST)
+      summary: Return resources from FAA1099
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/1099-reporting-1.0.0_get_request"
+            example:
+              faa1099VendCode: LMRFND002
+              taxID: 10
+              tin: 98765456
+              faa1099RptYr: 21
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/1099-reporting-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+components:
+  schemas:
+    1099-reporting-1.0.0_get_response:
+      required:
+        - bankCode
+        - checkDate
+        - checkNum
+        - invhCode
+        - itypCode
+      type: object
+      properties:
+        itypDesc:
+          type: string
+        bankCode:
+          title: Bank
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : FAB1099_BANK_CODE, Lookup lineage
+            reference object : gxvbank"
+          x-lineageReferenceObject: FAB1099_BANK_CODE
+          x-lineageLookupReferenceObject: gxvbank
+        checkNum:
+          title: Check Number
+          maxLength: 8
+          type: string
+          description: "Lineage reference object : FAB1099_CHECK_NUM"
+          x-lineageReferenceObject: FAB1099_CHECK_NUM
+        cardNotPresent:
+          title: Card Not Present
+          type: number
+          description: "Lineage reference object : FAB1099_CARD_NOT_PRESENT"
+          x-lineageReferenceObject: FAB1099_CARD_NOT_PRESENT
+        coasCode:
+          title: Chart
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : FAB1099_COAS_CODE, Lookup lineage
+            reference object : ftvcoas"
+          x-lineageReferenceObject: FAB1099_COAS_CODE
+          x-lineageLookupReferenceObject: ftvcoas
+        bankName:
+          type: string
+        rptId:
+          title: 1099 Reporting ID
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : FAB1099_RPT_ID"
+          x-lineageReferenceObject: FAB1099_RPT_ID
+        stWholdAmt:
+          title: State Withheld
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_ST_WHOLD_AMT"
+          x-lineageReferenceObject: FAB1099_ST_WHOLD_AMT
+        checkDate:
+          title: Check Date
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : FAB1099_CHECK_DATE"
+          format: date-time
+          x-lineageReferenceObject: FAB1099_CHECK_DATE
+        fedPaidOverAmt:
+          title: Federal Previously Paid
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_FED_PAID_OVER_AMT"
+          x-lineageReferenceObject: FAB1099_FED_PAID_OVER_AMT
+        chartTitle:
+          type: string
+        invhCode:
+          title: Document
+          maxLength: 8
+          type: string
+          description: "Lineage reference object : FAB1099_INVH_CODE"
+          x-lineageReferenceObject: FAB1099_INVH_CODE
+        rptAmt:
+          title: Reported Amount
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_RPT_AMT"
+          x-lineageReferenceObject: FAB1099_RPT_AMT
+        fedWholdAmt:
+          title: Federal Withheld
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_FED_WHOLD_AMT"
+          x-lineageReferenceObject: FAB1099_FED_WHOLD_AMT
+        itypCode:
+          title: Income Type
+          maxLength: 30
+          type: string
+          description: "Lookup lineage reference object : ftvityp"
+          x-lineageLookupReferenceObject: ftvityp
+        instName:
+          type: string
+        instTin:
+          title: Payer TIN
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : FAB1099_INST_TIN, Lookup lineage
+            reference object : fob1099,for1099"
+          x-lineageReferenceObject: FAB1099_INST_TIN
+          x-lineageLookupReferenceObject: fob1099,for1099
+        stPaidOverAmt:
+          title: State Previously Paid
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_ST_PAID_OVER_AMT"
+          x-lineageReferenceObject: FAB1099_ST_PAID_OVER_AMT
+      x-lineageReferenceObject: fab1099
+    1099-reporting-1.0.0_get_request:
+      required:
+        - faa1099RptYr
+        - taxID
+        - invhCode
+        - checkDate
+        - checkNum
+        - itypCode
+        - bankCode
+      type: object
+      properties:
+        bankCode:
+          title: Bank
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : FAB1099_BANK_CODE, Lookup lineage
+            reference object : gxvbank"
+          x-lineageReferenceObject: FAB1099_BANK_CODE
+          x-lineageLookupReferenceObject: gxvbank
+        checkNum:
+          title: Check Number
+          maxLength: 8
+          type: string
+          description: "Lineage reference object : FAB1099_CHECK_NUM"
+          x-lineageReferenceObject: FAB1099_CHECK_NUM
+        cardNotPresent:
+          title: Card Not Present
+          type: number
+          description: "Lineage reference object : FAB1099_CARD_NOT_PRESENT"
+          x-lineageReferenceObject: FAB1099_CARD_NOT_PRESENT
+        coasCode:
+          title: Chart
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : FAB1099_COAS_CODE, Lookup lineage
+            reference object : ftvcoas"
+          x-lineageReferenceObject: FAB1099_COAS_CODE
+          x-lineageLookupReferenceObject: ftvcoas
+        rptId:
+          title: 1099 Reporting ID
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : FAB1099_RPT_ID"
+          x-lineageReferenceObject: FAB1099_RPT_ID
+        stWholdAmt:
+          title: State Withheld
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_ST_WHOLD_AMT"
+          x-lineageReferenceObject: FAB1099_ST_WHOLD_AMT
+        checkDate:
+          title: Check Date
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : FAB1099_CHECK_DATE"
+          format: date-time
+          x-lineageReferenceObject: FAB1099_CHECK_DATE
+        ftvvendVendOwner:
+          title: Owner Vendor ID
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : ftvvendVendOwner, Lookup lineage
+            reference object : ftvvend"
+          x-lineageReferenceObject: ftvvendVendOwner
+          x-lineageLookupReferenceObject: ftvvend
+        fedPaidOverAmt:
+          title: Federal Previously Paid
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_FED_PAID_OVER_AMT"
+          x-lineageReferenceObject: FAB1099_FED_PAID_OVER_AMT
+        faa1099VendCode:
+          title: Vendor
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : faa1099VendCode, Lookup lineage
+            reference object : ftvvend"
+          x-lineageReferenceObject: faa1099VendCode
+          x-lineageLookupReferenceObject: ftvvend
+        taxID:
+          title: 1099 Reporting ID
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : taxId"
+          x-lineageReferenceObject: taxId
+        tin:
+          title: Payer TIN
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : instTin, Lookup lineage reference
+            object : fob1099,for1099"
+          x-lineageReferenceObject: instTin
+          x-lineageLookupReferenceObject: fob1099,for1099
+        invhCode:
+          title: Document
+          maxLength: 8
+          type: string
+          description: "Lineage reference object : FAB1099_INVH_CODE"
+          x-lineageReferenceObject: FAB1099_INVH_CODE
+        rptAmt:
+          title: Reported Amount
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_RPT_AMT"
+          x-lineageReferenceObject: FAB1099_RPT_AMT
+        fedWholdAmt:
+          title: Federal Withheld
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_FED_WHOLD_AMT"
+          x-lineageReferenceObject: FAB1099_FED_WHOLD_AMT
+        itypCode:
+          title: Income Type
+          maxLength: 30
+          type: string
+          description: "Lookup lineage reference object : ftvityp"
+          x-lineageLookupReferenceObject: ftvityp
+        faa1099RptYr:
+          title: Year
+          maxLength: 2
+          type: string
+          description: "Lineage reference object : faa1099RptYr"
+          x-lineageReferenceObject: faa1099RptYr
+        instTin:
+          title: Payer TIN
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : FAB1099_INST_TIN, Lookup lineage
+            reference object : fob1099,for1099"
+          x-lineageReferenceObject: FAB1099_INST_TIN
+          x-lineageLookupReferenceObject: fob1099,for1099
+        stPaidOverAmt:
+          title: State Previously Paid
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_ST_PAID_OVER_AMT"
+          x-lineageReferenceObject: FAB1099_ST_PAID_OVER_AMT
+      x-lineageReferenceObject: FAB1099
+    errors-2.0.0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+              description:
+                type: string
+    1099-reporting-1.0.0_put_response:
+      required:
+        - bankCode
+        - checkDate
+        - checkNum
+        - invhCode
+        - itypCode
+      type: object
+      properties:
+        itypDesc:
+          type: string
+        bankCode:
+          title: Bank
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : FAB1099_BANK_CODE, Lookup lineage
+            reference object : gxvbank"
+          x-lineageReferenceObject: FAB1099_BANK_CODE
+          x-lineageLookupReferenceObject: gxvbank
+        checkNum:
+          title: Check Number
+          maxLength: 8
+          type: string
+          description: "Lineage reference object : FAB1099_CHECK_NUM"
+          x-lineageReferenceObject: FAB1099_CHECK_NUM
+        cardNotPresent:
+          title: Card Not Present
+          type: number
+          description: "Lineage reference object : FAB1099_CARD_NOT_PRESENT"
+          x-lineageReferenceObject: FAB1099_CARD_NOT_PRESENT
+        coasCode:
+          title: Chart
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : FAB1099_COAS_CODE, Lookup lineage
+            reference object : ftvcoas"
+          x-lineageReferenceObject: FAB1099_COAS_CODE
+          x-lineageLookupReferenceObject: ftvcoas
+        bankName:
+          type: string
+        rptId:
+          title: 1099 Reporting ID
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : FAB1099_RPT_ID"
+          x-lineageReferenceObject: FAB1099_RPT_ID
+        stWholdAmt:
+          title: State Withheld
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_ST_WHOLD_AMT"
+          x-lineageReferenceObject: FAB1099_ST_WHOLD_AMT
+        checkDate:
+          title: Check Date
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : FAB1099_CHECK_DATE"
+          format: date-time
+          x-lineageReferenceObject: FAB1099_CHECK_DATE
+        fedPaidOverAmt:
+          title: Federal Previously Paid
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_FED_PAID_OVER_AMT"
+          x-lineageReferenceObject: FAB1099_FED_PAID_OVER_AMT
+        chartTitle:
+          type: string
+        invhCode:
+          title: Document
+          maxLength: 8
+          type: string
+          description: "Lineage reference object : FAB1099_INVH_CODE"
+          x-lineageReferenceObject: FAB1099_INVH_CODE
+        rptAmt:
+          title: Reported Amount
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_RPT_AMT"
+          x-lineageReferenceObject: FAB1099_RPT_AMT
+        fedWholdAmt:
+          title: Federal Withheld
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_FED_WHOLD_AMT"
+          x-lineageReferenceObject: FAB1099_FED_WHOLD_AMT
+        itypCode:
+          title: Income Type
+          maxLength: 30
+          type: string
+          description: "Lookup lineage reference object : ftvityp"
+          x-lineageLookupReferenceObject: ftvityp
+        instName:
+          type: string
+        instTin:
+          title: Payer TIN
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : FAB1099_INST_TIN, Lookup lineage
+            reference object : fob1099,for1099"
+          x-lineageReferenceObject: FAB1099_INST_TIN
+          x-lineageLookupReferenceObject: fob1099,for1099
+        stPaidOverAmt:
+          title: State Previously Paid
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_ST_PAID_OVER_AMT"
+          x-lineageReferenceObject: FAB1099_ST_PAID_OVER_AMT
+      x-lineageReferenceObject: fab1099
+    1099-reporting-1.0.0_put_request:
+      required:
+        - faa1099RptYr
+        - taxID
+        - criteria.invhCode
+        - criteria.checkDate
+        - criteria.checkNum
+        - criteria.itypCode
+        - criteria.bankCode
+        - fab1099InvhCode
+        - checkDate
+        - checkNum
+        - fab1099ItypCode
+        - bankCode
+      type: object
+      properties:
+        criteria.rptId:
+          title: 1099 Reporting ID
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : FAB1099_RPT_ID"
+          x-lineageReferenceObject: FAB1099_RPT_ID
+        fab1099StWholdAmt:
+          title: State Withheld
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_ST_WHOLD_AMT"
+          x-lineageReferenceObject: FAB1099_ST_WHOLD_AMT
+        checkNum:
+          title: Check Number
+          maxLength: 8
+          type: string
+          description: "Lineage reference object : FAB1099_CHECK_NUM"
+          x-lineageReferenceObject: FAB1099_CHECK_NUM
+        coasCode:
+          title: Chart
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : FAB1099_COAS_CODE, Lookup lineage
+            reference object : ftvcoas"
+          x-lineageReferenceObject: FAB1099_COAS_CODE
+          x-lineageLookupReferenceObject: ftvcoas
+        fab1099FedWholdAmt:
+          title: Federal Withheld
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_FED_WHOLD_AMT"
+          x-lineageReferenceObject: FAB1099_FED_WHOLD_AMT
+        criteria.cardNotPresent:
+          title: Card Not Present
+          type: number
+          description: "Lineage reference object : FAB1099_CARD_NOT_PRESENT"
+          x-lineageReferenceObject: FAB1099_CARD_NOT_PRESENT
+        criteria.fab1099InstTin:
+          title: Payer TIN
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : FAB1099_INST_TIN, Lookup lineage
+            reference object : fob1099,for1099"
+          x-lineageReferenceObject: FAB1099_INST_TIN
+          x-lineageLookupReferenceObject: fob1099,for1099
+        criteria.invhCode:
+          title: Document
+          maxLength: 8
+          type: string
+          description: "Lineage reference object : FAB1099_INVH_CODE"
+          x-lineageReferenceObject: FAB1099_INVH_CODE
+        fab1099ItypCode:
+          title: Income Type
+          maxLength: 30
+          type: string
+          description: "Lookup lineage reference object : ftvityp"
+          x-lineageLookupReferenceObject: ftvityp
+        criteria.stWholdAmt:
+          title: State Withheld
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_ST_WHOLD_AMT"
+          x-lineageReferenceObject: FAB1099_ST_WHOLD_AMT
+        fab1099StPaidOverAmt:
+          title: State Previously Paid
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_ST_PAID_OVER_AMT"
+          x-lineageReferenceObject: FAB1099_ST_PAID_OVER_AMT
+        criteria.rptAmt:
+          title: Reported Amount
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_RPT_AMT"
+          x-lineageReferenceObject: FAB1099_RPT_AMT
+        taxID:
+          title: 1099 Reporting ID
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : taxId"
+          x-lineageReferenceObject: taxId
+        criteria.coasCode:
+          title: Chart
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : FAB1099_COAS_CODE, Lookup lineage
+            reference object : ftvcoas"
+          x-lineageReferenceObject: FAB1099_COAS_CODE
+          x-lineageLookupReferenceObject: ftvcoas
+        rptAmt:
+          title: Reported Amount
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_RPT_AMT"
+          x-lineageReferenceObject: FAB1099_RPT_AMT
+        fab1099InstTin:
+          title: Payer TIN
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : FAB1099_INST_TIN, Lookup lineage
+            reference object : fob1099,for1099"
+          x-lineageReferenceObject: FAB1099_INST_TIN
+          x-lineageLookupReferenceObject: fob1099,for1099
+        fab1099FedPaidOverAmt:
+          title: Federal Previously Paid
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_FED_PAID_OVER_AMT"
+          x-lineageReferenceObject: FAB1099_FED_PAID_OVER_AMT
+        criteria.fedPaidOverAmt:
+          title: Federal Previously Paid
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_FED_PAID_OVER_AMT"
+          x-lineageReferenceObject: FAB1099_FED_PAID_OVER_AMT
+        criteria.checkDate:
+          title: Check Date
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : FAB1099_CHECK_DATE"
+          format: date-time
+          x-lineageReferenceObject: FAB1099_CHECK_DATE
+        instTin:
+          title: Payer TIN
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : instTin, Lookup lineage reference
+            object : fob1099,for1099"
+          x-lineageReferenceObject: instTin
+          x-lineageLookupReferenceObject: fob1099,for1099
+        bankCode:
+          title: Bank
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : FAB1099_BANK_CODE, Lookup lineage
+            reference object : gxvbank"
+          x-lineageReferenceObject: FAB1099_BANK_CODE
+          x-lineageLookupReferenceObject: gxvbank
+        cardNotPresent:
+          title: Card Not Present
+          type: number
+          description: "Lineage reference object : FAB1099_CARD_NOT_PRESENT"
+          x-lineageReferenceObject: FAB1099_CARD_NOT_PRESENT
+        checkDate:
+          title: Check Date
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : FAB1099_CHECK_DATE"
+          format: date-time
+          x-lineageReferenceObject: FAB1099_CHECK_DATE
+        ftvvendVendOwner:
+          title: Owner Vendor ID
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : ftvvendVendOwner, Lookup lineage
+            reference object : ftvvend"
+          x-lineageReferenceObject: ftvvendVendOwner
+          x-lineageLookupReferenceObject: ftvvend
+        criteria.itypCode:
+          title: Income Type
+          maxLength: 30
+          type: string
+          description: "Lookup lineage reference object : ftvityp"
+          x-lineageLookupReferenceObject: ftvityp
+        criteria.stPaidOverAmt:
+          title: State Previously Paid
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_ST_PAID_OVER_AMT"
+          x-lineageReferenceObject: FAB1099_ST_PAID_OVER_AMT
+        faa1099VendCode:
+          title: Vendor
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : faa1099VendCode, Lookup lineage
+            reference object : ftvvend"
+          x-lineageReferenceObject: faa1099VendCode
+          x-lineageLookupReferenceObject: ftvvend
+        criteria.fedWholdAmt:
+          title: Federal Withheld
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_FED_WHOLD_AMT"
+          x-lineageReferenceObject: FAB1099_FED_WHOLD_AMT
+        criteria.checkNum:
+          title: Check Number
+          maxLength: 8
+          type: string
+          description: "Lineage reference object : FAB1099_CHECK_NUM"
+          x-lineageReferenceObject: FAB1099_CHECK_NUM
+        fab1099InvhCode:
+          title: Document
+          maxLength: 8
+          type: string
+          description: "Lineage reference object : FAB1099_INVH_CODE"
+          x-lineageReferenceObject: FAB1099_INVH_CODE
+        faa1099RptYr:
+          title: Year
+          maxLength: 2
+          type: string
+          description: "Lineage reference object : faa1099RptYr"
+          x-lineageReferenceObject: faa1099RptYr
+        criteria.bankCode:
+          title: Bank
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : FAB1099_BANK_CODE, Lookup lineage
+            reference object : gxvbank"
+          x-lineageReferenceObject: FAB1099_BANK_CODE
+          x-lineageLookupReferenceObject: gxvbank
+      x-lineageReferenceObject: FAB1099
+    1099-reporting-1.0.0_qapi_post:
+      required:
+        - faa1099RptYr
+        - taxID
+      type: object
+      properties:
+        faa1099VendCode:
+          type: string
+        faa1099RptYr:
+          type: string
+        taxID:
+          type: string
+        ftvvendVendOwner:
+          type: string
+        nameOwner:
+          type: string
+        tin:
+          type: string
+        invhCode:
+          title: Document
+          maxLength: 8
+          type: string
+          description: "Lineage reference object : FAB1099_INVH_CODE"
+          x-lineageReferenceObject: FAB1099_INVH_CODE
+        rptAmt:
+          title: Reported Amount
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_RPT_AMT"
+          x-lineageReferenceObject: FAB1099_RPT_AMT
+        checkDate:
+          title: Check Date
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : FAB1099_CHECK_DATE"
+          format: date-time
+          x-lineageReferenceObject: FAB1099_CHECK_DATE
+        cardNotPresent:
+          title: Card Not Present
+          type: number
+          description: "Lineage reference object : FAB1099_CARD_NOT_PRESENT"
+          x-lineageReferenceObject: FAB1099_CARD_NOT_PRESENT
+        checkNum:
+          title: Check Number
+          maxLength: 8
+          type: string
+          description: "Lineage reference object : FAB1099_CHECK_NUM"
+          x-lineageReferenceObject: FAB1099_CHECK_NUM
+        rptId:
+          title: 1099 Reporting ID
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : FAB1099_RPT_ID"
+          x-lineageReferenceObject: FAB1099_RPT_ID
+        itypCode:
+          title: Income Type
+          maxLength: 30
+          type: string
+          description: "Lookup lineage reference object : ftvityp"
+          x-lineageLookupReferenceObject: ftvityp
+        fedWholdAmt:
+          title: Federal Withheld
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_FED_WHOLD_AMT"
+          x-lineageReferenceObject: FAB1099_FED_WHOLD_AMT
+        bankCode:
+          title: Bank
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : FAB1099_BANK_CODE, Lookup lineage
+            reference object : gxvbank"
+          x-lineageReferenceObject: FAB1099_BANK_CODE
+          x-lineageLookupReferenceObject: gxvbank
+        stWholdAmt:
+          title: State Withheld
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_ST_WHOLD_AMT"
+          x-lineageReferenceObject: FAB1099_ST_WHOLD_AMT
+        coasCode:
+          title: Chart
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : FAB1099_COAS_CODE, Lookup lineage
+            reference object : ftvcoas"
+          x-lineageReferenceObject: FAB1099_COAS_CODE
+          x-lineageLookupReferenceObject: ftvcoas
+        fedPaidOverAmt:
+          title: Federal Previously Paid
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_FED_PAID_OVER_AMT"
+          x-lineageReferenceObject: FAB1099_FED_PAID_OVER_AMT
+        instTin:
+          title: Payer TIN
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : FAB1099_INST_TIN, Lookup lineage
+            reference object : fob1099,for1099"
+          x-lineageReferenceObject: FAB1099_INST_TIN
+          x-lineageLookupReferenceObject: fob1099,for1099
+        stPaidOverAmt:
+          title: State Previously Paid
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_ST_PAID_OVER_AMT"
+          x-lineageReferenceObject: FAB1099_ST_PAID_OVER_AMT
+    1099-reporting-1.0.0_post_response:
+      required:
+        - bankCode
+        - checkDate
+        - checkNum
+        - invhCode
+        - itypCode
+      type: object
+      properties:
+        itypDesc:
+          type: string
+        bankCode:
+          title: Bank
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : FAB1099_BANK_CODE, Lookup lineage
+            reference object : gxvbank"
+          x-lineageReferenceObject: FAB1099_BANK_CODE
+          x-lineageLookupReferenceObject: gxvbank
+        checkNum:
+          title: Check Number
+          maxLength: 8
+          type: string
+          description: "Lineage reference object : FAB1099_CHECK_NUM"
+          x-lineageReferenceObject: FAB1099_CHECK_NUM
+        cardNotPresent:
+          title: Card Not Present
+          type: number
+          description: "Lineage reference object : FAB1099_CARD_NOT_PRESENT"
+          x-lineageReferenceObject: FAB1099_CARD_NOT_PRESENT
+        coasCode:
+          title: Chart
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : FAB1099_COAS_CODE, Lookup lineage
+            reference object : ftvcoas"
+          x-lineageReferenceObject: FAB1099_COAS_CODE
+          x-lineageLookupReferenceObject: ftvcoas
+        bankName:
+          type: string
+        rptId:
+          title: 1099 Reporting ID
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : FAB1099_RPT_ID"
+          x-lineageReferenceObject: FAB1099_RPT_ID
+        stWholdAmt:
+          title: State Withheld
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_ST_WHOLD_AMT"
+          x-lineageReferenceObject: FAB1099_ST_WHOLD_AMT
+        checkDate:
+          title: Check Date
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : FAB1099_CHECK_DATE"
+          format: date-time
+          x-lineageReferenceObject: FAB1099_CHECK_DATE
+        fedPaidOverAmt:
+          title: Federal Previously Paid
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_FED_PAID_OVER_AMT"
+          x-lineageReferenceObject: FAB1099_FED_PAID_OVER_AMT
+        chartTitle:
+          type: string
+        invhCode:
+          title: Document
+          maxLength: 8
+          type: string
+          description: "Lineage reference object : FAB1099_INVH_CODE"
+          x-lineageReferenceObject: FAB1099_INVH_CODE
+        rptAmt:
+          title: Reported Amount
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_RPT_AMT"
+          x-lineageReferenceObject: FAB1099_RPT_AMT
+        fedWholdAmt:
+          title: Federal Withheld
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_FED_WHOLD_AMT"
+          x-lineageReferenceObject: FAB1099_FED_WHOLD_AMT
+        itypCode:
+          title: Income Type
+          maxLength: 30
+          type: string
+          description: "Lookup lineage reference object : ftvityp"
+          x-lineageLookupReferenceObject: ftvityp
+        instName:
+          type: string
+        instTin:
+          title: Payer TIN
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : FAB1099_INST_TIN, Lookup lineage
+            reference object : fob1099,for1099"
+          x-lineageReferenceObject: FAB1099_INST_TIN
+          x-lineageLookupReferenceObject: fob1099,for1099
+        stPaidOverAmt:
+          title: State Previously Paid
+          maxLength: 25
+          type: number
+          description: "Lineage reference object : FAB1099_ST_PAID_OVER_AMT"
+          x-lineageReferenceObject: FAB1099_ST_PAID_OVER_AMT
+      x-lineageReferenceObject: fab1099
+    1099-reporting-1.0.0_post_request:
+      required:
+        - faa1099RptYr
+        - taxID
+      type: object
+      properties:
+        faa1099VendCode:
+          title: Vendor
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : faa1099VendCode, Lookup lineage
+            reference object : ftvvend"
+          x-lineageReferenceObject: faa1099VendCode
+          x-lineageLookupReferenceObject: ftvvend
+        taxID:
+          title: 1099 Reporting ID
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : taxId"
+          x-lineageReferenceObject: taxId
+        fab1099:
+          type: array
+          items:
+            required:
+              - fab1099InvhCode
+              - checkDate
+              - checkNum
+              - fab1099ItypCode
+              - bankCode
+            type: object
+            properties:
+              bankCode:
+                title: Bank
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : FAB1099_BANK_CODE, Lookup lineage
+                  reference object : gxvbank"
+                x-lineageReferenceObject: FAB1099_BANK_CODE
+                x-lineageLookupReferenceObject: gxvbank
+              fab1099StWholdAmt:
+                title: State Withheld
+                maxLength: 25
+                type: number
+                description: "Lineage reference object : FAB1099_ST_WHOLD_AMT"
+                x-lineageReferenceObject: FAB1099_ST_WHOLD_AMT
+              checkNum:
+                title: Check Number
+                maxLength: 8
+                type: string
+                description: "Lineage reference object : FAB1099_CHECK_NUM"
+                x-lineageReferenceObject: FAB1099_CHECK_NUM
+              cardNotPresent:
+                title: Card Not Present
+                type: number
+                description: "Lineage reference object : FAB1099_CARD_NOT_PRESENT"
+                x-lineageReferenceObject: FAB1099_CARD_NOT_PRESENT
+              coasCode:
+                title: Chart
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : FAB1099_COAS_CODE, Lookup lineage
+                  reference object : ftvcoas"
+                x-lineageReferenceObject: FAB1099_COAS_CODE
+                x-lineageLookupReferenceObject: ftvcoas
+              fab1099FedWholdAmt:
+                title: Federal Withheld
+                maxLength: 25
+                type: number
+                description: "Lineage reference object : FAB1099_FED_WHOLD_AMT"
+                x-lineageReferenceObject: FAB1099_FED_WHOLD_AMT
+              checkDate:
+                title: Check Date
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : FAB1099_CHECK_DATE"
+                format: date-time
+                x-lineageReferenceObject: FAB1099_CHECK_DATE
+              fab1099ItypCode:
+                title: Income Type
+                maxLength: 30
+                type: string
+                description: "Lookup lineage reference object : ftvityp"
+                x-lineageLookupReferenceObject: ftvityp
+              fab1099StPaidOverAmt:
+                title: State Previously Paid
+                maxLength: 25
+                type: number
+                description: "Lineage reference object : FAB1099_ST_PAID_OVER_AMT"
+                x-lineageReferenceObject: FAB1099_ST_PAID_OVER_AMT
+              fab1099InvhCode:
+                title: Document
+                maxLength: 8
+                type: string
+                description: "Lineage reference object : FAB1099_INVH_CODE"
+                x-lineageReferenceObject: FAB1099_INVH_CODE
+              rptAmt:
+                title: Reported Amount
+                maxLength: 25
+                type: number
+                description: "Lineage reference object : FAB1099_RPT_AMT"
+                x-lineageReferenceObject: FAB1099_RPT_AMT
+              fab1099InstTin:
+                title: Payer TIN
+                maxLength: 9
+                type: string
+                description: "Lineage reference object : FAB1099_INST_TIN, Lookup lineage
+                  reference object : fob1099,for1099"
+                x-lineageReferenceObject: FAB1099_INST_TIN
+                x-lineageLookupReferenceObject: fob1099,for1099
+              fab1099FedPaidOverAmt:
+                title: Federal Previously Paid
+                maxLength: 25
+                type: number
+                description: "Lineage reference object : FAB1099_FED_PAID_OVER_AMT"
+                x-lineageReferenceObject: FAB1099_FED_PAID_OVER_AMT
+            x-lineageReferenceObject: FAB1099
+        ftvvendVendOwner:
+          title: Owner Vendor ID
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : ftvvendVendOwner, Lookup lineage
+            reference object : ftvvend"
+          x-lineageReferenceObject: ftvvendVendOwner
+          x-lineageLookupReferenceObject: ftvvend
+        faa1099RptYr:
+          title: Year
+          maxLength: 2
+          type: string
+          description: "Lineage reference object : faa1099RptYr"
+          x-lineageReferenceObject: faa1099RptYr
+        instTin:
+          title: Payer TIN
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : instTin, Lookup lineage reference
+            object : fob1099,for1099"
+          x-lineageReferenceObject: instTin
+          x-lineageLookupReferenceObject: fob1099,for1099
+      x-lineageReferenceObject: KEY_BLOCK
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EllucianOAuthUserToken:
+      type: http
+      scheme: bearer
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

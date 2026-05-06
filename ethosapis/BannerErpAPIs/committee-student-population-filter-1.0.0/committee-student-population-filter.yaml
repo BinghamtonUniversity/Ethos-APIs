@@ -1,0 +1,200 @@
+openapi: 3.0.1
+info:
+  title: committee-student-population-filter
+  description: Get filter params for student population
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Student
+  x-source-title: Committee Student Population Filter
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: '{server_url}'
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost   
+paths:
+  /api/committee-student-population-filter:
+    get:
+      tags:
+        - committee-student-population-filter
+      summary: Get filter params for student population by passing committeeCode.
+      x-method-permissions: API_COMT_STU_POP_FILTER
+      parameters:
+        - name: committeeCode
+          in: query
+          required: true
+          schema:
+            type: string
+          example: APTEST
+        - name: stageNumber
+          in: query
+          schema:
+            type: number
+          example: 1
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/StudentPopulationFilterObj'
+              examples:
+                population-data:
+                  $ref: '#/components/examples/StudentPopulationFilter'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                       $ref: '#/components/schemas/ErrorsObj'
+              examples:
+                committeeCodeRequired:
+                  $ref: '#/components/examples/CommitteeCodeRequired'
+                invalidParams:
+                  $ref: '#/components/examples/InvalidParams'  
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                unauthorizedNoParams:
+                  $ref: '#/components/examples/Unauthorized'
+                unauthorizedNoAuth:
+                  $ref: '#/components/examples/UnauthorizedNoAuth'                 
+components:  
+  schemas:
+    StudentPopulationFilterObj:
+      type: object
+      properties:
+        classificationStatus:
+          type: string
+        department:
+          type: string
+        departmentDescription:
+          type: string
+        mode:
+          type: string
+        modeDescription:
+          type: string
+        program:
+          type: string
+        programDescription:
+          type: string
+        progressionOutcomeDescription:
+          type: string
+        progressionStatus:
+          type: string
+        proposedClassification:
+          type: string
+        proposedClassificationDescription:
+          type: string
+        proposedPrograssionOutcome:
+          type: string
+        rolled:
+          type: boolean
+        stageNumber:
+          type: integer
+        term:
+          type: string
+        termDescription:
+          type: string
+        trailingCourseExists:
+          type: boolean
+    ErrorsObj:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        message:
+          type: string
+  examples:
+    Unauthorized:
+      description: If the request send blank params for auth
+      value: "401 - Unauthorized"
+    UnauthorizedNoAuth:
+      description: If the request does not authenticate
+      value: "401 - Full authentication is required to access this resource"        
+    CommitteeCodeRequired:
+      value: |-
+          {
+              "errors": [
+                  {
+                      "code": "Global.SchemaValidation.Error",
+                      "description": "Errors parsing input JSON.",
+                      "message": "Mandatory Field: committeeCode is missing from payload"
+                  }
+              ]
+          }       
+    InvalidParams:
+      value: |-
+          {
+              "errors": [
+                  {
+                      "code": "Global.SchemaValidation.Error",
+                      "description": "Errors parsing input JSON.",
+                      "message": "Valid stageNumber value must be entered."
+                  }
+              ]
+          }      
+    StudentPopulationFilter:
+      value:
+          [
+            {
+              "classificationStatus": "APPROVED",
+              "department": "CLED",
+              "departmentDescription": "Civil Department",
+              "program": "CIVIL",
+              "programDescription": "Civil Engineering",
+              "progressionOutcomeDescription": "Continue on Stage",
+              "progressionStatus": "ROLLED",
+              "proposedClassification": "M",
+              "proposedClassificationDescription": "magna cum laude",
+              "proposedPrograssionOutcome": "CN",
+              "rolled": true,
+              "stageNumber": 1,
+              "term": "202101",
+              "termDescription": "2021 - Sem 1",
+              "trailingCourseExists": true
+            },
+            {
+              "classificationStatus": "APPROVED",
+              "department": "CLED",
+              "departmentDescription": "Civil Department",
+              "mode": "CLEC",
+              "modeDescription": "Civil Concentration",
+              "program": "CIVIL",
+              "programDescription": "Civil Engineering",
+              "progressionOutcomeDescription": "Continue on Stage",
+              "progressionStatus": "CALCULATED",
+              "proposedClassification": "M",
+              "proposedClassificationDescription": "magna cum laude",
+              "proposedPrograssionOutcome": "CN",
+              "rolled": false,
+              "stageNumber": 1,
+              "term": "202110",
+              "termDescription": "FALL 2020 (2020-2021)",
+              "trailingCourseExists": false
+            }
+          ]

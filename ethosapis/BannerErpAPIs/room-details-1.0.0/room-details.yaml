@@ -1,0 +1,965 @@
+openapi: 3.0.0
+
+info:
+  title: Room Details
+  description: 
+   The Room Details API returns room details as seen on the SLARDEF administrative page. In addition to the room details, attributes (SLRRDEF), availability/usage (SLRRUSE) and comments (SLRCMNT) 
+   associated with the rooms are also returned. 
+
+  version: 1.0.0-beta
+  x-api-type: erp
+  x-release-status: beta
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Foundation
+  x-source-name: SLARDEF
+  
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /api/room-details:
+    get:
+      tags:
+      - room-details
+      summary: Returns resources from SLBRDEF, SLRRDEF, SLRRUSE and SLRCMNT.
+      description: Returns room SLBRDEF records. Any SLRRDEF, SLRRUSE and SLRCMNT records 
+        associated with the room are also returned in the response. 
+
+
+       Query by POST request returns the same records as GET request.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description:  |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: string
+            $ref: '#/components/schemas/room-details-1.0.0_response'
+          description: >                        
+            ### Term
+            
+            Returns all records for the term code passed.
+
+            ```
+
+            /room-details?criteria={"fromTerm":"202210"}
+
+            ```
+             
+            ### Building
+           
+            Returns all records for the building code passed.
+
+            ```
+
+            /room-details?criteria={"building":"AGC"}
+
+            ```
+
+            ### Room Number
+
+            Return all records for the room number passed.
+
+            ```
+
+            /room-details?criteria={"roomNumber":"13"}
+
+            ```
+
+            ### Room Type
+
+            Return all records for the room type passed.
+
+            ```
+
+            /room-details?criteria={"roomType":"C"}
+
+            ```
+
+            ### Status
+
+            Return all records for the status passed.
+
+            ```
+
+            /room-details?criteria={"status":"AC"}
+
+            ```
+
+            ### Attribute
+                        
+            Returns all records for the attribute passed.
+
+            ```
+
+            /room-details?criteria={"attribute":"100"}
+
+            ```                 
+
+            ### Room ID
+                        
+            Returns all records for the room ID passed.
+
+            ```
+
+            /room-details?criteria={"roomId":"4feqfc84-3t37-4036-852c-34tzl9d5501a"}
+
+            ```                     
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/room-details-1.0.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_ROOM_DETAILS      
+  "/api/room-details/{id}":
+    get:
+      summary: Returns the requested resource from SLBRDEF.
+      description: Returns a record from SLBRDEF with the passed in identifier along with any SLRRDEF, SLRRUSE 
+        and SLRCMNT records associated with the room.
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permissions: API_ROOM_DETAILS
+      tags:
+        - room-details
+      parameters:
+        - name: id
+          in: path
+          required: true                       
+          description: A global identifier of a rooms resource for use in all external
+            references to the room.
+          schema:
+            type: string
+            format: guid
+            minimum: 1
+      responses:
+       '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/room-details-1.0.0_response"
+       '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '401':
+          description: Failure. Unauthorized.
+       '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+       '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+  /qapi/room-details:
+     post:
+      tags:
+        - room-details QAPI
+      summary: Returns resources from SLBRDEF, SLRRDEF, SLRRUSE and SLRCMNT.
+      description: Queries for the requested resource using a set of attributes provided in the post
+        request body.  Please note the path to the server is overridden to use /qapi/{resource} 
+        in the URL and not /api/{resource}.
+        
+        
+        Returns room records (SLRBDEF).  Any  SLRRDEF, SLRRUSE and SLRCMNT records associated with the 
+          rooms are also returned in the response. 
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ``` 
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: integer            
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.1.0.0+json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/room-details-1.0.0_qapi_post_request' 
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/room-details-1.0.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permissions: API_ROOM_DETAILS
+components:
+  schemas:
+    room-details-1.0.0_response:
+      type: object
+      required:
+        - fromTerm
+        - building
+        - id   
+        - roomNumber
+        - capacity
+        - roomType
+        - attribute
+        - comment                        
+      properties:
+        id:
+          title: Id
+          description: "The global identifier of a room to be used in all external references to the room."
+          type: string
+          format: guid
+          x-lineageReferenceObject: SLBRDEF_GUID
+          example: ee711196-0211-483e-b73c-511af692e532
+        fromTerm:
+          title: Effective Term
+          maxLength: 6
+          type: string
+          description: "The starting term code for the room details."
+          x-lineageReferenceObject: SLBRDEF_TERM_CODE_EFF
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202210  
+        toTerm:
+          title: Ending Term
+          maxLength: 6
+          type: string
+          description: "The ending term code for the room details."
+          x-lineageReferenceObject: derived
+          x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202510
+        building: 
+          title: Building Code
+          description: "Building code associated with the room."
+          maxLength: 6
+          type: string
+          x-lineageReferenceObject: SLBRDEF_BLDG_CODE
+          x-lineageLookupReferenceObject: STVBLDG
+          example: 'AGC'
+        buildingDescription: 
+          title: Building Description
+          description: "Description of the building code assocaited with the room."
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: STVBLDG_DESC
+          example: 'Adamian Graduate Center'
+        roomNumber: 
+          title: Room Number
+          description: "Room number associated with the room."
+          maxLength: 10
+          type: string
+          x-lineageReferenceObject: SLBRDEF_ROOM_NUMBER
+          example: '13'                
+        roomDescription: 
+          title: Room Description
+          description: "Description associated with the room."
+          maxLength: 50
+          type: string
+          x-lineageReferenceObject: SLBRDEF_DESC
+          example: '104 Morison Hall'
+        capacity: 
+          title: Capacity
+          description: "Capacity of the room."
+          maxLength: 5
+          type: number
+          x-lineageReferenceObject: SLBRDEF_CAPACITY
+          example: '100'
+        maximumCapacity: 
+          title: Maximum Capacity
+          description: "Maximum capacity of the room."
+          maxLength: 5
+          type: number
+          x-lineageReferenceObject: SLBRDEF_MAXIMUM_CAPACITY
+          example: 200
+        genderRestriction: 
+          title: Gender Restricition 
+          description: "Gender restrictions for the room. Valid values: M - Male, F - Female and N - Not Applicable."
+          maxLength: 1
+          type: string
+          x-lineageReferenceObject: SLBRDEF_SEX
+          example: 'M' 
+        roomType: 
+          title: Room Type
+          description: "Type of room in the building.  Valid values: D - Dorm, C - Class, or O - Other Room."
+          maxLength: 1
+          type: string
+          x-lineageReferenceObject: SLBRDEF_ROOM_TYPE
+          example: 'C'
+        college: 
+          title: College Code
+          description: "College associated with the room."
+          maxLength: 2
+          type: string
+          x-lineageReferenceObject: SLBRDEF_COLL_CODE
+          x-lineageLookupReferenceObject: STVCOLL
+          example: 'LW'
+        collegeDescription: 
+          title: College Code Description
+          description: "Description of the college code associated with the room."
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: STVCOLL_DESC
+          example: 'Law School'
+        department: 
+          title: Department Code
+          description: "Department associated with the room."
+          maxLength: 4
+          type: string
+          x-lineageReferenceObject: SLBRDEF_DEPT_CODE 
+          x-lineageLookupReferenceObject: STVDEPT
+          example: 'JOU'
+        departmentDescription: 
+          title: Department Code Description
+          description: "Description of the department code associated with the room."
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: STVDEPT_DESC
+          example: 'Jousting Department'
+        status: 
+          title: Status Code
+          description: "Status code associated with the room."
+          maxLength: 2
+          type: string
+          x-lineageReferenceObject: SLBRDEF_RMST_CODE 
+          x-lineageLookupReferenceObject: STVRMST
+          example: 'AC'
+        statusDescription: 
+          title: Status Code Description
+          description: "Description of the status code associated with the room."
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: STVRMST_DESC
+          example: 'Active'
+        category:
+          title: Category Code
+          maxLength: 4
+          type: string
+          description: "Building category associated with the room."
+          x-lineageReferenceObject: SLBRDEF_BCAT_CODE 
+          x-lineageLookupReferenceObject: SLRBCAT_CODE
+          example: 'CAT1'
+        categoryDescription:
+          title: Category Code Description
+          maxLength: 30
+          type: string
+          description: "Description of the category code associated with the room."
+          x-lineageReferenceObject: SLRBCAT_DESC
+          example: 'Category 1' 
+        partition: 
+          title: Partition Code
+          description: "Partition Codes define campus zones, which are categories or groupings of rooms.   Partitions can be defined on buildings, rooms, subjects, courses and sections."
+          maxLength: 7
+          type: string
+          x-lineageReferenceObject: SLBRDEF_PARS_CODE
+          x-lineageLookupReferenceObject: GTVPARS
+          example: 00
+        partitionDescription: 
+          title: Partion Code Description
+          description: "Description of the partition code."
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: GTVPARS_DESC
+          example: 'Default Partition'
+        roomRate: 
+          title: Room Rate Code
+          description: "Rate code associated with the room."
+          maxLength: 4
+          type: string
+          x-lineageReferenceObject: SLBRDEF_RRCD_CODE
+          x-lineageLookupReferenceObject: STVRRCD
+          example: 'DBLD'
+        roomRateDescription: 
+          title: Phone Rate Code Description
+          description: "Description of the rate code defined for the room."
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: STVRRCD_DESC
+          example: 'Double Room-Daily Rate'
+        phoneRate: 
+          title: Phone Rate Code
+          description: "Phone rate code associated with the room."
+          maxLength: 4
+          type: string
+          x-lineageReferenceObject: SLBRDEF_PRCD_CODE
+          x-lineageLookupReferenceObject: STVPRCD
+          example: 'DPTY'
+        phoneRateDescription: 
+          title: Phone Rate Code Description
+          description: "Description of the phone rate code defined for the room."
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: STVPRCD_DESC
+          example: 'Daily Rate-Party Line'
+        phoneCountry: 
+          title: Phone Country Code
+          description: "Telephone code that designates the region and country."
+          maxLength: 4
+          type: string
+          x-lineageReferenceObject: SLBRDEF_CTRY_CODE_PHONE
+          example: 001
+        phoneNumberArea: 
+          title: Phone Number Area 
+          description: "Area code of the room."
+          maxLength: 6
+          type: string
+          x-lineageReferenceObject: SLBRDEF_PHONE_AREA
+          example: 225
+        phoneNumber: 
+          title: Phone Number  
+          description: "Phone number for the room."
+          maxLength: 12
+          type: string
+          x-lineageReferenceObject: SLBRDEF_PHONE_NUMBER
+          example: 1234567
+        phoneExtension: 
+          title: Phone Number Extension
+          description: "Phone extension number of the room."
+          maxLength: 10
+          type: string
+          x-lineageReferenceObject: SLBRDEF_PHONE_EXTENSION
+          example: '0000'
+        utilityRate:
+          title: Utility Rate  
+          description: "Utility rate associated with the room."
+          maxLength: 7
+          type: number
+          x-lineageReferenceObject: SLBRDEF_UTILITY_RATE
+          example: '100.00'
+        utilityRatePeriod:
+          title: Utility Rate Period
+          description: "Time period the utility rate is associated with the room."
+          maxLength: 2
+          type: string
+          x-lineageReferenceObject: SLBRDEF_UTILITY_RATE_PERIOD
+          example: 'Month' 
+        priority:
+          title: Priority
+          description: "This field defines the priority of the room. It is used by the scheduler to determine which rooms are used first."
+          maxLength: 8
+          type: string
+          x-lineageReferenceObject: SLBRDEF_PRIORITY
+          example: '99999999' 
+        keyNumber: 
+          title: Key Number  
+          description: "Number of the key to the room."
+          maxLength: 5
+          type: string
+          x-lineageReferenceObject: SLBRDEF_KEY_NUMBER
+          example: '12367'
+        roomWidth: 
+          title: Room Width  
+          description: "The width, in feet, of the the room."
+          maxLength: 6
+          multipleOf: 0.01
+          type: number
+          x-lineageReferenceObject: SLBRDEF_WIDTH
+          example: '12.00'
+        roomLength: 
+          title: Room Length 
+          description: "The length, in feet, of the the room."
+          maxLength: 6
+          multipleOf: 0.01
+          type: number
+          x-lineageReferenceObject: SLBRDEF_LENGTH
+          example: '12.00'
+        roomArea: 
+          title: Room Area  
+          description: "The area, in feet, of the the room."
+          maxLength: 10
+          multipleOf: 0.01
+          type: number
+          x-lineageReferenceObject: SLBRDEF_AREA
+          example: '540.00'
+        modifiedOn:
+          title: Modified On
+          maxLength: 11
+          type: string
+          format: date-time
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+          description: "Most current date the record was created or changed."
+          x-lineageReferenceObject: SLBRDEF_ACTIVITY_DATE
+          example: 2025-02-14 20:01:24.000   
+        modifiedBy:
+          title: Modified By User ID
+          maxLength: 30
+          type: string
+          description: "User who inserted or last updated the data."
+          x-lineageReferenceObject: SLBRDEF_USER_ID
+          example: SAISUSR    
+        roomId:
+          title: Room Globally Unique Identifier
+          description: "Globally unique identifer for the rooms resource."
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: GORGUID_GUID (rooms)
+          x-lineageDerivedLogic:  A record in GORGUID with GORGUID_LDM_NAME as 'rooms' will refer to the combination of SLBRDEF_BLDG_CODE, SLBRDEF_ROOM_NUMBER, SLBRDEF_TERM_CODE_EFF in SLBRDEF
+          example: 2a4225a5-bb2a-4f57-aded-99e4979ed973
+          maxLength: 36                     
+        attributes:
+          title: Attributes
+          type: array
+          items: 
+            type: object
+            required:
+              - attribute
+            properties:
+              attribute:
+                title: Attribute Code
+                maxLength: 5
+                type: string
+                description: "Attributes associated with the rooms."
+                x-lineageReferenceObject: SLRRDEF_RDEF_CODE
+                x-lineageLookupReferenceObject: STVRDEF
+                example: 100
+              attributeDescription:
+                title: Attribute Code Description
+                maxLength: 30
+                type: string
+                description: "Description of the attribute code associated with rooms defined for the building."
+                x-lineageReferenceObject: STVRDEF_DESC
+                example: 'TEST ROOM'
+              requireMatchForDormAssignment: 
+                title: Attribute Matching for Dormitory
+                maxLength: 1
+                type: boolean
+                description: "Attribute entered for the room requires a matching attribute for the people scheduled in the room."
+                x-lineageReferenceObject: SLRRDEF_MUST_MATCH
+                example: 'Y'
+        comments:           
+          title: Comments
+          type: array
+          items:
+            type: object
+            required:
+              - comment
+              - sequenceNumber
+            properties:
+              comment:
+                title: Comment
+                maxLength: 60  
+                type: string                        
+                description: "Comments for a room are stored."          
+                x-lineageReferenceObject: SLRCMNT_COMMENTS
+                example: 'Large Room'    
+              sequenceNumber:
+                title: Sequence Number
+                description: "Internal number used to ensure that the comments will display in proper order."        
+                maxLength: 23
+                type: string
+                x-lineageReferenceObject: SLRCMNT_SEQNO
+                example: 2
+        inactivationPeriods:
+          title: Inactivation Periods 
+          type: array
+          items:
+            type: object
+            required:
+            - startOn
+            properties:
+              startOn: 
+                title: Start Date On
+                type: string
+                format: date
+                description: "Starting date of the room usage restriction."
+                x-lineageReferenceObject: SLRRUSE_START_DATE
+                example: 2025-03-05
+              endOn: 
+                title: End Date On
+                type: string
+                format: date
+                description: "Ending date of the room usage restriction."
+                x-lineageReferenceObject: SLRRUSE_END_DATE
+                example: 2025-11-05
+              startTime: 
+                title: Start Time
+                type: string
+                maxLength: 4
+                description: "Begin time for room usage. Used by 3rd party scheduling tool."
+                x-lineageReferenceObject: SLRRUSE_BEGIN_TIME
+                example: 1100
+              endTime: 
+                title: End Time
+                type: string
+                maxLength: 4
+                description: "End time for room usage. Used by 3rd party scheduling tools."
+                x-lineageReferenceObject: SLRRUSE_END_TIME
+                example: 1300
+              isNotAvailableSunday:
+                title: Room is not Available on Sunday
+                maxLength: 1
+                type: boolean
+                x-lineageReferenceObject: SLRRUSE_SUN_DAY
+                example: false
+              isNotAvailableMonday:
+                title: Room is not Available on Monday
+                maxLength: 1
+                type: boolean
+                x-lineageReferenceObject: SLRRUSE_MON_DAY
+                example: false
+              isNotAvailableTuesday:
+                title: Room is not Available on Tuesday
+                maxLength: 1
+                type: boolean
+                x-lineageReferenceObject: SLRRUSE_TUE_DAY
+                example: false
+              isNotAvailableWednesday:
+                title: Room is not Available on Wednesday
+                maxLength: 1
+                type: boolean
+                x-lineageReferenceObject: SLRRUSE_WED_DAY
+                example: false
+              isNotAvailableThursday:
+                title: Room is not Available on Thursday
+                maxLength: 1
+                type: boolean
+                x-lineageReferenceObject: SLRRUSE_THU_DAY
+                example: true
+              isNotAvailableFriday:
+                title: Room is not Available on Friday
+                maxLength: 1
+                type: boolean
+                x-lineageReferenceObject: SLRRUSE_FRI_DAY
+                example: false
+              isNotAvailableSaturday:
+                title: Room is not Available on Saturday
+                maxLength: 1
+                type: boolean
+                x-lineageReferenceObject: SLRRUSE_SAT_DAY
+                example: true                  
+    room-details-1.0.0_qapi_post_request:
+      type: object   
+      properties:
+        fromTerm:
+              title: Query Term
+              maxLength: 6
+              type: string
+              description: "A user provided value.  The query term code is used to retrieve the most current course details that are less than, or equal to, the provided value."
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202510
+        building: 
+          title: Building Code
+          description: "Building code associated with the room record."
+          maxLength: 6
+          type: string
+          x-lineageReferenceObject: SLBRDEF_BLDG_CODE
+          x-lineageLookupReferenceObject: STVBLDG
+          example: 'AGC'          
+        roomNumber: 
+          title: Room Number
+          description: "Room number associated with the room."
+          maxLength: 10
+          type: string
+          x-lineageReferenceObject: SLBRDEF_ROOM_NUMBER
+          example: '13'
+        roomType: 
+          title: Room Type
+          description: "Type of room in the building.  Valid values: D - Dorm, C - Class, or O - Other Room."
+          maxLength: 1
+          type: string
+          x-lineageReferenceObject: SLBRDEF_ROOM_TYPE
+          example: 'C'
+        status: 
+          title: Status Code
+          description: "Status code associated with the room."
+          maxLength: 2
+          type: string
+          x-lineageReferenceObject: SLBRDEF_RMST_CODE 
+          x-lineageLookupReferenceObject: STVRMST
+          example: 'AC'
+        attribute:
+          title: Attribute Code
+          description: "Attributes associated with the rooms."
+          maxLength: 4
+          type: string
+          x-lineageReferenceObject: SLRRDEF_RDEF_CODE
+          x-lineageLookupReferenceObject: STVRDEF
+          example: 100          
+        roomId:
+          title: Room Globally Unique Identifier
+          description: "Globally unique identifer for the rooms resource."
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: GORGUID_GUID (rooms)
+          x-lineageDerivedLogic:  A record in GORGUID with GORGUID_LDM_NAME as 'rooms' will refer to the combination of SLBRDEF_BLDG_CODE, SLBRDEF_ROOM_NUMBER, SLBRDEF_TERM_CODE_EFF in SLBRDEF
+          example: 2a4225a5-bb2a-4f57-aded-99e4979ed973
+          maxLength: 36             
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

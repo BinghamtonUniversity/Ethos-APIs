@@ -1,0 +1,464 @@
+openapi: 3.0.0
+info:
+  title: Student Academic Period Profiles
+  description: >
+    **API Deprecation Notice**
+
+
+
+    Deprecated on: 30-Jun-2019
+
+
+
+    Sunset on: 01-Jul-2021
+
+
+
+    Description: Replaced with student-academic-periods which provides greater flexibility to associate statuses and loads with academic levels.
+
+
+
+    ----
+
+
+    Information about a student for a specified academic period.
+  version: "7.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Student
+  x-deprecated-on: 2019-06-30
+  x-sunset-on: 2021-07-01
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: student-academic-period-profiles
+paths:
+  /api/student-academic-period-profiles:
+    get:
+      summary: Returns resources from SFBETRM
+      description: |
+        Returns a paged list of term enrollments information from SFBETRM table
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STUD_ACADM_PERID_PROFILES
+      tags:
+        - student-academic-period-profiles
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v7+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: person
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### person  
+
+            Returns all Term Enrollment information for the person GUID passed
+
+            ```
+
+            /student-academic-period-profiles?person=af7bf8a1-6138-41f1-ae03-4a4c582ed533
+
+            ```
+        - name: academicPeriod
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### academicPeriod
+
+            Returns all Term Enrollment information for the academic period passed
+
+            ```
+
+            /student-academic-period-profiles?academicPeriod=463e32fe-4441-4f75-be88-9091035aab8d
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-student-academic-period-profiles.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v7+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      deprecated: true
+  /api/student-academic-period-profiles/{id}:
+    get:
+      summary: Return the requested resource from SFBETRM
+      description: |
+        Return one term enrollment from SFBETRM table
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STUD_ACADM_PERID_PROFILES
+      tags:
+        - student-academic-period-profiles
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v7+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v7+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v7+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-student-academic-period-profiles.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      deprecated: true
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-student-academic-period-profiles.json:
+      title: Student Academic Period Profiles
+      description: Information about a student for a specified academic period.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the student academic period profile.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: SFBETRM_GUID(SFBETRM)
+        person:
+          title: Person
+          description: A reference to link a student to the common HEDM persons entity.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Person.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+              x-lineageDerivedLogic: Display person GUID from GORGUID where GORGUID_LDM_NAME is 'persons' and GORGUID_DOMAIN_KEY matches SFBETRM_PIDM
+          additionalProperties: false
+          required:
+            - id
+        academicPeriod:
+          title: Academic Period
+          description: A term within an academic year (for example, Semester).
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Academic Period.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: academic-periods 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = term) 
+              x-lineageDerivedLogic: Display academicPeriod GUID from GORGUID where GORGUID_LDM_NAME is 'term' and GORGUID_DOMAIN_KEY matches SFBETRM_TERM_CODE
+          additionalProperties: false
+          required:
+            - id
+        studentStatus:
+          title: Student Status
+          description: Status of the student for a given academic period.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Student Status.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: student-statuses 
+                  x-lineageReferenceObject: STVSTST_GUID(STVSTST)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        type:
+          title: Type
+          description: Type of the student for the academic period .
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Type.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: student-types 
+                  x-lineageReferenceObject: STVSTYP_GUID(STVSTYP)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        residency:
+          title: Residency
+          description: "The residency type of the student for the academic period (e.g.:
+            international, in state, out of state, etc.)."
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Residency.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: residency-types 
+                  x-lineageReferenceObject: STVRESD_GUID(STVRESD)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        academicPeriodEnrollmentStatus:
+          title: Academic Period Enrollment Status
+          description: Status of the student enrollment for a given academic period.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Academic Period Enrollment Status.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: academic-period-enrollment-statuses 
+                  x-lineageReferenceObject: STVESTS_GUID(STVESTS)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        academicLoad:
+          title: Academic Load
+          description: The relative load (full-time, part-time, overload) of a student
+            during the academic period based on the number of contact hours or
+            credits.
+          enum:
+            - partTime
+            - overLoad
+            - fullTime
+          type: string
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: Display the valid 'academicLoad' enum value mapped in the API configuration setting 'STUDENT.ACADEMIC.LOAD.CODE' for the SFBETRM_TMST_CODE
+        tags:
+          title: Tags
+          description: A list of custom defined attributes or characteristics (tags)
+            assigned to the student.
+          type: array
+          items:
+            title: Tags
+            description: A list of custom defined attributes or characteristics (tags)
+              assigned to the student.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Tags.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: student-tags 
+                x-lineageReferenceObject: STVATTS_GUID(STVATTS)
+            additionalProperties: false
+            required:
+              - id
+        measures:
+          title: Measures
+          description: Measures (GPA, year classification) associated with the student for
+            the academic period by academic level.
+          type: array
+          items:
+            type: object
+            properties:
+              level:
+                title: Level
+                description: A academic level associated with the student during the academic
+                  period.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Level.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: academic-levels 
+                    x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = academic-levels) 
+                    x-lineageDerivedLogic: Display academicLevel GUIDs from GORGUID where GORGUID_LDM_NAME is 'academic-levels' and GORGUID_DOMAIN_KEY matches levl codes from SHRTGPA and SORLCUR. For the SFBETRM_PIDM and SFBETRM_TERM_CODE, fetch the SHRTGPA_LEVL_CODE value from SHRTGPA table and For the SFBETRM_PIDM and SFBETRM_TERM_CODE, fetch the SORLCUR_LEVL_CODE value from SORLCUR table where SORLCUR_LMOD_CODE = 'LEARNER' and SORLCUR_CACT_CODE '= 'ACTIVE' and SORLCUR_CURRENT_CDE = 'Y'.
+                additionalProperties: false
+                required:
+                  - id
+              performanceMeasure:
+                title: Performance Measure
+                description: Measurement of the student's performance by academic level. (e.g.
+                  GPA).
+                type: string
+                x-lineageReferenceObject: SHRTGPA_GPA(SHRTGPA)
+              classification:
+                title: Classification
+                description: The student's classification by academic level during the academic
+                  period. (E.g Freshman, Senior, ...)
+                oneOf:
+                  - type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the Classification.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                        x-lineageLookupReferenceObject: student-classifications 
+                        x-lineageReferenceObject: STVCLAS_GUID(STVCLAS)
+                    additionalProperties: false
+                    required:
+                      - id
+                  - type: object
+                    maxProperties: 0
+            additionalProperties: false
+            required:
+              - level
+      required:
+        - id
+        - person
+        - academicPeriod
+      additionalProperties: false

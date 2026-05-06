@@ -1,0 +1,214 @@
+openapi: 3.0.0
+info:
+  title: Leave Request
+  description: Leave request initiation.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Human Resources
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/leave-request:
+    get:
+      summary: Leave Request
+      description: Information of leave request.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_LEAVE_REQUEST
+      tags:
+        - leave-request
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: bannerId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: string
+          description: |
+            ### bannerId  
+            Returns all the leave requests for the bannerId
+            ```
+            /leave-request?bannerId="HOSH111111"
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-leave-request.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "201":
+          description: Failure
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ErrorsObj"
+              examples:
+                MandtoryFieldsMissing:
+                  $ref: "#/components/examples/MandtoryFieldsMissing"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-leave-request.json:
+      title: Leave Requests
+      description: Base Details for leave request.
+      type: object
+      properties:
+        leaveRequest:
+          type: array
+          items:
+            type: object
+            properties:
+              earnCode:
+                title: Earn Code
+                description: A code used to identify an earnings type of leave.
+                type: string
+              earnCodeDescription:
+                title: Earn code description
+                description: The full description or title for the Earnings Code being defined.
+                type: string
+              hourDayIndicator:
+                title: Hour day indicator
+                description: Hour Day Indicator;  H = hours,  D = days.
+                type: string
+              jobSequenceNumber:
+                title: Job Sequence Number
+                description: Internal System Identification Number for a time entry document.
+                type: integer
+              leaveCategoryCode:
+                title: Leave Category Code
+                description: A code identifies a group of leave types (Leave Codes) that can be
+                  assigned to an employee with job.
+                type: string
+              payPeriodEndDate:
+                title: Pay period End Date
+                description: The end date of the pay period.
+                type: string
+              payPeriodStartDate:
+                title: Pay Period start date
+                description: The start date of the pay period.
+                type: string
+              statusDescription:
+                title: Status Description
+                description: Status description of the leave request.
+                type: string
+              timeEntryDate:
+                title: Time Entry Date
+                description: Begin date of time entry for effective period.
+                type: string
+              timeEntryCDate:
+                title: Time Entry Date Formatted
+                description: Begin date of time entry for effective period in a formatted way.
+                type: string
+              totalHours:
+                title: Total Hours
+                description: Total hours entered for the leave request in the entire pay period.
+                type: string
+              totalHoursPerDay:
+                title: Per day total hours
+                description: Total hours entered for the leave request on that particular day.
+                type: string
+        accrueLeave:
+          title: Accrue Leave
+          description: Accrue leave processing method indicator.
+          type: string
+    ErrorsObj:
+      type: object
+      properties:
+        failure:
+          type: string
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+        sampleRequest:
+          type: object
+          properties:
+            bannerId:
+              type: string
+  examples:
+    MandtoryFieldsMissing:
+      value: |-
+        {
+           "failure": true,
+            "sampleRequest": {
+               "bannerId": "string"
+            },
+           "error": {
+               "message": "Missing one or more mandatory parameters."
+           }
+        }

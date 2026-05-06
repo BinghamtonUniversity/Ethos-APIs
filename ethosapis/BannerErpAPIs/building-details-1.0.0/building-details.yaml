@@ -1,0 +1,960 @@
+openapi: 3.0.0
+info:
+  title: Building Details
+  description: 
+   The Building Details API returns building details as seen on the SLABLDG administrative page. In addition to the building details, building attributes (SLRBDEF), building catogeries (SLRBCAT) and comments (SLRBCMT)
+   associated with the rooms defined for the building are also returned. 
+
+
+  version: 1.0.0-beta
+  x-api-type: erp
+  x-release-status: beta
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Foundation
+  x-source-name: SLABLDG
+  
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /api/building-details:
+    get:
+      tags:
+      - building-details
+      summary: Returns resources from SLBBLDG, SLRBDEF, SLRBCAT and SLRCMNT.
+      description: Returns building SLBBDLG records. Any SLRBDEF, SLRBCAT and
+        SLRCMNT records associated with the rooms defined for the building are also returned in the response.
+
+
+       The QAPI POST request returns the same records as the GET request.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description:  |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: string
+            $ref: '#/components/schemas/building-details-1.0.0_response'
+          description: >
+            ### Building            
+           
+            Returns all records for the building code passed.
+
+            ```
+
+            /building-details?criteria={"building":"AGC"}
+          
+            ```
+
+            ### Campus
+
+            Returns all records for the campus code passed.
+
+            ```
+            
+            /building-details?criteria={"campus":"JO"}
+
+            ```
+            
+            ### Site
+
+            Returns all records for the site code passed.
+
+            ```
+
+            /building-details?criteria={"site":"001"}
+
+            ```      
+
+            ### Attribute
+                        
+            Returns all records for the attribute passed.
+
+            ```
+
+            /building-details?criteria={"attribute":"100"}
+
+            ```
+
+            ### Category
+            
+                     
+            Returns all records for the category code passed.
+
+            ```
+
+            /building-details?criteria={"category":"CAT1"}
+
+            ```
+
+
+            ### Building Id
+            
+                     
+            Returns all records for the buildings resource id passed. 
+
+            ```
+
+            /building-details?criteria={"buildingId":"2a4225a5-bb2a-4f57-aded-99e4979ed973"}
+
+            ```            
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/building-details-1.0.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_BUILDING_DETAILS
+    
+  "/api/building-details/{id}":
+    get:
+      summary: Returns the requested resource from SLBBLDG.
+      description: Returns a record from SLBBLDG with the passed in identifier along with any SLRBDEF, SLRBCAT and
+        SLRCMNT records associated with the rooms defined for the building.
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      tags:
+        - building-details
+      parameters:
+        - name: id
+          in: path
+          required: true                       
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: guid
+            minimum: 1
+      responses:
+       '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/building-details-1.0.0_response"
+       '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '401':
+          description: Failure. Unauthorized.
+       '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+       '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'     
+      x-method-permissions: API_BUILDING_DETAILS                    
+  /qapi/building-details:
+     post:
+      tags:
+        - building-details QAPI
+      summary: Returns resources from SLBBLDG, SLRBDEF, SLRBCAT and SLRCMNT.
+      description: Queries for the requested resource using a set of attributes provided in the post
+        request body.  Please note the path to the server is overridden to use /qapi/{resource} 
+        in the URL and not /api/{resource}.
+        
+        
+        Queries for the requested resources using a building code.
+
+
+        Returns building SLBBDLG records. Any SLRBDEF, SLRBCAT and SLRCMNT records associated with the rooms 
+        defined for the building are also returned in the response.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ``` 
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: integer            
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.1.0.0+json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/building-details-1.0.0_qapi_post_request' 
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/building-details-1.0.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permissions: API_BUILDING_DETAILS
+components:        
+  schemas:
+    building-details-1.0.0_response:
+      type: object
+      required:
+        - building
+        - id
+        - campus
+        - capacity
+      properties:
+        id:
+          title: Id
+          description: "The global identifier of the Building details."
+          type: string
+          format: guid
+          x-lineageReferenceObject: SLBBLDG_GUID
+          example: 2a4225a5-bb2a-4f57-aded-99e4979ed973 
+        building: 
+          title: Building Code
+          description: "Building code associated with the building record."
+          maxLength: 6
+          type: string
+          x-lineageReferenceObject: SLBBLDG_BLDG_CODE
+          x-lineageLookupReferenceObject: STVBLDG
+          example: 'AGC'
+        buildingDescription: 
+          title: Building Description
+          description: "Description of the building code."
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: STVBLDG_DESC
+          example: 'Admin Graduate Center'
+        campus: 
+          title: Campus Code
+          description: "Campus in which the building is located."
+          maxLength: 3
+          type: string
+          x-lineageReferenceObject: SLBBLDG_CAMP_CODE
+          x-lineageLookupReferenceObject: STVCAMP
+          example: 'JO'
+        campusDescription: 
+          title: Campus Code Description
+          description: "Description of the campus code."
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: STVCAMP_DESC          
+          example: 'Jousting Campus'
+        site: 
+          title: Site Code
+          description: "Site of the building."
+          maxLength: 3
+          type: string
+          x-lineageReferenceObject: SLBBLDG_SITE_CODE
+          x-lineageLookupReferenceObject: STVSITE
+          example: '001'
+        siteDescription: 
+          title: Site Code Description
+          description: "Description of the site code."
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: STVSITE_DESC
+          example: 'Downtown Site'
+        capacity: 
+          title: Building Capacity
+          description: "Capacity of the building."
+          maxLength: 5
+          type: number
+          x-lineageReferenceObject: SLBBLDG_CAPACITY
+          example: 100
+        maximumCapacity: 
+          title: Building Maximum Capacity
+          description: "Maximum capacity of the building."
+          maxLength: 5
+          type: number
+          x-lineageReferenceObject: SLBBLDG_MAXIMUM_CAPACITY
+          example: 200
+        genderRestriction: 
+          title: Gender Restricition 
+          description: "Gender restriction for the building. Choices are Male (M), Female (F) and Not Applicable (N)."
+          maxLength: 1
+          type: string
+          x-lineageReferenceObject: SLBBLDG_SEX
+          example: 'M' 
+        college: 
+          title: College Code
+          description: "College associated with the building."
+          maxLength: 2
+          type: string
+          x-lineageReferenceObject: SLBBLDG_COLL_CODE
+          x-lineageLookupReferenceObject: STVCOLL
+          example: 'J'
+        collegeDescription: 
+          title: College Code Description
+          description: "Description of the college code associated with the building."
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: STVCOLL_DESC
+          example: 'College1111111'
+        department: 
+          title: Department Code
+          description: "Department associated with the building."
+          maxLength: 4
+          type: string
+          x-lineageReferenceObject: SLBBLDG_DEPT_CODE 
+          x-lineageLookupReferenceObject: STVDEPT
+          example: 'JOU'
+        departmentDescription: 
+          title: Department Code Description
+          description: "Description of the department code."
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: STVDEPT_DESC
+          example: 'Jousting Department'
+        partition: 
+          title: Partition Code
+          description: "Partition Codes define campus zones, which are categories, or groupings of rooms."
+          maxLength: 7
+          type: string
+          x-lineageReferenceObject: SLBBLDG_PARS_CODE
+          x-lineageLookupReferenceObject: GTVPARS
+          example: 00
+        partitionDescription: 
+          title: Partion Code Description
+          description: "Description of the partition code."
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: GTVPARS_DESC
+          example: 'Default Partition'
+        roomRate: 
+          title: Room Rate Code
+          description: "Default room rate for all rooms defined for the building."
+          maxLength: 4
+          type: string
+          x-lineageReferenceObject: SLBBLDG_RRCD_CODE
+          x-lineageLookupReferenceObject: STVRRCD
+          example: 'C100'
+        roomRateDescription: 
+          title: Room Rate Code Description
+          description: "Description of the room rate code code defined for the building."
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: STVRRCD_DESC
+          example: 'Conference-$100 per day'  
+        phoneRate: 
+          title: Phone Rate Code
+          description: "Default phone rate for all rooms defined for the building."
+          maxLength: 4
+          type: string
+          x-lineageReferenceObject: SLBBLDG_PRCD_CODE
+          x-lineageLookupReferenceObject: STVPRCD
+          example: 'DPTY'
+        phoneRateDescription: 
+          title: Phone Rate Code Description
+          description: "Description of the phone rate code defined for the building."
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: STVPRCD_DESC
+          example: 'Daily Rate-Party Line'
+        addressLine1:
+          title: Street Line 1 
+          description: "The first line of the building's address."
+          maxLength: 75
+          type: string
+          x-lineageReferenceObject: SLBBLDG_STREET_LINE1
+          example: 'Memphis Ave'
+        addressLine2:
+          title: Street Line 2
+          description: "The second line of the building's address."
+          maxLength: 75
+          type: string
+          x-lineageReferenceObject: SLBBLDG_STREET_LINE2
+          example: 'Memphis Ave'
+        addressLine3:
+          title: Street Line 3 
+          description: "The third line of the building's address."
+          maxLength: 75
+          type: string
+          x-lineageReferenceObject: SLBBLDG_STREET_LINE3
+          example: 'Memphis Ave'
+        addressLine4:
+          title: Street Line 4 
+          description: "The fourth line of the building's address."
+          maxLength: 75
+          type: string
+          x-lineageReferenceObject: SLBBLDG_STREET_LINE4
+          example: 'Memphis Ave'
+        houseNumber:
+          title: House Number of the building
+          description: "Building or lot number on a street or in an area."
+          maxLength: 10
+          type: string
+          x-lineageReferenceObject: SLBBLDG_HOUSE_NUMBER
+          example: 123
+        city:
+          title: City 
+          description: "City or town where the building is located."
+          maxLength: 50
+          type: string
+          x-lineageReferenceObject: SLBBLDG_CITY
+          example: 'New Orleans'
+        state: 
+          title: State Code
+          description: "State or province code of the building's address."
+          maxLength: 3
+          type: string
+          x-lineageReferenceObject: SLBBLDG_STAT_CODE
+          x-lineageLookupReferenceObject: STVSTAT
+          example: 'LA'
+        stateDescription: 
+          title: State Code Description
+          description: "Description of the state or province code of the building's address."
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: STVSTAT_DESC
+          example: 'Louisiana'
+        zip: 
+          title: Zip Code
+          description: "ZIP or postal code for the address where the building is located."
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: SLBBLDG_ZIP
+          x-lineageLookupReferenceObject: GTVZIPC
+          example: '70032'        
+        county: 
+          title: County Code
+          description: "County where the building is located."
+          maxLength: 5
+          type: string
+          x-lineageReferenceObject: SLBBLDG_CNTY_CODE
+          x-lineageLookupReferenceObject: STVCNTY
+          example: 'WSTC'
+        countyDescription: 
+          title: County Code Description
+          description: "Description of the county code of the building."
+          maxLength: 30
+          type: string
+          x-lineageLookupReferenceObject: STVCNTY_DESC
+          example: 'Westchester County'
+        phoneCountry: 
+          title: Phone Country Code
+          description: "Telephone code that designates the region and country."
+          maxLength: 4
+          type: string
+          x-lineageReferenceObject: SLBBLDG_CTRY_CODE_PHONE
+          example: 001
+        phoneNumberArea: 
+          title: Phone Number Area 
+          description: "Area code of the phone number for the building."
+          maxLength: 6
+          type: string
+          x-lineageReferenceObject: SLBBLDG_PHONE_AREA
+          example: 225
+        phoneNumber: 
+          title: Phone Number  
+          description: "Phone number for the building."
+          maxLength: 12
+          type: string
+          x-lineageReferenceObject: SLBBLDG_PHONE_NUMBER
+          example: 1234567
+        phoneExtension: 
+          title: Phone Number Extension
+          description: "Phone extension of the phone number for the building."
+          maxLength: 10
+          type: string
+          x-lineageReferenceObject: SLBBLDG_PHONE_EXTENSION
+          example: '0000'
+        keyNumber: 
+          title: Key Number  
+          description: "Number of the key to the building."
+          maxLength: 5
+          type: string
+          x-lineageReferenceObject: SLBBLDG_KEY_NUMBER
+          example: '12367'
+        leaseIndicator: 
+          title: Lease Indicator  
+          description: "Specify whether the building is to be considered leased. Valid values are 'Y', 'N' and null."
+          maxLength: 1
+          type: string
+          x-lineageReferenceObject: SLBBLDG_LEASED_IND
+          x-product-region: CalB-Stu
+          example: 'Y'         
+        center: 
+          title: Center Code 
+          description: "Code of the state-approved center associated with this building."
+          maxLength: 4
+          type: string
+          x-lineageReferenceObject: SLBBLDG_CENT_CODE
+          x-lineageLookupReferenceObject: SVVCVNT
+          x-product-region: CalB-Stu
+          example: 'ABC'
+        centerDescription: 
+          title: Center Code Description
+          description: "Description of the center code of the building."
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: SVVCVNT_DESC
+          x-product-region: CalB-Stu
+          example: 'ABC Center'  
+        modifiedOn:
+          title: Modified On
+          maxLength: 11
+          type: string
+          format: date-time
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+          description: "Most current date the record was created or changed."
+          x-lineageReferenceObject: SLBBLDG_ACTIVITY_DATE
+          example: 2025-02-14 20:01:24.000   
+        modifiedBy:
+          title: Modified By User ID
+          maxLength: 30
+          type: string
+          description: "User who inserted or last updated the data."
+          x-lineageReferenceObject: SLBBLDG_USER_ID
+          example: SAISUSR      
+        attributes:
+          title: Attributes
+          type: array
+          items:
+            type: object
+            required:
+            - attribute
+            properties:
+              attribute:
+                title: Attribute Code
+                maxLength: 5
+                type: string
+                description: "Attribute associated with rooms defined for the building."
+                x-lineageReferenceObject: SLRBDEF_RDEF_CODE
+                x-lineageLookupReferenceObject: STVRDEF
+                example: 100
+              attributeDescription:
+                title: Attribute Code Description
+                maxLength: 30
+                type: string
+                description: "Description of the attribute code associated with rooms defined for the building."
+                x-lineageReferenceObject: STVRDEF_DESC
+                example: 'TEST ROOM'
+              modifiedOn:
+                  title: Modified On
+                  maxLength: 11
+                  type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                  description: "Most current date the record was created or changed."
+                  x-lineageReferenceObject: SLRBDEF_ACTIVITY_DATE
+                  example: 2025-02-14 20:01:24.000
+              modifiedBy:
+                  title: Modified By User ID
+                  maxLength: 30
+                  type: string
+                  description: "User who inserted or last updated the data."
+                  x-lineageReferenceObject: SLRBDEF_USER_ID
+                  example: SAISUSR
+        categories:
+          title: Categories
+          type: array
+          items:
+            type: object
+            required:
+            - category
+            properties:
+              category:
+                title: Category Code
+                maxLength: 4
+                type: string
+                description: "Code used to define the physical area of the building."
+                x-lineageReferenceObject: SLRBCAT_CODE
+                example: 'CAT1'
+              categoryDescription:
+                title: Category Code Description
+                maxLength: 30
+                type: string
+                description: "Description of the category code associated with the building."
+                x-lineageReferenceObject: SLRBCAT_DESC
+                example: 'Category 1' 
+              modifiedOn:
+                  title: Modified On
+                  maxLength: 11
+                  type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                  description: "Most current date the record was created or changed."
+                  x-lineageReferenceObject: SLRBCAT_ACTIVITY_DATE
+                  example: 2025-02-14 20:01:24.000   
+              modifiedBy:
+                  title: Modified By User ID
+                  maxLength: 30
+                  type: string
+                  description: "User who inserted or last updated the data."
+                  x-lineageReferenceObject: SLRBCAT_USER_ID
+                  example: SAISUSR
+        comments:
+          title: Comments
+          type: array
+          items:
+            type: object
+            required:
+            - comment
+            properties:
+              comment:
+                title: comment
+                maxLength: 60
+                type: string          
+                description: "Comments for a room."          
+                x-lineageReferenceObject: SLRCMNT_COMMENTS
+                example: 'Large Room'    
+              sequenceNumber:
+                title: Sequence Number
+                description: "Internal number used to ensure that the comments will display in proper order."        
+                maxLength: 23
+                type: string
+                x-lineageReferenceObject: SLRCMNT_SEQNO
+                example: 2
+              modifiedOn:
+                  title: Modified On
+                  maxLength: 11
+                  type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                  description: "Most current date the record was created or changed."
+                  x-lineageReferenceObject: SLRCMNT_ACTIVITY_DATE
+                  example: 2025-02-14 20:01:24.000   
+              modifiedBy:
+                  title: Modified By User ID
+                  maxLength: 30
+                  type: string
+                  description: "User who inserted or last updated the data."
+                  x-lineageReferenceObject: SLRCMNT_USER_ID
+                  example: SAISUSR
+        buildingId:
+          title: Building Globally Unique Identifier
+          description: "Globally unique identifer for the buildings resource."
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: GORGUID_GUID (buildings)
+          x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME = 'buildings' and GORGUID_DOMAIN_KEY = SLBBLDG_BLDG_CODE
+          example: 2a4225a5-bb2a-4f57-aded-99e4979ed973
+          maxLength: 36 
+    building-details-1.0.0_qapi_post_request:
+      type: object
+      properties:
+        building: 
+          title: Building Code
+          description: "Building code associated with the building record."
+          maxLength: 6
+          type: string
+          x-lineageReferenceObject: SLBBLDG_BLDG_CODE
+          x-lineageLookupReferenceObject: STVBLDG
+          example: 'AGC'       
+        campus: 
+          title: Campus Code
+          description: "Campus in which the building is located."
+          maxLength: 3
+          type: string
+          x-lineageReferenceObject: SLBBLDG_CAMP_CODE
+          x-lineageLookupReferenceObject: STVCAMP
+          example: 'JO'        
+        site: 
+          title: Site Code
+          description: "Site of the building."
+          maxLength: 3
+          type: string
+          x-lineageReferenceObject: SLBBLDG_SITE_CODE
+          x-lineageLookupReferenceObject: STVSITE
+          example: '001'
+        attribute:
+          title: Attribute Code
+          maxLength: 5
+          type: string
+          description: "Attribute associated with rooms defined for the building."
+          x-lineageReferenceObject: SLRBDEF_RDEF_CODE
+          x-lineageLookupReferenceObject: STVRDEF
+          example: 100          
+        category:
+          title: Category Code
+          description: "Code used to define the physial area of the building."
+          maxLength: 4
+          type: string
+          x-lineageReferenceObject: SLRBCAT_CODE
+          example: 'CAT1'
+        buildingId:
+          title: Building Globally Unique Identifier
+          description: "Globally unique identifer for the buildings resource."
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: GORGUID_GUID (buildings)
+          x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME = 'buildings' and GORGUID_DOMAIN_KEY = SLBBLDG_BLDG_CODE
+          example: 2a4225a5-bb2a-4f57-aded-99e4979ed973
+          maxLength: 36           
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic
+

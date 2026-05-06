@@ -1,0 +1,263 @@
+openapi: 3.0.0
+info:
+  title: immunization-details
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Foundation
+  x-source-title: Immunization Details
+  description: >
+    This API version supports creation and update of multiple
+    immunization-details. 
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/immunization-details/batches:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/batches-request"
+      tags:
+        - immunization-details
+      parameters:
+        - deprecated: false
+          name: accept
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+          in: header
+          required: false
+        - deprecated: false
+          name: content type
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+          in: header
+          required: false
+      responses:
+        "200":
+          headers:
+            X-Media-Type:
+              schema:
+                type: string
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              deprecated: false
+              required: false
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/batches-response"
+          description: Success
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_IMMUNIZATION_DETAILS
+      summary: "Creates a new immunization-details-batches request. "
+      description: "This request creates a new immunization-details-batches request.
+        It would iterate through each of the immunization-details in the request
+        and process then sequentially. "
+components:
+  schemas:
+    batches-request:
+      description: "List of items to create or update within GOAIMMU admin pages. "
+      type: object
+      properties:
+        items:
+          title: items
+          description: List of items to be processed.
+          type: array
+          items:
+            type: object
+            properties:
+              bannerId:
+                title: Banner ID
+                description: The person's Banner ID
+                type: string
+                maxLength: 9
+                x-lineageReferenceObject: SPRIDEN_ID
+              immunization:
+                title: Immunization
+                maxLength: 10
+                type: string
+                description: Immunization Type
+                x-lineageReferenceObject: GORIMMU_IMMU_CODE
+                x-lineageLookupReferenceObject: gtvimmu
+              sequenceNumber:
+                title: Sequence Number
+                maxLength: 2
+                type: number
+                description: Immunization Sequence Number
+                x-lineageReferenceObject: GORIMMU_SEQ_NO
+              status:
+                title: Status
+                maxLength: 2
+                type: string
+                description: Immunization Status Code
+                x-lineageReferenceObject: GORIMMU_IMST_CODE
+                x-lineageLookupReferenceObject: gtvimst
+              immunizedOn:
+                title: Immunization Date
+                maxLength: 11
+                type: string
+                description: Date associated with the immunization
+                format: date
+                x-lineageReferenceObject: GORIMMU_IMMU_DATE
+              comment:
+                title: Comment
+                description: "Comment related to the immunization "
+                type: string
+                maxLength: 4000
+                x-lineageReferenceObject: GORIMMU_COMMENT
+            required:
+              - bannerId
+              - immunization
+            additionalProperties: false
+          required:
+            - items
+    batches-response:
+      description: "Returns the list of Ids for those items that were successfully
+        updated or created. For those that did not, it returns the list of error
+        messages. "
+      type: object
+      properties:
+        status:
+          title: status
+          description: status of the batch.
+          type: string
+          enum:
+            - completed
+            - inProgress
+            - aborted
+        resource:
+          title: Resource
+          description: The affected resource.
+          type: object
+          properties:
+            name:
+              title: Resource Name
+              description: The pluralized name of the affected resource
+              type: string
+            version:
+              title: Resource version
+              description: The version of the resource
+              type: string
+          additionalProperties: false
+          required:
+            - name
+            - version
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+            oneOf:
+              - type: object
+                properties:
+                  id:
+                    title: Id
+                    description: id
+                    type: object
+                    properties:
+                      bannerId:
+                        title: Banner ID
+                        description: The person's Banner ID
+                        type: string
+                        maxLength: 9
+                        x-lineageReferenceObject: SPRIDEN_ID
+                      immunization:
+                        title: Immunization
+                        description: Immunization Type
+                        type: string
+                        maxLength: 10
+                        x-lineageReferenceObject: GORIMMU_IMMU_CODE
+                      sequenceNumber:
+                        title: Sequence Number
+                        description: Immunization Sequence Number
+                        type: number
+                        maxLength: 2
+                        x-lineageReferenceObject: GORIMMU_SEQ_NO
+                required:
+                  - bannerId
+                  - immunization
+                  - sequenceNumber
+              - type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          description: The global identifier of the resource in error.
+                        sourceId:
+                          type: string
+                          description: The source applications data reference identifier for the primary
+                            data entity used to create the resource. This is
+                            useful for referencing the source item through the
+                            applications administrative user interface.
+                        code:
+                          type: string
+                          description: The error message code used to describe the error details.
+                        description:
+                          type: string
+                          description: The error description used to describe the error details.
+                        message:
+                          type: string
+                          description: The detailed actionable error message.
+          required:
+            - items
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  headers: {}
+  responses: {}
+  parameters: {}
+security: []

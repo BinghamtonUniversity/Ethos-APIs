@@ -1,0 +1,1477 @@
+openapi: 3.0.0
+info:
+  title: deposit-details
+  description: This API is used to retrieve, update and insert deposit details to the TBRDEPO table.
+    This API allows an API USER to post a transaction on behalf of a “user” who has a SPRIDEN ID and has Banner security access to post the transaction.  The “user” field requires either the SPRIDEN ID or the Principal User ID from GOAEACC.  The user is case sensitive and must match the record in Banner
+  version: 3.2.0
+  x-api-type: erp
+  x-release-status: ga
+  x-source-name: TBRDEPO
+  x-source-title: Deposit Details
+  x-source-system: banner
+  x-source-domain: Student
+  x-audience: all
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/deposit-details:
+    get:
+      tags:
+        - deposit-details
+      summary: Provide the list of non-student deposits detail.
+      description: Provide the list of non-student deposits detail.
+      parameters:
+        - name: limit
+          in: query
+          description: The maximum number of resources requesting for this result set. The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          description: The filter condition should be provided as a solitary URL query
+            parameter. It is required to be a URL encoded JSON representation of
+            the properties mentioned in the query request schema. Limit and
+            Offset are the only supported additional parameters on the URL. The
+            version v3.2.0 the filter criteria will support the
+            detailCodePayment, amount, addressTypeCode,effectiveDate
+            (effectiveStartDate and effectiveEndDate), expirationDate
+            (expirationStartDate and expirationEndDate) and releaseDate
+            (releaseStartDate and releaseEndDate) .For instance:- criteria=
+            {"detailCodePayment":"DCHK", "amount":"500", "addressTypeCode":"PR"
+            "effectiveStartDate":"2020-01-01", "effectiveEndDate":"2029-01-01",
+            "expirationStartDate":"2020-01-01",
+            "expirationEndDate":"2029-01-01", "releaseStartDate":"2020-01-01",
+            "releaseEndDate":"2029-01-01" }
+          required: false
+          schema:
+            type: string
+        - name: detailCodePayment
+          in: query
+          description: The detail code payment will be filtered from the result.
+          required: false
+          schema:
+            type: string
+        - name: amount
+          in: query
+          description: The amount will be filtered from the result.
+          required: false
+          schema:
+            type: number
+        - name: expirationStartDate
+          in: query
+          description: The expiration Start date will be filtered from the result.
+          required: false
+          schema:
+            type: string
+        - name: expirationEndDate
+          in: query
+          description: The expiration End date will be filtered from the result.
+          required: false
+          schema:
+            type: string
+        - name: releaseStartDate
+          in: query
+          description: The release Start date will be filtered from the result.
+          required: false
+          schema:
+            type: string
+        - name: releaseEndDate
+          in: query
+          description: The release End date will be filtered from the result.
+          required: false
+          schema:
+            type: string
+        - name: effectiveStartDate
+          in: query
+          description: The effective Start date will be filtered from the result.
+          required: false
+          schema:
+            type: string
+        - name: effectiveEndDate
+          in: query
+          description: The effective End date will be filtered from the result.
+          required: false
+          schema:
+            type: string
+        - name: addressTypeCode
+          in: query
+          description: The address type code will be filtered from the result.
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v3.2.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/deposit-details-3.2.0_response"
+        "400":
+          description: Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+
+        "401":
+          description: Unauthorized
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/Unauthorized"
+        "403":
+          description: Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                NoPermission:
+                  $ref: "#/components/examples/NoPermission"
+        "404":
+          description: Resource not found
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+        "405":
+          description: Method Not Allowed
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                MethodNotAllowed:
+                  $ref: "#/components/examples/MethodNotAllowed"
+        "406":
+          description: Not Acceptable
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                UnsupportedVersion:
+                  $ref: "#/components/examples/UnsupportedVersion"
+        "500":
+          description: Server error, unexpected configuration or data
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+      security:
+        - BasicAuth: []
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_DEPOSIT_DETAILS
+    post:
+      tags:
+        - deposit-details
+      summary: Create a new deposit detail record.
+      description: Create a new deposit detail record.
+      parameters:
+        - name: Accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v3.2.0+json
+
+            ```
+          schema:
+            type: string
+        - name: Content-Type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v3.2.0+json
+
+            ```
+          schema:
+            type: string
+        - name: addressTypeCode
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: addressTypeCodeSequenceNumber
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: amount
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: bannerId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: detailCodeDeposit
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: user
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v3.2.0+json:
+            schema:
+              $ref: "#/components/schemas/deposit-details-3.2.0_post_request"
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v3.2.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/deposit-details-3.2.0_response"
+        "400":
+          description: Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                PersonHasHolds:
+                  $ref: '#/components/examples/PersonHasHolds'
+                InvalidUser:
+                  $ref: '#/components/examples/InvalidUser'
+                DetailCodeInvalid:
+                  $ref: "#/components/examples/DetailCodeInvalid"
+                DetailCodeReservedForGRN:
+                  $ref: "#/components/examples/DetailCodeReservedForGRN"
+                DetailCodeInactive:
+                  $ref: "#/components/examples/DetailCodeInactive"
+                NoDetailCodeSent:
+                  $ref: "#/components/examples/NoDetailCodeSent"
+                EitherMinAmtOrExpDate:
+                  $ref: "#/components/examples/EitherMinAmtOrExpDate"
+                AmountRequired:
+                  $ref: "#/components/examples/AmountRequired"
+                AmountInvalid:
+                  $ref: "#/components/examples/AmountInvalid"
+                InvalidAmountValue:
+                  $ref: "#/components/examples/InvalidAmountValue"
+                AmountLessThanMinimum:
+                  $ref: "#/components/examples/AmountLessThanMinimum"
+                NoBannerId:
+                  $ref: "#/components/examples/NoBannerId"
+                InvalidBannerId:
+                  $ref: "#/components/examples/InvalidBannerId"
+                EffectiveDateLesserThanToday:
+                  $ref: "#/components/examples/EffectiveDateLesserThanToday"
+                ExpirationDateLesserThanRelease:
+                  $ref: "#/components/examples/ExpirationDateLesserThanRelease"
+                InvalidMinAmount:
+                  $ref: "#/components/examples/InvalidMinAmount"
+                InvalidMinimumAmountValue:
+                  $ref: "#/components/examples/InvalidMinimumAmountValue"
+                ReleaseDateLesserThanToday:
+                  $ref: "#/components/examples/ReleaseDateLesserThanToday"
+                ReleaseDateGreaterThanExpDate:
+                  $ref: "#/components/examples/ReleaseDateGreaterThanExpDate"
+                InvalidDetailCodePayment:
+                  $ref: "#/components/examples/InvalidDetailCodePayment"
+                DetailPaymentReservedForGRN:
+                  $ref: "#/components/examples/DetailPaymentReservedForGRN"
+                InactiveDetailCodePayment:
+                  $ref: "#/components/examples/InactiveDetailCodePayment"
+                DetailCodePaymentNotOfPayment:
+                  $ref: "#/components/examples/DetailCodePaymentNotOfPayment"
+                DetailCodePaymentBaseCurrency:
+                  $ref: "#/components/examples/DetailCodePaymentBaseCurrency"
+                AddressTypeCode:
+                  $ref: "#/components/examples/AddressTypeCode"
+                InvalidAddressTypeCode:
+                  $ref: "#/components/examples/InvalidAddressTypeCode"
+                AddressTypeCodeSequenceNumber:
+                  $ref: "#/components/examples/AddressTypeCodeSequenceNumber"
+                InvalidAddressTypeCodeSequenceNumber:
+                  $ref: "#/components/examples/InvalidAddressTypeCodeSequenceNumber"
+                InactiveAddress:
+                  $ref: "#/components/examples/InactiveAddress"
+        "401":
+          description: Unauthorized
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/Unauthorized"
+        "403":
+          description: Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                NoPermission:
+                  $ref: "#/components/examples/NoPermission"
+        "404":
+          description: Resource not found
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+        "405":
+          description: Method Not Allowed
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                MethodNotAllowed:
+                  $ref: "#/components/examples/MethodNotAllowed"
+        "406":
+          description: Not Acceptable
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                UnsupportedVersion:
+                  $ref: "#/components/examples/UnsupportedVersion"
+        "500":
+          description: Server error, unexpected configuration or data
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+      security:
+        - BasicAuth: []
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_DEPOSIT_DETAILS
+  /api/deposit-details/{bannerId}:
+    put:
+      tags:
+        - deposit-details
+      summary: Updates an existing resource in TFADETL deposit
+      parameters:
+        - name: Accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v3.2.0+json
+
+            ```
+          schema:
+            type: string
+        - name: Content-Type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v3.2.0+json
+
+            ```
+          schema:
+            type: string
+        - name: bannerId
+          in: path
+          required: true
+          description: Banner ID
+          schema:
+            type: string
+        - name: addressTypeCode
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: addressTypeCodeSequenceNumber
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: amount
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: bannerId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: detailCodeDeposit
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: transactionNumber
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: user
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v3.2.0+json:
+            schema:
+              $ref: "#/components/schemas/deposit-details-3.2.0_put_request"
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v3.2.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/deposit-details-3.2.0_response"
+        "400":
+          description: Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                PersonHasHolds:
+                  $ref: '#/components/examples/PersonHasHolds'
+                InvalidUser:
+                  $ref: '#/components/examples/InvalidUser'
+                DetailCodeInvalid:
+                  $ref: "#/components/examples/DetailCodeInvalid"
+                DetailCodeReservedForGRN:
+                  $ref: "#/components/examples/DetailCodeReservedForGRN"
+                DetailCodeInactive:
+                  $ref: "#/components/examples/DetailCodeInactive"
+                NoDetailCodeSent:
+                  $ref: "#/components/examples/NoDetailCodeSent"
+                EitherMinAmtOrExpDate:
+                  $ref: "#/components/examples/EitherMinAmtOrExpDate"
+                AmountRequired:
+                  $ref: "#/components/examples/AmountRequired"
+                AmountInvalid:
+                  $ref: "#/components/examples/AmountInvalid"
+                InvalidAmountValue:
+                  $ref: "#/components/examples/InvalidAmountValue"
+                AmountLessThanMinimum:
+                  $ref: "#/components/examples/AmountLessThanMinimum"
+                NoBannerId:
+                  $ref: "#/components/examples/NoBannerId"
+                InvalidBannerId:
+                  $ref: "#/components/examples/InvalidBannerId"
+                EffectiveDateLesserThanToday:
+                  $ref: "#/components/examples/EffectiveDateLesserThanToday"
+                ExpirationDateLesserThanRelease:
+                  $ref: "#/components/examples/ExpirationDateLesserThanRelease"
+                MinAmtGreaterThanAmount:
+                  $ref: "#/components/examples/MinAmtGreaterThanAmount"
+                InvalidMinAmount:
+                  $ref: "#/components/examples/InvalidMinAmount"
+                InvalidMinimumAmountValue:
+                  $ref: "#/components/examples/InvalidMinimumAmountValue"
+                ReleaseDateLesserThanToday:
+                  $ref: "#/components/examples/ReleaseDateLesserThanToday"
+                ReleaseDateGreaterThanExpDate:
+                  $ref: "#/components/examples/ReleaseDateGreaterThanExpDate"
+                InvalidDetailCodePayment:
+                  $ref: "#/components/examples/InvalidDetailCodePayment"
+                DetailPaymentReservedForGRN:
+                  $ref: "#/components/examples/DetailPaymentReservedForGRN"
+                InactiveDetailCodePayment:
+                  $ref: "#/components/examples/InactiveDetailCodePayment"
+                DetailCodePaymentNotOfPayment:
+                  $ref: "#/components/examples/DetailCodePaymentNotOfPayment"
+                DetailCodePaymentBaseCurrency:
+                  $ref: "#/components/examples/DetailCodePaymentBaseCurrency"
+                AddressTypeCode:
+                  $ref: "#/components/examples/AddressTypeCode"
+                InvalidAddressTypeCode:
+                  $ref: "#/components/examples/InvalidAddressTypeCode"
+                AddressTypeCodeSequenceNumber:
+                  $ref: "#/components/examples/AddressTypeCodeSequenceNumber"
+                InvalidAddressTypeCodeSequenceNumber:
+                  $ref: "#/components/examples/InvalidAddressTypeCodeSequenceNumber"
+                InactiveAddress:
+                  $ref: "#/components/examples/InactiveAddress"
+        "401":
+          description: Unauthorized
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/Unauthorized"
+        "403":
+          description: Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                NoPermission:
+                  $ref: "#/components/examples/NoPermission"
+        "404":
+          description: Resource not found
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+        "405":
+          description: Method Not Allowed
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                MethodNotAllowed:
+                  $ref: "#/components/examples/MethodNotAllowed"
+        "406":
+          description: Not Acceptable
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                UnsupportedVersion:
+                  $ref: "#/components/examples/UnsupportedVersion"
+        "500":
+          description: Server error, unexpected configuration or data
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+      security:
+        - BasicAuth: []
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_DEPOSIT_DETAILS
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    deposit-details-3.2.0_response:
+      title: Deposit Details (Response)
+      type: object
+      properties:
+        accountFeedIndicator:
+          title: ACCOUNT FEED INDICATOR
+          description: The status of the deposit in the accounting feed.  Valid values are Y - Feed transaction, F - Transaction fed.
+          type: string
+        addressTypeCode:
+          title: ADDRESS TYPE
+          description: In combination with ADDRESS TYPE SEQUENCE NUMBER, the address associated with this deposit for non-student transactions.
+          type: string
+        addressTypeCodeSequenceNumber:
+          title: ADDRESS TYPE SEQUENCE NUMBER
+          description: In combination with ADDRESS TYPE, the address associated with this deposit for non-student transactions.
+          type: number
+        amount:
+          title: AMOUNT
+          description: Amount of the deposit.
+          type: number
+        automaticReleaseIndicator:
+          title: AUTOMATIC RELEASE INDICATOR
+          description: Indicates whether the deposit should be automatically released to the account as of the release date.  Valid values are Y - Automatic release, N - Manual release.
+          type: string
+        bannerId:
+          title: BANNER ID
+          description: Banner ID is the identification number used to access person.
+          type: string
+        cashierEndDate:
+          title: CASHIER END DATE
+          description: End date and time of the cashiering session for this transaction.
+          type: string
+        createSource:
+          title: CREATE SOURCE
+          description: Source system that initially created the record.
+          type: string
+        currencyCode:
+          title: CURRENCY CODE
+          description: Foreign currency code used when creating a deposit.
+          type: string
+        dataOrigin:
+          title: DATA ORIGIN
+          description: Source system that last created or updated the data.
+          type: string
+        description:
+          title: DESCRIPTION
+          description: Free-form description associated with the deposit. Default value comes from the Detail Code description.
+          type: string
+        detailCodeDeposit:
+          title: DETAIL CODE DEPOSIT
+          description: Detail code deposit identifies the detail code associated with every charge and payment that can be entered onto an account.
+          type: string
+        detailCodePayment:
+          title: DETAIL CODE PAYMENT
+          description: Detail code payment is associated with the creation of a new deposit, indicating payment media of check, cash, charge, and so on.
+          type: string
+        documentNumber:
+          title: DOCUMENT NUMBER
+          description: Document number that references a source document for the deposit.
+          type: string
+        effectiveDate:
+          title: EFFECTIVE DATE
+          description: Effective date of the deposit.  Default value is the date the deposit was entered. without regard to the minimum.
+          type: string
+        entryDate:
+          title: ENTRY DATE
+          description: Entry date and time of the deposit, when initially created.
+          type: string
+        expirationDate:
+          title: EXPIRATION DATE
+          description: Expiration date of the deposit, after which it may be released to the receivable account without regard to the minimum.
+          type: string
+        feedDate:
+          title: FEED DATE
+          description: Date this transaction was fed to the finance system.
+          type: string
+        feedDocumentCode:
+          title: FEED DOCUMENT CODE
+          description: Document code used to feed this transaction to the finance system.
+          type: string
+        foreignAmount:
+          title: FOREIGN AMOUNT
+          description: The amount of the deposit stated in foreign currency.
+          type: number
+        lastModified:
+          title: LAST MODIFIED
+          description: The last date this record was created or updated.
+          type: string
+        lastModifiedBy:
+          title: LAST MODIFIED BY
+          description: Last modified by column for TBRDEPO.
+          type: string
+        minimumAmount:
+          title: MINIMUM AMOUNT
+          description: Minimum amount that must remain as a deposit balance and not be released until the expiration date has passed.
+          type: number
+        receiptNumber:
+          title: RECEIPT NUMBER
+          description: Receipt number associated with the deposit if generated when the deposit was created.
+          type: number
+        releaseDate:
+          title: RELEASE DATE
+          description: Earliest date when the deposit may be released either automatically or manually. If this field is blank, the deposit may be released at any time.
+          type: string
+        sessionNumber:
+          title: SESSION NUMBER
+          description: Cashier session number in which this transaction was posted.
+          type: number
+        term:
+          title: TERM CODE
+          description: Term associated with the deposit. ARTERM for non-student deposits.
+          type: string
+        transactionDate:
+          title: TRANSACTION DATE
+          description: Transaction date used by the finance system to control posting to the ledgers.
+          type: string
+        transactionNumber:
+          title: TRANSACTION NUMBER
+          description: Transaction number (one-up within entity) of the transaction.
+          type: number
+        userData:
+          title: USER DATA
+          description: User ID of the cashier who created the transaction.
+          type: string
+        hasHolds:
+          title: Holds Indicator
+          description: This indicator displays Y if the student has AR holds applied. Returns N when no AR holds are applied.
+          type: string
+      additionalProperties: false
+    deposit-details-3.2.0_put_request:
+      title: Deposit Details (PUT Request)
+      type: object
+      required:
+        - addressTypeCode
+        - addressTypeCodeSequenceNumber
+        - amount
+        - bannerId
+        - detailCodeDeposit
+        - user
+        - transactionNumber
+      properties:
+        addressTypeCode:
+          title: ADDRESS TYPE
+          maxLength: 2
+          description: In combination with ADDRESS TYPE SEQUENCE NUMBER, the address associated with this deposit for non-student transactions.
+          type: string
+        addressTypeCodeSequenceNumber:
+          title: ADDRESS TYPE SEQUENCE NUMBER
+          description: In combination with ADDRESS TYPE, the address associated with this deposit for non-student transactions.
+          type: number
+        amount:
+          title: AMOUNT
+          description: Amount of the deposit.
+          type: number
+        bannerId:
+          title: BANNER ID
+          maxLength: 9
+          description: Banner ID is the identification number used to access person.
+          type: string
+        detailCodeDeposit:
+          title: DETAIL CODE DEPOSIT
+          maxLength: 4
+          description: Detail code deposit identifies the detail code associated with every charge and payment that can be entered onto an account.
+          type: string
+        effectiveDate:
+          title: EFFECTIVE DATE
+          description: Effective date of the deposit.  Default value is the date the deposit was entered. without regard to the minimum.
+          type: string
+        expirationDate:
+          title: EXPIRATION DATE
+          description: Expiration date of the deposit, after which it may be released to the receivable account without regard to the minimum.
+          type: string
+        minimumAmount:
+          title: MINIMUM AMOUNT
+          description: Minimum amount that must remain as a deposit balance and not be released until the expiration date has passed.
+          type: number
+        releaseDate:
+          title: RELEASE DATE
+          description: Earliest date when the deposit may be released either automatically or manually. If this field is blank, the deposit may be released at any time.
+          type: string
+        relAmount:
+          title: RELEASE AMOUNT
+          description: The Amount that is required to be released.
+          type: number
+        user:
+          title: USER
+          maxLength: 30
+          description: User of the cashier who created the transaction.
+          type: string
+        transactionNumber:
+          title: TRANSACTION NUMBER
+          description: Transaction number (one-up within entity) of the transaction.
+          type: number
+        transactionDate:
+          title: Transaction Date
+          description: Transaction date used by the finance system to control posting to the ledgers.
+          type: string
+        overrideHold:
+          title: Override Hold
+          description: If indicator is Y, we can do succesful create even when the hold exists.
+          type: string
+      additionalProperties: false
+    deposit-details-3.2.0_post_request:
+      title: Deposit Details (POST Request)
+      type: object
+      required:
+        - addressTypeCode
+        - addressTypeCodeSequenceNumber
+        - amount
+        - bannerId
+        - detailCodeDeposit
+        - user
+      properties:
+        addressTypeCode:
+          title: ADDRESS TYPE
+          maxLength: 2
+          description: In combination with ADDRESS TYPE SEQUENCE NUMBER, the address associated with this deposit for non-student transactions.
+          type: string
+        addressTypeCodeSequenceNumber:
+          title: ADDRESS TYPE SEQUENCE NUMBER
+          description: In combination with ADDRESS TYPE, the address associated with this deposit for non-student transactions.
+          type: number
+        amount:
+          title: AMOUNT
+          description: Amount of the deposit.
+          type: number
+        bannerId:
+          title: BANNER ID
+          maxLength: 9
+          description: Banner ID is the identification number used to access person.
+          type: string
+        description:
+          title: DESCRIPTION
+          maxLength: 30
+          description: Free-form description associated with the deposit. Default value comes from the Detail Code description.
+          type: string
+        detailCodeDeposit:
+          title: DETAIL CODE DEPOSIT
+          maxLength: 4
+          description: Detail code deposit identifies the detail code associated with every charge and payment that can be entered onto an account.
+          type: string
+        detailCodePayment:
+          title: DETAIL CODE PAYMENT
+          maxLength: 4
+          description: Detail code payment is associated with the creation of a new deposit, indicating payment media of check, cash, charge, and so on.
+          type: string
+        effectiveDate:
+          title: EFFECTIVE DATE
+          description: Effective date of the deposit.  Default value is the date the deposit was entered. without regard to the minimum.
+          type: string
+        expirationDate:
+          title: EXPIRATION DATE
+          description: Expiration date of the deposit, after which it may be released to the receivable account without regard to the minimum.
+          type: string
+        minimumAmount:
+          title: MINIMUM AMOUNT
+          description: Minimum amount that must remain as a deposit balance and not be released until the expiration date has passed.
+          type: number
+        releaseDate:
+          title: RELEASE DATE
+          description: Earliest date when the deposit may be released either automatically or manually. If this field is blank, the deposit may be released at any time.
+          type: string
+        user:
+          title: USER
+          maxLength: 30
+          description: User ID of the cashier who created the transaction.
+          type: string
+        documentNumber:
+          title: Document Number
+          description: Document number that references a source document for the deposit.
+          type: number
+        transactionDate:
+          title: Transaction Date
+          description: Transaction date used by the finance system to control posting to the ledgers.
+          type: string
+        overrideHold:
+          title: Override Hold
+          description: If indicator is Y, we can do succesful create even when the hold exists.
+          type: string
+      additionalProperties: false
+    errors-2.0.0_response:
+      title: Error Response
+      description: Object containing errors list.
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            required:
+              - message
+            properties:
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  examples:
+    PersonHasHolds:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Person has holds, you may not process this account."
+                }
+            ]
+        }
+    InvalidUser:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Invalid User ABC value. This field is a required parameter."
+                }
+            ]
+        }
+    Unauthorized:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "401",
+                    "message": "Full authentication is required to access this resource"
+                }
+            ]
+        }
+    NoPermission:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "403",
+                    "message": "Access is denied"
+                }
+            ]
+        }
+    MethodNotAllowed:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Operation.Not.Permitted",
+                    "description": "Operation not permitted",
+                    "message":  "Method not allowed."
+                }
+            ]
+        }
+    UnsupportedVersion:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "unknownrepresentation.error",
+                    "description":  "Unknown representation error",
+                    "message": "Unsupported media type 'application/vnd.hedtech.integration.vX+json' for resource 'deposit-details'"
+                }
+            ]
+        }
+    InvalidFilterParameter:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "status parameter is required."
+                }
+            ]
+        }
+    DetailCodeInvalid:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Deposit detail code is invalid."
+                }
+            ]
+        }
+    DetailCodeReservedForGRN:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Detail code reserved for Grant/Billing functions."
+                }
+            ]
+        }
+    DetailCodeInactive:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Detail Code is Inactive."
+                }
+            ]
+        }
+    NoDetailCodeSent:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Deposit Code value is required."
+                }
+            ]
+        }
+    EitherMinAmtOrExpDate:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Minimum and expiration date must both or neither be entered."
+                }
+            ]
+        }
+    AmountRequired:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Amount is required."
+                }
+            ]
+        }
+    AmountInvalid:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Amount in invalid."
+                }
+            ]
+        }
+    AmountLessThanMinimum:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Deposit amount must be greater than or equal to minimum amount."
+                }
+            ]
+        }
+    NoBannerId:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Banner ID is required."
+                }
+            ]
+        }
+    InvalidBannerId:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Banner ID is invalid."
+                }
+            ]
+        }
+    EffectiveDateLesserThanToday:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Effective date must be greater than or equal to today's date."
+                }
+            ]
+        }
+    ExpirationDateLesserThanRelease:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Expiration date must be equal to or greater than release date."
+                }
+            ]
+        }
+    MinAmtGreaterThanAmount:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Minimum amount must be less than original deposit amount."
+                }
+            ]
+        }
+    InvalidMinAmount:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Minimum Amount entered is invalid."
+                }
+            ]
+        }
+    ReleaseDateLesserThanToday:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Release date must be greater than or equal to today's date."
+                }
+            ]
+        }
+    ReleaseDateGreaterThanExpDate:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Release date must be lesser than  or equal to Expiration date."
+                }
+            ]
+        }
+    InvalidDetailCodePayment:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Deposit detail Payment code is invalid."
+                }
+            ]
+        }
+    DetailPaymentReservedForGRN:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Deposit Detail Payment code reserved for Grant/Billing functions."
+                }
+            ]
+        }
+    InactiveDetailCodePayment:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Deposit Detail Payment code is Inactive."
+                }
+            ]
+        }
+    DetailCodePaymentNotOfPayment:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Deposit Detail Payment code must be type 'P'(Payment)"
+                }
+            ]
+        }
+    DetailCodePaymentBaseCurrency:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Deposit Detail Payment code must be base currency."
+                }
+            ]
+        }
+    InvalidTransactionNumber:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Transaction Number is invalid."
+                }
+            ]
+        }
+    NoRecordFound:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "No record found for the details provided. Please correct the values."
+                }
+            ]
+        }
+    TransactionNumberRequired:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Transaction number is required for the update."
+                }
+            ]
+        }
+    InvalidRelAmount:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Release Amount is invalid."
+                }
+            ]
+        }
+    RelAmountGreaterThanAmount:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Deposit amount to be released must be less than or equal to balance."
+                }
+            ]
+        }
+    DepositRelAmountExpirationDate:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Deposit balance may not fall below minimum until expiration date."
+                }
+            ]
+        }
+    DepositReleaseUntilDate:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Deposit amount may not be released until release date."
+                }
+            ]
+        }
+    AddressTypeCode:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Address Type code is required."
+                }
+            ]
+        }
+    InvalidAddressTypeCode:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Invalid address type code."
+                }
+            ]
+        }
+    AddressTypeCodeSequenceNumber:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Address type code sequence number is required."
+                }
+            ]
+        }
+    InvalidAddressTypeCodeSequenceNumber:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Invalid address type code sequence number."
+                }
+            ]
+        }
+    InactiveAddress:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Address is not active."
+                }
+            ]
+        }
+    InvalidMinimumAmountValue:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Invalid minimum value. Please enter a value between 0 and 99999.99"
+                }
+            ]
+        }
+    InvalidAmountValue:
+      value: >-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Invalid amount value. Please enter a value between 0 and 99999.99."
+                }
+            ]
+        }

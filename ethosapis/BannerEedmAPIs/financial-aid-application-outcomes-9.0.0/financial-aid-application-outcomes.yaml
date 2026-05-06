@@ -1,0 +1,1883 @@
+openapi: 3.0.0
+info:
+  title: Financial Aid Application Outcomes
+  description: >
+    The financial-aid-application outcomes API represents the Institutional and
+    Federal financial aid applications results that are being processed by the
+    institution for the aid year.
+  version: "9.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Financial Aid
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/financial-aid-application-outcomes:
+    get:
+      summary: Returns resources from RCRAPP1
+      description: >
+        Returns a paged listing of all the institutional and federal financial
+        aid application results from RCRAPP1 table.
+
+
+        The institutional applications are the RCRAPP1 records with Information Source Code (RCRAPP1_INFC_CODE ) as CSS or MANUAL and RCRAPP1_SEQ_NO = 0.
+
+
+        The federal applications are the RCRAPP1 records with RCRAPP1_INFC_CODE as EDE or MANUAL, RCRAPP1_SEQ_NO > 0 and RCRAPP1_CURR_REC_IND = 'Y'. The current record of EDE application is published.
+
+
+        The API does not retrieve the RCRAPP1 records with RCRAPP1_INFC_CODE = MANUAL and RCRAPP1_SEQ_NO = -1. These are the records which hold noncustodial parent information and are considered an extension of the RCRAPP1_SEQ_NO = 0 record. The API does not support RCRAPP1_INFC_CODE = 'CAL' records.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_FINAID_APP_OUTCOMES
+      tags:
+        - financial-aid-application-outcomes
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v9+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-financial-aid-application-outcomes.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v9.1.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/financial-aid-application-outcomes/{id}:
+    get:
+      summary: Return the requested resource from RCRAPP1
+      description: >
+        Returns a single financial aid application result from RCRAPP1 table
+        with the requested identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_FINAID_APP_OUTCOMES
+      tags:
+        - financial-aid-application-outcomes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v9+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v9.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v9.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-financial-aid-application-outcomes.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-financial-aid-application-outcomes.json:
+      title: Financial Aid Application Outcomes
+      description: The analysis results of applicants' financial aid applications.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the financial aid application outcome.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: RCRAPP1_OUTCOME_GUID(RCRAPP1)
+        applicant:
+          title: Applicant
+          description: The person who applied for financial aid.
+          type: object
+          properties:
+            person:
+              title: Person
+              description: A reference link to the common Persons entity for an applicant who
+                is known to the student information system.
+              oneOf:
+                - type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Person.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: persons 
+                      x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+                      x-lineageDerivedLogic: A record from GORGUID where GORGUID_LDM_NAME is 'persons' and GORGUID_DOMAIN_KEY matches RCRAPP!_PIDM
+                  additionalProperties: false
+                  required:
+                    - id
+                - type: object
+                  maxProperties: 0
+            financialAidApplicant:
+              title: Financial Aid Applicant
+              description: A reference link to the Financial Aid Applicants entity for an
+                applicant who may not be known to the student information
+                system.
+              oneOf:
+                - type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Financial Aid Applicant.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: financial-aid-applicants 
+                      x-lineageReferenceObject: unsupported
+                  additionalProperties: false
+                  required:
+                    - id
+                - type: object
+                  maxProperties: 0
+          additionalProperties: false
+          minProperties: 1
+        aidYear:
+          title: Aid Year
+          description: The financial aid year for which the applicant applied.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Aid Year.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: financial-aid-years 
+              x-lineageReferenceObject: RCRAPP1_AIDY_CODE(RCRAPP1)
+          additionalProperties: false
+          required:
+            - id
+        methodology:
+          title: Methodology
+          description: The methodology used to analyze the application.
+          enum:
+            - institutional
+            - federal
+            - institutionalFederal
+          type: string
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: If RCRAPP1_INFC_CODE is either 'CSS' or 'MANUAL' and RCRAPP1_SEQ_NO = 0 then display as 'institutional' If RCRAPP1_INFC_CODE is either 'EDE' or 'MANUAL' and RCRAPP1_SEQ_NO > 0 and RCRAPP1_CURR_REC_IND = 'Y' then display as 'federal'. Only federal and institutional is supported. primarySourceUI - RNAPR** where ** refers to the aid year
+        application:
+          title: Application
+          description: The application analyzed to generate the outcome.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Application.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: financial-aid-applications 
+              x-lineageReferenceObject: RCRAPP1_APP_GUID(RCRAPP1)
+          additionalProperties: false
+          required:
+            - id
+        rejectionStatus:
+          title: Rejection Status
+          description: An indication if the financial aid application has been rejected.
+          oneOf:
+            - type: string
+              enum:
+                - rejected
+                - notRejected
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: For the RCRAPP1_AIDY_CODE, RCRAPP1_PIDM, RCRAPP1_SEQ_NO and RCRAPP1_CURR_REC_IND = 'Y', fetch the matching record from RCRAPP3. If RCRAPP3_INFC_CODE = 'EDE' and RCRAPP3_REJ_REASON_PRTY_1 through RCRAPP3_REJ_REASON_PRTY_14 is NULL then display as 'nonRejected', else display as 'rejected' RNARS** where ** refers to aid year priamarySourceUI - RNARS** where ** refers to the aid year
+            - type: string
+              maxLength: 0
+        studentAidReportResolution:
+          title: Student Aid Report Resolution
+          description: An indication that the SAR C flag has been set and requires
+            resolution.
+          oneOf:
+            - type: string
+              enum:
+                - flagged
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: For the RCRAPP1_AIDY_CODE, RCRAPP1_PIDM, RCRAPP1_SEQ_NO and RCRAPP1_CURR_REC_IND = 'Y', fetch the matching record from RCRAPP2. For this record if RCRAPP2_INFC_CODE = 'EDE' and RCRAPP2_ELIGIBILITY_MSG = 1 then display as 'flagged'. Else do not display. primarySourceUI - RNARS** where ** refers to the aid year
+            - type: string
+              maxLength: 0
+        dependency:
+          title: Dependency
+          description: An indication of the applicant's dependency status.
+          oneOf:
+            - type: string
+              enum:
+                - independent
+                - dependent
+                - rejectedIndependent
+                - rejectedDependent
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: If methodology = 'federal' For the RCRAPP1_AIDY_CODE, RCRAPP1_PIDM, RCRAPP1_SEQ_NO and RCRAPP1_CURR_REC_IND = 'Y' fetch the matching record from RCRESAR. For this record from RCRESAR, if RCRESAR_INFC_CODE = 'EDE' and if RCRESAR_DEP_INDEP_IND = 'I' then display as 'independent' else if RCRESAR_DEP_INDEP_IND = 'D' then display as 'dependent' else if RCRESAR_DEP_INDEP_IND = 'Y' then display as 'rejectedIndependent' else if RCRESAR_DEP_INDEP_IND = 'X' then display as 'rejectedDependent' For the RCRAPP1_AIDY_CODE, RCRAPP1_PIDM, RCRAPP1_SEQ_NO and RCRAPP1_CURR_REC_IND = 'Y' fetch the matching record from RCRAPP4. For this record from RCRAPP4, if RCRAPP4_INFC_CODE = 'MANUAL' and if RCRAPP4_FM_FORMULA_FOR_CALC in ('2', '3', '5', '6') then display as 'independent' else if RCRAPP4_FM_FORMULA_FOR_CALC in ('1','4') then display as 'dependent' primarySourceUI - RNARS** where ** refers to the aid year. If methodology = 'institutional' - For the RCRAPP1_AIDY_CODE, RCRAPP1_PIDM, RCRAPP1_SEQ_NO and RCRAPP1_CURR_REC_IND = 'Y' fetch the matching record from RCRAPP4. For this record from RCRAPP4, if RCRAPP4_INFC_CODE is 'CSS' or 'MANUAL' AND RCRAPP4_SEQ_NO = 0 and if RCRAPP4_IM_FORMULA_FOR_CALC = '2' then display as 'independent' else if RCRAPP4_IM_FORMULA_FOR_CALC = '1' then display as 'dependent' primarySourceUI - RNARS** where ** refers to the aid year
+            - type: string
+              maxLength: 0
+        dependencyOverride:
+          title: Dependency Override
+          description: An indication that the applicant's dependency status has been
+            overridden.
+          oneOf:
+            - type: string
+              enum:
+                - overridden
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: If methodology = 'federal' then for the RCRAPP1_AIDY_CODE, RCRAPP1_PIDM, RCRAPP1_SEQ_NO and RCRAPP1_CURR_REC_IND = 'Y', fetch the matching record from RCRAPP3. For this record if RCRAPP3_INFC_CODE is 'EDE' and RCRAPP3_FAA_DEP_OVERRIDE is 1 or 4 then display as 'overridden' If methodology = 'federal' - For RCRAPP1_INFC_CODE = 'MANUAL' and  RCRAPP1_SEQ_NO >= 1 and RCRAPP1_CURR_REC_IND = 'Y' and if RNROVRD_CHG_DEPEND_FM = 'I' then display as 'overridden' If methodology = 'institutional' - For RCRAPP1_INFC_CODE is 'CSS' or 'MANUAL' and  RCRAPP1_SEQ_NO = 0 and if RNROVRD_CHG_DEPEND_IM = 'I' then display as 'overridden'. primarySourceUI - RNIMS** where ** refers to the aid year
+            - type: string
+              maxLength: 0
+        expectedFamilyContribution:
+          title: Expected Family Contribution
+          description: The expected contribution from the family.
+          oneOf:
+            - type: object
+              format: currency
+              properties:
+                value:
+                  title: Value
+                  description: The monetary value
+                  type: number
+                  x-lineageReferenceObject: RCRAPP2_IM_1_TFC(RCRAPP2) or  RCRAPP4_C_INST_1_TOT_FAM_CTRB(RCRAPP4)
+                currency:
+                  title: Currency
+                  description: The ISO 4217 currency code
+                  enum:
+                    - AED
+                    - AFN
+                    - ALL
+                    - AMD
+                    - ANG
+                    - AOA
+                    - ARS
+                    - AUD
+                    - AWG
+                    - AZN
+                    - BAM
+                    - BBD
+                    - BDT
+                    - BGN
+                    - BHD
+                    - BIF
+                    - BMD
+                    - BND
+                    - BOB
+                    - BRL
+                    - BSD
+                    - BTN
+                    - BWP
+                    - BYR
+                    - BZD
+                    - CAD
+                    - CDF
+                    - CHF
+                    - CLP
+                    - CNY
+                    - COP
+                    - CRC
+                    - CUC
+                    - CUP
+                    - CVE
+                    - CZK
+                    - DJF
+                    - DKK
+                    - DOP
+                    - DZD
+                    - EGP
+                    - ERN
+                    - ETB
+                    - EUR
+                    - FJD
+                    - FKP
+                    - GBP
+                    - GEL
+                    - GHS
+                    - GIP
+                    - GMD
+                    - GNF
+                    - GTQ
+                    - GYD
+                    - HKD
+                    - HNL
+                    - HRK
+                    - HTG
+                    - HUF
+                    - IDR
+                    - ILS
+                    - INR
+                    - IQD
+                    - IRR
+                    - ISK
+                    - JMD
+                    - JOD
+                    - JPY
+                    - KES
+                    - KGS
+                    - KHR
+                    - KMF
+                    - KPW
+                    - KRW
+                    - KWD
+                    - KYD
+                    - KZT
+                    - LAK
+                    - LBP
+                    - LKR
+                    - LRD
+                    - LSL
+                    - LYD
+                    - MAD
+                    - MDL
+                    - MGA
+                    - MKD
+                    - MMK
+                    - MNT
+                    - MOP
+                    - MRO
+                    - MUR
+                    - MVR
+                    - MWK
+                    - MXN
+                    - MYR
+                    - MZN
+                    - NAD
+                    - NGN
+                    - NIO
+                    - NOK
+                    - NPR
+                    - NZD
+                    - OMR
+                    - PAB
+                    - PEN
+                    - PGK
+                    - PHP
+                    - PKR
+                    - PLN
+                    - PYG
+                    - QAR
+                    - RON
+                    - RSD
+                    - RUB
+                    - RWF
+                    - SAR
+                    - SBD
+                    - SCR
+                    - SDG
+                    - SEK
+                    - SGD
+                    - SHP
+                    - SLL
+                    - SOS
+                    - SRD
+                    - SSP
+                    - STD
+                    - SVC
+                    - SYP
+                    - SZL
+                    - THB
+                    - TJS
+                    - TMT
+                    - TND
+                    - TOP
+                    - TRY
+                    - TTD
+                    - TWD
+                    - TZS
+                    - UAH
+                    - UGX
+                    - USD
+                    - UYU
+                    - UZS
+                    - VEF
+                    - VND
+                    - VUV
+                    - WST
+                    - XAF
+                    - XCD
+                    - XOF
+                    - XPF
+                    - YER
+                    - ZAR
+                    - ZMW
+                    - ZWL
+                  type: string
+                  x-lineageReferenceObject: GUBINST_BASE_CURR_CODE(GUBINST)
+              additionalProperties: false
+              required:
+                - value
+                - currency
+            - type: object
+              maxProperties: 0
+        expectedStudentContribution:
+          title: Expected Student Contribution
+          description: The expected contribution from the student.
+          oneOf:
+            - type: object
+              format: currency
+              properties:
+                value:
+                  title: Value
+                  description: The monetary value
+                  type: number
+                  x-lineageReferenceObject: RCRAPP2_C_1_CTRB_FOR_STDT(RCRAPP2) or  RCRAPP2_IM_1_SC(RCRAPP2)
+                currency:
+                  title: Currency
+                  description: The ISO 4217 currency code
+                  enum:
+                    - AED
+                    - AFN
+                    - ALL
+                    - AMD
+                    - ANG
+                    - AOA
+                    - ARS
+                    - AUD
+                    - AWG
+                    - AZN
+                    - BAM
+                    - BBD
+                    - BDT
+                    - BGN
+                    - BHD
+                    - BIF
+                    - BMD
+                    - BND
+                    - BOB
+                    - BRL
+                    - BSD
+                    - BTN
+                    - BWP
+                    - BYR
+                    - BZD
+                    - CAD
+                    - CDF
+                    - CHF
+                    - CLP
+                    - CNY
+                    - COP
+                    - CRC
+                    - CUC
+                    - CUP
+                    - CVE
+                    - CZK
+                    - DJF
+                    - DKK
+                    - DOP
+                    - DZD
+                    - EGP
+                    - ERN
+                    - ETB
+                    - EUR
+                    - FJD
+                    - FKP
+                    - GBP
+                    - GEL
+                    - GHS
+                    - GIP
+                    - GMD
+                    - GNF
+                    - GTQ
+                    - GYD
+                    - HKD
+                    - HNL
+                    - HRK
+                    - HTG
+                    - HUF
+                    - IDR
+                    - ILS
+                    - INR
+                    - IQD
+                    - IRR
+                    - ISK
+                    - JMD
+                    - JOD
+                    - JPY
+                    - KES
+                    - KGS
+                    - KHR
+                    - KMF
+                    - KPW
+                    - KRW
+                    - KWD
+                    - KYD
+                    - KZT
+                    - LAK
+                    - LBP
+                    - LKR
+                    - LRD
+                    - LSL
+                    - LYD
+                    - MAD
+                    - MDL
+                    - MGA
+                    - MKD
+                    - MMK
+                    - MNT
+                    - MOP
+                    - MRO
+                    - MUR
+                    - MVR
+                    - MWK
+                    - MXN
+                    - MYR
+                    - MZN
+                    - NAD
+                    - NGN
+                    - NIO
+                    - NOK
+                    - NPR
+                    - NZD
+                    - OMR
+                    - PAB
+                    - PEN
+                    - PGK
+                    - PHP
+                    - PKR
+                    - PLN
+                    - PYG
+                    - QAR
+                    - RON
+                    - RSD
+                    - RUB
+                    - RWF
+                    - SAR
+                    - SBD
+                    - SCR
+                    - SDG
+                    - SEK
+                    - SGD
+                    - SHP
+                    - SLL
+                    - SOS
+                    - SRD
+                    - SSP
+                    - STD
+                    - SVC
+                    - SYP
+                    - SZL
+                    - THB
+                    - TJS
+                    - TMT
+                    - TND
+                    - TOP
+                    - TRY
+                    - TTD
+                    - TWD
+                    - TZS
+                    - UAH
+                    - UGX
+                    - USD
+                    - UYU
+                    - UZS
+                    - VEF
+                    - VND
+                    - VUV
+                    - WST
+                    - XAF
+                    - XCD
+                    - XOF
+                    - XPF
+                    - YER
+                    - ZAR
+                    - ZMW
+                    - ZWL
+                  type: string
+                  x-lineageReferenceObject: GUBINST_BASE_CURR_CODE(GUBINST)
+              additionalProperties: false
+              required:
+                - value
+                - currency
+            - type: object
+              maxProperties: 0
+        expectedTotalParentContribution:
+          title: Expected Total Parent Contribution
+          description: The expected total contribution from the parent(s).
+          oneOf:
+            - type: object
+              format: currency
+              properties:
+                value:
+                  title: Value
+                  description: The monetary value
+                  type: number
+                  x-lineageReferenceObject: RCRAPP2_IM_1_PC(RCRAPP2) or  RCRAPP2_C_PAR_1_CTRB_FOR_STDT(RCRAPP2)
+                currency:
+                  title: Currency
+                  description: The ISO 4217 currency code
+                  enum:
+                    - AED
+                    - AFN
+                    - ALL
+                    - AMD
+                    - ANG
+                    - AOA
+                    - ARS
+                    - AUD
+                    - AWG
+                    - AZN
+                    - BAM
+                    - BBD
+                    - BDT
+                    - BGN
+                    - BHD
+                    - BIF
+                    - BMD
+                    - BND
+                    - BOB
+                    - BRL
+                    - BSD
+                    - BTN
+                    - BWP
+                    - BYR
+                    - BZD
+                    - CAD
+                    - CDF
+                    - CHF
+                    - CLP
+                    - CNY
+                    - COP
+                    - CRC
+                    - CUC
+                    - CUP
+                    - CVE
+                    - CZK
+                    - DJF
+                    - DKK
+                    - DOP
+                    - DZD
+                    - EGP
+                    - ERN
+                    - ETB
+                    - EUR
+                    - FJD
+                    - FKP
+                    - GBP
+                    - GEL
+                    - GHS
+                    - GIP
+                    - GMD
+                    - GNF
+                    - GTQ
+                    - GYD
+                    - HKD
+                    - HNL
+                    - HRK
+                    - HTG
+                    - HUF
+                    - IDR
+                    - ILS
+                    - INR
+                    - IQD
+                    - IRR
+                    - ISK
+                    - JMD
+                    - JOD
+                    - JPY
+                    - KES
+                    - KGS
+                    - KHR
+                    - KMF
+                    - KPW
+                    - KRW
+                    - KWD
+                    - KYD
+                    - KZT
+                    - LAK
+                    - LBP
+                    - LKR
+                    - LRD
+                    - LSL
+                    - LYD
+                    - MAD
+                    - MDL
+                    - MGA
+                    - MKD
+                    - MMK
+                    - MNT
+                    - MOP
+                    - MRO
+                    - MUR
+                    - MVR
+                    - MWK
+                    - MXN
+                    - MYR
+                    - MZN
+                    - NAD
+                    - NGN
+                    - NIO
+                    - NOK
+                    - NPR
+                    - NZD
+                    - OMR
+                    - PAB
+                    - PEN
+                    - PGK
+                    - PHP
+                    - PKR
+                    - PLN
+                    - PYG
+                    - QAR
+                    - RON
+                    - RSD
+                    - RUB
+                    - RWF
+                    - SAR
+                    - SBD
+                    - SCR
+                    - SDG
+                    - SEK
+                    - SGD
+                    - SHP
+                    - SLL
+                    - SOS
+                    - SRD
+                    - SSP
+                    - STD
+                    - SVC
+                    - SYP
+                    - SZL
+                    - THB
+                    - TJS
+                    - TMT
+                    - TND
+                    - TOP
+                    - TRY
+                    - TTD
+                    - TWD
+                    - TZS
+                    - UAH
+                    - UGX
+                    - USD
+                    - UYU
+                    - UZS
+                    - VEF
+                    - VND
+                    - VUV
+                    - WST
+                    - XAF
+                    - XCD
+                    - XOF
+                    - XPF
+                    - YER
+                    - ZAR
+                    - ZMW
+                    - ZWL
+                  type: string
+                  x-lineageReferenceObject: GUBINST_BASE_CURR_CODE(GUBINST)
+              additionalProperties: false
+              required:
+                - value
+                - currency
+            - type: object
+              maxProperties: 0
+        expectedNoncustodialParentContribution:
+          title: Expected Noncustodial Parent Contribution
+          description: The subset of the total parental contribution provided by a
+            noncustodial parent.
+          oneOf:
+            - type: object
+              format: currency
+              properties:
+                value:
+                  title: Value
+                  description: The monetary value
+                  type: number
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: If methodology = 'institutional' then if RNRGLBL_USE_NCPC = N and RNRGLBL_AIDY_CODE = RCRIMP1_AIDY_CODE then do not display else If RNRGLBL_USE_NCPC = Y and RNROVRD_PC_NON_CUST_PAR IS NOT NULL or RCRIMP1_PC_NON_CUST_PAR is not null and RNROVRD_AIDY_CODE = RNRGLBL_AIDY_CODE and RCRIMP1_AIDY_CODE = RNRGLBL_AIDY_CODE then If RNROVRD_NON_CUST_OPT = 'C' then display RNROVRD_PC_NON_CUST_PAR else If RNROVRD_NON_CUST_OPT = 'R' then display RCRIMP1_PC_NON_CUST_PAR else If RNROVRD_NON_CUST_OPT = 'H' then display greater of RNROVRD_PC_NON_CUST_PAR or RCRIMP1_PC_NON_CUST_PAR else If ROBINST_INAS_NON_CUST = 'C' and ROBINST_AIDY_CODE = RNROVRD_AIDY_CODE then display RNROVRD_PC_NON_CUST_PAR else If ROBINST_INAS_NON_CUST = 'R' and ROBINST_AIDY_CODE = RCRIMP1_AIDY_CODE then display RCRIMP1_PC_NON_CUST_PAR else If ROBINST_INAS_NON_CUST = 'H' and ROBINST_AIDY_CODE = RNROVRD_AIDY_CODE and ROBINST_AIDY_CODE = RCRIMP1_AIDY_CODE then display greater of RNROVRD_PC_NON_CUST_PAR or RCRIMP1_PC_NON_CUST_PAR else If RNROVRD_PC_NON_CUST_PAR is null and RCRIMP1_PC_NON_CUST_PAR is null and RNROVRD__AIDY_CODE = RCRIMP1_AIDY_CODE then do not display. primarySourceUI - RNARS** where ** refers to the aid year
+                currency:
+                  title: Currency
+                  description: The ISO 4217 currency code
+                  enum:
+                    - AED
+                    - AFN
+                    - ALL
+                    - AMD
+                    - ANG
+                    - AOA
+                    - ARS
+                    - AUD
+                    - AWG
+                    - AZN
+                    - BAM
+                    - BBD
+                    - BDT
+                    - BGN
+                    - BHD
+                    - BIF
+                    - BMD
+                    - BND
+                    - BOB
+                    - BRL
+                    - BSD
+                    - BTN
+                    - BWP
+                    - BYR
+                    - BZD
+                    - CAD
+                    - CDF
+                    - CHF
+                    - CLP
+                    - CNY
+                    - COP
+                    - CRC
+                    - CUC
+                    - CUP
+                    - CVE
+                    - CZK
+                    - DJF
+                    - DKK
+                    - DOP
+                    - DZD
+                    - EGP
+                    - ERN
+                    - ETB
+                    - EUR
+                    - FJD
+                    - FKP
+                    - GBP
+                    - GEL
+                    - GHS
+                    - GIP
+                    - GMD
+                    - GNF
+                    - GTQ
+                    - GYD
+                    - HKD
+                    - HNL
+                    - HRK
+                    - HTG
+                    - HUF
+                    - IDR
+                    - ILS
+                    - INR
+                    - IQD
+                    - IRR
+                    - ISK
+                    - JMD
+                    - JOD
+                    - JPY
+                    - KES
+                    - KGS
+                    - KHR
+                    - KMF
+                    - KPW
+                    - KRW
+                    - KWD
+                    - KYD
+                    - KZT
+                    - LAK
+                    - LBP
+                    - LKR
+                    - LRD
+                    - LSL
+                    - LYD
+                    - MAD
+                    - MDL
+                    - MGA
+                    - MKD
+                    - MMK
+                    - MNT
+                    - MOP
+                    - MRO
+                    - MUR
+                    - MVR
+                    - MWK
+                    - MXN
+                    - MYR
+                    - MZN
+                    - NAD
+                    - NGN
+                    - NIO
+                    - NOK
+                    - NPR
+                    - NZD
+                    - OMR
+                    - PAB
+                    - PEN
+                    - PGK
+                    - PHP
+                    - PKR
+                    - PLN
+                    - PYG
+                    - QAR
+                    - RON
+                    - RSD
+                    - RUB
+                    - RWF
+                    - SAR
+                    - SBD
+                    - SCR
+                    - SDG
+                    - SEK
+                    - SGD
+                    - SHP
+                    - SLL
+                    - SOS
+                    - SRD
+                    - SSP
+                    - STD
+                    - SVC
+                    - SYP
+                    - SZL
+                    - THB
+                    - TJS
+                    - TMT
+                    - TND
+                    - TOP
+                    - TRY
+                    - TTD
+                    - TWD
+                    - TZS
+                    - UAH
+                    - UGX
+                    - USD
+                    - UYU
+                    - UZS
+                    - VEF
+                    - VND
+                    - VUV
+                    - WST
+                    - XAF
+                    - XCD
+                    - XOF
+                    - XPF
+                    - YER
+                    - ZAR
+                    - ZMW
+                    - ZWL
+                  type: string
+                  x-lineageReferenceObject: GUBINST_BASE_CURR_CODE(GUBINST)
+              additionalProperties: false
+              required:
+                - value
+                - currency
+            - type: object
+              maxProperties: 0
+        applicantHomeEquity:
+          title: Applicant Home Equity
+          description: The derived equity of the applicant's home.
+          oneOf:
+            - type: object
+              format: currency
+              properties:
+                value:
+                  title: Value
+                  description: The monetary value
+                  type: number
+                  x-lineageReferenceObject: RCRAPP2_C_2_HME_VAL(RCRAPP2)
+                currency:
+                  title: Currency
+                  description: The ISO 4217 currency code
+                  enum:
+                    - AED
+                    - AFN
+                    - ALL
+                    - AMD
+                    - ANG
+                    - AOA
+                    - ARS
+                    - AUD
+                    - AWG
+                    - AZN
+                    - BAM
+                    - BBD
+                    - BDT
+                    - BGN
+                    - BHD
+                    - BIF
+                    - BMD
+                    - BND
+                    - BOB
+                    - BRL
+                    - BSD
+                    - BTN
+                    - BWP
+                    - BYR
+                    - BZD
+                    - CAD
+                    - CDF
+                    - CHF
+                    - CLP
+                    - CNY
+                    - COP
+                    - CRC
+                    - CUC
+                    - CUP
+                    - CVE
+                    - CZK
+                    - DJF
+                    - DKK
+                    - DOP
+                    - DZD
+                    - EGP
+                    - ERN
+                    - ETB
+                    - EUR
+                    - FJD
+                    - FKP
+                    - GBP
+                    - GEL
+                    - GHS
+                    - GIP
+                    - GMD
+                    - GNF
+                    - GTQ
+                    - GYD
+                    - HKD
+                    - HNL
+                    - HRK
+                    - HTG
+                    - HUF
+                    - IDR
+                    - ILS
+                    - INR
+                    - IQD
+                    - IRR
+                    - ISK
+                    - JMD
+                    - JOD
+                    - JPY
+                    - KES
+                    - KGS
+                    - KHR
+                    - KMF
+                    - KPW
+                    - KRW
+                    - KWD
+                    - KYD
+                    - KZT
+                    - LAK
+                    - LBP
+                    - LKR
+                    - LRD
+                    - LSL
+                    - LYD
+                    - MAD
+                    - MDL
+                    - MGA
+                    - MKD
+                    - MMK
+                    - MNT
+                    - MOP
+                    - MRO
+                    - MUR
+                    - MVR
+                    - MWK
+                    - MXN
+                    - MYR
+                    - MZN
+                    - NAD
+                    - NGN
+                    - NIO
+                    - NOK
+                    - NPR
+                    - NZD
+                    - OMR
+                    - PAB
+                    - PEN
+                    - PGK
+                    - PHP
+                    - PKR
+                    - PLN
+                    - PYG
+                    - QAR
+                    - RON
+                    - RSD
+                    - RUB
+                    - RWF
+                    - SAR
+                    - SBD
+                    - SCR
+                    - SDG
+                    - SEK
+                    - SGD
+                    - SHP
+                    - SLL
+                    - SOS
+                    - SRD
+                    - SSP
+                    - STD
+                    - SVC
+                    - SYP
+                    - SZL
+                    - THB
+                    - TJS
+                    - TMT
+                    - TND
+                    - TOP
+                    - TRY
+                    - TTD
+                    - TWD
+                    - TZS
+                    - UAH
+                    - UGX
+                    - USD
+                    - UYU
+                    - UZS
+                    - VEF
+                    - VND
+                    - VUV
+                    - WST
+                    - XAF
+                    - XCD
+                    - XOF
+                    - XPF
+                    - YER
+                    - ZAR
+                    - ZMW
+                    - ZWL
+                  type: string
+                  x-lineageReferenceObject: GUBINST_BASE_CURR_CODE(GUBINST)
+              additionalProperties: false
+              required:
+                - value
+                - currency
+            - type: object
+              maxProperties: 0
+        custodialParentHomeEquity:
+          title: Custodial Parent Home Equity
+          description: The derived equity of the custodial parent's home.
+          oneOf:
+            - type: object
+              format: currency
+              properties:
+                value:
+                  title: Value
+                  description: The monetary value
+                  type: number
+                  x-lineageReferenceObject: RCRAPP2_C_PAR_2_HME_VAL(RCRAPP2)
+                currency:
+                  title: Currency
+                  description: The ISO 4217 currency code
+                  enum:
+                    - AED
+                    - AFN
+                    - ALL
+                    - AMD
+                    - ANG
+                    - AOA
+                    - ARS
+                    - AUD
+                    - AWG
+                    - AZN
+                    - BAM
+                    - BBD
+                    - BDT
+                    - BGN
+                    - BHD
+                    - BIF
+                    - BMD
+                    - BND
+                    - BOB
+                    - BRL
+                    - BSD
+                    - BTN
+                    - BWP
+                    - BYR
+                    - BZD
+                    - CAD
+                    - CDF
+                    - CHF
+                    - CLP
+                    - CNY
+                    - COP
+                    - CRC
+                    - CUC
+                    - CUP
+                    - CVE
+                    - CZK
+                    - DJF
+                    - DKK
+                    - DOP
+                    - DZD
+                    - EGP
+                    - ERN
+                    - ETB
+                    - EUR
+                    - FJD
+                    - FKP
+                    - GBP
+                    - GEL
+                    - GHS
+                    - GIP
+                    - GMD
+                    - GNF
+                    - GTQ
+                    - GYD
+                    - HKD
+                    - HNL
+                    - HRK
+                    - HTG
+                    - HUF
+                    - IDR
+                    - ILS
+                    - INR
+                    - IQD
+                    - IRR
+                    - ISK
+                    - JMD
+                    - JOD
+                    - JPY
+                    - KES
+                    - KGS
+                    - KHR
+                    - KMF
+                    - KPW
+                    - KRW
+                    - KWD
+                    - KYD
+                    - KZT
+                    - LAK
+                    - LBP
+                    - LKR
+                    - LRD
+                    - LSL
+                    - LYD
+                    - MAD
+                    - MDL
+                    - MGA
+                    - MKD
+                    - MMK
+                    - MNT
+                    - MOP
+                    - MRO
+                    - MUR
+                    - MVR
+                    - MWK
+                    - MXN
+                    - MYR
+                    - MZN
+                    - NAD
+                    - NGN
+                    - NIO
+                    - NOK
+                    - NPR
+                    - NZD
+                    - OMR
+                    - PAB
+                    - PEN
+                    - PGK
+                    - PHP
+                    - PKR
+                    - PLN
+                    - PYG
+                    - QAR
+                    - RON
+                    - RSD
+                    - RUB
+                    - RWF
+                    - SAR
+                    - SBD
+                    - SCR
+                    - SDG
+                    - SEK
+                    - SGD
+                    - SHP
+                    - SLL
+                    - SOS
+                    - SRD
+                    - SSP
+                    - STD
+                    - SVC
+                    - SYP
+                    - SZL
+                    - THB
+                    - TJS
+                    - TMT
+                    - TND
+                    - TOP
+                    - TRY
+                    - TTD
+                    - TWD
+                    - TZS
+                    - UAH
+                    - UGX
+                    - USD
+                    - UYU
+                    - UZS
+                    - VEF
+                    - VND
+                    - VUV
+                    - WST
+                    - XAF
+                    - XCD
+                    - XOF
+                    - XPF
+                    - YER
+                    - ZAR
+                    - ZMW
+                    - ZWL
+                  type: string
+                  x-lineageReferenceObject: GUBINST_BASE_CURR_CODE(GUBINST)
+              additionalProperties: false
+              required:
+                - value
+                - currency
+            - type: object
+              maxProperties: 0
+        nonCustodialParentHomeEquity:
+          title: Non Custodial Parent Home Equity
+          description: The derived equity of the non custodial parent's home.
+          oneOf:
+            - type: object
+              format: currency
+              properties:
+                value:
+                  title: Value
+                  description: The monetary value
+                  type: number
+                  x-lineageReferenceObject: RCRAPP2_C_2_HME_VAL(RCRAPP2)
+                currency:
+                  title: Currency
+                  description: The ISO 4217 currency code
+                  enum:
+                    - AED
+                    - AFN
+                    - ALL
+                    - AMD
+                    - ANG
+                    - AOA
+                    - ARS
+                    - AUD
+                    - AWG
+                    - AZN
+                    - BAM
+                    - BBD
+                    - BDT
+                    - BGN
+                    - BHD
+                    - BIF
+                    - BMD
+                    - BND
+                    - BOB
+                    - BRL
+                    - BSD
+                    - BTN
+                    - BWP
+                    - BYR
+                    - BZD
+                    - CAD
+                    - CDF
+                    - CHF
+                    - CLP
+                    - CNY
+                    - COP
+                    - CRC
+                    - CUC
+                    - CUP
+                    - CVE
+                    - CZK
+                    - DJF
+                    - DKK
+                    - DOP
+                    - DZD
+                    - EGP
+                    - ERN
+                    - ETB
+                    - EUR
+                    - FJD
+                    - FKP
+                    - GBP
+                    - GEL
+                    - GHS
+                    - GIP
+                    - GMD
+                    - GNF
+                    - GTQ
+                    - GYD
+                    - HKD
+                    - HNL
+                    - HRK
+                    - HTG
+                    - HUF
+                    - IDR
+                    - ILS
+                    - INR
+                    - IQD
+                    - IRR
+                    - ISK
+                    - JMD
+                    - JOD
+                    - JPY
+                    - KES
+                    - KGS
+                    - KHR
+                    - KMF
+                    - KPW
+                    - KRW
+                    - KWD
+                    - KYD
+                    - KZT
+                    - LAK
+                    - LBP
+                    - LKR
+                    - LRD
+                    - LSL
+                    - LYD
+                    - MAD
+                    - MDL
+                    - MGA
+                    - MKD
+                    - MMK
+                    - MNT
+                    - MOP
+                    - MRO
+                    - MUR
+                    - MVR
+                    - MWK
+                    - MXN
+                    - MYR
+                    - MZN
+                    - NAD
+                    - NGN
+                    - NIO
+                    - NOK
+                    - NPR
+                    - NZD
+                    - OMR
+                    - PAB
+                    - PEN
+                    - PGK
+                    - PHP
+                    - PKR
+                    - PLN
+                    - PYG
+                    - QAR
+                    - RON
+                    - RSD
+                    - RUB
+                    - RWF
+                    - SAR
+                    - SBD
+                    - SCR
+                    - SDG
+                    - SEK
+                    - SGD
+                    - SHP
+                    - SLL
+                    - SOS
+                    - SRD
+                    - SSP
+                    - STD
+                    - SVC
+                    - SYP
+                    - SZL
+                    - THB
+                    - TJS
+                    - TMT
+                    - TND
+                    - TOP
+                    - TRY
+                    - TTD
+                    - TWD
+                    - TZS
+                    - UAH
+                    - UGX
+                    - USD
+                    - UYU
+                    - UZS
+                    - VEF
+                    - VND
+                    - VUV
+                    - WST
+                    - XAF
+                    - XCD
+                    - XOF
+                    - XPF
+                    - YER
+                    - ZAR
+                    - ZMW
+                    - ZWL
+                  type: string
+                  x-lineageReferenceObject: GUBINST_BASE_CURR_CODE(GUBINST)
+              additionalProperties: false
+              required:
+                - value
+                - currency
+            - type: object
+              maxProperties: 0
+        totalIncome:
+          title: Total Income
+          description: The FISAP total income.
+          oneOf:
+            - type: object
+              format: currency
+              properties:
+                value:
+                  title: Value
+                  description: The monetary value
+                  type: number
+                  x-lineageReferenceObject: RCRAPP4_FISAP_INC(RCRAPP4)
+                currency:
+                  title: Currency
+                  description: The ISO 4217 currency code
+                  enum:
+                    - AED
+                    - AFN
+                    - ALL
+                    - AMD
+                    - ANG
+                    - AOA
+                    - ARS
+                    - AUD
+                    - AWG
+                    - AZN
+                    - BAM
+                    - BBD
+                    - BDT
+                    - BGN
+                    - BHD
+                    - BIF
+                    - BMD
+                    - BND
+                    - BOB
+                    - BRL
+                    - BSD
+                    - BTN
+                    - BWP
+                    - BYR
+                    - BZD
+                    - CAD
+                    - CDF
+                    - CHF
+                    - CLP
+                    - CNY
+                    - COP
+                    - CRC
+                    - CUC
+                    - CUP
+                    - CVE
+                    - CZK
+                    - DJF
+                    - DKK
+                    - DOP
+                    - DZD
+                    - EGP
+                    - ERN
+                    - ETB
+                    - EUR
+                    - FJD
+                    - FKP
+                    - GBP
+                    - GEL
+                    - GHS
+                    - GIP
+                    - GMD
+                    - GNF
+                    - GTQ
+                    - GYD
+                    - HKD
+                    - HNL
+                    - HRK
+                    - HTG
+                    - HUF
+                    - IDR
+                    - ILS
+                    - INR
+                    - IQD
+                    - IRR
+                    - ISK
+                    - JMD
+                    - JOD
+                    - JPY
+                    - KES
+                    - KGS
+                    - KHR
+                    - KMF
+                    - KPW
+                    - KRW
+                    - KWD
+                    - KYD
+                    - KZT
+                    - LAK
+                    - LBP
+                    - LKR
+                    - LRD
+                    - LSL
+                    - LYD
+                    - MAD
+                    - MDL
+                    - MGA
+                    - MKD
+                    - MMK
+                    - MNT
+                    - MOP
+                    - MRO
+                    - MUR
+                    - MVR
+                    - MWK
+                    - MXN
+                    - MYR
+                    - MZN
+                    - NAD
+                    - NGN
+                    - NIO
+                    - NOK
+                    - NPR
+                    - NZD
+                    - OMR
+                    - PAB
+                    - PEN
+                    - PGK
+                    - PHP
+                    - PKR
+                    - PLN
+                    - PYG
+                    - QAR
+                    - RON
+                    - RSD
+                    - RUB
+                    - RWF
+                    - SAR
+                    - SBD
+                    - SCR
+                    - SDG
+                    - SEK
+                    - SGD
+                    - SHP
+                    - SLL
+                    - SOS
+                    - SRD
+                    - SSP
+                    - STD
+                    - SVC
+                    - SYP
+                    - SZL
+                    - THB
+                    - TJS
+                    - TMT
+                    - TND
+                    - TOP
+                    - TRY
+                    - TTD
+                    - TWD
+                    - TZS
+                    - UAH
+                    - UGX
+                    - USD
+                    - UYU
+                    - UZS
+                    - VEF
+                    - VND
+                    - VUV
+                    - WST
+                    - XAF
+                    - XCD
+                    - XOF
+                    - XPF
+                    - YER
+                    - ZAR
+                    - ZMW
+                    - ZWL
+                  type: string
+                  x-lineageReferenceObject: GUBINST_BASE_CURR_CODE(GUBINST)
+              additionalProperties: false
+              required:
+                - value
+                - currency
+            - type: object
+              maxProperties: 0
+        pellEligibility:
+          title: Pell Eligibility
+          description: An indication that the applicant may be eligible to receive a Pell
+            grant.
+          oneOf:
+            - type: string
+              enum:
+                - eligible
+                - notEligible
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: If methodology = 'federal' then for the RCRAPP1_AIDY_CODE, RCRAPP1_PIDM, RCRAPP1_SEQ_NO and RCRAPP1_CURR_REC_IND = 'Y', fetch the matching record from RCRESAR. For this record if RCRESAR_INFC_CODE is 'EDE' and RCRESAR_PELL_ELGBL is 'Y' then display as 'eligible' else if RCRESAR_PELL_ELGBL  is null then display as 'notEligible'. primarySourceUI - RNIMS** where ** refers to the aid year
+            - type: string
+              maxLength: 0
+        automaticZeroContribution:
+          title: Automatic Zero Contribution
+          description: An indication that automatic zero contribution has been applied.
+          oneOf:
+            - type: string
+              enum:
+                - applied
+                - notApplied
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: If methodology = 'federal' then for the RCRAPP1_AIDY_CODE, RCRAPP1_PIDM, RCRAPP1_SEQ_NO and RCRAPP1_CURR_REC_IND = 'Y', fetch the matching record from RCRESAR. For this record if RCRESAR_INFC_CODE is 'EDE' or 'MANUAL' and RCRESAR_AUTO_ZERO_EFC_FLAG is 'Y' then display as 'applied' else if RCRESAR_AUTO_ZERO_EFC_FLAG is null then display as 'notApplied'. primarySourceUI - RNIMS** where ** refers to the aid year
+            - type: string
+              maxLength: 0
+        simplifiedNeedsTest:
+          title: Simplified Needs Test
+          description: An indication that the requirements for the simplified needs test
+            have been met.
+          oneOf:
+            - type: string
+              enum:
+                - met
+                - notMet
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: If methodology = 'federal' - for RCRAPP2_INFC_CODE = 'EDE', if RCRAPP2_PELL_ANLY_TYPE = 'Y' then display as 'met' else if RCRAPP2_PELL_ANLY_TYPE = 'N' then display as 'notMet'. primarySourceUI - RNIMS** where ** refers to the aid year
+            - type: string
+              maxLength: 0
+        professionalJudgement:
+          title: Professional Judgement
+          description: The response to a professional judgement request for the application.
+          oneOf:
+            - type: string
+              enum:
+                - processed
+                - requestFailed
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: If methodology = 'federal' - for RCRAPP3_INFC_CODE = 'EDE', if RCRAPP3_ADJ_EFC_CALC_REQ = '1' then display as 'processed' else if RCRAPP3_ADJ_EFC_CALC_REQ = '2' then display as 'requestFailed' else do not display this property. primarySourceUI - RNIMS** where ** refers to the aid year
+            - type: string
+              maxLength: 0
+        verificationStatus:
+          title: Verification Status
+          description: An indication if the application has been federally selected for
+            information verification.
+          oneOf:
+            - type: string
+              enum:
+                - selected
+                - notSelected
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: If methodology = 'federal' - for RCRAPP1_INFC_CODE = 'EDE' and RCRAPP1_AIDY_CODE and RCRAPP1_CURR_REC_IND = 'Y' and if RCRAPP1_VERIFICATION_MSG = '1' then display as 'selected' else if RCRAPP1_VERIFICATION_MSG = '2' then display as 'notSelected'. primarySourceUI - RNARS** where ** refers to the aid year
+            - type: string
+              maxLength: 0
+        verificationCategory:
+          title: Verification Category
+          description: The verification category applied to the application.
+          type: string
+          x-lineageReferenceObject: RCRAPP1_VERIFICATION_PRTY(RCRAPP1)
+      required:
+        - id
+        - applicant
+        - aidYear
+        - methodology
+        - application
+      additionalProperties: false

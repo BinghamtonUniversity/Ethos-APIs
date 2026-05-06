@@ -1,0 +1,1159 @@
+openapi: 3.0.0
+info:
+  title: External Payments
+  description: >
+    Creates or updates one or more payments processed through Banner.
+  version: 3.1.0
+  x-api-type: erp
+  x-release-status: ga
+  x-source-system: banner
+  x-source-domain: Student
+  x-audience: all
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/external-payments/{id}:
+    put:
+      summary: Updates a payment record in GORCCAU. Conditionally creates resources in TBRACCD and TBRMEMO.
+      description: |
+        <p>Searches for a GORCCAU resource with the provided transactionId and a status of 'PENDING' or 'IN_PROGRESS'.
+           Then updates this resource with the new status and other received details.</p>
+        <p>If the provider status is 'SUCCESS', a new resource will be inserted in TBRACCD.</p>
+        <p>If the provider status is 'initiated' for a payment of type 'bank_transfer', a new memo will be recorded in TBRMEMO.</p>
+        <p>If the provider status is 'guaranteed' for a payment of type 'bank_transfer', the previously created memo will be deleted from TBRMEMO.</p>
+      security:
+        - BasicAuth: []
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EXTERNAL_PAYMENTS
+      tags:
+        - external-payments
+      parameters:
+        - name: Accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v3+json
+
+            ```
+          schema:
+            type: string
+        - name: Content-Type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to the API
+            source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v3+json
+
+            ```
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          description: TransactionId of the payment.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v3.1.0+json:
+              schema:
+                $ref: "#/components/schemas/external-payments_put_response"
+              examples:
+                ResponseForPaymentUpdates:
+                  $ref: "#/components/examples/ResponseForPaymentUpdates"
+        "400":
+          description: Bad Request
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                InvalidRequestBody:
+                  $ref: '#/components/examples/InvalidRequestBody'
+        "401":
+          description: Unauthorized
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/Unauthorized"
+        "403":
+          description: Forbidden
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                NoPermission:
+                  $ref: "#/components/examples/NoPermission"
+        "404":
+          description: Resource not found
+        "405":
+          description: Method Not Allowed
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                MethodNotAllowed:
+                  $ref: "#/components/examples/MethodNotAllowed"
+        "406":
+          description: Not Acceptable
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                UnsupportedVersion:
+                  $ref: "#/components/examples/UnsupportedVersion"
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v3.1.0+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/external-payments_put_request_body"
+            examples:
+              RequestBodyForUpdatingPayments:
+                $ref: "#/components/examples/PutMethodRequestBodyForUpdatingPayments"
+  /api/external-payments:
+    get:
+      summary: Returns resources from GORCCAU.
+      description: |
+        <p>Returns a paged listing of all payment records from GORCCAU where GORCCAU_STATUS matches the requested status.</p>
+      security:
+        - BasicAuth: []
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EXTERNAL_PAYMENTS
+      tags:
+        - external-payments
+      parameters:
+        - name: Accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v3+json
+
+            ```
+          schema:
+            type: string
+        - name: criteria
+          in: query
+          required: false
+          description: >
+            A JSON object used to filter results.
+            Example: '{"status":"PENDING"}' or '{"status":["PENDING","IN_PROGRESS"]}'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    oneOf:
+                      - type: string
+                      - type: array
+                        items:
+                          type: string
+        - name: status
+          in: query
+          required: false
+          description: A status or statuses of the payment resources to match with. Can be specified multiple times.
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v3.1.0+json:
+              schema:
+                $ref: "#/components/schemas/external-payments_get_by_status_response"
+              examples:
+                ResponseForListingPayments:
+                  $ref: "#/components/examples/ResponseForListingPayments"
+        "400":
+          description: Bad Request
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                InvalidFilterParameter:
+                  $ref: '#/components/examples/InvalidFilterParameter'
+        "401":
+          description: Unauthorized
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/Unauthorized"
+        "403":
+          description: Forbidden
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                NoPermission:
+                  $ref: "#/components/examples/NoPermission"
+        "404":
+          description: Resource not found
+        "405":
+          description: Method Not Allowed
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                MethodNotAllowed:
+                  $ref: "#/components/examples/MethodNotAllowed"
+        "406":
+          description: Not Acceptable
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                UnsupportedVersion:
+                  $ref: "#/components/examples/UnsupportedVersion"
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Creates or updates a payment record in GORCCAU. Conditionally creates resources in TBRACCD and TBRMEMO during updates.
+      description: |
+        <p>Creates a new payment record in GORCCAU if the transactionId is sent as "0".</p>
+        <p>If a valid Banner transactionId is provided, it searches for a GORCCAU resource with matching transactionId and a status of 'PENDING' or 'IN_PROGRESS'.
+           Then updates this resource with the new status and other received details.</p>
+        <p>If the provider status is 'SUCCESS', a new resource will be inserted in TBRACCD.</p>
+        <p>If the provider status is 'initiated' for a payment of type 'bank_transfer', a new memo will be recorded in TBRMEMO.</p>
+        <p>If the provider status is 'guaranteed' for a payment of type 'bank_transfer', the previously created memo will be deleted from TBRMEMO.</p>
+      security:
+        - BasicAuth: []
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EXTERNAL_PAYMENTS
+      tags:
+        - external-payments
+      parameters:
+        - name: Accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v3+json
+
+            ```
+          schema:
+            type: string
+        - name: Content-Type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to the API
+            source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v3+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "201":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v3.1.0+json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/external-payments_post_response_for_create"
+                  - $ref: "#/components/schemas/external-payments_post_response_for_update"
+              examples:
+                ResponseForPaymentCreations:
+                  $ref: "#/components/examples/ResponseForPaymentCreations"
+                ResponseForPaymentUpdates:
+                  $ref: "#/components/examples/ResponseForPaymentUpdates"
+        "400":
+          description: Bad Request
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                InvalidRequestBody:
+                  $ref: '#/components/examples/InvalidRequestBody'
+        "401":
+          description: Unauthorized
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/Unauthorized"
+        "403":
+          description: Forbidden
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                NoPermission:
+                  $ref: "#/components/examples/NoPermission"
+        "404":
+          description: Resource not found
+        "405":
+          description: Method Not Allowed
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                MethodNotAllowed:
+                  $ref: "#/components/examples/MethodNotAllowed"
+        "406":
+          description: Not Acceptable
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                UnsupportedVersion:
+                  $ref: "#/components/examples/UnsupportedVersion"
+        "500":
+          description: Server error, unexpected configuration or data
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                FailureOnRepeatedPaymentWithSameAmount:
+                  $ref: '#/components/examples/FailureOnRepeatedPaymentWithSameAmount'
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v3.1.0+json:
+            schema:
+              type: object
+              oneOf:
+                - $ref: "#/components/schemas/external-payments_post_request_body_for_create"
+                - $ref: "#/components/schemas/external-payments_post_request_body_for_update"
+            examples:
+              RequestBodyForCreatingPayments:
+                $ref: "#/components/examples/RequestBodyForCreatingPayments"
+              RequestBodyForUpdatingPayments:
+                $ref: "#/components/examples/PostMethodRequestBodyForUpdatingPayments"
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    external-payments_get_by_status_response:
+      title: GET Response
+      type: array
+      items:
+        type: object
+        required:
+          - activityDate
+          - createdBy
+          - originalAmt
+          - status
+          - transactionId
+          - studentId
+        properties:
+          activityDate:
+            title: Activity Date
+            description: Date on which information of this record was entered or last updated.
+            type: string
+            x-lineageReferenceObject: GORCCAU_ACTIVITY_DATE
+          createdBy:
+            title: Created By
+            description: Creator user.
+            type: string
+            x-lineageReferenceObject: GORCCAU_USER_ID
+          originalAmt:
+            title: Original Amount
+            description: Payment amount. For payments done using third party solution originalAmt will be 0.
+            type: number
+            format: double
+            x-lineageReferenceObject: GORCCAU_AMOUNT
+          status:
+            title: Transaction Status
+            description: Current status of payment. For payments done using third party solution status will be SENT.
+            type: string
+            enum:
+              - PENDING
+              - IN_PROGRESS
+              - CANCELLED
+              - FAILED
+              - SUCCESS
+              - SENT
+              - ERROR
+            x-lineageReferenceObject: GORCCAU_STATUS
+          studentId:
+            title: Student ID
+            description: Banner ID of student/payer who has made the payment.
+            type: string
+            x-lineageReferenceObject: GORCCAU_ID
+          termCode:
+            title: Term Code
+            description: Term for which the payment is done. For payments done using third party solution termCode will be null.
+            type: string
+            x-lineageReferenceObject: GORCCAU_TERM_CODE
+          transactionId:
+            title: Transaction ID
+            description: A unique transactionId of the payment.
+            type: integer
+            x-lineageReferenceObject: GORCCAU_PAY_TRANS_ID
+          vendorRefNo:
+            title: Vendor Reference Number
+            description: External / Third Party transaction reference number.
+            type: string
+            x-lineageReferenceObject: GORCCAU_VENDOR_REFER_NO
+          vendorStatus:
+            title: Vendor Status
+            description: The status of the payment from the vendor.
+            type: string
+          vendorAuthCode:
+            title: Vendor Authorization Code
+            description: EPS Reference Number.
+            type: string
+        additionalProperties: false
+    external-payments_put_request_body:
+      title: PUT Request Body
+      description: Payment updates received from EPS API.
+      type: object
+      required:
+        - status
+        - originalAmt
+        - providerName
+        - providerStatus
+        - modifiedBy
+        - type
+        - paymentType
+        - provTransId
+      properties:
+        status:
+          title: Status
+          description: Current status of payment.
+          type: string
+          enum:
+            - PENDING
+            - IN_PROGRESS
+            - CANCELLED
+            - FAILED
+            - SUCCESS
+            - ERROR
+        originalAmt:
+          title: Original Amount
+          description: Actual payment amount settled for payment at provider end.
+          type: number
+          format: positiveNumber
+        providerName:
+          title: Provider Name
+          description: Provider name. This will be stored as Merchant Name in GORCCAU.
+          type: string
+        providerStatus:
+          title: Provider Status
+          description: Provider status.
+          type: string
+          enum:
+            - initiated
+            - Failed
+            - cancelled
+            - guaranteed
+            - delivered
+        modifiedBy:
+          title: Modified By
+          description: User/System updating the payment.
+          type: string
+        type:
+          title: Type
+          description: Payment type/Other
+          type: string
+        paymentType:
+          title: Payment Type
+          description: Payment account type/Card type/"noneType"
+          type: string
+        provTransId:
+          title: Provider Transaction ID
+          description: Payment Provider transaction id.
+          type: string
+        vendorRefNo:
+          title: Vendor Reference Number
+          description: External/Third party transaction reference number.
+          type: string
+      additionalProperties: false
+    external-payments_put_response:
+      title: PUT Response
+      type: array
+      items:
+        type: object
+        required:
+          - id
+          - status
+          - transactionId1
+          - transactionId2
+        properties:
+          id:
+            title: ID
+            description: Unique transaction reference id. Same value as transactionId1.
+            type: string
+          status:
+            title: Status
+            description: Status of payment done from banner.
+            type: string
+            enum:
+              - Processed Record
+              - Previously Processed Record
+              - Unprocessed Record
+          transactionId1:
+            title: Transaction ID1
+            description: TransactionId of the payment.
+            type: string
+            x-lineageReferenceObject: GORCCAU_PAY_TRANS_ID
+            x-lineageLookupReferenceObject: GORCCAU
+          transactionId2:
+            title: Transaction ID2
+            description: Transaction Id of newly created TBRACCD record.
+            type: integer
+            x-lineageReferenceObject: TBRACCD_TRAN_NUMBER
+            x-lineageLookupReferenceObject: TBRACCD
+          vendorRefNo:
+            title: Vendor Reference Number
+            description: >
+              External / Third Party transaction reference number.
+              This property will have value only when status comes as Processed Record.
+            type: string
+            x-lineageReferenceObject: GORCCAU_VENDOR_REFER_NO
+            x-lineageLookupReferenceObject: GORCCAU
+          memoTranId:
+            title: Memo Transaction ID
+            description: >
+              Id of newly created TBRMEMO record.
+              This property will have value only when payment type is bank_transfer and provider status comes as initiated.
+            type: integer
+            x-lineageReferenceObject: TBRMEMO_TRAN_NUMBER
+            x-lineageLookupReferenceObject: TBRMEMO
+        additionalProperties: false
+    external-payments_post_request_body_for_create:
+      title: POST Request Body (for Create)
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          title: Data
+          type: array
+          items:
+            type: object
+            required:
+              - transactionId
+              - payerId
+            properties:
+              id:
+                title: ID
+                description: Any unique transaction reference number. If not passed, then the response will have id value same as newly created transactionId.
+                oneOf:
+                  - type: string
+                  - type: integer
+              transactionId:
+                title: Transaction ID
+                description: Always pass transactionId as "0" for creating a new payment.
+                type: string
+              payerId:
+                title: Payer ID
+                description: Banner ID of student/payer who is doing the payment.
+                type: string
+              termCode:
+                title: Term Code
+                description: Term for which the payment is being done. If only termCode is passed then the payment will be done with the term balance amount.
+                type: string
+              amount:
+                title: Amount
+                description: Payment amount.
+                type: number
+                format: positiveNumber
+              period:
+                title: Period
+                description: Payment period. Just period can be passed instead of termCode and amount. Then the payment will be done with the period balance amount.
+                type: string
+              accountType:
+                title: Account Type
+                description: Payment account type. If accountType is passed, which means payment will be done using third party payment provider. In this case, amount will be saved as 0, status will be SENT and termCode will be null.
+                type: string
+              moduleCode:
+                title: Module Code
+                description: Process name code associated with the payment transaction.
+                type: string
+            additionalProperties: false
+      additionalProperties: false
+    external-payments_post_response_for_create:
+      title: POST Response (for Create)
+      type: array
+      items:
+        type: object
+        required:
+          - id
+          - transactionId
+          - originalAmt
+          - createdBy
+          - transactionTerm
+          - studentId
+          - currency
+        properties:
+          id:
+            title: ID
+            description: The unique id passed in request body. If not passed in request body, then id value will be same as newly created transactionId.
+            oneOf:
+              - type: string
+              - type: integer
+          transactionId:
+            title: Transaction ID
+            description: A unique transactionId generated for the payment.
+            type: integer
+            x-lineageReferenceObject: GORCCAU_PAY_TRANS_ID
+          originalAmt:
+            title: Original Amount
+            description: Payment amount.
+            type: number
+            format: double
+            x-lineageReferenceObject: GORCCAU_AMOUNT
+          createdBy:
+            title: Created By
+            description: Creator user.
+            type: string
+            x-lineageReferenceObject: GORCCAU_USER_ID
+          transactionTerm:
+            title: Transaction Term
+            description: Term for which the payment is done.
+            type: string
+            x-lineageReferenceObject: GORCCAU_TERM_CODE
+          studentId:
+            title: Student ID
+            description: Banner ID of student/payer who has made the payment.
+            type: string
+            x-lineageReferenceObject: GORCCAU_ID
+          studentFirstName:
+            title: Student First Name
+            description: First name of the student.
+            type: string
+            x-lineageReferenceObject: SPRIDEN_FIRST_NAME
+            x-lineageLookupReferenceObject: SPRIDEN
+          studentLastName:
+            title: Student Last Name
+            description: Last name of the student.
+            type: string
+            x-lineageReferenceObject: SPRIDEN_LAST_NAME
+            x-lineageLookupReferenceObject: SPRIDEN
+          studentEmail:
+            title: Student Email
+            description: Email of the student.
+            type: string
+            x-lineageReferenceObject: GOREMAL_EMAIL_ADDRESS
+            x-lineageLookupReferenceObject: GOREMAL
+          currency:
+            title: Currency
+            description: Base currency code set for institution.
+            type: string
+            x-lineageReferenceObject: GUBINST_BASE_CURR_CODE
+            x-lineageLookupReferenceObject: GUBINST
+        additionalProperties: false
+    external-payments_post_request_body_for_update:
+      title: POST Request Body (for Update)
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          title: Data
+          type: array
+          items:
+            type: object
+            required:
+              - transactionId
+              - status
+              - originalAmt
+              - providerName
+              - providerStatus
+              - modifiedBy
+              - type
+              - paymentType
+              - provTransId
+            properties:
+              id:
+                title: ID
+                description: Any unique transaction reference number. If not passed, then the response will have id value same as transactionId.
+                oneOf:
+                  - type: string
+                  - type: integer
+              transactionId:
+                title: Transaction ID
+                description: TransactionId of the payment.
+                type: string
+              status:
+                title: Status
+                description: Transaction status.
+                type: string
+                enum:
+                  - PENDING
+                  - IN_PROGRESS
+                  - CANCELLED
+                  - FAILED
+                  - SUCCESS
+                  - ERROR
+              originalAmt:
+                title: Original Amount
+                description: Actual payment amount settled for payment at provider end.
+                type: number
+                format: positiveNumber
+              providerName:
+                title: Provider Name
+                description: Provider name. This will be stored as Merchant Name in GORCCAU.
+                type: string
+              providerStatus:
+                title: Provider Status
+                description: Provider status.
+                type: string
+                enum:
+                  - initiated
+                  - Failed
+                  - cancelled
+                  - guaranteed
+                  - delivered
+              modifiedBy:
+                title: Modified By
+                description: User/System updating the payment.
+                type: string
+              type:
+                title: Type
+                description: Payment type/Other
+                type: string
+              paymentType:
+                title: Payment Type
+                description: Payment account type/Card type/"noneType"
+                type: string
+              provTransId:
+                title: Provider Transaction ID
+                description: Payment Provider transaction id.
+                type: string
+              vendorRefNo:
+                title: Vendor Reference Number
+                description: External/Third party transaction reference number.
+                type: string
+            additionalProperties: false
+      additionalProperties: false
+    external-payments_post_response_for_update:
+      title: POST Response (for Update)
+      type: array
+      items:
+        type: object
+        required:
+          - id
+          - status
+          - transactionId1
+          - transactionId2
+        properties:
+          id:
+            title: ID
+            description: The unique id passed in request body. If not passed in request body, then id value will be same as transactionId1.
+            oneOf:
+              - type: string
+              - type: integer
+          status:
+            title: Status
+            description: Status of payment done from banner.
+            type: string
+            enum:
+              - Processed Record
+              - Previously Processed Record
+              - Unprocessed Record
+          transactionId1:
+            title: Transaction ID1
+            description: TransactionId of the payment.
+            type: string
+            x-lineageReferenceObject: GORCCAU_PAY_TRANS_ID
+            x-lineageLookupReferenceObject: GORCCAU
+          transactionId2:
+            title: Transaction ID2
+            description: Transaction Id of newly created TBRACCD record.
+            type: integer
+            x-lineageReferenceObject: TBRACCD_TRAN_NUMBER
+            x-lineageLookupReferenceObject: TBRACCD
+          vendorRefNo:
+            title: Vendor Reference Number
+            description: >
+              External / Third Party transaction reference number.
+              This property will have value only when status comes as Processed Record.
+            type: string
+            x-lineageReferenceObject: GORCCAU_VENDOR_REFER_NO
+            x-lineageLookupReferenceObject: GORCCAU
+          memoTranId:
+            title: Memo Transaction ID
+            description: >
+              Id of newly created TBRMEMO record.
+              This property will have value only when payment type is bank_transfer and provider status comes as initiated.
+            type: integer
+            x-lineageReferenceObject: TBRMEMO_TRAN_NUMBER
+            x-lineageLookupReferenceObject: TBRMEMO
+        additionalProperties: false
+    errors-2.0.0_response:
+      title: Error Response
+      description: Object containing errors list.
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            required:
+              - message
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary
+                  data entity used to create the resource. This is useful for
+                  referencing the source item through the applications
+                  administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  examples:
+    Unauthorized:
+      value: >-
+        {
+          "errors": [
+            {
+              "code": "401",
+              "message": "Full authentication is required to access this resource"
+            }
+          ]
+        }
+    NoPermission:
+      value: |-
+        {
+          "errors": [
+            {
+              "code": "403",
+              "message": "Access is denied"
+            }
+          ]
+        }
+    MethodNotAllowed:
+      value: |-
+        {
+          "errors": [
+            {
+              "code": "Operation.Not.Permitted",
+              "description": "Operation not permitted",
+              "message":  "Method not allowed."
+            }
+          ]
+        }
+    UnsupportedVersion:
+      value: >-
+        {
+          "errors": [
+            {
+              "code": "unknownrepresentation.error",
+              "description":  "Unknown representation error",
+              "message": "Unsupported media type 'application/vnd.hedtech.integration.vX+json' for resource 'external-payments'"
+            }
+          ]
+        }
+    InvalidFilterParameter:
+      value: |-
+        {
+          "errors": [
+            {
+              "code": "Global.SchemaValidation.Error",
+              "description": "Errors parsing input JSON.",
+              "message": "Status parameter is required."
+            }
+          ]
+        }
+    InvalidRequestBody:
+      value: |-
+        {
+          "errors": [
+            {
+              "code": "Global.SchemaValidation.Error",
+              "description": "Errors parsing input JSON.",
+              "message": "[status] is required"
+            }
+          ]
+        }
+    FailureOnRepeatedPaymentWithSameAmount:
+      value: |-
+        {
+          "errors": [
+            {
+              "code": "Global.SchemaValidation.Error",
+              "description": "Errors parsing input JSON.",
+              "message": "You either have a payment pending or recently attempted a payment for the same term and amount. Please wait 20 minutes to reattempt your payment."
+            }
+          ]
+        }
+    ResponseForListingPayments:
+      value: |-
+        [
+          {
+            "activityDate": "2025.01.21.06.33.34",
+            "createdBy": "GRAILS_USER",
+            "originalAmt": 101,
+            "status": "IN_PROGRESS",
+            "studentId": "LoremI",
+            "termCode": "202501",
+            "transactionId": 1,
+            "vendorRefNo": "XYZ898736959",
+            "vendorStatus": "Initiated",
+            "vendorAuthCode": "1715704685918-2873728"
+          }
+        ]
+    RequestBodyForCreatingPayments:
+      value: |- 
+        {
+          "data": [
+            {
+              "id": "1",
+              "transactionId": "0",
+              "payerId": "LoremI",
+              "termCode": "202501",
+              "amount": 101
+            }
+          ]
+        }
+    PostMethodRequestBodyForUpdatingPayments:
+      value: |- 
+        {
+          "data": [
+            {
+              "transactionId": "999",
+              "status": "IN_PROGRESS",
+              "originalAmt": 101,
+              "providerName": "Flywire-Checkout",
+              "providerStatus": "initiated",
+              "modifiedBy": "eps_system",
+              "type": "noneType",
+              "paymentType": "bank_transfer",
+              "provTransId": "123456",
+              "vendorRefNo": "XYZ898736959"
+            }
+          ]
+        }
+    PutMethodRequestBodyForUpdatingPayments:
+      value: |- 
+        {
+          "status": "IN_PROGRESS",
+          "originalAmt": 101,
+          "providerName": "Flywire-Checkout",
+          "providerStatus": "initiated",
+          "modifiedBy": "eps_system",
+          "type": "noneType",
+          "paymentType": "bank_transfer",
+          "provTransId": "123456",
+          "vendorRefNo": "XYZ898736959"
+        }
+    ResponseForPaymentCreations:
+      value: |-
+        [
+          {
+            "id": "1",
+            "transactionId": 999,
+            "originalAmt": 101,
+            "createdBy": "GRAILS_USER",
+            "transactionTerm": "202501",
+            "studentId": "LoremI",
+            "studentFirstName": "Lorem",
+            "studentLastName": "Ipsum",
+            "studentEmail": "test123@email.com",
+            "currency": "USD"
+          }
+        ]
+    ResponseForPaymentUpdates:
+      value: |-
+        [
+          {
+            "id": "999",
+            "status": "Processed Record",
+            "transactionId1": "999",
+            "transactionId2": 5,
+            "vendorRefNo": null,
+            "memoTranId": 1
+          }
+        ]
+        

@@ -1,0 +1,278 @@
+openapi: 3.0.0
+info:
+  title: Commerce Tax Code Rates
+  description: A list of defined tax rates and their associated codes.
+  version: 1.0.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Finance
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/commerce-tax-code-rates:
+    get:
+      summary: Return all resources from FTVTRAT
+      description: Returns a paged listing of all the commerce tax code rate records
+        from from FTVTRAT table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_COMMERCE_TAX_CODE_RATES
+      tags:
+        - commerce-tax-code-rates
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-commerce-tax-code-rates.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/commerce-tax-code-rates/{id}:
+    get:
+      summary: Return the requested resource from FTVTRAT
+      description: Return the one resource with the passed in identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_COMMERCE_TAX_CODE_RATES
+      tags:
+        - commerce-tax-code-rates
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Commerce Tax Code Rates for use in all
+            external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-commerce-tax-code-rates.json"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-commerce-tax-code-rates.json:
+      title: Commerce Tax Code Rates
+      description: A list of defined tax rates and their associated codes.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the commerce tax code rate.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: FTVTRAT_GUID(FTVTRAT)
+        title:
+          title: Title
+          description: The full name of the commerce tax code rate.
+          type: string
+          minLength: 1
+          x-lineageReferenceObject: FTVTRAT_DESC(FTVTRAT)
+        description:
+          title: Description
+          description: The description of the commerce tax code rate.
+          type: string
+          x-lineageReferenceObject: unsupported
+        code:
+          title: Code
+          description: A code that may be used to identify the tax jurisdiction.
+          type: string
+          x-lineageReferenceObject: FTVTRAT_CODE(FTVTRAT)
+        defaultCompoundingSequence:
+          title: Default Compounding Sequence
+          description: The default compounding order in which the tax code rate will be
+            applied.
+          x-lineageReferenceObject: FTVTRAT_PRIORITY_CODE(FTVTRAT)
+          oneOf:
+            - type: integer
+            - type: string
+              nullable: true
+        taxPercentage:
+          title: Tax Percentage
+          description: The tax percentage associated with the tax code rate.
+          x-lineageReferenceObject: FTVTRAT_RATE(FTVTRAT)
+          oneOf:
+            - type: number
+            - type: string
+              nullable: true
+        taxRebatePercentage:
+          title: Tax Rebate Percentage
+          description: The tax rebate percentage associated with the tax code rate.
+          x-lineageReferenceObject: FTVTRAT_EXEMPT_PCT(FTVTRAT)
+          oneOf:
+            - type: number
+            - type: string
+              nullable: true
+        startOn:
+          title: Start On
+          description: The first date that the tax code rate is effective.
+          type: string
+          format: date
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+          x-lineageReferenceObject: FTVTRAT_EFF_DATE(FTVTRAT)
+        endOn:
+          title: End On
+          description: The last date that the tax code rate is effective.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: FTVTRAT_TERM_DATE(FTVTRAT) or FTVTRAT_NCHG_DATE(FTVTRAT)
+            - type: string
+              maxLength: 0
+        taxCodes:
+          title: Tax Codes
+          description: The tax code(s) which are associated with the commerce tax code rate.
+          type: array
+          items:
+            title: Tax Codes
+            description: The tax code(s) which are associated with the commerce tax code
+              rate.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Tax Codes.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: commerce-tax-codes 
+                x-lineageReferenceObject: FTRTGTR_TGTR_CODE(FTRTGTR)
+            additionalProperties: false
+            required:
+              - id
+      required:
+        - id
+        - title
+        - startOn
+      additionalProperties: false

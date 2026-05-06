@@ -1,0 +1,398 @@
+openapi: 3.0.0
+info:
+  title: Comments
+  description: |
+    Comments made about a person, organization, etc.
+  version: "6.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Foundation
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/comments:
+    get:
+      summary: Returns resources from SPRCMNT and SORBCMT
+      description: >
+        Returns a paged listing of all the Person comment records from SPRCMNT
+        table and Institution comment records from SORBCMT table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_COMMENTS
+      tags:
+        - comments
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v6+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: |
+            ### subjectMatter   
+            Returns all comments for the subject matter id passed.
+            ```
+            /person-filters?subjectMatter=$id
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-comments.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v6+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/comments/{id}:
+    get:
+      summary: Return the requested resource from SPRCMNT and SORBCMT
+      description: |
+        Return the single comments record with requested identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_COMMENTS
+      tags:
+        - comments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v6+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v6+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v6+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-comments.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-comments.json:
+      title: Comments
+      description: Comments made about a person, organization, etc.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the comments record.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: SPRCMNT_GUID(SPRCMNT) or SORBCMT_GUID(SORBCMT)
+        confidentiality:
+          title: Confidentiality
+          description: Confidential level of the comment
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: Display 'private' if SPRCMNT_CONFIDENTIAL_IND = 'Y' and 'public' if SPRCMNT_CONFIDENTIAL_IND = null. 
+          enum:
+            - private
+            - public
+          type: string
+        subjectMatter:
+          title: Subject Matter
+          description: Whom the comment is about
+          oneOf:
+            - title: Person
+              description: The person whom the comment is about
+              type: object
+              properties:
+                person:
+                  title: Person
+                  description: ""
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Person.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: persons 
+                      x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+                      x-lineageDerivedLogic: A record in GORGUID where GORGUID_LDM_NAME = 'persons' AND GORGUID_DOMAIN_KEY = SPRCMNT_PIDM, not supported for the comments associated with an institution.
+                  additionalProperties: false
+                  required:
+                    - id
+              additionalProperties: false
+            - title: Organization
+              description: The comment is made about this organization.
+              type: object
+              properties:
+                organization:
+                  title: Organization
+                  description: ""
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Organization.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: organizations 
+                      x-lineageReferenceObject: unsupported
+                  additionalProperties: false
+                  required:
+                    - id
+              additionalProperties: false
+            - title: Institution
+              description: The educational institution the comment is about
+              type: object
+              properties:
+                institution:
+                  title: Institution
+                  description: ""
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Institution.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: educational-institutions 
+                      x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = src-background-inst) 
+                      x-lineageDerivedLogic: A record in GORGUID where GORGUID_LDM_NAME = 'src-background-inst' AND GORGUID_DOMAIN_KEY = SORBCMT_SBGI_CODE, not published for the comments associated with a person.
+                  additionalProperties: false
+                  required:
+                    - id
+              additionalProperties: false
+            - title: Institution Unit
+              description: The unit of an educational institution the comment is about
+              type: object
+              properties:
+                institutionUnit:
+                  title: Institution Unit
+                  description: ""
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Institution Unit.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: educational-institution-units 
+                      x-lineageReferenceObject: unsupported
+                  additionalProperties: false
+                  required:
+                    - id
+              additionalProperties: false
+        source:
+          title: Source
+          description: Source of the comment
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Source.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: sources 
+                  x-lineageReferenceObject: SPRCMNT_ORIG_CODE(SPRCMNT)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        commentSubjectArea:
+          title: Comment Subject Area
+          description: Subject area of the comment
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Comment Subject Area.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: comment-subject-area 
+                  x-lineageReferenceObject: SPRCMNT_CMTT_CODE(SPRCMNT)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        comment:
+          title: Comment
+          description: The actual comment made
+          type: string
+          minLength: 1
+          x-lineageReferenceObject: SORBCMT_COMMENT(SORBCMT) or derived  
+          x-lineageDerivedLogic: Display the concatenated value of SPRCMNT_TEXT and SPRCMNT_TEXT_NAR.
+        enteredBy:
+          title: Entered By
+          description: The creator of this comment instance
+          oneOf:
+            - title: Person
+              description: The unique id of the person who entered the comment.
+              type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Person.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: persons 
+                  x-lineageReferenceObject: unsupported
+              additionalProperties: false
+              required:
+                - id
+            - title: Name
+              description: The name of the person who entered the comment.
+              type: string
+        enteredOn:
+          title: Entered On
+          description: The date of the creation of the comment instance
+          oneOf:
+            - type: string
+              format: date-time
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+              x-lineageReferenceObject: SPRCMNT_DATE(SPRCMNT) or SORBCMT_ACTIVITY_DATE(SORBCMT)
+            - type: string
+              maxLength: 0
+      required:
+        - id
+        - subjectMatter
+        - comment
+      additionalProperties: false
+

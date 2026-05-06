@@ -1,0 +1,1759 @@
+openapi: 3.0.0
+info:
+  title: Section Meetings
+  description: >
+    API to retrieve, create, update and delete section meetings (SSRMEET, SSRMRDF, 
+    and SSRMPRT records).
+
+
+    Meetings are attached to a specific section in a term. Section meetings are
+    displayed on the SSASECT administrative page. A small number of SSRMEET
+    properties are applicable only when Banner Student localizations for
+    California (CALBSTU) are installed.
+  version: 1.1.0
+  x-api-type: erp
+  x-source-domain: Student
+  x-source-name: SSRMEET
+  x-source-system: banner
+  x-release-status: beta
+  x-audience: all
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/section-meetings:
+    get:
+      tags:
+        - section-meetings
+      summary: Retrieve the meeting records
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: |
+            ### Term
+            Returns all records for the term code passed.
+            ```
+            /section-meetings?criteria={"term":"202310"}
+            ```
+            ### CRN
+            Returns all records for the CRN passed.
+            ```
+            /section-meetings?criteria={"crn":"10015"}
+            ```
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/section-meetings-1.1.0_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SECTION_MEETINGS
+    post:
+      tags:
+        - section-meetings
+      summary: Create a meeting record
+      description: |
+        Create a new meeting record for a section.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.1.1.0+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/section-meetings-1.1.0_post_request"
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/section-meetings-1.1.0_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SECTION_MEETINGS
+  /api/section-meetings/{id}:
+    put:
+      tags:
+        - section-meetings
+      summary: Update a section meeting
+      description: Update the details of a section meeting record
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.1.0+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/section-meetings-1.1.0_put_request"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the meeting row
+          schema:
+            type: number
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/section-meetings-1.1.0_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_SECTION_MEETINGS
+    delete:
+      summary: Removes a resource from section-meetings
+      description: Delete a section meeting record
+      tags:
+        - section-meetings
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the meeting row
+          schema:
+            type: number
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+    x-method-permissions: API_SECTION_MEETINGS
+  /api/section-meetings/batches:
+    post:
+      tags:
+        - section-meetings
+      summary: Submit a batch of section-meetings to be created or updated.
+      description: Include the ID to update an existing section meeting record. New
+        section meeting records will be created for items that do not include
+        the ID property.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.1.0+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/section-meetings-batch-1.1.0_post_request"
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/section-meetings-batch-1.1.0_post_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - BasicAuth: []
+          EthosIntegrationBearer: []
+      x-method-permissions: API_SECTION_MEETINGS
+components:
+  schemas:
+    section-meetings-1.1.0_post_request:
+      type: object
+      properties:
+        term:
+          title: Term
+          maxLength: 6
+          type: string
+          description: Term associated with the section.
+          x-lineageReferenceObject: SSRMEET_TERM_CODE
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202201              
+        crn:
+          title: CRN
+          maxLength: 5
+          type: string
+          description: Course reference number of the section.
+          x-lineageReferenceObject: SSRMEET_CRN
+          example: 1001             
+        beginTime:
+          title: Begin Time
+          maxLength: 4
+          type: string
+          description: Begin time of the meeting.
+          x-lineageReferenceObject: SSRMEET_BEGIN_TIME
+          example: 0900             
+        endTime:
+          title: End Time
+          maxLength: 4
+          type: string
+          description: End time of the meeting.
+          x-lineageReferenceObject: SSRMEET_END_TIME
+          example: 1000    
+        building:
+          title: Building
+          maxLength: 6
+          type: string
+          description: The building where the meeting is scheduled.        
+          x-lineageReferenceObject: SSRMEET_BLDG_CODE
+          x-lineageLookupReferenceObject: STVBLDG
+          example: NURS  
+        room:
+          title: Room
+          maxLength: 10
+          type: string
+          description: The room where the meeting is scheduled.
+          x-lineageReferenceObject: SSRMEET_ROOM_CODE
+          x-lineageLookupReferenceObject: SLARDEF
+          example: 208    
+        startOn:
+          title: Meeting Start Date
+          type: string
+          format: date
+          description: The starting date of the section meeting.
+          x-lineageReferenceObject: SSRMEET_START_DATE
+          example: 2021-08-15  
+        endOn:
+          title: Meeting End Date
+          type: string
+          format: date
+          description: The ending date of the section meeting.
+          x-lineageReferenceObject: SSRMEET_END_DATE
+          example: 2021-12-15 
+        session:
+          title: Session Indicator
+          maxLength: 2
+          type: string
+          description: Sessions used to identify a unique combination of meeting times. If not submitted a value of 01 will be
+            defaulted.
+          x-lineageReferenceObject: SSRMEET_CATAGORY
+          example: 01    
+        meetsOnSunday:
+          title: Meets on Sunday
+          maxLength: 1
+          type: boolean
+          x-lineageReferenceObject: SSRMEET_SUN_DAY
+          example: false
+        meetsOnMonday:
+          title: Meets on Monday
+          maxLength: 1
+          type: boolean
+          x-lineageReferenceObject: SSRMEET_MON_DAY
+          example: true  
+        meetsOnTuesday:
+          title: Meets on Tuesday
+          maxLength: 1
+          type: boolean
+          x-lineageReferenceObject: SSRMEET_TUE_DAY
+          example: false
+        meetsOnWednesday:
+          title: Meets on Wednesday
+          maxLength: 1
+          type: boolean
+          x-lineageReferenceObject: SSRMEET_WED_DAY
+          example: true   
+        meetsOnThursday:
+          title: Meets on Thursday
+          maxLength: 1
+          type: boolean
+          x-lineageReferenceObject: SSRMEET_THU_DAY
+          example: false
+        meetsOnFriday:
+          title: Meets on Friday
+          maxLength: 1
+          type: boolean
+          x-lineageReferenceObject: SSRMEET_FRI_DAY
+          example: true   
+        meetsOnSaturday:
+          title: Meets on Saturday
+          maxLength: 1
+          type: boolean
+          x-lineageReferenceObject: SSRMEET_SAT_DAY
+          example: false
+        scheduleType:
+          title: Schedule Type
+          maxLength: 3
+          type: string
+          description: Schedule type for the meeting. If not submitted the schedule type of the section will be defaulted.
+          x-lineageReferenceObject: SSRMEET_SCHD_CODE
+          x-lineageLookupReferenceObject: STVSCHD
+          example: CLA 
+        overrideConflict:
+          title: Section meeting conflict override indicator
+          maxLength: 1
+          type: string
+          description: Indicates an override of time and/or room conflicts among meetings.  Values of T (time), R (room), or O (both time and room) specifies the type of conflict override.
+          x-lineageReferenceObject: SSRMEET_OVER_RIDE
+          example: T      
+        sessionCreditHours:
+          title: Session Credit Hours
+          maxLength: 7
+          type: number
+          description: Session credit hours for the meeting. Total credit hours across all meetings may not exceed the section credit hours.
+          x-lineageReferenceObject: SSRMEET_CREDIT_HR_SESS
+          example: 1  
+        hoursPerWeek:
+          title: Meeting Hours Per Week
+          maxLength: 5
+          type: number
+          description: Calculated meeting hours per week. Value may be manually overriden.
+          x-lineageReferenceObject: SSRMEET_HRS_WEEK
+          example: 5  
+        schedulingInterfaceStatus:
+          title: Scheduling Interface Status
+          maxLength: 3
+          type: string
+          description: Schedule status code for use with Scheduling Tool Interface.
+          x-lineageReferenceObject: SSRMEET_SCHS_CODE
+          x-lineageLookupReferenceObject: GTVSCHS
+          example: ASM   
+        meetingType:
+          title: Meeting Type
+          maxLength: 4
+          type: string
+          description: If not submitted a default of CLAS will be used.
+          x-lineageReferenceObject: SSRMEET_MTYP_CODE
+          x-lineageLookupReferenceObject: GTVMTYP
+          example: CLAS
+        breakMinutesIncluded:
+          title: Break Minutes Included
+          type: boolean
+          description: Indicates breaks are included in contact hours. CALBSTU restricted property.
+          x-lineageReferenceObject: SSRMEET_BREAK_IND
+          example: false
+        breakMinutesAdjustment:
+          title: Break Minutes Adjustment
+          maxLength: 3
+          type: number
+          description: Number of Daily Break Minutes to be included in the contact hours calculation. CALBSTU restricted property.
+          x-lineageReferenceObject: SSRMEET_BREAK_MIN_ADJUST
+          example: null
+        hoursPerDay:
+          title: Hours Per Day
+          maxLength: 5
+          type: number
+          description: Section meeting hours per day. CALBSTU restricted property.
+          x-lineageReferenceObject: SSRMEET_HRS_DAY
+          example: 1
+        hoursPerDayManualOverrideAllowed:
+          title: Hours Per Day Override Allowed
+          maxLength: 1
+          type: boolean
+          description: Indicates that hours per day or hours per week calculated fields can be overridden by a manual entry. CALBSTU restricted property.
+          x-lineageReferenceObject: SSRMEET_HRS_OVER_IND
+          example: true
+        totalHours:
+          title: Total Meeting Hours
+          maxLength: 7
+          type: number
+          description: Calculated unless the hoursPerDayManualOverrideAllowed is true,
+            then it is manually entered. CALBSTU restricted property.
+          x-lineageReferenceObject: SSRMEET_HRS_TOTAL
+          example: 5
+        partitionPreferences:
+          title: Partition Preferences
+          type: array
+          items:
+            type: object  
+            required:
+            - partition
+            - preferenceNumber           
+            properties:
+              partition:
+                title: Partition Code
+                maxLength: 7
+                type: string
+                description: "Partition code for the schedule meeting entry."
+                x-lineageReferenceObject: SSRMPRT_PARS_CODE
+                x-lineageLookupReferenceObject: GTVPARS
+                example: THREE
+              preferenceNumber: 
+                title: Partition Preference Number
+                maxLength: 2
+                type: number
+                description: "Preference number for the partition."
+                x-lineageReferenceObject: SSRMPRT_PARS_PREF_NUMBER
+                example: 1
+        roomAttributePreferences:
+          title: Room Attribute Preferences
+          type: array
+          items:
+            type: object 
+            required:
+            - roomAttribute
+            - preferenceNumber              
+            properties:
+              roomAttribute:
+                title: Room Attribute Code
+                maxLength: 4
+                type: string
+                description: "Building/room attribute code for the schedule meeting entry."
+                x-lineageReferenceObject: SSRMRDF_RDEF_CODE
+                x-lineageLookupReferenceObject: STVRDEF
+                example: AUD
+              preferenceNumber: 
+                title: Room Attribute Preference Number
+                maxLength: 2
+                type: number
+                description: "Preference number for the room attribute."
+                x-lineageReferenceObject: SSRMRDF_RDEF_PREF_NUMBER
+                example: 1                                        
+      required:
+        - term
+        - crn
+        - startOn
+        - endOn
+    section-meetings-1.1.0_put_request:
+      type: object
+      properties:
+        id:
+          title: Meeting Row ID
+          maxLength: 19
+          type: number
+          format: integer
+          description: Unique key for the meeting row
+          x-lineageReferenceObject: SSRMEET_SURROGATE_ID
+          example: 97
+        beginTime:
+          title: Begin Time
+          maxLength: 4
+          type: string
+          description: Begin time of the meeting
+          x-lineageReferenceObject: SSRMEET_BEGIN_TIME
+          example: 0900        
+        endTime:
+          title: End Time
+          maxLength: 4
+          type: string
+          description: End time of the meeting
+          x-lineageReferenceObject: SSRMEET_END_TIME
+          example: 1000    
+        building:
+          title: Building
+          maxLength: 6
+          type: string
+          description: The building where the meeting is scheduled.        
+          x-lineageReferenceObject: SSRMEET_BLDG_CODE
+          x-lineageLookupReferenceObject: STVBLDG
+          example: NURS  
+        room:
+          title: Room
+          maxLength: 10
+          type: string
+          description: The room where the meeting is scheduled.
+          x-lineageReferenceObject: SSRMEET_ROOM_CODE
+          x-lineageLookupReferenceObject: SLARDEF
+          example: 208    
+        startOn:
+          title: Meeting Start Date
+          type: string
+          format: date
+          x-lineageReferenceObject: SSRMEET_START_DATE
+          example: 2021-08-15  
+        endOn:
+          title: Meeting End Date
+          type: string
+          format: date
+          x-lineageReferenceObject: SSRMEET_END_DATE
+          example: 2021-12-15           
+        session:
+          title: Session Indicator
+          maxLength: 2
+          type: string
+          description: Sessions used to identify a unique combination of meeting times. If not submitted a value of 01 will be
+            defaulted.
+          x-lineageReferenceObject: SSRMEET_CATAGORY
+          example: 01              
+        meetsOnSunday:
+          title: Meets on Sunday
+          maxLength: 1
+          type: boolean
+          x-lineageReferenceObject: SSRMEET_SUN_DAY
+          example: false
+        meetsOnMonday:
+          title: Meets on Monday
+          maxLength: 1
+          type: boolean
+          x-lineageReferenceObject: SSRMEET_MON_DAY
+          example: true  
+        meetsOnTuesday:
+          title: Meets on Tuesday
+          maxLength: 1
+          type: boolean
+          x-lineageReferenceObject: SSRMEET_TUE_DAY
+          example: false
+        meetsOnWednesday:
+          title: Meets on Wednesday
+          maxLength: 1
+          type: boolean
+          x-lineageReferenceObject: SSRMEET_WED_DAY
+          example: true   
+        meetsOnThursday:
+          title: Meets on Thursday
+          maxLength: 1
+          type: boolean
+          x-lineageReferenceObject: SSRMEET_THU_DAY
+          example: false
+        meetsOnFriday:
+          title: Meets on Friday
+          maxLength: 1
+          type: boolean
+          x-lineageReferenceObject: SSRMEET_FRI_DAY
+          example: true   
+        meetsOnSaturday:
+          title: Meets on Saturday
+          maxLength: 1
+          type: boolean
+          x-lineageReferenceObject: SSRMEET_SAT_DAY
+          example: false
+        scheduleType:
+          title: Schedule Type
+          maxLength: 3
+          type: string
+          description: Schedule type for the meeting. If not submitted the schedule type of the section will be defaulted.
+          x-lineageReferenceObject: SSRMEET_SCHD_CODE
+          x-lineageLookupReferenceObject: STVSCHD
+          example: CLA 
+        overrideConflict:
+          title: Section meeting conflict override indicator
+          maxLength: 1
+          type: string
+          description: Indicates an override of time and/or room conflicts among meetings.  Values of T (time), R (room), or O (both time and room) specifies the type of conflict override.
+          x-lineageReferenceObject: SSRMEET_OVER_RIDE
+          example: T                
+        sessionCreditHours:
+          title: Session Credit Hours
+          maxLength: 7
+          type: number
+          description: Session credit hours for the meeting. Total credit hours across all
+            meetings may not exceed the section credit hours.
+          x-lineageReferenceObject: SSRMEET_CREDIT_HR_SESS
+          example: 1           
+        hoursPerWeek:
+          title: Meeting Hours Per Week
+          maxLength: 5
+          type: number
+          description: Calculated meeting hours per week. Value may be manually overriden.
+          x-lineageReferenceObject: SSRMEET_HRS_WEEK
+          example: 5            
+        schedulingInterfaceStatus:
+          title: Scheduling Interface Status
+          maxLength: 3
+          type: string
+          description: Schedule status code for use with Scheduling Tool Interface.
+          x-lineageReferenceObject: SSRMEET_SCHS_CODE
+          x-lineageLookupReferenceObject: GTVSCHS
+          example: ASM             
+        meetingType:
+          title: Meeting Type
+          maxLength: 4
+          type: string
+          x-lineageReferenceObject: SSRMEET_MTYP_CODE
+          x-lineageLookupReferenceObject: GTVMTYP
+          example: CLAS          
+        breakMinutesIncluded:
+          title: Break Minutes Included
+          type: boolean
+          description: Indicates breaks are included in contact hours. CALBSTU restricted
+            property.
+          x-lineageReferenceObject: SSRMEET_BREAK_IND
+          example: false          
+        breakMinutesAdjustment:
+          title: Break Minutes Adjustment
+          maxLength: 3
+          type: number
+          description: Number of Daily Break Minutes to be included in the contact hours
+            calculation. CALBSTU restricted property.
+          x-lineageReferenceObject: SSRMEET_BREAK_MIN_ADJUST
+          example: null          
+        hoursPerDay:
+          title: Hours Per Day
+          maxLength: 5
+          type: number
+          description: Section meeting hours per day. CALBSTU restricted property.
+          x-lineageReferenceObject: SSRMEET_HRS_DAY
+          example: 1          
+        hoursPerDayManualOverrideAllowed:
+          title: Hours Per Day Override Allowed
+          maxLength: 1
+          type: boolean
+          description: Indicates that hours per day or hours per week calculated fields can be overridden by a manual entry. CALBSTU restricted property.
+          x-lineageReferenceObject: SSRMEET_HRS_OVER_IND
+          example: true          
+        totalHours:
+          title: Total Meeting Hours
+          maxLength: 7
+          type: number
+          description: Calculated unless the hoursPerDayManualOverrideAllowed is true, then it is manually entered. CALBSTU restricted property.
+          x-lineageReferenceObject: SSRMEET_HRS_TOTAL
+          example: 5          
+        partitionPreferences:
+          title: Partition Preferences
+          type: array
+          items:
+            type: object  
+            required:
+            - partition
+            - preferenceNumber           
+            properties:
+              partition:
+                title: Partition Code
+                maxLength: 7
+                type: string
+                description: "Partition code for the schedule meeting entry."
+                x-lineageReferenceObject: SSRMPRT_PARS_CODE
+                x-lineageLookupReferenceObject: GTVPARS
+                example: THREE
+              preferenceNumber: 
+                title: Partition Preference Number
+                maxLength: 2
+                type: number
+                description: "Preference number for the partition."
+                x-lineageReferenceObject: SSRMPRT_PARS_PREF_NUMBER
+                example: 1
+        roomAttributePreferences:
+          title: Room Attribute Preferences
+          type: array
+          items:
+            type: object 
+            required:
+            - roomAttribute
+            - preferenceNumber              
+            properties:
+              roomAttribute:
+                title: Room Attribute Code
+                maxLength: 4
+                type: string
+                description: "Building/room attribute code for the schedule meeting entry."
+                x-lineageReferenceObject: SSRMRDF_RDEF_CODE
+                x-lineageLookupReferenceObject: STVRDEF
+                example: AUD
+              preferenceNumber: 
+                title: Room Attribute Preference Number
+                maxLength: 2
+                type: number
+                description: "Preference number for the room attribute."
+                x-lineageReferenceObject: SSRMRDF_RDEF_PREF_NUMBER
+                example: 1    
+      required:
+        - id
+    section-meetings-1.1.0_response:
+      type: object
+      properties:
+        id:
+          title: Meeting Row ID
+          maxLength: 19
+          type: number
+          format: integer
+          description: Unique key for the meeting row
+          example: 2381
+          x-lineageReferenceObject: SSRMEET_SURROGATE_ID          
+        term:
+          title: Term
+          maxLength: 6
+          type: string
+          description: Term associated with the section for the meeting.
+          example: 201010
+          x-lineageReferenceObject: SSRMEET_TERM_CODE
+          x-lineageLookupReferenceObject: STVTERM
+        crn:
+          title: CRN
+          maxLength: 5
+          type: string
+          description: Course reference number of the section for the meeting.
+          example: 10010
+          x-lineageReferenceObject: SSRMEET_CRN
+        beginTime:
+          title: Begin Time
+          maxLength: 4
+          type: string
+          description: Begin time of the meeting.
+          example: 0800
+          x-lineageReferenceObject: SSRMEET_BEGIN_TIME
+        endTime:
+          title: End Time
+          maxLength: 4
+          type: string
+          description: End time of the meeting.
+          example: 1300
+          x-lineageReferenceObject: SSRMEET_END_TIME
+        building:
+          title: Building
+          maxLength: 6
+          type: string
+          description: The building where the meeting is scheduled.        
+          x-lineageReferenceObject: SSRMEET_BLDG_CODE
+          x-lineageLookupReferenceObject: STVBLDG
+          example: NURS  
+        room:
+          title: Room
+          maxLength: 10
+          type: string
+          example: 1025
+          description: The room where the meeting is scheduled.
+          x-lineageReferenceObject: SSRMEET_ROOM_CODE
+          x-lineageLookupReferenceObject: SLARDEF
+        updatedOn:
+          title: Meeting Record Updated On
+          maxLength: 0
+          type: string
+          description: Most recent date the meeting record was updated.
+          format: date-time
+          example: 2011-11-17 06:39:14.000
+          x-lineageReferenceObject: SSRMEET_ACTIVITY_DATE
+        modifiedBy:
+          title: User ID
+          maxLength:  30
+          type:  string
+          description:  "User ID of last person to create/update record."
+          x-lineageReferenceObject: SSRMEET_USER_ID
+          example: SYSTEST01          
+        startOn:
+          title: Meeting Start Date
+          type: string
+          format: date
+          example: 2005-09-01
+          x-lineageReferenceObject: SSRMEET_START_DATE          
+        endOn:
+          title: Meeting End Date
+          type: string
+          format: date
+          example: 2005-12-31
+          x-lineageReferenceObject: SSRMEET_END_DATE
+        session:
+          title: Session Indicator
+          maxLength: 2
+          type: string
+          description: Sessions used to identify a unique combination of meeting times. If not submitted a value of 01 will be
+            defaulted.
+          example: 02
+          x-lineageReferenceObject: SSRMEET_CATAGORY
+        meetsOnSunday:
+          title: Meets on Sunday
+          maxLength: 1
+          type: boolean
+          example: false
+          x-lineageReferenceObject: SSRMEET_SUN_DAY
+        meetsOnMonday:
+          title: Meets on Monday
+          maxLength: 1
+          type: boolean
+          example: true          
+          x-lineageReferenceObject: SSRMEET_MON_DAY
+        meetsOnTuesday:
+          title: Meets on Tuesday
+          maxLength: 1
+          type: boolean
+          example: true          
+          x-lineageReferenceObject: SSRMEET_TUE_DAY
+        meetsOnWednesday:
+          title: Meets on Wednesday
+          maxLength: 1
+          type: boolean
+          example: true          
+          x-lineageReferenceObject: SSRMEET_WED_DAY
+        meetsOnThursday:
+          title: Meets on Thursday
+          maxLength: 1
+          type: boolean
+          example: true          
+          x-lineageReferenceObject: SSRMEET_THU_DAY
+        meetsOnFriday:
+          title: Meets on Friday
+          maxLength: 1
+          type: boolean
+          example: true          
+          x-lineageReferenceObject: SSRMEET_FRI_DAY
+        meetsOnSaturday:
+          title: Meets on Saturday
+          maxLength: 1
+          type: boolean
+          example: false          
+          x-lineageReferenceObject: SSRMEET_SAT_DAY
+        scheduleType:
+          title: Schedule Type
+          maxLength: 3
+          type: string
+          description: Schedule type for the meeting.
+          example: L
+          x-lineageReferenceObject: SSRMEET_SCHD_CODE
+          x-lineageLookupReferenceObject: STVSCHD
+        overrideConflict:
+          title: Section meeting conflict override indicator
+          maxLength: 1
+          type: string
+          description: Indicates an override of time and/or room conflicts among meetings.  Values of T (time), R (room), or O (both time and room) specifies the type of conflict override.
+          example: R
+          x-lineageReferenceObject: SSRMEET_OVER_RIDE
+        sessionCreditHours:
+          title: Session Credit Hours
+          maxLength: 7
+          type: number
+          description: Session credit hours for the meeting. Total credit hours across all meetings may not exceed the section credit hours.
+          example: 3
+          x-lineageReferenceObject: SSRMEET_CREDIT_HR_SESS
+        numberOfMeetingDays:
+          title: Number of Meeting Days
+          maxLength: 4
+          type: number
+          description: The calculated number of meeting days.
+          example: 46
+          x-lineageReferenceObject: SSRMEET_MEET_NO
+        hoursPerWeek:
+          title: Meeting Hours Per Week
+          maxLength: 5
+          type: number
+          description: Calculated meeting hours per week. Value may be manually overriden.
+          example: 2.5
+          x-lineageReferenceObject: SSRMEET_HRS_WEEK
+        schedulingInterfaceStatus:
+          title: Scheduling Interface Status
+          maxLength: 3
+          type: string
+          description: Schedule status code for use with Scheduling Tool Interface.
+          example: SSM
+          x-lineageReferenceObject: SSRMEET_SCHS_CODE
+          x-lineageLookupReferenceObject: GTVSCHS
+        meetingType:
+          title: Meeting Type
+          maxLength: 4
+          type: string
+          example: CLAS
+          x-lineageReferenceObject: SSRMEET_MTYP_CODE
+          x-lineageLookupReferenceObject: GTVMTYP
+        breakMinutesIncluded:
+          title: Break Minutes Included
+          type: boolean
+          description: Indicates breaks are included in contact hours. Supports CALBSTU
+            localizations.
+          example: false
+          x-lineageReferenceObject: SSRMEET_BREAK_IND
+        breakMinutesAdjustment:
+          title: Break Minutes Adjustment
+          maxLength: 3
+          type: number
+          description: Number of Daily Break Minutes to be included in the contact hours calculation. Supports CALBSTU localizations.
+          example: null
+          x-lineageReferenceObject: SSRMEET_BREAK_MIN_ADJUST
+        hoursPerDay:
+          title: Hours Per Day
+          maxLength: 5
+          type: number
+          description: Section meeting hours per day. Supports CALBSTU localizations.
+          example: 2.8
+          x-lineageReferenceObject: SSRMEET_HRS_DAY
+        hoursPerDayManualOverrideAllowed:
+          title: Hours Per Day Override Allowed
+          maxLength: 1
+          type: boolean
+          description: Indicates that hours per day or hours per week calculated fields can be overridden by a manual entry. CALBSTU restricted property.
+          example: false
+          x-lineageReferenceObject: SSRMEET_HRS_OVER_IND
+        totalHours:
+          title: Total Meeting Hours
+          maxLength: 7
+          type: number
+          description: Calculated unless the hoursPerDayManualOverrideAllowed is true,
+            then it is manually entered. Supports CALBSTU localizations.
+          example: 4
+          x-lineageReferenceObject: SSRMEET_HRS_TOTAL
+        partitionPreferences:
+          title: Partition Preferences
+          type: array
+          items:
+            type: object  
+            required:
+            - partition
+            - preferenceNumber           
+            properties:
+              partition:
+                title: Partition Code
+                maxLength: 7
+                type: string
+                description: "Partition code for the schedule meeting entry."
+                x-lineageReferenceObject: SSRMPRT_PARS_CODE
+                x-lineageLookupReferenceObject: GTVPARS
+                example: THREE
+              partitionDescription: 
+                title: Partition Code Description
+                maxLength: 30
+                type: string
+                description: "Description of the partition code."
+                x-lineageReferenceObject: GTVPARS_DESC
+                example: Third Partition
+              preferenceNumber: 
+                title: Partition Preference Number
+                maxLength: 2
+                type: number
+                description: "Preference number for the partition."
+                x-lineageReferenceObject: SSRMPRT_PARS_PREF_NUMBER
+                example: 1
+              modifiedOn:
+                title: Modified On
+                maxLength: 11
+                type: string
+                format: date-time
+                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                description: "Most current date the record was created or changed."
+                x-lineageReferenceObject: SSRMPRT_ACTIVITY_DATE
+                example: 2024-05-05T04:00:00Z                     
+              modifiedBy:
+                title: Modified By User ID
+                maxLength: 30
+                type: string
+                description: "User who inserted or last update the data."
+                x-lineageReferenceObject: SSRMPRT_USER_ID
+                example: SAISUSR                                                    
+        roomAttributePreferences:
+          title: Room Attribute Preferences
+          type: array
+          items:
+            type: object
+            required:
+            - roomAttribute
+            - preferenceNumber                             
+            properties:
+              roomAttribute:
+                title: Room Attribute Code
+                maxLength: 4
+                type: string
+                description: "Building/room attribute code for the schedule meeting entry."
+                x-lineageReferenceObject: SSRMRDF_RDEF_CODE
+                x-lineageLookupReferenceObject: STVRDEF
+                example: AUD
+              roomAttributeDescription: 
+                title: Room Attribute Code Description
+                maxLength: 30
+                type: string
+                description: "Description of the room attribute code."
+                x-lineageReferenceObject: STVRDEF_DESC
+                example: Auditorium
+              preferenceNumber: 
+                title: Room Attribute Preference Number
+                maxLength: 2
+                type: number
+                description: "Preference number for the room attribute."
+                x-lineageReferenceObject: SSRMRDF_RDEF_PREF_NUMBER
+                example: 1   
+              modifiedOn:
+                title: Modified On
+                maxLength: 11
+                type: string
+                format: date-time
+                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                description: "Most current date the record was created or changed."
+                x-lineageReferenceObject: SSRMRDF_ACTIVITY_DATE
+                example: 2024-05-05T04:00:00Z                     
+              modifiedBy:
+                title: Modified By User ID
+                maxLength: 30
+                type: string
+                description: "User who inserted or last update the data."
+                x-lineageReferenceObject: SSRMRDF_USER_ID
+                example: SAISUSR
+        instructionalEventId:
+          title: Instructional Event Globally Unique Identifier
+          description: "Globally unique identifer for the  instructional-events resource."
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$          
+          x-lineageReferenceObject: GORGUID_GUID
+          x-lineageDerivedLogic: GORGUID_GUID where GORGUID_LDM_NAME = "instructional-events" and GORGUID_DOMAIN_SURROGATE_ID = SSRMEET_SURROGATE_ID
+          example: 2a4225a5-bb2a-4f57-aded-99e4979ed973   
+          maxLength: 36                       
+      required:
+        - term
+        - crn
+        - id
+        - startOn
+        - endOn
+    section-meetings-batch-1.1.0_post_request:
+      type: object
+      properties:
+        items:
+          title: items
+          description: List of items to be processed.
+          type: array
+          items:
+            type: object
+            $ref: "#/components/schemas/section-meetings-batch-1.1.0_post_items"
+      required:
+        - items
+    section-meetings-batch-1.1.0_post_items:
+      type: object
+      properties:
+        id:
+          title: Meeting Row ID
+          maxLength: 19
+          type: number
+          format: integer
+          description: Unique key for the meeting row. Required for update to an existing
+            section meeting record.
+          x-lineageReferenceObject: SSRMEET_SURROGATE_ID
+        term:
+          title: Term
+          maxLength: 6
+          type: string
+          description: Term associated with the section. Required for create.
+          x-lineageReferenceObject: SSRMEET_TERM_CODE
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202201           
+        crn:
+          title: CRN
+          maxLength: 5
+          type: string
+          description: Course reference number of the section. Required for create.
+          x-lineageReferenceObject: SSRMEET_CRN
+          example: 1001             
+        beginTime:
+          title: Begin Time
+          maxLength: 4
+          type: string
+          description: Begin time of the meeting
+          x-lineageReferenceObject: SSRMEET_BEGIN_TIME
+          example: 0900        
+        endTime:
+          title: End Time
+          maxLength: 4
+          type: string
+          description: End time of the meeting
+          x-lineageReferenceObject: SSRMEET_END_TIME
+          example: 1000    
+        building:
+          title: Building
+          maxLength: 6
+          type: string
+          description: The building where the meeting is scheduled.        
+          x-lineageReferenceObject: SSRMEET_BLDG_CODE
+          x-lineageLookupReferenceObject: STVBLDG
+          example: NURS  
+        room:
+          title: Room
+          maxLength: 10
+          type: string
+          description: The room where the meeting is scheduled.
+          x-lineageReferenceObject: SSRMEET_ROOM_CODE
+          x-lineageLookupReferenceObject: SLARDEF
+          example: 208    
+        startOn:
+          title: Meeting Start Date
+          type: string
+          format: date
+          x-lineageReferenceObject: SSRMEET_START_DATE
+          example: 2021-08-15            
+        endOn:
+          title: Meeting End Date
+          type: string
+          format: date
+          x-lineageReferenceObject: SSRMEET_END_DATE
+          example: 2021-12-15           
+        session:
+          title: Session Indicator
+          maxLength: 2
+          type: string
+          description: Sessions used to identify a unique combination of meeting times. If not submitted a value of 01 will be
+            defaulted.
+          x-lineageReferenceObject: SSRMEET_CATAGORY
+          example: 01              
+        meetsOnSunday:
+          title: Meets on Sunday
+          maxLength: 1
+          type: boolean
+          x-lineageReferenceObject: SSRMEET_SUN_DAY
+          example: false
+        meetsOnMonday:
+          title: Meets on Monday
+          maxLength: 1
+          type: boolean
+          x-lineageReferenceObject: SSRMEET_MON_DAY
+          example: true  
+        meetsOnTuesday:
+          title: Meets on Tuesday
+          maxLength: 1
+          type: boolean
+          x-lineageReferenceObject: SSRMEET_TUE_DAY
+          example: false
+        meetsOnWednesday:
+          title: Meets on Wednesday
+          maxLength: 1
+          type: boolean
+          x-lineageReferenceObject: SSRMEET_WED_DAY
+          example: true   
+        meetsOnThursday:
+          title: Meets on Thursday
+          maxLength: 1
+          type: boolean
+          x-lineageReferenceObject: SSRMEET_THU_DAY
+          example: false
+        meetsOnFriday:
+          title: Meets on Friday
+          maxLength: 1
+          type: boolean
+          x-lineageReferenceObject: SSRMEET_FRI_DAY
+          example: true   
+        meetsOnSaturday:
+          title: Meets on Saturday
+          maxLength: 1
+          type: boolean
+          x-lineageReferenceObject: SSRMEET_SAT_DAY
+          example: false
+        scheduleType:
+          title: Schedule Type
+          maxLength: 3
+          type: string
+          description: Schedule type for the meeting. If not submitted the schedule type of the section will be defaulted.
+          x-lineageReferenceObject: SSRMEET_SCHD_CODE
+          x-lineageLookupReferenceObject: STVSCHD
+          example: CLA           
+        overrideConflict:
+          title: Section meeting conflict override indicator
+          maxLength: 1
+          type: string
+          description: Indicates an override of time and/or room conflicts among meetings.  Values of T (time), R (room), or O (both time and room) specifies the type of conflict override.
+          x-lineageReferenceObject: SSRMEET_OVER_RIDE
+          example: T                
+        sessionCreditHours:
+          title: Session Credit Hours
+          maxLength: 7
+          type: number
+          description: Session credit hours for the meeting. Total credit hours across all meetings may not exceed the section credit hours.
+          x-lineageReferenceObject: SSRMEET_CREDIT_HR_SESS
+          example: 1           
+        hoursPerWeek:
+          title: Meeting Hours Per Week
+          maxLength: 5
+          type: number
+          description: Calculated meeting hours per week. Value may be manually overriden.
+          x-lineageReferenceObject: SSRMEET_HRS_WEEK
+          example: 5            
+        schedulingInterfaceStatus:
+          title: Scheduling Interface Status
+          maxLength: 3
+          type: string
+          description: Schedule status code for use with Scheduling Tool Interface.
+          x-lineageReferenceObject: SSRMEET_SCHS_CODE
+          x-lineageLookupReferenceObject: GTVSCHS
+          example: ASM             
+        meetingType:
+          title: Meeting Type
+          maxLength: 4
+          type: string
+          description: If not submitted a default of CLAS will be used.
+          x-lineageReferenceObject: SSRMEET_MTYP_CODE
+          x-lineageLookupReferenceObject: GTVMTYP
+          example: CLAS          
+        breakMinutesIncluded:
+          title: Break Minutes Included
+          type: boolean
+          description: Indicates breaks are included in contact hours. CALBSTU restricted
+            property.
+          x-lineageReferenceObject: SSRMEET_BREAK_IND
+          example: false          
+        breakMinutesAdjustment:
+          title: Break Minutes Adjustment
+          maxLength: 3
+          type: number
+          description: Number of Daily Break Minutes to be included in the contact hours
+            calculation. CALBSTU restricted property.
+          x-lineageReferenceObject: SSRMEET_BREAK_MIN_ADJUST
+          example: null          
+        hoursPerDay:
+          title: Hours Per Day
+          maxLength: 5
+          type: number
+          description: Section meeting hours per day. CALBSTU restricted property.
+          x-lineageReferenceObject: SSRMEET_HRS_DAY
+          example: 1          
+        hoursPerDayManualOverrideAllowed:
+          title: Hours Per Day Override Allowed
+          maxLength: 1
+          type: boolean
+          description: Indicates that hours per day or hours per week calculated fields can be overridden by a manual entry. CALBSTU restricted property.
+          x-lineageReferenceObject: SSRMEET_HRS_OVER_IND
+          example: true          
+        totalHours:
+          title: Total Meeting Hours
+          maxLength: 7
+          type: number
+          description: Calculated unless the hoursPerDayManualOverrideAllowed is true,
+            then it is manually entered. CALBSTU restricted property.
+          x-lineageReferenceObject: SSRMEET_HRS_TOTAL
+          example: 5          
+        partitionPreferences:
+          title: Partition Preferences
+          type: array
+          items:
+            type: object  
+            required:
+            - partition
+            - preferenceNumber           
+            properties:
+              partition:
+                title: Partition Code
+                maxLength: 7
+                type: string
+                description: "Partition code for the schedule meeting entry."
+                x-lineageReferenceObject: SSRMPRT_PARS_CODE
+                x-lineageLookupReferenceObject: GTVPARS
+                example: THREE
+              preferenceNumber: 
+                title: Partition Preference Number
+                maxLength: 2
+                type: number
+                description: "Preference number for the partition."
+                x-lineageReferenceObject: SSRMPRT_PARS_PREF_NUMBER
+                example: 1
+        roomAttributePreferences:
+          title: Room Attribute Preferences
+          type: array
+          items:
+            type: object 
+            required:
+            - roomAttribute
+            - preferenceNumber              
+            properties:
+              roomAttribute:
+                title: Room Attribute Code
+                maxLength: 4
+                type: string
+                description: "Building/room attribute code for the schedule meeting entry."
+                x-lineageReferenceObject: SSRMRDF_RDEF_CODE
+                x-lineageLookupReferenceObject: STVRDEF
+                example: AUD
+              preferenceNumber: 
+                title: Room Attribute Preference Number
+                maxLength: 2
+                type: number
+                description: "Preference number for the room attribute."
+                x-lineageReferenceObject: SSRMRDF_RDEF_PREF_NUMBER
+                example: 1    
+    section-meetings-batch-1.1.0_post_response:
+      description: "Returns the list of Ids for those sections that were successfully
+        updated or created. For those that did not, it returns the list of error
+        messages. "
+      type: object
+      x-last-modified: null
+      properties:
+        id:
+          title: ID
+          description: A globally unique identifier of a batch to be used in all external
+            references.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+        status:
+          title: status
+          description: status of the batch.
+          type: string
+          enum:
+            - completed
+            - inProgress
+            - aborted
+        resource:
+          title: Resource
+          description: The affected resource.
+          type: object
+          properties:
+            name:
+              title: Resource Name
+              description: The pluralized name of the affected resource
+              type: string
+            version:
+              title: Resource version
+              description: The version of the resource
+              type: string
+          additionalProperties: false
+          required:
+            - name
+            - version
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+            oneOf:
+              - type: object
+                $ref: "#/components/schemas/section-meetings-1.1.0_response"
+              - type: object
+                $ref: "#/components/schemas/errors_2_0_0"
+          required:
+            - items
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary
+                  data entity used to create the resource. This is useful for
+                  referencing the source item through the applications
+                  administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

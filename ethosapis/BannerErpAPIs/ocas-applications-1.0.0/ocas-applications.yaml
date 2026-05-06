@@ -1,0 +1,359 @@
+openapi: 3.0.0
+info:
+  title: ocas-applications
+  description: This is an API to insert OCAS Application into Banner. The data is inserted into several Banner OCAS tables.
+  version: 1.0.0
+  x-source-domain: Student
+  x-api-type: erp
+  x-release-status: ga
+  x-audience: all
+  x-source-title: OCAS Applications
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+paths:
+  /api/ocas-applications:
+    post:
+      tags:
+      - ocas-offers
+      summary: Inserts an the OCAS application into OCAS tables.
+      description: This API inserts an the OCAS application into OCAS tables.
+      requestBody:
+        description: Insert an application.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Application"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                $ref: "#/components/schemas/Application"
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+      - BasicAuth: []
+        EthosIntegrationBearer: []
+components:
+  schemas:
+    Application:
+      required:
+      - externalId
+      - id
+      - source
+      - templateSourceCode
+      type: object
+      properties:
+        id:
+          type: string
+          example: aa7842f0-9560-41c8-bd3f-8dc14bd6dda6
+        externalId:
+          type: string
+          example: "260005606"
+        source:
+          type: string
+          example: OCASDOD
+        templateSourceCode:
+          type: string
+          example: OCASDOD
+        autoSendToErp:
+          type: boolean
+          example: true
+        template:
+          $ref: "#/components/schemas/Application_template"
+        metadata:
+          $ref: "#/components/schemas/Application_metadata"
+        name:
+          $ref: "#/components/schemas/Application_name"
+        demographics:
+          $ref: "#/components/schemas/Application_demographics"
+        person:
+          $ref: "#/components/schemas/Application_person"
+        personQuery:
+          $ref: "#/components/schemas/Application_personQuery"
+        addresses:
+          type: array
+          items:
+            $ref: "#/components/schemas/Application_addresses"
+        phones:
+          type: array
+          items:
+            $ref: "#/components/schemas/Application_phones"
+        emails:
+          type: array
+          items:
+            $ref: "#/components/schemas/Application_emails"
+        credentials:
+          type: array
+          example: []
+          items:
+            type: object
+        enrollment:
+          $ref: "#/components/schemas/Application_enrollment"
+        transferJobs:
+          type: array
+          example:
+          - pipeline: apply-person-query-request
+            runId: 69117d88a0e81878c01dfffe
+            runDate: 2025-11-10T05:52:16.168Z
+            log:
+            - resource: find-or-create
+              success: true
+          - pipeline: apply-person-query
+            runId: 69118f599ad350dbc2927413
+            runDate: 2025-11-10T07:08:18.124Z
+            log:
+            - resource: find-or-create
+              success: true
+          items:
+            $ref: "#/components/schemas/Application_transferJobs"
+        pendingUpdates:
+          type: array
+          example: []
+          items:
+            type: object
+        fraudStatus:
+          type: string
+          example: NOFRAUD
+        op_svrocac:
+          type: string
+          example: "N"
+        op_svroccc:
+          type: string
+          example: I
+        additionalData:
+          type: object
+          additionalProperties: true
+          description: |
+            Dynamic OCAS fields. Structure varies by applicant.
+          example:
+            applicationProgramChoicesCollegeCode:
+            - CANA
+            - CANA
+            applicantDisabilities:
+            - neurological
+            applicantSexualOrientations:
+            - bisexual
+            applicationNumber: "260005606"
+            applicationProgramChoicesProgramCode:
+            - "020408"
+            - "020122"
+            applicantId: a240186e-51b6-f011-be4d-00155d32b816
+            applicationState: A
+            applicantOen: "467687687"
+            applicantPrimaryLanguage: "001"
+            applicationSubmitted: 2025-10-31T12:11:47Z
+            eventType: ProgramChoiceAdded
+    errors_2_0_0:
+      required:
+      - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/errors_2_0_0_errors"
+    Application_template:
+      type: object
+      properties:
+        templateType:
+          type: string
+          example: application
+        id:
+          type: string
+          example: 5b21046f-55c2-40ac-899b-054f1b4796a5
+        personManagerTargets:
+          type: array
+          example:
+          - erp
+          items:
+            type: string
+    Application_metadata:
+      type: object
+      properties:
+        createdOn:
+          type: string
+          format: date-time
+          example: 2025-11-10T05:52:02.253Z
+        createdBy:
+          type: string
+          example: Apply
+        modifiedOn:
+          type: string
+          format: date-time
+          example: 2025-11-10T07:55:20.991Z
+        modifiedBy:
+          type: string
+          example: Apply
+    Application_name:
+      type: object
+      properties:
+        title:
+          type: string
+          example: miss
+        firstName:
+          type: string
+          example: Betty
+        lastName:
+          type: string
+          example: PGonzalez
+    Application_demographics:
+      type: object
+      properties:
+        gender:
+          type: string
+          example: F
+        dateOfBirth:
+          type: string
+          format: date
+          example: 2000-03-02
+    Application_person_erpId:
+      type: object
+      properties:
+        identifier:
+          type: string
+          example: A00041660
+        model:
+          type: string
+          example: persons-credentials
+    Application_person:
+      type: object
+      properties:
+        id:
+          type: string
+          example: f08741ce-079e-4478-abda-666156f2c074
+        erpId:
+          $ref: "#/components/schemas/Application_person_erpId"
+    Application_personQuery:
+      type: object
+      properties:
+        id:
+          type: string
+          example: cc1905d4-0649-41f0-b95e-60ae1743a282
+    Application_addresses:
+      type: object
+      properties:
+        type:
+          type: string
+          example: main
+        addressLine1:
+          type: string
+          example: 124-6395 Bearstone Pl
+        locality:
+          type: string
+          example: Chilliwack
+        region:
+          type: string
+          example: CA-BC
+        country:
+          type: string
+          example: CAN
+        postalCode:
+          type: string
+          example: V2R1C8
+    Application_phones:
+      type: object
+      properties:
+        type:
+          type: string
+          example: mobile
+        number:
+          type: string
+          example: "8073459175"
+    Application_emails:
+      type: object
+      properties:
+        type:
+          type: string
+          example: general
+        address:
+          type: string
+          example: BettyPGonzalez@test.ontariocolleges.ca
+    Application_enrollment:
+      type: object
+      properties:
+        applicationType:
+          type: string
+          example: "00"
+    Application_log:
+      type: object
+      properties:
+        resource:
+          type: string
+        success:
+          type: boolean
+    Application_transferJobs:
+      type: object
+      properties:
+        pipeline:
+          type: string
+        runId:
+          type: string
+        runDate:
+          type: string
+          format: date-time
+        log:
+          type: array
+          items:
+            $ref: "#/components/schemas/Application_log"
+    errors_2_0_0_errors:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The global identifier of the resource in error.
+        code:
+          type: string
+          description: The error message code used to describe the error details.
+        description:
+          type: string
+          description: The error description used to describe the error details.
+        message:
+          type: string
+          description: The detailed actionable error message.
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

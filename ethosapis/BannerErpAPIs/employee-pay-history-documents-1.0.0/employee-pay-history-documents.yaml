@@ -1,0 +1,574 @@
+openapi: 3.0.0
+info:
+  title: employee-pay-history-documents
+  description: This API can be used to retrieve and update employee pay history documents.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: beta
+  x-source-domain: Human Resources
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/employee-pay-history-documents:
+    get:
+      summary: Returns data from the PHRDOCM table.
+      description: Returns the data from the PHRDOCM table that matches the passed parameters.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EMP_PAY_HISTORY_DOCUMENTS
+      tags:
+        - employee-pay-history-documents
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: string            
+        - name: bannerId
+          in: query
+          required: true
+          schema:
+            type: string
+          description: "ID: This field defines the identification number used to access a person on-line."
+        
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: string
+          description: "YEAR:The year of the payroll that generated the documents."
+        
+        
+        - name: pictCode
+          in: query
+          required: true
+          schema:
+            type: string
+          description: "PAYROLL IDENTIFICATION CODE: The pay id that generated the document."
+        
+        - name: payNo
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: "PAYROLL NUMBER: The number of the payroll that generated the document."
+        
+        - name: seqNo
+          in: query
+          required: true
+          schema:
+            type: string
+            format: string
+          description: "SEQUENCE NUMBER: The sequence number of this pay event."
+        
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object 
+                $ref: "#/components/schemas/schema-extension-employee-pay-history-documents.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_1_0_0'
+              examples:
+                idRequired:
+                  $ref: "#/components/examples/idRequired"
+                yearRequired: 
+                  $ref: "#/components/examples/yearRequired"
+                pictCodeRequired:
+                  $ref: "#/components/examples/pictCodeRequired"
+                payNoRequired:
+                  $ref: "#/components/examples/payNoRequired"
+                seqNoRequired:
+                  $ref: "#/components/examples/seqNoRequired"
+        "401":
+          description: Failure. Unauthorized.
+          content:
+            application/vnd.hedtech.integration.errors.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_1_0_0'
+                  
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_1_0_0'
+                  
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+          content:
+            application/vnd.hedtech.integration.errors.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_1_0_0'
+                  
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_1_0_0'
+                  
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_1_0_0'
+                  
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_1_0_0'
+  /api/mployee-pay-history-documents/{id}:
+    put:
+      summary: This is used to update the Bank reconciliation indicator in the PHRDOCM 
+      description: Updates the PHRDOCM record. Please provide the bannerId, year, pictCode, payNo, seqNo, and the new reconIND. The provided fields will be used to find the PHRDOCM record to update. Valid reconIND values are "R", "E", and "P".
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EMP_PAY_HISTORY_DOCUMENTS
+      tags:
+        - employee-pay-history-documents
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json 
+
+            ```
+        
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-extension-employee-pay-history-documents.json"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_1_0_0'
+              examples:
+                idRequired:
+                  $ref: "#/components/examples/idRequired"
+                yearRequired: 
+                  $ref: "#/components/examples/yearRequired"
+                pictCodeRequired:
+                  $ref: "#/components/examples/pictCodeRequired"
+                payNoRequired:
+                  $ref: "#/components/examples/payNoRequired"
+                seqNoRequired:
+                  $ref: "#/components/examples/seqNoRequired"
+                reconINDInvalid:
+                  $ref: "#/components/examples/reconINDInvalid"
+
+        "401":
+          description: Failure. Unauthorized.
+          content:
+            application/vnd.hedtech.integration.errors.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_1_0_0'
+                  
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_1_0_0'
+                  
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+          content:
+            application/vnd.hedtech.integration.errors.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_1_0_0'
+                  
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_1_0_0'
+                  
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_1_0_0'
+                  
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_1_0_0'
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-extension-employee-pay-history-documents-put-request.json"
+      
+ 
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-extension-employee-pay-history-documents.json:
+      title:  employee-pay-history-documents-1.0.0_response
+      description: Returns PHRMTIM record(s). Null values are not shown
+      type: object
+      properties:
+        bannerId:
+          title: Banner ID
+          description: Banner ID (PIDM Identifier).
+          type: string
+          example: HOP510001
+          maxLength: 12
+      
+        activityDate:
+          title: ACTIVITY DATE
+          description: Date of last activity (insert or update) on this record.
+          type: string
+          format: date-time
+          example: 2020-01-11
+          x-LineageReferenceObject: PHRDOCM_ACTIVITY_DATE
+        
+        docDate:
+          title: DOCUMENT DATE
+          description: Date of the check or direct deposit notification.
+          type: string
+          format: date-time
+          example: 2020-01-11
+          x-LineageReferenceObject: PHRDOCM_DOC_DATE
+        
+        docNo:
+          title: DOCUMENT NUMBER
+          description: The check or direct deposit notice number.
+          type: string
+          example: 1
+          maxLength: 2
+          x-LineageReferenceObject: PHRDOCM_DOC_NO
+        
+        docType:
+          title: DOCUMENT TYPE
+          description: Indicates whether the document is a check or a direct deposit  notification.
+          type: string
+          example: C
+          maxLength: 6
+          x-LineageReferenceObject: PHRDOCM_DOC_TYPE
+        
+        netAmount:
+          title: NET AMOUNT
+          description: The amount of the check or direct deposit.
+          type: string
+          example: 1
+          maxLength: 6
+          x-LineageReferenceObject: PHRDOCM_NET
+        
+        reconIND:
+          title: RECON IND
+          description: Bank reconciliation indicator.  When a check is reconciled this field will be valued with an (R)
+          type: string
+          example: R
+          maxLength: 6
+          x-LineageReferenceObject: PHRDOCM_RECON_IND
+        
+        reconDate:
+          title: RECON DATE
+          description: Reconciliation date.  The date from the bank statement on which the check was reconciled.
+          type: string
+          format: date-time
+          example: 2020-01-11
+          x-LineageReferenceObject: PHRDOCM_RECON_DATE
+    schema-extension-employee-pay-history-documents-put-request.json:
+      title: employee-pay-history-documents-1.0.0-put-request
+      type: object
+      properties:
+      
+        bannerId:
+          title: Banner ID
+          description: Banner ID (PIDM Identifier).
+          type: string
+          example: HOP510001
+          maxLength: 12
+        reconIND:
+          title: RECON IND
+          description: Bank reconciliation indicator.  When a check is reconciled this field will be valued with an (R)
+          type: string
+          example: R
+          maxLength: 1
+          
+        year:
+          title: YEAR
+          description: The year of the payroll that generated the documents.
+          type: string
+          example: 2022
+          maxLength: 6
+          
+        pictCode:
+          title: PAYROLL IDENTIFICATION CODE
+          description: The pay id code associated with this payroll.
+          type: string
+          example: XM
+          maxLength: 2
+        
+        payNo:
+          title: PAYROLL NUMBER
+          description: The number of the payroll that generated the document.
+          type: string
+          example: R
+          maxLength: 6
+          
+        seqNo:
+          title: SEQUENCE NUMBER
+          description: The sequence number of this pay event.
+          type: string
+          example: 0
+          maxLength: 2 
+      required:
+        - bannerId
+        - seqNo
+        - payNo
+        - pictCode
+        - year
+        - reconIND
+      additionalProperties: false
+      
+    errors_1_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+                
+    ErrorsObj:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        message:
+          type: string
+  examples:
+    idRequired:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "default.id.not.found"
+                }
+            ]
+        }
+        
+        
+        
+    yearRequired:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "default.year.required"
+                }
+            ]
+        }
+        
+        
+    pictCodeRequired:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "default.pictCode.not.found"
+                }
+            ]
+        }
+        
+    payNoRequired:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "default.pictCode.not.found"
+                }
+            ]
+        }
+        
+    seqNoRequired:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "default.pictCode.not.found"
+                }
+            ]
+        }
+        
+    reconINDInvalid:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "default.id.not.found"
+                }
+            ]
+        }
+              
+        
+   
+        }

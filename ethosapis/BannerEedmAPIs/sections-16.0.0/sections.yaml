@@ -1,0 +1,1391 @@
+openapi: 3.0.0
+info:
+  title: Sections
+  description: >
+    A section is an instance of a course that is used to group students
+    interested in taking the course. When students are enrolled in a course,
+    they are actually enrolled in one of the sections of that course. All
+    sections of a course share the same content associated with the course.
+    Banner supports both traditional sections and open Learning (OLR) sections.
+
+
+    A traditional section in Banner is defined as a section that is tied to a part of term and term code. An open learning (OLR) section in Banner is defined as a section that is tied to a term code
+
+
+    This API version supports mapping multiple Banner status codes and duration unit values to a single Ethos enumeration in API configuration settings. The API configuration setting SECTIONDETAIL.STATUS.V4 can be used to map multiple Banner status codes in STVSSTS_CODE to a valid status.category enumeration. The API configuration setting SECTIONDETAIL.DURATION.UNIT.V4 can be used to map multiple Banner duration unit values in GTVDUNT_CODE to a valid duration.unit enumeration. Please refer to "Map multiple Banner values to an Ethos enumeration" section in Banner Ethos API handbook for details on API behavior when multiple mappings are available in these settings for the same Ethos enumeration.
+  version: 16.0.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Student
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: sections
+paths:
+  /api/sections:
+    get:
+      summary: Returns resources from SSBSECT
+      description: |
+        Returns a paged listing of section records from SSBSECT.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_SECTIONS
+      tags:
+        - sections
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 250 and upper limit is 500.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Titles Value  
+
+            The title for the section associated with the type.
+
+            ```
+
+            /sections?criteria={"titles":[{"value":"Astronomy Lab"}]}
+
+            ```
+
+            ### Start On  
+
+            The starting date at which a section may be scheduled to be taken.
+
+            ```
+
+            /sections?criteria={"startOn": "2015-08-29"}
+
+            ```
+
+            ### End On  
+
+            The ending date at which a section may no longer be scheduled to be taken.
+
+            ```
+
+            /sections?criteria={"endOn": "2025-08-29"}
+
+            ```
+
+            ### Code  
+
+            A code that may be used to identify a section
+
+            ```
+
+            /sections?criteria={"code": "10001"}
+
+            ```
+
+            ### Number  
+
+            A numbering scheme or other mark that distinguishes between multiple sections.
+
+            ```
+
+            /sections?criteria={"number": "1"}
+
+            ```
+
+            ### Instructional Platform  
+
+            A technology platform used to manage the administration of a section.
+
+            ```
+
+            /sections?criteria={"instructionalPlatform": {"id": "80d49491-00ff-483e-aab5-da76fea6528d"}}
+
+            ```
+
+            ### Academic Period  
+
+            The academic time period associated with a section.
+
+            ```
+
+            /sections?criteria={"academicPeriod": {"id": "8b5f95a3-677f-4846-a329-3eb54a670111"}}
+
+            ```
+
+            ### Course  
+
+            The smallest unit of instruction for which an organization grants credits.
+
+            ```
+
+            /sections?criteria={"course": {"id": "39e7cfb1-e045-44d1-8446-7e3d55a33ea0"}}
+
+            ```
+
+            ### Academic Levels  
+
+            The levels of academic progress that can be associated with a section.
+
+            ```
+
+            /sections?criteria={"academicLevels": [{"id": "c6aab4d0-d3c7-40d9-96a6-09db8deaf403"}]}
+
+            ```
+
+            ### Site  
+
+            The primary location within the organization where a section's meetings will be held.
+
+            ```
+
+            /sections?criteria={"site": {"id": "0ed94aa2-dc31-494c-99a7-f4c272fa6416"}}
+
+            ```
+
+            ### Status Category  
+
+            The category of the section status.
+
+            ```
+
+            /sections?criteria={"status":{"category":"open"}}
+
+            ```
+
+            ### Owning Institution Units  
+
+            The units (departments) of the educational institution which own, or are responsible for, a course
+
+            ```
+
+            /sections?criteria={"owningInstitutionUnits": [{"institutionUnit":{"id":"b23bb183-7d73-4726-af1b-661510324c88"}}]}
+
+            ```
+
+            ### Reporting Academic Period  
+
+            The reporting academic period associated with the section.
+
+            ```
+
+            /sections?criteria={"reportingAcademicPeriod": {"id": "060d0dd1-75aa-4c43-989c-0015b6f01d6e"}}
+
+            ```
+        - name: searchable
+          in: query
+          required: false
+          schema:
+            type: object
+          description: |
+            ### Searchable  
+            Not Supported
+            ```
+            /sections?searchable={"searchable": {$searchable}}
+            ```
+        - name: keywordSearch
+          in: query
+          required: false
+          schema:
+            type: object
+          description: |
+            ### Keyword Search  
+            Perform a keyword search
+            ```
+            /sections?keywordSearch={"keywordSearch": "Science"}
+            ```
+        - name: subject
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Subject  
+
+            Filter to return subject associated with a section.
+
+            ```
+
+            /sections?subject={"subject": {"id": "70e3fdb8-1a06-416f-bb76-f78da649d6e1"}}
+
+            ```
+        - name: instructor
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Instructor  
+
+            Filter to return instructor associated with a section.
+
+            ```
+
+            /sections?instructor={"instructor": {"id": "cb3ebfe9-4a31-4933-a504-04d110413a61"}}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-sections.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new resource in SSBSECT
+      description: >
+        POST requests must include a nil GUID value
+        ("00000000-0000-0000-0000-000000000000") for the root id property.
+
+
+        Creates a new section record in SSBSECT with given data in the request body. A create request sent with academic period GUID that is a part of term will create a traditional section. A create request sent with academic period GUID that is an SOBODTE rule will create an open learning section.
+
+
+        Minimum required properties for a open learning (OLR) section POST request:  id, titles, startOn, course, instructionalMethods, academicPeriod, duration
+
+
+        Minimum required properties for a traditional section POST request: id, titles, startOn, course, instructionalMethods, academicPeriod
+
+
+        Below are the API behavior details for titles, description, startOn, endOn, code, number, censusDates, creditType and owningInstitutionUnits properties on a create request:
+
+
+        Titles:
+
+
+        - The API accepts 4 types of titles - short title and long title of the section, short title and long title of the course associated with the section.
+
+        - The section short title sent in the request should not exceed 30 characters, similarly the section long title sent in the request should not exceed •0 characters.
+
+        - The course short title and long title sent in the request should match the titles of the course record, else the API rejects the request with an error message.
+
+
+        Description:
+
+
+        - The API supports 3 types of descriptions - short, long and schedule.
+
+        - Short description is restricted to 60 characters, if more than 60 characters is sent in the request then the API inserts additional record in SSRTEXT table.
+
+        - If schedule type description is sent, the create request is rejected with an error message.
+
+
+        startOn & endOn:
+
+
+        - For a traditional section - If section override indicator SOBPTRM_SECT_OVER_IND is set to 'Y' then the startOn date is stored in SSBSECT_PTRM_START_DATE, else if SOBPTRM_SECT_OVER_IND is 'N' then the create request is rejected with an error message.
+
+        - For a traditional section - If section override indicator SOBPTRM_SECT_OVER_IND is set to 'Y' then the endOn date is stored in SSBSECT_PTRM_END_DATE, else if SOBPTRM_SECT_OVER_IND is 'N' then the create request is rejected with an error message.
+
+        - For an open learning section, the learner start date in SSBSECT_LEARNER_REGSTART_FDATE and end date in SSBSECT_LEARNER_REGSTART_TDATE can be adjusted regardless of the override setting SOBODTE_OVERRIDE_IND.
+
+
+        Code:
+
+
+        - If the value mapped in API configuration setting 'SECTION.EXTERNAL.CRN.ALLOW' is 'Y', then the POST request allows an external partner to send in a predetermined CRN in the code property. If code is not sent in the request then the API uses Banner baseline one-up function to uniquely generate a CRN.
+
+        - When the API configuration setting is set to 'Y' - The CRN sent in the request will be accepted only if the provided value is less than the one-up defined in SOBTERM_CRN_ONEUP and is  unique to the term in SSBSECT table.
+
+        - If the value mapped in API configuration setting 'SECTION.EXTERNAL.CRN.ALLOW' is 'N', then the POST request will not allow an external partner to send in a predetermined CRN. The API uses Banner baseline one-up function to uniquely generate a CRN. If code property is sent in the request then the create request is rejected with an error message.
+
+
+        Number:
+
+
+        - If the number value provided is equal to 0, there can be multiple sections in SSBSECT for the same subject, course number, term, sequence number.
+
+        - If the number value provided is not equal to 0, there can be only one section in SSBSECT for the same subject, course number, term, sequence number. If another section with the same term, course number and sequence number is found, then the create request is rejected with an error message.
+
+
+        Census Dates:
+
+
+        - Census dates for a traditional section is dependent on the override indicator - SOBPTRM_SECT_OVER_IND. When SOBPTRM_SECT_OVER_IND = 'Y', a create request will be rejected if more than 2 census dates are sent. When SOBPTRM_SECT_OVER_IND = 'N', the request is rejected with an error message that overrides are not permitted.
+
+        - Census dates for an open learning section is dependent on the override indicator - SOBODTE_OVERRIDE_IND. When SOBODTE_OVERRIDE_IND = 'Y', a create request will be rejected if more than 2 census dates are sent. When SOBODTE_OVERRIDE_IND = 'N', the request is rejected with an error message that overrides are not permitted.
+
+
+        Credit Type:
+
+
+        - The API supports academic credit category of type 'ce' and 'institution' only.
+
+        - If the value sent in the create request does not match the credit type associated with the course record, request is rejected with an error message.
+
+
+        Owning Institution Units:
+
+
+        - Banner can only accommodate one college, one division, and one department entry. If more than one owning institution unit of each type is sent in the owningIntitutionUnits array, the request is requested with an error message.
+
+        - The college, division and department values sent in the request is compared with the course record in SCBCRSE effective for the the section term. If the values sent in the request do not match with course value then college, division and department information is stored in SSBOVRR table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_SECTIONS
+      tags:
+        - sections
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-sections.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v16+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-sections.json"
+  /api/sections/{id}:
+    get:
+      summary: Return the requested resource from SSBSECT
+      description: >
+        Returns a single section record from SSBSECT with the requested
+        identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_SECTIONS
+      tags:
+        - sections
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-sections.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    put:
+      summary: Update the requested resource from SSBSECT
+      description: >
+        Updates an existing section record. Note that the properties titles
+        (courseShort & courseLong), code, course, academicPeriod, credits,
+        academicLevels, reservedSeatsMaximum and alternateIds cannot be changed
+
+
+        Please refer to the notes in POST section of this document for API behavior details on titles, description, startOn, endOn, code, number, censusDates, creditType and owningInstitutionUnits properties.
+
+
+        Minimum required properties for a open learning (OLR) section PUT request:  id, titles, startOn, course, instructionalMethods, academicPeriod, duration
+
+
+        Minimum required properties for a traditional section PUT request: id, titles, startOn, course, instructionalMethods, academicPeriod
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_SECTIONS
+      tags:
+        - sections
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Sections for use in all external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json 
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-sections.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v16+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-sections.json"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-sections.json:
+      title: Sections
+      description: An instance of a course.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: A globally unique identifier of a section to be used in all
+            external references.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: SSBSGID_GUID(SSBSGID)
+        titles:
+          title: Titles
+          description: The section titles details.
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                title: Type
+                description: The type of course title (e.g. short title, long title).
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Type.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: section-title-types 
+                    x-lineageReferenceObject: STVSTTPE_GUID(STVSTTPE)
+                additionalProperties: false
+                required:
+                  - id
+              value:
+                title: Value
+                description: The title for the section associated with the type.
+                type: string
+                minLength: 1
+                x-lineageReferenceObject: derived  
+                x-lineageDerivedLogic: For the SSBSECT_TERM_CODE and SSBSECT_CRN, fetch the matching record from SSRSYLN. Display title from SSRSYLN_LONG_COURSE_TITLE field if not null, else if SSRSYLN_LONG_COURSE_TITLE is null, then display title from SSBSECT_CRSE_TITLE field if not null, else if SSRSYLN_LONG_COURSE_TITLE and SSBSECT_CRSE_TITLE are null, then for the SSBSECT_SUBJ_CODE and SSBSECT_CRSE_NUMB fetch the matching record from SCBCRSE. Display title from SCBCRSE_TITLE
+            additionalProperties: false
+            required:
+              - type
+              - value
+        descriptions:
+          title: Descriptions
+          description: The section descriptions details.
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                title: Type
+                description: The type of course description (e.g. short description, long
+                  description).
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Type.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: section-description-types 
+                    x-lineageReferenceObject: STVSDTPE_GUID(STVSDTPE)
+                additionalProperties: false
+                required:
+                  - id
+              value:
+                title: Value
+                description: The description for the section associated with the type.
+                type: string
+                minLength: 1
+                x-lineageReferenceObject: SSRTEXT_TEXT(SSRTEXT) or SSBDESC_TEXT_NARRATIVE(SSBDESC)
+            additionalProperties: false
+            required:
+              - type
+              - value
+        startOn:
+          title: Offering Start Date
+          description: The starting date at which a section may be scheduled to be taken.
+          type: string
+          format: date
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+          x-lineageReferenceObject: SSBSECT_LEARNER_REGSTART_FDATE(SSBSECT) or SSBSECT_PTRM_START_DATE(SSBSECT)
+        endOn:
+          title: Offering End Date
+          description: The ending date at which a section may no longer be scheduled to be
+            taken.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: SSBSECT_PTRM_END_DATE(SSBSECT) or SSBSECT_LEARNER_REGSTART_TDATE(SSBSECT)
+            - type: string
+              maxLength: 0
+        code:
+          title: Section Code
+          description: The human-readable identifier of a section. It is generally unique
+            within an academic period.
+          type: string
+          x-lineageReferenceObject: SSBSECT_CRN(SSBSECT)
+        number:
+          title: Section Number
+          description: A numbering scheme or other mark that distinguishes between
+            multiple sections.  It is generally unique within an academic period
+            and course.
+          type: string
+          x-lineageReferenceObject: SSBSECT_SEQ_NUMB(SSBSECT)
+        instructionalPlatform:
+          title: Instructional Platform
+          description: A technology platform used to manage the administration of a section.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Instructional Platform.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: instructional-platforms 
+                  x-lineageReferenceObject: SSBSECT_INTG_CDE(SSBSECT)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        academicPeriod:
+          title: Academic Period
+          description: The academic time period associated with a section.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Academic Period.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: academic-periods 
+                  x-lineageReferenceObject: SOBODTE_GUID(SOBODTE) or SSBSECT_PTRM_CODE(SSBSECT)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        censusDates:
+          title: Census Dates
+          description: The dates at which the section's enrollment/headcount is
+            determined. These dates override the census dates for the academic
+            period, if they are different.
+          type: array
+          items:
+            pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+            type: string
+            format: date
+            x-lineageReferenceObject: SSBSECT_CENSUS_ENRL_DATE(SSBSECT) or SSBSECT_CENSUS_2_DATE(SSBSECT)
+        course:
+          title: Course
+          description: The smallest unit of instruction for which an organization grants
+            credits.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Course.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: courses 
+              x-lineageReferenceObject: SCBCGID_GUID(SCBCGID)
+          additionalProperties: false
+          required:
+            - id
+        courseCategories:
+          title: Course Categories
+          description: The categories to which the course may belong (for example -
+            Vocational, Co-op Work Experience, Lab, Music, etc.)
+          type: array
+          items:
+            title: Course Categories
+            description: The categories to which the course may belong (for example -
+              Vocational, Co-op Work Experience, Lab, Music, etc.)
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Course Categories.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: course-categories 
+                x-lineageReferenceObject: STVATTR_GUID(STVATTR)
+            additionalProperties: false
+            required:
+              - id
+        credits:
+          title: Credits
+          description: Unit specification that can be awarded for completing a section.
+          type: array
+          items:
+            type: object
+            properties:
+              creditCategory:
+                title: Credit Category
+                description: The academic credit category associated with the section.
+                type: object
+                properties:
+                  creditType:
+                    title: Credit Type
+                    description: The higher-level category of academic credit.
+                    enum:
+                      - ce
+                      - institution
+                      - transfer
+                      - exchange
+                      - exam
+                      - workLifeExperience
+                      - other
+                      - noCredit
+                    type: string
+                    x-lineageReferenceObject: derived
+                    x-lineageDerivedLogic: Display 'ce' if SCBCRSE_CEU_IND is 'Y' else display 'institution'. Only ce and institution are supported.
+                  detail:
+                    title: Detail
+                    description: The academic credit category associated with the section.
+                    oneOf:
+                      - type: object
+                        properties:
+                          id:
+                            title: ID
+                            description: The global identifier for the Detail.
+                            type: string
+                            format: guid
+                            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                            x-lineageLookupReferenceObject: credit-categories 
+                            x-lineageReferenceObject: derived
+                            x-lineageDerivedLogic: Should be displayed if SSBSECT_CREDIT_HRS is not null. A record in GORGUID where GORGUID_LDM_NAME as 'credit-categories'
+                        additionalProperties: false
+                        required:
+                          - id
+                      - type: object
+                        maxProperties: 0
+                additionalProperties: false
+                required:
+                  - creditType
+              measure:
+                title: Unit of Measure
+                description: A unit or standard of measurement.
+                enum:
+                  - credit
+                  - ceu
+                  - hours
+                type: string
+                x-lineageReferenceObject: derived  
+                x-lineageDerivedLogic: Display 'ceu' if SCBCRSE_CEU_IND is 'Y' else display 'hours' . Only ce and hours are supported.
+              minimum:
+                title: Minimum number
+                description: The lower, inclusive bound of a numeric range of values.
+                type: number
+                x-lineageReferenceObject: SSBSECT_CREDIT_HRS(SSBSECT)
+              maximum:
+                title: Maximum number
+                description: The upper, inclusive bound of a numeric range of values.
+                oneOf:
+                  - type: number
+                    x-lineageReferenceObject: unsupported
+                  - type: string
+                    nullable: true
+              increment:
+                title: Increment number
+                description: The multiple by which a numeric range of values can be stepped from
+                  the minimum to the maximum. For example, a range of 1 to 3
+                  with an increment of 1 would evaluate to 1, 2, or 3.
+                  Specifying an increment of 0.5 would evaluate to 1, 1.5, 2,
+                  2.5, or 3
+                oneOf:
+                  - type: number
+                    x-lineageReferenceObject: unsupported
+                  - type: string
+                    nullable: true
+            additionalProperties: false
+            required:
+              - creditCategory
+              - measure
+              - minimum
+        site:
+          title: Site
+          description: The primary location within the organization where a section's
+            meetings will be held.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Site.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: sites 
+                  x-lineageReferenceObject: SSBSECT_CAMP_CODE(SSBSECT)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        academicLevels:
+          title: Academic Level
+          description: The levels of academic progress that can be associated with a
+            section.
+          type: array
+          items:
+            title: Academic Level
+            description: The levels of academic progress that can be associated with a
+              section.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Academic Level.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: academic-levels 
+                x-lineageReferenceObject: SCRLEVL_LEVL_CODE(SCRLEVL)
+            additionalProperties: false
+            required:
+              - id
+        gradeSchemes:
+          title: Grade Schemes
+          description: The grading schemes that may be used to award a grade to a student
+            in this section of the course. Must be a subset of the grade schemes
+            of the course.
+          type: array
+          items:
+            title: Grade Schemes
+            description: The grading schemes that may be used to award a grade to a student
+              in this section of the course. Must be a subset of the grade
+              schemes of the course.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Grade Schemes.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: grade-schemes 
+                x-lineageReferenceObject: derived
+                x-lineageDerivedLogic: Display the grade scheme SHRGSCH_GUID for that particular grade mode and level.
+            additionalProperties: false
+            required:
+              - id
+        courseLevels:
+          title: Course Levels
+          description: The levels of a course
+          type: array
+          items:
+            title: Course Levels
+            description: The levels of a course
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Course Levels.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: course-levels 
+                x-lineageReferenceObject: unsupported
+            additionalProperties: false
+            required:
+              - id
+        instructionalMethods:
+          title: Instructional Methods
+          description: The method, style, or format in which the section of a course is
+            taught (for example, 'Lecture', 'Lab').
+          type: array
+          minItems: 1
+          items:
+            title: Instructional Methods
+            description: The method, style, or format in which the section of a course is
+              taught (for example, 'Lecture', 'Lab').
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Instructional Methods.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: instructional-methods 
+                x-lineageReferenceObject: SSBSECT_SCHD_CODE(SSBSECT)
+            additionalProperties: false
+            required:
+              - id
+        hours:
+          title: Hours
+          description: The hours that may be assigned to the section by instructional
+            method.
+          type: array
+          items:
+            type: object
+            properties:
+              administrativeInstructionalMethod:
+                title: Administrative Instructional Method
+                description: The method, style, or format for which hours are established for a
+                  section.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Administrative Instructional Method.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: administrative-instructional-methods 
+                    x-lineageReferenceObject: SSBSECT_CONT_HR(SSBSECT) or  SSBSECT_LEC_HR(SSBSECT) or SSBSECT_LAB_HR(SSBSECT) or SSBSECT_OTH_HR(SSBSECT)
+                additionalProperties: false
+                required:
+                  - id
+              minimum:
+                title: Minimum
+                description: The minimum number of hours that may be established for an
+                  instructional method.
+                type: number
+                x-lineageReferenceObject: SSBSECT_OTH_HR_LOW(SSBSECT) or SSBSECT_LAB_HR_LOW(SSBSECT) or SSBSECT_LEC_HR_LOW(SSBSECT) or SSBSECT_CONT_HR_LOW(SSBSECT)
+              maximum:
+                title: Maximum
+                description: The maximum number of hours that may be established for an
+                  instructional method.
+                oneOf:
+                  - type: number
+                    x-lineageReferenceObject: unsupported
+                  - type: string
+                    nullable: true
+              increment:
+                title: Increment
+                description: The increment specified for the hours.
+                oneOf:
+                  - type: number
+                    x-lineageReferenceObject: unsupported
+                  - type: string
+                    nullable: true
+              interval:
+                title: Interval
+                description: The interval specified for the hours.
+                oneOf:
+                  - type: string
+                    enum:
+                      - day
+                      - week
+                      - month
+                      - term
+                    x-lineageReferenceObject: derived  
+                    x-lineageDerivedLogic: Display 'week' Banner assumes all hours are defined by week.
+                  - type: string
+                    maxLength: 0
+            additionalProperties: false
+            required:
+              - administrativeInstructionalMethod
+              - minimum
+        instructionalDeliveryMethod:
+          title: Instructional Delivery Method
+          description: "The delivery method of instruction for the section (for example:
+            'Face to face', 'Web', etc.)"
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Instructional Delivery Method.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: instructional-delivery-methods 
+                  x-lineageReferenceObject: SSBSECT_INSM_CODE(SSBSECT)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        status:
+          title: Status
+          description: The status of a section (for example, open, closed, pending,
+            cancelled).
+          oneOf:
+            - type: object
+              properties:
+                category:
+                  title: Category
+                  description: The category of the section status.
+                  enum:
+                    - open
+                    - closed
+                    - pending
+                    - cancelled
+                  type: string
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: Display the valid 'status.category' enum value for the SSBSECT_SSTS_CODE that is mapped in the API configuration setting 'SECTIONDETAIL.STATUS.V4'. If there is no mapping available in the API configuration setting 'SECTIONDETAIL.STATUS.V4', then if STVSSTS_ACTIVE_IND = 'A' and STVSSTS_REG_IND = 'Y' then display as 'open', else if STVSSTS_ACTIVE_IND = 'A' and STVSSTS_REG_IND = 'N' then display as 'closed', else if STVSSTS_ACTIVE_IND = 'I' and STVSSTS_REG_IND = 'N' then display as 'cancelled'
+                detail:
+                  title: Detail
+                  description: A custom section status
+                  oneOf:
+                    - type: object
+                      properties:
+                        id:
+                          title: ID
+                          description: The global identifier for the Detail.
+                          type: string
+                          format: guid
+                          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                          x-lineageLookupReferenceObject: section-statuses 
+                          x-lineageReferenceObject: SSBSECT_SSTS_CODE(SSBSECT)
+                      additionalProperties: false
+                      required:
+                        - id
+                    - type: object
+                      maxProperties: 0
+              additionalProperties: false
+              required:
+                - category
+            - type: object
+              maxProperties: 0
+        duration:
+          title: Duration
+          description: The scheme for calculating the duration of a section
+          oneOf:
+            - type: object
+              properties:
+                length:
+                  title: Length
+                  description: The duration length, expressed in duration units.
+                  type: number
+                  x-lineageReferenceObject: SSBSECT_PTRM_WEEKS(SSBSECT) or SSBSECT_NUMBER_OF_UNITS(SSBSECT)
+                unit:
+                  title: Unit
+                  description: The calendar period of time equivalent to 1 unit of duration.
+                  enum:
+                    - days
+                    - weeks
+                    - months
+                    - years
+                  type: string
+                  x-lineageReferenceObject: SSBSECT_DUNT_CODE(SSBSECT)
+              additionalProperties: false
+              required:
+                - length
+                - unit
+            - type: object
+              maxProperties: 0
+        maxEnrollment:
+          title: Maximum Enrollment
+          description: The maximum number of persons who are allowed to enroll for a
+            section.
+          oneOf:
+            - type: integer
+              x-lineageReferenceObject: SSBSECT_MAX_ENRL(SSBSECT)
+            - type: string
+              nullable: true
+        reservedSeatsMaximum:
+          title: Reserved Seats Maximum
+          description: The maximum number of reserved seats for the section.
+          oneOf:
+            - type: integer
+              x-lineageReferenceObject: SSRRESV_MAX_ENRL(SSRRESV)
+            - type: string
+              nullable: true
+        waitlist:
+          title: Waitlist
+          description: Waitlist information for the section.
+          oneOf:
+            - type: object
+              properties:
+                waitlistMaximum:
+                  title: Waitlist Maximum
+                  description: The maximum number of slots in the waitlist for the section.
+                  oneOf:
+                    - type: integer
+                      x-lineageReferenceObject: SSBSECT_WAIT_CAPACITY(SSBSECT)
+                    - type: string
+                      nullable: true
+                registrationInterval:
+                  title: Registration Interval
+                  description: The amount of time a student has to register for the section once
+                    notified that they are allowed to do so.
+                  oneOf:
+                    - type: object
+                      properties:
+                        unit:
+                          title: Unit
+                          description: The unit (day,hour) used to specify the time the student has to
+                            register.
+                          enum:
+                            - day
+                            - hour
+                          type: string
+                          x-lineageReferenceObject: derived  
+                          x-lineageDerivedLogic: "Display 'hour' if SSBWLSC record exists where SSBWLSC_TERM_CODE = SSBSECT_TERM_CODE and SSBWLSC_CRN = SSBSECT_CRN and SSBWLSC_AUTO_NOTIFY_IND = 'Y'; Display 'hour'  if no SSBWLSC record exists and SOBWLTC record does exist where SOBWLTC_TERM_CODE = SSBSECT_TERM_CODE and SOBWLTC_AUTO_NOTIFY_IND = 'Y'. Note: Do not publish the waitlist.registrationInterval object if SSBWLSC record exists where SSBWLSC_TERM_CODE = SSBSECT_TERM_CODE and SSBWLSC_CRN = SSBSECT_CRN and SSBWLSC_AUTO_NOTIFY_IND = 'N' or SSBWLSC record does not exist and SOBWLTC record does exist where SOBWLTC_TERM_CODE = SSBSECT_TERM_CODE and SOBWLTC_AUTO_NOTIFY_IND = 'N'."
+                        value:
+                          title: Value
+                          description: The number of the specified units that a student has to register.
+                          type: number
+                          x-lineageReferenceObject: derived  
+                          x-lineageDerivedLogic: Display SSBWLSC_DEADLINE_NOTIFY, if a record exists in SSBWLSC where SSBWLTC_CRN = SSBSECT_CRN and SSBWLSC_TERM_CODE = SSBSECT_TERM_CODE and SSBWLSC_AUTO_NOTIFY_IND = 'Y'; else display SOBWLTC_DEADLINE_NOTIFY where SOBWLTC_TERM_CODE = SSBSECT_TERM_CODE.
+                      additionalProperties: false
+                      required:
+                        - unit
+                        - value
+                    - type: object
+                      maxProperties: 0
+                eligible:
+                  title: Eligible
+                  description: An indicator as to whether the section is eligible for a waitlist.
+                  enum:
+                    - eligible
+                    - notEligible
+                  type: string
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: Display 'eligible' if traditional sections else if OLR section display 'notEligible'.
+              additionalProperties: false
+              required:
+                - eligible
+            - type: object
+              maxProperties: 0
+        crossListed:
+          title: Cross Listed
+          description: An indication if this section is cross listed.
+          oneOf:
+            - type: string
+              enum:
+                - crossListed
+                - notCrossListed
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: Display 'crossListed' if record exists in SSRXLST for that term and section else display 'notCrossListed'.
+            - type: string
+              maxLength: 0
+        owningInstitutionUnits:
+          title: Owning Institution Units
+          description: The units (departments) of the educational institution which own,
+            or are responsible for, a course
+          type: array
+          items:
+            type: object
+            properties:
+              institutionUnit:
+                title: Institution Unit
+                description: A unit (department) of the educational institution
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Institution Unit.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: educational-institution-units 
+                    x-lineageReferenceObject: derived  
+                    x-lineageDerivedLogic: For the SSBSECT_TERM_CODE and SSBSECT_CRN fetch the matching record from SSBOVRR. Display GUID from GORGUID where GORGUID_LDM_NAME is 'departments' and GORGUID_DOMAIN_KEY matches SSBOVRR_DEPT_CODE. Else if SSBOVRR_DEPT_CODE is null then, For the SSBSECT_SUBJ_CODE and SSBSECT_CRSE_NUMB fetch the matching course record from SCBCRSE and display GUID from GORGUID where GORGUID_LDM_NAME is 'departments' and GORGUID_DOMAIN_KEY matches SCBCRSE_DEPT_CODE.  For the SSBSECT_TERM_CODE and SSBSECT_CRN fetch the matching record from SSBOVRR. Display GUID from GORGUID where GORGUID_LDM_NAME is 'divisions' and GORGUID_DOMAIN_KEY matches SSBOVRR_DIVS_CODE. Else if SSBOVRR_DIVS_CODE is null then, For the SSBSECT_SUBJ_CODE and SSBSECT_CRSE_NUMB fetch the matching course record from SCBCRSE and display GUID from GORGUID where GORGUID_LDM_NAME is 'colleges' and GORGUID_DOMAIN_KEY matches SCBCRSE_DIVS_CODE. For the SSBSECT_TERM_CODE and SSBSECT_CRN fetch the matching record from SSBOVRR. Display GUID from GORGUID where GORGUID_LDM_NAME is 'colleges' and GORGUID_DOMAIN_KEY matches SSBOVRR_COLL_CODE. Else if SSBOVRR_COLL_CODE is null then, For the SSBSECT_SUBJ_CODE and SSBSECT_CRSE_NUMB fetch the matching course record from SCBCRSE and display GUID from GORGUID where GORGUID_LDM_NAME is 'colleges' and GORGUID_DOMAIN_KEY matches SCBCRSE_COLL_CODE
+                additionalProperties: false
+                required:
+                  - id
+              ownershipPercentage:
+                title: Percent Ownership
+                description: The rate or proportion per hundred of ownership that is
+                  attributable to the organization.
+                type: number
+                x-lineageReferenceObject: derived  
+                x-lineageDerivedLogic: Always display as '100'
+            additionalProperties: false
+            required:
+              - institutionUnit
+              - ownershipPercentage
+        billing:
+          title: Billing
+          description: The number of units that may be used to calculate the charge for
+            the section as part of registration processing.
+          oneOf:
+            - type: number
+              x-lineageReferenceObject: SSBSECT_BILL_HRS(SSBSECT)
+            - type: string
+              nullable: true
+        chargeAssessmentMethod:
+          title: Charge Assessment Method
+          description: The method used to assess the charge for the section.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Charge Assessment Method.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: charge-assessment-methods 
+                  x-lineageReferenceObject: SSBSECT_TUIW_IND(SSBSECT)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        alternateIds:
+          title: Alternate Ids
+          description: Additional unique identifiers assigned to sections to support
+            non-Ethos integrations.
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                title: Title
+                description: The title of the alternate identifier.
+                type: string
+                minLength: 1
+                x-lineageReferenceObject: derived  
+                x-lineageDerivedLogic: Display 'Source Key'.
+              value:
+                title: Value
+                description: The value of the alternate identifier.
+                type: string
+                minLength: 1
+                x-lineageReferenceObject: derived  
+                x-lineageDerivedLogic: Display SSBSECT_CRN || '.' || SSBSECT_TERM_CODE
+            additionalProperties: false
+            required:
+              - title
+              - value
+        reportingAcademicPeriod:
+          title: Reporting Academic Period
+          description: The reporting academic period associated with the section.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Reporting Academic Period.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: academic-periods 
+                  x-lineageReferenceObject: SSBSECT_TERM_CODE(SSBSECT)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+      required:
+        - id
+        - titles
+        - startOn
+        - course
+        - instructionalMethods
+      additionalProperties: false

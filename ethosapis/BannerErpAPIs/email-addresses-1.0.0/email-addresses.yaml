@@ -1,0 +1,985 @@
+openapi: 3.0.0
+info:
+  title: email addresses
+  description: >
+    The API can be used to retrieve an email holder (person or non-person) and
+    an array of emails with details similar to the information provided on the
+    GOAEMAL administrative page. The API also supports the creation and update
+    of email address details individually and in batches.
+  version: 1.0.0
+  x-audience: all
+  x-release-status: ga
+  x-source-domain: Foundation
+  x-source-system: banner
+  x-api-type: erp
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/email-addresses:
+    get:
+      tags:
+        - email-addresses
+      summary: Get email address
+      description: Query and retrieve email address data based on bannerId, email
+        address, and or email type
+      parameters:
+        - name: limit
+          in: query
+          description: |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+            $ref: "#/components/schemas/email-addresses-1_0_0_get_request"
+          description: >
+            Retrieving Unique Items: The combination of bannerId, emailAddress,
+            and emailType uniquely describe a single record. \
+             Retrieving Multiple Items: Multiple records are retieved by providing any other combination of fields. The following example will retrieve all records with the provided bannerId. 
+            ```
+
+            /email-addresses?criteria={"bannerId":"331314209"}
+
+            ```
+        - name: id
+          in: query
+          required: false
+          schema:
+            type: object
+            $ref: "#/components/schemas/email-addresses-1_0_0_id_parameter"
+          description: >
+            Retrieving Unique Items: The combination of bannerId, emailAddress,
+            and emailType uniquely describe a single record.All three fields in
+            the ID are required.
+
+            ```
+
+            /email-addresses?id={"bannerId":"331314209","emailAddress":"Test123@gmail.com","emailType":"ADMS"}
+
+            ```
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/email-addresses-1_0_0_get_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - BasicAuth: []
+          EthosIntegrationBearer: []
+      x-method-permissions: API_EMAIL_ADDRESSES
+    post:
+      tags:
+        - email-addresses
+      summary: Creates new email address records in GOREMAL
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/email-addresses-1_0_0_post_request"
+      responses:
+        "201":
+          description: Created
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/email-addresses-1_0_0_post_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - BasicAuth: []
+          EthosIntegrationBearer: []
+    put:
+      tags:
+        - email-addresses
+      summary: Updates existing records within the GOREMAL email table.
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: object
+            $ref: "#/components/schemas/email-addresses-1_0_0_id_parameter"
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/email-addresses-1_0_0_put_request"
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/email-addresses-1_0_0_put_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - BasicAuth: []
+          EthosIntegrationBearer: []
+    delete:
+      summary: Removes a resource from GOREMAL
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      tags:
+        - email-addresses
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: object
+            $ref: "#/components/schemas/email-addresses-1_0_0_id_parameter"
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+  /api/email-addresses/batches:
+    post:
+      tags:
+        - email-addresses
+      summary: Creates or updates a batch of email address records in GOREMAL
+      description: Under the items property, the first record is for creating, and the
+        second record is for updating
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/email-addresses-batch-1_0_0_post_request"
+      responses:
+        "201":
+          description: Created
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/email-addresses-batch-1_0_0_post_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - BasicAuth: []
+          EthosIntegrationBearer: []
+components:
+  schemas:
+    email-addresses-1_0_0_id_parameter:
+      type: object
+      properties:
+        bannerId:
+          title: Banner Id
+          description: Banner Id
+          type: string
+          maxLength: 9
+          x-lineageReferenceObject: SPRIDEN_ID
+        emailAddress:
+          title: Email Address
+          description: ""
+          type: string
+          x-lineageReferenceObject: GOREMAL_EMAIL_ADDRESS
+        emailType:
+          title: Email Type
+          description: ""
+          type: string
+          maxLength: 4
+          x-lineageReferenceObject: GOREMAL_EMAL_CODE
+          x-lineageLookupReferenceObject: gtvemal
+      additionalProperties: false
+      required:
+        - bannerId
+        - emailAddress
+        - emailType
+    email-addresses-1_0_0_get_request:
+      type: object
+      properties:
+        bannerId:
+          title: Banner Id
+          description: Banner Id
+          type: string
+          maxLength: 9
+          x-lineageReferenceObject: SPRIDEN_ID
+        emailAddress:
+          title: Email Address
+          description: ""
+          maxLength: 128
+          type: string
+          x-lineageReferenceObject: GOREMAL_EMAIL_ADDRESS
+        emailType:
+          title: Email Type
+          description: ""
+          type: string
+          maxLength: 4
+          x-lineageReferenceObject: GOREMAL_EMAL_CODE
+          x-lineageLookupReferenceObject: gtvemal
+        statusIndicator:
+          title: statusIndicator
+          type: string
+          enum:
+            - active
+            - inactive
+          description: "Lineage reference object : GOREMAL_STATUS_IND"
+          x-lineageReferenceObject: GOREMAL_STATUS_IND
+        personId:
+          title: ID
+          description: A global identifier of a person.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+        organizationId:
+          title: ID
+          description: A global identifier of an organization.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+    email-addresses-1_0_0_get_response:
+      type: object
+      properties:
+        id:
+          title: Id
+          description: id
+          type: object
+          $ref: "#/components/schemas/email-addresses-1_0_0_id_parameter"
+        statusIndicator:
+          title: statusIndicator
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : GOREMAL_STATUS_IND"
+          enum:
+            - active
+            - inactive
+          x-lineageReferenceObject: GOREMAL_STATUS_IND
+        displayWebIndicator:
+          title: Display on Web
+          type: boolean
+          description: "Lineage reference object : GOREMAL_DISP_WEB_IND"
+          x-lineageReferenceObject: GOREMAL_DISP_WEB_IND
+        activityDate:
+          title: Activity Date
+          maxLength: 26
+          type: string
+          format: date
+          x-lineageReferenceObject: GOREMAL_ACTIVITY_DATE
+        comment:
+          title: Comment
+          maxLength: 60
+          type: string
+          description: "Lineage reference object : GOREMAL_COMMENT"
+          x-lineageReferenceObject: GOREMAL_COMMENT
+        preferredIndicator:
+          title: Preferred
+          maxLength: 1
+          type: boolean
+          description: "Lineage reference object : GOREMAL_PREFERRED_IND"
+          x-lineageReferenceObject: GOREMAL_PREFERRED_IND
+        personId:
+          title: ID
+          description: A global identifier of a person.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+        organizationId:
+          title: ID
+          description: A global identifier of an organization.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+      required:
+        - id
+    email-addresses-1_0_0_post_request:
+      type: object
+      properties:
+        bannerId:
+          title: Banner Id
+          description: Banner Id
+          type: string
+          maxLength: 9
+          x-lineageReferenceObject: SPRIDEN_ID
+        emailAddress:
+          title: Email Address
+          description: ""
+          maxLength: 128
+          type: string
+          x-lineageReferenceObject: GOREMAL_EMAIL_ADDRESS
+        emailType:
+          title: Email Type
+          description: ""
+          type: string
+          maxLength: 4
+          x-lineageReferenceObject: GOREMAL_EMAL_CODE
+          x-lineageLookupReferenceObject: gtvemal
+        statusIndicator:
+          title: statusIndicator
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : GOREMAL_STATUS_IND"
+          enum:
+            - active
+            - inactive
+          x-lineageReferenceObject: GOREMAL_STATUS_IND
+        displayWebIndicator:
+          title: Display on Web
+          type: boolean
+          description: "Lineage reference object : GOREMAL_DISP_WEB_IND"
+          x-lineageReferenceObject: GOREMAL_DISP_WEB_IND
+        comment:
+          title: Comment
+          maxLength: 60
+          type: string
+          description: "Lineage reference object : GOREMAL_COMMENT"
+          x-lineageReferenceObject: GOREMAL_COMMENT
+        preferredIndicator:
+          title: Preferred
+          maxLength: 1
+          type: boolean
+          description: "Lineage reference object : GOREMAL_PREFERRED_IND"
+          x-lineageReferenceObject: GOREMAL_PREFERRED_IND
+        preferredIndicatorOverride:
+          title: Preferred Indicator Override
+          type: boolean
+          description: "Set this property if preferred Indicator needs to be set. If this
+            flag is true and the preferred indicator is true then the new email
+            will be preferred and any previously existing preferred email
+            associated with the provided bannerId will be updated to
+            non-preferred "
+      required:
+        - bannerId
+        - emailType
+        - emailAddress
+    email-addresses-1_0_0_post_response:
+      type: object
+      properties:
+        id:
+          title: Id
+          description: id
+          type: object
+          $ref: "#/components/schemas/email-addresses-1_0_0_id_parameter"
+        statusIndicator:
+          title: statusIndicator
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : GOREMAL_STATUS_IND"
+          enum:
+            - active
+            - inactive
+          x-lineageReferenceObject: GOREMAL_STATUS_IND
+        displayWebIndicator:
+          title: Display on Web
+          type: boolean
+          description: "Lineage reference object : GOREMAL_DISP_WEB_IND"
+          x-lineageReferenceObject: GOREMAL_DISP_WEB_IND
+        activityDate:
+          title: Activity Date
+          maxLength: 26
+          type: string
+          format: date
+          x-lineageReferenceObject: GOREMAL_ACTIVITY_DATE
+        comment:
+          title: Comment
+          maxLength: 60
+          type: string
+          description: "Lineage reference object : GOREMAL_COMMENT"
+          x-lineageReferenceObject: GOREMAL_COMMENT
+        preferredIndicator:
+          title: Preferred
+          maxLength: 1
+          type: boolean
+          description: "Lineage reference object : GOREMAL_PREFERRED_IND"
+          x-lineageReferenceObject: GOREMAL_PREFERRED_IND
+        personId:
+          title: ID
+          description: A global identifier of a person.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+        organizationId:
+          title: ID
+          description: A global identifier of an organization.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+      required:
+        - id
+    email-addresses-batch-1_0_0_post_request:
+      type: object
+      properties:
+        id:
+          title: ID
+          description: A globally unique identifier of a batch to be used in all external
+            references.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+        resource:
+          title: Resource
+          description: The affected resource.
+          type: object
+          properties:
+            name:
+              title: Resource Name
+              description: The pluralized name of the affected resource
+              type: string
+            version:
+              title: Resource version
+              description: The version of the resource
+              type: string
+          additionalProperties: false
+          required:
+            - name
+            - version
+        items:
+          title: items
+          description: List of items to be processed.
+          type: array
+          items:
+            type: object
+            oneOf:
+              - $ref: "#/components/schemas/email-addresses-1_0_0_post_request"
+              - $ref: "#/components/schemas/email-addresses-1_0_0_put_request_batch"
+      required:
+        - items
+    email-addresses-batch-1_0_0_post_response:
+      description: "Returns the list of Ids for those sections that were successfully
+        updated or created. For those that did not, it returns the list of error
+        messages. "
+      type: object
+      x-last-modified: 1694460214111
+      properties:
+        id:
+          title: ID
+          description: A globally unique identifier of a batch to be used in all external
+            references.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+        status:
+          title: status
+          description: status of the batch.
+          type: string
+          enum:
+            - completed
+            - inProgress
+            - aborted
+        resource:
+          title: Resource
+          description: The affected resource.
+          type: object
+          properties:
+            name:
+              title: Resource Name
+              description: The pluralized name of the affected resource
+              type: string
+            version:
+              title: Resource version
+              description: The version of the resource
+              type: string
+          additionalProperties: false
+          required:
+            - name
+            - version
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+            oneOf:
+              - type: object
+                $ref: "#/components/schemas/email-addresses-1_0_0_post_response"
+              - type: object
+                $ref: "#/components/schemas/errors_2_0_0"
+          required:
+            - items
+    email-addresses-1_0_0_put_request:
+      type: object
+      properties:
+        statusIndicator:
+          title: statusIndicator
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : GOREMAL_STATUS_IND"
+          enum:
+            - active
+            - inactive
+          x-lineageReferenceObject: GOREMAL_STATUS_IND
+        displayWebIndicator:
+          title: Display on Web
+          type: boolean
+          description: "Lineage reference object : GOREMAL_DISP_WEB_IND"
+          x-lineageReferenceObject: GOREMAL_DISP_WEB_IND
+        comment:
+          title: Comment
+          maxLength: 60
+          type: string
+          description: "Lineage reference object : GOREMAL_COMMENT"
+          x-lineageReferenceObject: GOREMAL_COMMENT
+        preferredIndicator:
+          title: Preferred
+          maxLength: 1
+          type: boolean
+          description: "Lineage reference object : GOREMAL_PREFERRED_IND"
+          x-lineageReferenceObject: GOREMAL_PREFERRED_IND
+        preferredIndicatorOverride:
+          title: Preferred Indicator Override
+          type: boolean
+          description: "Set this property if preferredIndicator needs to be set. If this
+            flag is true and the preferred indicator is true then the new email
+            will be preferred and any previously existing preferred email
+            associated with the provided bannerId will be updated to
+            non-preferred. "
+      required:
+        - id
+    email-addresses-1_0_0_put_response:
+      type: object
+      properties:
+        id:
+          title: Id
+          description: id
+          type: object
+          $ref: "#/components/schemas/email-addresses-1_0_0_id_parameter"
+        statusIndicator:
+          title: statusIndicator
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : GOREMAL_STATUS_IND"
+          enum:
+            - active
+            - inactive
+          x-lineageReferenceObject: GOREMAL_STATUS_IND
+        displayWebIndicator:
+          title: Display on Web
+          type: boolean
+          description: "Lineage reference object : GOREMAL_DISP_WEB_IND"
+          x-lineageReferenceObject: GOREMAL_DISP_WEB_IND
+        activityDate:
+          title: Activity Date
+          maxLength: 26
+          type: string
+          format: date
+          x-lineageReferenceObject: GOREMAL_ACTIVITY_DATE
+        comment:
+          title: Comment
+          maxLength: 60
+          type: string
+          description: "Lineage reference object : GOREMAL_COMMENT"
+          x-lineageReferenceObject: GOREMAL_COMMENT
+        preferredIndicator:
+          title: Preferred
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : GOREMAL_PREFERRED_IND"
+          x-lineageReferenceObject: GOREMAL_PREFERRED_IND
+        personId:
+          title: ID
+          description: A global identifier of a person.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+        organizationId:
+          title: ID
+          description: A global identifier of an organization.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+      required:
+        - id
+    email-addresses-1_0_0_put_request_batch:
+      type: object
+      properties:
+        id:
+          title: Id
+          description: id
+          type: object
+          properties:
+            bannerId:
+              title: Banner Id
+              description: Banner Id
+              type: string
+              x-lineageReferenceObject: SPRIDEN_ID
+            emailAddress:
+              title: Email Address
+              description: ""
+              maxLength: 128
+              type: string
+              x-lineageReferenceObject: GOREMAL_EMAIL_ADDRESS
+            emailType:
+              title: Email Type
+              description: ""
+              type: string
+              x-lineageReferenceObject: GOREMAL_EMAL_CODE
+              x-lineageLookupReferenceObject: gtvemal
+          required:
+            - bannerId
+            - emailAddress
+            - emailType
+        statusIndicator:
+          title: statusIndicator
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : GOREMAL_STATUS_IND"
+          enum:
+            - active
+            - inactive
+          x-lineageReferenceObject: GOREMAL_STATUS_IND
+        displayWebIndicator:
+          title: Display on Web
+          type: boolean
+          description: "Lineage reference object : GOREMAL_DISP_WEB_IND"
+          x-lineageReferenceObject: GOREMAL_DISP_WEB_IND
+        comment:
+          title: Comment
+          maxLength: 60
+          type: string
+          description: "Lineage reference object : GOREMAL_COMMENT"
+          x-lineageReferenceObject: GOREMAL_COMMENT
+        preferredIndicator:
+          title: Preferred
+          maxLength: 1
+          type: boolean
+          description: "Lineage reference object : GOREMAL_PREFERRED_IND"
+          x-lineageReferenceObject: GOREMAL_PREFERRED_IND
+        preferredIndicatorOverride:
+          title: Preferred Indicator Override
+          type: boolean
+          description: "Set this property if preferredIndicator needs to be set. If this
+            flag is true and the preferred indicator is true then the new email
+            will be preferred and any previously existing preferred email
+            associated with the provided bannerId will be updated to
+            non-preferred. "
+      required:
+        - id
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary
+                  data entity used to create the resource. This is useful for
+                  referencing the source item through the applications
+                  administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

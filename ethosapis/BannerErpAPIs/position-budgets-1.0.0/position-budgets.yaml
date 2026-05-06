@@ -1,0 +1,200 @@
+openapi: 3.0.0
+info:
+  title: Position Budgets
+  description: API for Position Budget details from NBAPBUD Position Budget tab
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Human Resources
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/position-budgets:
+    get:
+      summary: Return data from the NBAPBUD page for the Position tab
+      description: Returns the data from NBAPBUD page for Position and budget
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_POSITION_BUDGET
+      tags:
+        - position-budgets
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: positionCode
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-position-budget.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ErrorsObj"
+              examples:
+                MandtoryFieldsMissing:
+                  $ref: "#/components/examples/MandtoryFieldsMissing"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-position-budget.json:
+      title: Position Budget - Position tab
+      description: Displays the details of the Position budget for a particular year
+        and postion
+      type: object
+      properties:
+        status:
+          title: Position Status - Description
+          description: Display position status code and status description
+          type: string
+        coasCode:
+          title: COA code
+          description: Position Chart of Accounts Code Valued only if Banner Finance is
+            installed
+          type: string
+        budgetProfile:
+          title: Budget Profile - Description
+          description: Budget Profile Code. If budget Profile description is available for
+            the code, both budgetProfile and the description will be disdplayed.
+            If description is not available only the budget profile code will be
+            displayed.
+          type: string
+        type:
+          title: Position Type - description
+          description: Position Type along with the Description(Single or pooled)
+          type: string
+        beginDate:
+          title: Position Begin Date
+          description: First date the position is funded to begin.
+          type: string
+        endDate:
+          title: Position End Date
+          description: End date of the position. If null, the position is presumed to be a
+            permanent position.
+          type: string
+        premiumRollInd:
+          title: Premium Roll Indicator - Indicator description
+          description: Indicator that specifies how to roll budget for premium earnings.
+            Values are (C)urrent Budget Amount, (A)ctual Expenditure for Current
+            Year, (Z)ero, or (N)ot Applicable. (Premium Roll Indicator along
+            with the Premium Roll Indicator description.)
+          type: string
+        rollInd:
+          title: Roll Indicator - Indicator description
+          description: Budget roll indicator. (Roll indicator along with the Roll
+            Indicator description.)
+          type: string
+        authNumber:
+          title: Auth Number
+          description: The position number that authorized the approval of the defined
+            position.
+          type: string
+        position:
+          title: Position Code
+          description: Position number for the position.
+          type: string
+        activityDate:
+          title: Activity Date
+          description: Date of last activity of the record.
+          type: string
+        userId:
+          title: User ID
+          description: The user ID of the person who inserted or last updated this record.
+          type: string
+      required:
+        - position
+    ErrorsObj:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        message:
+          type: string
+  examples:
+    MandtoryFieldsMissing:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Filter value is required"
+                }
+            ]
+        }

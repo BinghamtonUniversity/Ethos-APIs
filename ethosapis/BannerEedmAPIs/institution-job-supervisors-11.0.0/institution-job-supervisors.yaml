@@ -1,0 +1,262 @@
+openapi: 3.0.0
+info:
+  title: Institution Job Supervisors
+  description: Information about the supervisors associated with jobs at the institution.
+  version: "11.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Human Resources
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/institution-job-supervisors:
+    get:
+      summary: Return all resources from NBRJOBS
+      description: Returns a paged listing of all the institution job supervisor
+        records from NBRJOBS table
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_INSTN_JOB_SUPERVISORS
+      tags:
+        - institution-job-supervisors
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-institution-job-supervisors.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/institution-job-supervisors/{id}:
+    get:
+      summary: Return the requested resource from NBRJOBS
+      description: Returns the single institution job supervisor record with the
+        requested identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_INSTN_JOB_SUPERVISORS
+      tags:
+        - institution-job-supervisors
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Institution Job Supervisors for use in all
+            external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v11+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v11+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v11+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-institution-job-supervisors.json"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-institution-job-supervisors.json:
+      title: Institution Job Supervisors
+      description: Information about the supervisors associated with jobs at the
+        institution.
+      type: object
+      properties:
+        id:
+          title: ID
+          description: The global identifier of the institution job supervisor.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: NBRJOBS_SUPERVISOR_GUID(NBRJOBS)
+        person:
+          title: Person
+          description: The employee to which the job is associated.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Person.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+              x-lineageDerivedLogic: Display the person GUID from GORGUID where GORGUID_LDM_NAME='persons' and GORGUID_LDM_NAME matches NBRJOBS_PIDM
+          additionalProperties: false
+          required:
+            - id
+        employer:
+          title: Employer
+          description: The institution for which the employee works.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Employer.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: institution-employers 
+              x-lineageReferenceObject: NBRJOBS_EMPR_CODE(NBRJOBS)
+          additionalProperties: false
+          required:
+            - id
+        position:
+          title: Position
+          description: The position associated with the employee.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Position.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: institution-positions 
+              x-lineageReferenceObject: NBRJOBS_POSN(NBRJOBS)
+          additionalProperties: false
+          required:
+            - id
+        department:
+          title: Department
+          description: The department of the institution to which the employee belongs.
+          type: string
+          minLength: 1
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: If Finance not installed - display department value from GTVORID_TITLE which is populated from PTVORGN table.  If Finance installed, display department value from GTVORID_TITLE which is populated from FTVORGN table
+        supervisors:
+          title: Supervisors
+          description: The supervisors associated with the employee's job.
+          type: array
+          items:
+            type: object
+            properties:
+              supervisor:
+                title: Supervisor
+                description: The supervisor for the employee's job.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Supervisor.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: persons 
+                    x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+                    x-lineageDerivedLogic: Display the person GUID from GORGUID where GORGUID_LDM_NAME='persons' and GORGUID_LDM_NAME matches NBRJOBS_SUPERVISOR_PIDM
+                additionalProperties: false
+                required:
+                  - id
+              type:
+                title: Type
+                description: The type of the supervisor for the employee's job (e.g. primary and
+                  alternate).
+                enum:
+                  - primary
+                  - alternate
+                type: string
+                x-lineageReferenceObject: unsupported
+            additionalProperties: false
+            required:
+              - supervisor
+              - type
+      required:
+        - id
+        - person
+        - employer
+        - position
+        - department
+      additionalProperties: false

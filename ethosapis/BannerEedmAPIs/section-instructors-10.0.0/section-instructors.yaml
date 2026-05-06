@@ -1,0 +1,637 @@
+openapi: 3.0.0
+info:
+  title: Section Instructors
+  description: >
+    The section instructors API reports/creates instructor assignments for the
+    section and contract type data such as workload, primary instructor and
+    percent responsibility.
+  version: "10.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Student
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: section-instructors
+paths:
+  /api/section-instructors:
+    get:
+      summary: Returns resources from SIRASGN
+      description: |
+        Returns a paged listing of section instructor records from SIRASGN.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_SECTION_INSTRUCTORS
+      tags:
+        - section-instructors
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Section  
+
+            Returns all section instructors for the given section
+
+            ```
+
+            /section-instructors?criteria={"section":"90a29229-3172-41d3-9035-4fe1d11db5cd"}
+
+            ```
+
+            ```
+
+            /section-instructors?criteria={"section":{"id":"90a29229-3172-41d3-9035-4fe1d11db5cd"}}
+
+            ```
+
+            ### Instructor  
+
+            Returns all section instructors for the given instructor
+
+            ```
+
+            /section-instructors?criteria={"instructor":"90a29229-3172-41d3-9035-85f178d71ac1"}
+
+            ```
+
+            ```
+
+            /section-instructors?criteria={"instructor":{"id":"90a29229-3172-41d3-9035-85f178d71ac1"}}
+
+            ```
+
+            ### instructionalEvent  
+
+            Returns all section instructors for the given instructionalEvent
+
+            ```
+
+            /section-instructors?criteria={"instructionalEvent":"85a7rs81-3172-41d3-9035-95sl87idt5nm"}
+
+            ```
+
+            ```
+
+            /section-instructors?criteria={"instructionalEvent":{"id":"85a7rs81-3172-41d3-9035-95sl87idt5nm"}}
+
+            ```
+
+            ```
+
+            /section-instructors?criteria={"instructionalEvent":[{"id":"30130c9a-7ca2-41be-ac82-76bb4dcc3403"}]}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-section-instructors.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v10+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new resource in SIRASGN
+      description: >
+        POST requests must include a nil GUID value
+        ("00000000-0000-0000-0000-000000000000") for the root id property.
+
+
+        Creates a new section instructor record in SIRASGN with given data in the request body
+
+
+        Below are the API behavior details for instructionalEvents, instructionalMethod, workLoad, workStartOn and workEndOn properties on a create request:
+
+
+        Instructional Events:
+
+
+        - Instructional event sent in the request should be valid for the section sent.
+
+        - Instructional event should be sent in the request for a traditional section so that SIRASGN_CATEGORY can be tied to SSRMEET_CATAGORY, else the API rejects the request with an error message.
+
+        - For an OLR section, it is not required to define a meeting record therefore instructional event is not expected in the request.
+
+
+        Instructional Method:
+
+
+        - Instructional method sent in the request will not a stored in any Banner tables, but will be validated against the corresponding SSRMEET and SSBSECT records.
+
+        - If an instructional event exists for the section in SSRMEET, then the instructional method sent in request should match one of the SSRMEET_SCHD_CODE values - else the API rejects the request with an error message.
+
+
+        - If there are no matching instructional event record for the section in SSRMEET, then the instructional method sent in request should match one of the SSBSECT_SCHD_CODE values - else the API rejects the request with an error message.
+
+
+        Work Load:
+
+
+        - Work load sent in the request will not a stored in any Banner tables, but will be validated against the corresponding SSRMEET record.
+
+        - If an instructional event exists for the section in SSRMEET, then the work load value must add up to the sum of SCBCRSE_WORKLOAD values - else the API rejects the request with an error message.
+
+        - If there are no matching instructional event record for the section in SSRMEET, then the only allowed value for work load is 0 - else the API rejects the request with an error message.
+
+
+        Work Start On:
+
+
+        - Work start on sent in the request will not a stored in any Banner tables, but will be validated against the corresponding SSRMEET record.
+
+        - If an instructional event exists for the section in SSRMEET, then the work start on value must the earliest SSRMEET_START_DATE value - else the API rejects the request with an error message.
+
+
+        Work End On:
+
+
+        - Work end  on sent in the request will not a stored in any Banner tables, but will be validated against the corresponding SSRMEET record.
+
+        - If an instructional event exists for the section in SSRMEET, then the work end on value must the latest SSRMEET_START_DATE value - else the API rejects the request with an error message.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_SECTION_INSTRUCTORS
+      tags:
+        - section-instructors
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v10+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v10+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-section-instructors.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-section-instructors.json"
+  /api/section-instructors/{id}:
+    get:
+      summary: Return the requested resource from SIRASGN
+      description: >
+        Returns a single section instructor record from SIRASGN with the
+        requested identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_SECTION_INSTRUCTORS
+      tags:
+        - section-instructors
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v10+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v10+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-section-instructors.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    put:
+      summary: Update the requested resource from SIRASGN
+      description: >
+        Updates an existing section instructor record.
+
+
+        Note that instructorRole is the only updatable property. A primary instructor must exist for every section, update request can be sent to change the primary instructor.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_SECTION_INSTRUCTORS
+      tags:
+        - section-instructors
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Section Instructors for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json 
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v10+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v10+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-section-instructors.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-section-instructors.json"
+    delete:
+      summary: Removes a resource from SIRASGN
+      description: |
+        Deletes an existing section instructor record.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_SECTION_INSTRUCTORS
+      tags:
+        - section-instructors
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Section Instructors for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-section-instructors.json:
+      title: Section Instructors
+      description: Information about instructors assigned to sections in academic
+        capacities.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the section instructor.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: SIRASGN_GUID(SIRASGN)
+        instructor:
+          title: Instructor
+          description: The person assigned as an instructor to the section.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Instructor.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: SIRASGN_PIDM(SIRASGN)
+          additionalProperties: false
+          required:
+            - id
+        section:
+          title: Section
+          description: The section to which the instructor is assigned.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Section.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: sections 
+              x-lineageReferenceObject: SIRASGN_CRN(SIRASGN)
+          additionalProperties: false
+          required:
+            - id
+        instructionalEvents:
+          title: Instructional Events
+          description: The instructional events associated with the assignment of the
+            instructor to the section, if applicable.
+          type: array
+          items:
+            title: Instructional Events
+            description: The instructional events associated with the assignment of the
+              instructor to the section, if applicable.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Instructional Events.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: instructional-events 
+                x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = instructional-events) 
+                x-lineageDerivedLogic: A record in GORGUID where GORGUID_LDM_NAME as 'instructional-events' for the associated term, CRN and category.
+            additionalProperties: false
+            required:
+              - id
+        instructionalMethod:
+          title: Instructional Method
+          description: The method, style, or format of instruction associated with the
+            instructor's involvement with the section (for example, 'Lecture',
+            'Lab').
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Instructional Method.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: instructional-methods 
+                  x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = instructional-methods) 
+                  x-lineageDerivedLogic: A record in GORGUID where GORGUID_LDM_NAME is 'instructional-methods' for the associated schedule code. If multiple SSRMEET records exist, display the GUID of SSRMEET_SCHD_CODE from the earliest record based on the  SSRMEET_ACTIVITY_DATE. If SSRMEET_SCHD_CODE is not populated then display the GUID of SSBSECT_SCHD_CODE.
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        instructorRole:
+          title: Instructor Role
+          description: An indication whether the instructor is identified as the primary
+            instructor for the section.
+          oneOf:
+            - type: string
+              enum:
+                - primary
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: Display 'primary' if SIRASGN_PRIMARY_IND = 'Y' else null.
+            - type: string
+              maxLength: 0
+        workLoad:
+          title: Work Load
+          description: The amount of work attributed to the instructor for the assignment.
+          oneOf:
+            - type: number
+              x-lineageReferenceObject: SCRSCHD_WORKLOAD(SCRSCHD)
+            - type: string
+              nullable: true
+        responsibilityPercentage:
+          title: Responsibility Percentage
+          description: The percentage of the total responsibility for managing the
+            instructional method's activities attributed to the instructor for
+            the assignment.
+          oneOf:
+            - type: number
+              x-lineageReferenceObject: SIRASGN_PERCENT_RESPONSE(SIRASGN)
+            - type: string
+              nullable: true
+        workStartOn:
+          title: Work Start On
+          description: The first date associated with the instructor's assignment.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: SSRMEET_START_DATE(SSRMEET)
+            - type: string
+              maxLength: 0
+        workEndOn:
+          title: Work End On
+          description: The last date associated with the instructor's assignment.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: SSRMEET_END_DATE(SSRMEET)
+            - type: string
+              maxLength: 0
+      required:
+        - id
+        - instructor
+        - section
+      additionalProperties: false

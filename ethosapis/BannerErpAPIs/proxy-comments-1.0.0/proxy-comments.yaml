@@ -1,0 +1,1136 @@
+openapi: 3.0.0
+info:
+  title: Proxy Comments
+  description: >
+    Creates or updates the comments. This API allows an API USER to post a transaction on behalf of a “user” who has a SPRIDEN ID and has Banner security access to post the transaction. The “user” field requires either the SPRIDEN ID or the Principal User ID from GOAEACC. The user is case sensitive and must match the record in Banner.
+  version: 1.0.0
+  x-api-type: erp
+  x-release-status: ga
+  x-source-system: banner
+  x-source-domain: Student
+  x-audience: all
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/proxy-comments/{id}:
+    put:
+      summary: Updates the comment in TGACOMC.
+      description: |
+        <p>Searches for the comment code and the ID provided in TBRCMNT table and
+           then updates this resource with the new details provided.</p>
+      security:
+        - BasicAuth: []
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PROXY_COMMENTS
+      tags:
+        - proxy-comments
+      parameters:
+        - name: Accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: Content-Type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to the API
+            source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          description: TransactionId of the payment.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                $ref: "#/components/schemas/proxy_comments_put_request"
+        "400":
+          description: Bad Request
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                IdRequired:
+                  $ref: '#/components/examples/IdRequired'
+                CommentRestrictUpdate:
+                  $ref: '#/components/examples/CommentRestrictUpdate'
+                InvalidBannerId:
+                  $ref: '#/components/examples/InvalidBannerId'
+                InvalidOriginator:
+                  $ref: '#/components/examples/InvalidOriginator'
+                InvalidCommentCode:
+                  $ref: '#/components/examples/InvalidCommentCode'
+                InvalidTermCode:
+                  $ref: '#/components/examples/InvalidTermCode'
+                InvalidUser:
+                  $ref: '#/components/examples/InvalidUser'
+                InvalidRestrictUpdateInd:
+                  $ref: '#/components/examples/InvalidRestrictUpdateInd'
+                InvalidPurgeInd:
+                  $ref: '#/components/examples/InvalidPurgeInd'
+                EndDateRequired:
+                  $ref: '#/components/examples/EndDateRequired'
+                TermCodeRequired:
+                  $ref: '#/components/examples/TermCodeRequired'
+                RecordNotFound:
+                  $ref: '#/components/examples/RecordNotFound'
+        "401":
+          description: Unauthorized
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/Unauthorized"
+        "403":
+          description: Forbidden
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                NoPermission:
+                  $ref: "#/components/examples/NoPermission"
+        "404":
+          description: Resource not found
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+        "405":
+          description: Method Not Allowed
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                MethodNotAllowed:
+                  $ref: "#/components/examples/MethodNotAllowed"
+        "406":
+          description: Not Acceptable
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                UnsupportedVersion:
+                  $ref: "#/components/examples/UnsupportedVersion"
+        "500":
+          description: Server error, unexpected configuration or data
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/proxy_comments_put_request"
+  /api/proxy-comments:
+    get:
+      summary: Returns resources from TBRCMNT.
+      description: |
+        <p>Returns a paged listing of all the comments that are part of the TBRCMNT table.</p>
+      security:
+        - BasicAuth: []
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PROXY_COMMENTS
+      tags:
+        - proxy-comments
+      parameters:
+        - name: Accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                $ref: "#/components/schemas/proxy_comments_get_response"
+        "400":
+          description: Bad Request
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+        "401":
+          description: Unauthorized
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/Unauthorized"
+        "403":
+          description: Forbidden
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                NoPermission:
+                  $ref: "#/components/examples/NoPermission"
+        "404":
+          description: Resource not found
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+        "405":
+          description: Method Not Allowed
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                MethodNotAllowed:
+                  $ref: "#/components/examples/MethodNotAllowed"
+        "406":
+          description: Not Acceptable
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                UnsupportedVersion:
+                  $ref: "#/components/examples/UnsupportedVersion"
+        "500":
+          description: Server error, unexpected configuration or data
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+    post:
+      summary: Creates or updates a comment record in TBRCMNT.
+      description: |
+        <p>Creates a new comment in the TBRCMNT table.</p>
+        <p>The user can send a single ID to create comments or can pass multiple ID's to create same comments for all the ID's. </p>
+      security:
+        - BasicAuth: []
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PROXY_COMMENTS
+      tags:
+        - proxy-comments
+      parameters:
+        - name: Accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: Content-Type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to the API
+            source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: bannerId
+          in: header
+          required: true
+          description: >
+            Banner ID for the person we will be creating comments.
+          schema:
+            type: string
+        - name: comment Code
+          in: header
+          required: true
+          description: >
+            Comment Code
+          schema:
+            type: string
+        - name: User
+          in: header
+          required: true
+          description: >
+            Denoting the user who will be creating the comment.
+          schema:
+            type: string
+      responses:
+        "201":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                $ref: "#/components/schemas/proxy_comments_post_response"
+        "400":
+          description: Bad Request
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                InvalidBannerId:
+                  $ref: '#/components/examples/InvalidBannerId'
+                InvalidOriginator:
+                  $ref: '#/components/examples/InvalidOriginator'
+                InvalidCommentCode:
+                  $ref: '#/components/examples/InvalidCommentCode'
+                InvalidTermCode:
+                  $ref: '#/components/examples/InvalidTermCode'
+                InvalidUser:
+                  $ref: '#/components/examples/InvalidUser'
+                InvalidRestrictUpdateInd:
+                  $ref: '#/components/examples/InvalidRestrictUpdateInd'
+                InvalidPurgeInd:
+                  $ref: '#/components/examples/InvalidPurgeInd'
+                EndDateRequired:
+                  $ref: '#/components/examples/EndDateRequired'
+                TermCodeRequired:
+                  $ref: '#/components/examples/TermCodeRequired'
+        "401":
+          description: Unauthorized
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/Unauthorized"
+        "403":
+          description: Forbidden
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                NoPermission:
+                  $ref: "#/components/examples/NoPermission"
+        "404":
+          description: Resource not found
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+        "405":
+          description: Method Not Allowed
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                MethodNotAllowed:
+                  $ref: "#/components/examples/MethodNotAllowed"
+        "406":
+          description: Not Acceptable
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                UnsupportedVersion:
+                  $ref: "#/components/examples/UnsupportedVersion"
+        "500":
+          description: Server error, unexpected configuration or data
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/proxy_comments_post_request"
+            examples:
+              RequestBodyForSingleId:
+                $ref: "#/components/examples/RequestBodyForSingleId"
+              RequestBodyForMultipleId:
+                $ref: "#/components/examples/RequestBodyForMultipleId"
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    proxy_comments_get_response:
+      title: GET Response
+      type: array
+      items:
+        type: object
+        properties:
+          bannerId:
+            title: Banner ID
+            description: ID of the person
+            type: string
+          form:
+            title: Form
+            description: This field identified the form identification where the comment was entered.
+            type: string
+            x-lineageReferenceObject: TBRCMNT_FORM
+          sequenceNumber:
+            title: Sequence Number
+            description: This field identified the internal sequence number associated with each line of comment.
+            type: number
+            x-lineageReferenceObject: TBRCMNT_SEQ_NUMBER
+          commentCode:
+            title: Comment Code
+            description: This field identifies the comment type code for the comment.
+            type: string
+            x-lineageReferenceObject: TBRCMNT_COMMENT_CODE
+          originator:
+            title: Originator
+            description: This field identifies the code of the originator of the comment.  The originator could either be an office or individual.
+            type: string
+            x-lineageReferenceObject: TBRCMNT_ORIG_CODE
+          user:
+            title: User
+            description: This field denotes the user who entered the comment text.
+            type: string
+            x-lineageReferenceObject: TBRCMNT_USER
+          userId:
+            title: User ID
+            description: The user ID of the person who inserted or last updated this record.
+            type: integer
+            x-lineageReferenceObject: TBRCMNT_USER_ID
+          text:
+            title: Text
+            description: This field specified the free-format comment text.
+            type: string
+            x-lineageReferenceObject: TBRCMNT_TEXT
+          comment:
+            title: Comment
+            description: Free format detailed Comment.
+            type: string
+            x-lineageReferenceObject: TBRCMNT_COMMENT
+          termCode:
+            title: Term Code
+            description: This field identifies the term associated with the comment type code.
+            type: string
+            x-lineageReferenceObject: TBRCMNT_TERM
+          restrictUpdateInd:
+            title: Restrict Update Indicator
+            description: This field indicates the restrict update value for the comment type. Y indicates the comment is restricted and can only be updated by the user who created it.  N indicates the comment is not restricted and can be updated by any user.
+            type: string
+            x-lineageReferenceObject: TBRCMNT_RESTRICT_UPDATE_IND
+          purgeInd:
+            title: Purge Indicator
+            description: This field indicates the purge value for the comment type. Y indicates the comment may be purged.  N indicates the comment will not be purged.
+            type: string
+            x-lineageReferenceObject: TBRCMNT_PURGE_IND
+          endDate:
+            title: End Date
+            description: This field specifies the end date for the record.
+            type: string
+            x-lineageReferenceObject: TBRCMNT_ENDDATE
+          createdBy:
+            title: Created By
+            description: This field identifies the user who created this record.
+            type: string
+            x-lineageReferenceObject: TBRCMNT_CREATED_BY
+          activityDate:
+            title: Activity Date
+            description: This field specifies the most current date record was created or updated.
+            type: string
+            x-lineageReferenceObject: TBRCMNT_ACTIVITY_DATE
+          createdDate:
+            title: Created Date
+            description: This field identifies date on which this record was created
+            type: string
+            x-lineageReferenceObject: TBRCMNT_CREATED_DATE
+          id:
+            title: ID
+            description: Immutable unique key
+            type: number
+            x-lineageReferenceObject: TBRCMNT_SURROGATE_ID
+        additionalProperties: false
+    proxy_comments_post_response:
+      title: POST Response
+      type: array
+      required:
+        - bannerId
+        - commentCode
+        - user
+      items:
+        type: object
+        properties:
+          bannerId:
+            title: Banner ID
+            description: ID of the person
+            type: string
+          form:
+            title: Form
+            description: This field identified the form identification where the comment was entered.
+            type: string
+            x-lineageReferenceObject: TBRCMNT_FORM
+          sequenceNumber:
+            title: Sequence Number
+            description: This field identified the internal sequence number associated with each line of comment.
+            type: number
+            x-lineageReferenceObject: TBRCMNT_SEQ_NUMBER
+          commentCode:
+            title: Comment Code
+            description: This field identifies the comment type code for the comment.
+            type: string
+            x-lineageReferenceObject: TBRCMNT_COMMENT_CODE
+          originator:
+            title: Originator
+            description: This field identifies the code of the originator of the comment.  The originator could either be an office or individual.
+            type: string
+            x-lineageReferenceObject: TBRCMNT_ORIG_CODE
+          user:
+            title: User
+            description: This field denotes the user who entered the comment text.
+            type: string
+            x-lineageReferenceObject: TBRCMNT_USER
+          userId:
+            title: User ID
+            description: The user ID of the person who inserted or last updated this record.
+            type: integer
+            x-lineageReferenceObject: TBRCMNT_USER_ID
+          text:
+            title: Text
+            description: This field specified the free-format comment text.
+            type: string
+            x-lineageReferenceObject: TBRCMNT_TEXT
+          comment:
+            title: Comment
+            description: Free format detailed Comment.
+            type: string
+            x-lineageReferenceObject: TBRCMNT_COMMENT
+          termCode:
+            title: Term Code
+            description: This field identifies the term associated with the comment type code.
+            type: string
+            x-lineageReferenceObject: TBRCMNT_TERM
+          restrictUpdateInd:
+            title: Restrict Update Indicator
+            description: This field indicates the restrict update value for the comment type. Y indicates the comment is restricted and can only be updated by the user who created it.  N indicates the comment is not restricted and can be updated by any user.
+            type: string
+            x-lineageReferenceObject: TBRCMNT_RESTRICT_UPDATE_IND
+          purgeInd:
+            title: Purge Indicator
+            description: This field indicates the purge value for the comment type. Y indicates the comment may be purged.  N indicates the comment will not be purged.
+            type: string
+            x-lineageReferenceObject: TBRCMNT_PURGE_IND
+          endDate:
+            title: End Date
+            description: This field specifies the end date for the record.
+            type: string
+            x-lineageReferenceObject: TBRCMNT_ENDDATE
+          createdBy:
+            title: Created By
+            description: This field identifies the user who created this record.
+            type: string
+            x-lineageReferenceObject: TBRCMNT_CREATED_BY
+          activityDate:
+            title: Activity Date
+            description: This field specifies the most current date record was created or updated.
+            type: string
+            x-lineageReferenceObject: TBRCMNT_ACTIVITY_DATE
+          createdDate:
+            title: Created Date
+            description: This field identifies date on which this record was created
+            type: string
+            x-lineageReferenceObject: TBRCMNT_CREATED_DATE
+          id:
+            title: ID
+            description: Immutable unique key
+            type: number
+            x-lineageReferenceObject: TBRCMNT_SURROGATE_ID
+        additionalProperties: false
+    proxy_comments_put_request:
+      title: PUT Request Body
+      description: Updating the Proxy Comments
+      type: object
+      required:
+        - id
+        - bannerId
+        - commentCode
+        - user
+      properties:
+        bannerId:
+          title: Banner ID
+          description: ID of the person
+          type: string
+        form:
+          title: Form
+          description: This field identified the form identification where the comment was entered.
+          type: string
+          x-lineageReferenceObject: TBRCMNT_FORM
+        sequenceNumber:
+          title: Sequence Number
+          description: This field identified the internal sequence number associated with each line of comment.
+          type: number
+          x-lineageReferenceObject: TBRCMNT_SEQ_NUMBER
+        commentCode:
+          title: Comment Code
+          description: This field identifies the comment type code for the comment.
+          type: string
+          x-lineageReferenceObject: TBRCMNT_COMMENT_CODE
+        originator:
+          title: Originator
+          description: This field identifies the code of the originator of the comment.  The originator could either be an office or individual.
+          type: string
+          x-lineageReferenceObject: TBRCMNT_ORIG_CODE
+        user:
+          title: User
+          description: This field denotes the user who entered the comment text.
+          type: string
+          x-lineageReferenceObject: TBRCMNT_USER
+        userId:
+          title: User ID
+          description: The user ID of the person who inserted or last updated this record.
+          type: integer
+          x-lineageReferenceObject: TBRCMNT_USER_ID
+        text:
+          title: Text
+          description: This field specified the free-format comment text.
+          type: string
+          x-lineageReferenceObject: TBRCMNT_TEXT
+        comment:
+          title: Comment
+          description: Free format detailed Comment.
+          type: string
+          x-lineageReferenceObject: TBRCMNT_COMMENT
+        termCode:
+          title: Term Code
+          description: This field identifies the term associated with the comment type code.
+          type: string
+          x-lineageReferenceObject: TBRCMNT_TERM
+        restrictUpdateInd:
+          title: Restrict Update Indicator
+          description: This field indicates the restrict update value for the comment type. Y indicates the comment is restricted and can only be updated by the user who created it.  N indicates the comment is not restricted and can be updated by any user.
+          type: string
+          x-lineageReferenceObject: TBRCMNT_RESTRICT_UPDATE_IND
+        purgeInd:
+          title: Purge Indicator
+          description: This field indicates the purge value for the comment type. Y indicates the comment may be purged.  N indicates the comment will not be purged.
+          type: string
+          x-lineageReferenceObject: TBRCMNT_PURGE_IND
+        endDate:
+          title: End Date
+          description: This field specifies the end date for the record.
+          type: string
+          x-lineageReferenceObject: TBRCMNT_ENDDATE
+        createdBy:
+          title: Created By
+          description: This field identifies the user who created this record.
+          type: string
+          x-lineageReferenceObject: TBRCMNT_CREATED_BY
+        activityDate:
+          title: Activity Date
+          description: This field specifies the most current date record was created or updated.
+          type: string
+          x-lineageReferenceObject: TBRCMNT_ACTIVITY_DATE
+        createdDate:
+          title: Created Date
+          description: This field identifies date on which this record was created
+          type: string
+          x-lineageReferenceObject: TBRCMNT_CREATED_DATE
+        id:
+          title: ID
+          description: Immutable unique key
+          type: number
+          x-lineageReferenceObject: TBRCMNT_SURROGATE_ID
+      additionalProperties: false
+    proxy_comments_post_request:
+      title: POST Request Body
+      description: Updating the Proxy Comments
+      type: object
+      required:
+        - bannerId
+        - commentCode
+        - user
+      properties:
+        bannerId:
+          title: Banner ID
+          description: ID of the person
+          type: string
+        form:
+          title: Form
+          description: This field identified the form identification where the comment was entered.
+          type: string
+          x-lineageReferenceObject: TBRCMNT_FORM
+        sequenceNumber:
+          title: Sequence Number
+          description: This field identified the internal sequence number associated with each line of comment.
+          type: number
+          x-lineageReferenceObject: TBRCMNT_SEQ_NUMBER
+        commentCode:
+          title: Comment Code
+          description: This field identifies the comment type code for the comment.
+          type: string
+          x-lineageReferenceObject: TBRCMNT_COMMENT_CODE
+        originator:
+          title: Originator
+          description: This field identifies the code of the originator of the comment.  The originator could either be an office or individual.
+          type: string
+          x-lineageReferenceObject: TBRCMNT_ORIG_CODE
+        user:
+          title: User
+          description: This field denotes the user who entered the comment text.
+          type: string
+          x-lineageReferenceObject: TBRCMNT_USER
+        userId:
+          title: User ID
+          description: The user ID of the person who inserted or last updated this record.
+          type: integer
+          x-lineageReferenceObject: TBRCMNT_USER_ID
+        text:
+          title: Text
+          description: This field specified the free-format comment text.
+          type: string
+          x-lineageReferenceObject: TBRCMNT_TEXT
+        comment:
+          title: Comment
+          description: Free format detailed Comment.
+          type: string
+          x-lineageReferenceObject: TBRCMNT_COMMENT
+        termCode:
+          title: Term Code
+          description: This field identifies the term associated with the comment type code.
+          type: string
+          x-lineageReferenceObject: TBRCMNT_TERM
+        restrictUpdateInd:
+          title: Restrict Update Indicator
+          description: This field indicates the restrict update value for the comment type. Y indicates the comment is restricted and can only be updated by the user who created it.  N indicates the comment is not restricted and can be updated by any user.
+          type: string
+          x-lineageReferenceObject: TBRCMNT_RESTRICT_UPDATE_IND
+        purgeInd:
+          title: Purge Indicator
+          description: This field indicates the purge value for the comment type. Y indicates the comment may be purged.  N indicates the comment will not be purged.
+          type: string
+          x-lineageReferenceObject: TBRCMNT_PURGE_IND
+        endDate:
+          title: End Date
+          description: This field specifies the end date for the record.
+          type: string
+          x-lineageReferenceObject: TBRCMNT_ENDDATE
+        createdBy:
+          title: Created By
+          description: This field identifies the user who created this record.
+          type: string
+          x-lineageReferenceObject: TBRCMNT_CREATED_BY
+        activityDate:
+          title: Activity Date
+          description: This field specifies the most current date record was created or updated.
+          type: string
+          x-lineageReferenceObject: TBRCMNT_ACTIVITY_DATE
+        createdDate:
+          title: Created Date
+          description: This field identifies date on which this record was created
+          type: string
+          x-lineageReferenceObject: TBRCMNT_CREATED_DATE
+        id:
+          title: ID
+          description: Immutable unique key
+          type: number
+          x-lineageReferenceObject: TBRCMNT_SURROGATE_ID
+      additionalProperties: false
+    errors-2.0.0_response:
+      title: Error Response
+      description: Object containing errors list.
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            required:
+              - message
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary
+                  data entity used to create the resource. This is useful for
+                  referencing the source item through the applications
+                  administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  examples:
+    Unauthorized:
+      value: >-
+        {
+          "errors": [
+            {
+              "code": "401",
+              "message": "Full authentication is required to access this resource"
+            }
+          ]
+        }
+    NoPermission:
+      value: |-
+        {
+          "errors": [
+            {
+              "code": "403",
+              "message": "Access is denied"
+            }
+          ]
+        }
+    MethodNotAllowed:
+      value: |-
+        {
+          "errors": [
+            {
+              "code": "Operation.Not.Permitted",
+              "description": "Operation not permitted",
+              "message":  "Method not allowed."
+            }
+          ]
+        }
+    UnsupportedVersion:
+      value: >-
+        {
+          "errors": [
+            {
+              "code": "unknownrepresentation.error",
+              "description":  "Unknown representation error",
+              "message": "Unsupported media type 'application/vnd.hedtech.integration.vX+json' for resource 'external-payments'"
+            }
+          ]
+        }
+    IdRequired:
+      value: |-
+        {
+          "errors": [
+            {
+              "code": "Global.SchemaValidation.Error",
+              "description": "Errors parsing input JSON.",
+              "message": "Parameter id is required."
+            }
+          ]
+        }
+    CommentRestrictUpdate:
+      value: |-
+        {
+          "errors": [
+            {
+              "code": "Global.SchemaValidation.Error",
+              "description": "Errors parsing input JSON.",
+              "message": "Comment is restricted and can only be updated by the user who created the comment."
+            }
+          ]
+        }
+    InvalidBannerId:
+      value: |-
+        {
+          "errors": [
+            {
+              "code": "Global.SchemaValidation.Error",
+              "description": "Errors parsing input JSON.",
+              "message": "Person ABC does not exist."
+            }
+          ]
+        }
+    RecordNotFound:
+      value: |-
+        {
+          "errors": [
+            {
+              "code": "Global.SchemaValidation.Error",
+              "description": "Errors parsing input JSON.",
+              "message": "Record not found."
+            }
+          ]
+        }
+    InvalidOriginator:
+      value: |-
+        {
+          "errors": [
+            {
+              "code": "Global.SchemaValidation.Error",
+              "description": "Errors parsing input JSON.",
+              "message": "Originator SACS does not exist."
+            }
+          ]
+        }
+    InvalidCommentCode:
+      value: |-
+        {
+          "errors": [
+            {
+              "code": "Global.SchemaValidation.Error",
+              "description": "Errors parsing input JSON.",
+              "message": "Comment Code ABC does not exist."
+            }
+          ]
+        }
+    InvalidTermCode:
+      value: |-
+        {
+          "errors": [
+            {
+              "code": "Global.SchemaValidation.Error",
+              "description": "Errors parsing input JSON.",
+              "message": "Term 11111 does not exist."
+            }
+          ]
+        }
+    InvalidUser:
+      value: |-
+        {
+          "errors": [
+            {
+              "code": "Global.SchemaValidation.Error",
+              "description": "Errors parsing input JSON.",
+              "message": "User ABC does not exist."
+            }
+          ]
+        }
+    InvalidRestrictUpdateInd:
+      value: |-
+        {
+          "errors": [
+            {
+              "code": "Global.SchemaValidation.Error",
+              "description": "Errors parsing input JSON.",
+              "message": "Z is invalid and the valid values are Y or N for the Restrict Update Indicator."
+            }
+          ]
+        }
+    InvalidPurgeInd:
+      value: |-
+        {
+          "errors": [
+            {
+              "code": "Global.SchemaValidation.Error",
+              "description": "Errors parsing input JSON.",
+              "message": "Z is invalid and the valid values are Y or N for the Purge Indicator."
+            }
+          ]
+        }
+    EndDateRequired:
+      value: |-
+        {
+          "errors": [
+            {
+              "code": "Global.SchemaValidation.Error",
+              "description": "Errors parsing input JSON.",
+              "message": "End Date is required for the comment code selected."
+            }
+          ]
+        }
+    TermCodeRequired:
+      value: |-
+        {
+          "errors": [
+            {
+              "code": "Global.SchemaValidation.Error",
+              "description": "Errors parsing input JSON.",
+              "message": "Term Code is required for the comment code selected."
+            }
+          ]
+        }
+    RequestBodyForSingleId:
+      value: |-
+        {
+          "bannerId": "HOSH11111",
+          "commentCode": "COLL",
+          "user": "GOBEACUSR"
+        }
+    RequestBodyForMultipleId:
+      value: |-
+        {
+          "bannerId": ["HOSH11111","HOSH12222","HOSH13333"],
+          "commentCode": "COLL",
+          "user": "GOBEACUSR"
+        }
+        

@@ -1,0 +1,1727 @@
+openapi: 3.0.0
+info:
+  title: student-detail-codes
+  description: API for the second page of TSADETC administrative page, form TBBEACT table.
+  version: 2.0.0
+  x-audience: all
+  x-release-status: ga
+  x-source-name: TSADETC
+  x-source-domain: Student
+  x-source-title: Detail Code Control Form - Student
+  x-source-system: banner
+  x-api-type: bus-poc
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/student-detail-codes:
+    get:
+      tags:
+        - student-detail-codes
+      summary: Return resources from TSADETC
+      parameters:
+        - name: X-SDE-Expand
+          in: header
+          description: The comma separated value list of block names
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: The maximum number of resources requesting for this result set.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          description: The filter criteria as a single URL query parameter. Use this
+            parameter or the individual parameters listed. Must be a JSON
+            representation of the property searching for. This can be any of the
+            properties listed on the URL or QAPI and must be a json
+            representation that can be validated against the GET schema.
+          required: false
+          schema:
+            $ref: "#/components/schemas/student-detail-codes-2.0.0_query_request"
+        - name: detailCode
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: effDate
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: tbbeactTbdcInd
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: tbbeactAbdcInd
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v2.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/student-detail-codes-2.0.0_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors-2.0.0'
+              examples:
+                Record exist in TBBDETC but not exist in TBBEACT:
+                  $ref: '#/components/examples/RecordExistInTBBDETCButNotExistInTBBEACT'
+                Invalid Parameter:
+                  $ref: '#/components/examples/InvalidParameter'
+        "401":
+          description: Failure. Unauthorized
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors-2.0.0'
+              examples:
+                Unauthorized:
+                  $ref: '#/components/examples/Unauthorized'
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors-2.0.0'
+              examples:
+                AccessDenied:
+                  $ref: '#/components/examples/AccessDenied'
+        '404':
+          description: Failure. Not Found.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors-2.0.0'
+              examples:
+                RecordNotFound-TBBDETC:
+                  $ref: '#/components/examples/RecordNotFound-TBBDETC'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors-2.0.0'
+              examples:
+                Unsupported Version:
+                  $ref: '#/components/examples/UnsupportedVersion'
+        '500':
+          description: Server error. Unexpected configuration or data.
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+    post:
+      tags:
+        - student-detail-codes
+      summary: Creates a new resource in TSADETC
+      parameters: []
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v2.0.0+json:
+            schema:
+              $ref: "#/components/schemas/student-detail-codes-2.0.0_post_request"
+            example:
+              criteria.detailCode: "A1B2"
+              tbbeactDetailCode: "A1B2"
+              tbbeactEffDate: 2023-10-05
+              TBRACCT:
+                - percent: "100"
+                  aCoasCode: B
+                  aAcciCode: AR1
+                  aRuclCode1 : CHS1
+                  aRuclCode2: APS2
+                  aRuclCode3: APS3
+                  bCoasCode :   B
+                  bRuclCode1 : CHS1
+                  bRuclCode2 : APS2
+                  bRuclCode3 : APS1
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v2.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/student-detail-codes-2.0.0_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+              examples:
+                Invalid Parameter:
+                  $ref: '#/components/examples/InvalidParameter'
+                criteria.detailCode is Required:
+                  $ref: '#/components/examples/criteria.detailCodeRequired'
+                tbbeactEffDate is Required:
+                  $ref: '#/components/examples/tbbeactEffDateRequired'
+                tbbeactDetailCode is Required:
+                  $ref: '#/components/examples/tbbeactDetailCodeRequired'
+                percent is Required:
+                  $ref: '#/components/examples/percentRequired'
+                aCoasCode is Required:
+                  $ref: '#/components/examples/aCoasCodeRequired'
+                aRuclCode1 is Required:
+                  $ref: '#/components/examples/aRuclCode1Required'
+                aRuclCode2 is Required:
+                  $ref: '#/components/examples/aRuclCode2Required'
+                aRuclCode3 is Required:
+                  $ref: '#/components/examples/aRuclCode3Required'
+                bCoasCode is Required:
+                  $ref: '#/components/examples/bCoasCodeRequired'
+                bRuclCode1 is Required:
+                  $ref: '#/components/examples/bRuclCode1Required'
+                bRuclCode2 is Required:
+                  $ref: '#/components/examples/bRuclCode2Required'
+                bRuclCode3 is Required:
+                  $ref: '#/components/examples/bRuclCode3Required'
+                tbbeactEffDate Value is Invalid:
+                  $ref: '#/components/examples/InvalidtbbeactEffDate'
+                Designator is Required for Term Based:
+                  $ref: '#/components/examples/DesignatorRequiredForTermBased'
+                Designator is Required for Aid Year Based:
+                  $ref: '#/components/examples/DesignatorRequiredForAidYearBased'
+                Record cannot be both Aid Year Based and Term Based:
+                  $ref: '#/components/examples/RecordCannotBothAidYearBasedAndTermBased'
+                Percentage Value is Incorrect:
+                  $ref: '#/components/examples/IncorrectPercentage'
+                Percentage Total Not Equal to Hundred:
+                  $ref: '#/components/examples/PercentageTotalNotEqualToHundred'
+                Account A CoasCode Length is Incorrect:
+                  $ref: '#/components/examples/IncorrectACoasCodeLength'
+                Account A CoasCode Value is Invalid:
+                  $ref: '#/components/examples/InvalidACoasCodeValue'
+                Account A Index Code Value is Invalid:
+                  $ref: '#/components/examples/InvalidAAcciCodeValue'
+                Account A Fund Code Value is Invalid:
+                  $ref: '#/components/examples/InvalidAFundCodeValue'
+                Account A Organization Code Value is Invalid:
+                  $ref: '#/components/examples/InvalidAOrgnCodeValue'
+                Account A Account Code Value is Invalid:
+                  $ref: '#/components/examples/InvalidAAcctCodeValue'
+                Account A Program Code Value is Invalid:
+                  $ref: '#/components/examples/InvalidAProgCodeValue'
+                Account A Activity Code Value is Invalid:
+                  $ref: '#/components/examples/InvalidAActvCodeValue'
+                Account A Location Code Value is Invalid:
+                  $ref: '#/components/examples/InvalidALocnCodeValue'
+                Account A Rule Class 1 Length is Incorrect:
+                  $ref: '#/components/examples/IncorrectARuclCode1Length'
+                Account A Rule Class 1 Value is Invalid:
+                  $ref: '#/components/examples/InvalidARuclCode1Value'
+                Account A Rule Class 2 Length is Incorrect:
+                  $ref: '#/components/examples/IncorrectARuclCode2Length'
+                Account A Rule Class 2 Value is Invalid:
+                  $ref: '#/components/examples/InvalidARuclCode2Value'
+                Account A Rule Class 3 Length is Incorrect:
+                  $ref: '#/components/examples/IncorrectARuclCode3Length'
+                Account A Rule Class 3 Value is Invalid:
+                  $ref: '#/components/examples/InvalidARuclCode3Value'
+                Account B CoasCode Length is Incorrect:
+                  $ref: '#/components/examples/IncorrectBCoasCodeLength'
+                Account B CoasCode Value is Invalid:
+                  $ref: '#/components/examples/InvalidBCoasCodeValue'
+                Account B Index Code Value is Invalid:
+                  $ref: '#/components/examples/InvalidBAcciCodeValue'
+                Account B Fund Code Value is Invalid:
+                  $ref: '#/components/examples/InvalidBFundCodeValue'
+                Account B Organization Code Value is Invalid:
+                  $ref: '#/components/examples/InvalidBOrgnCodeValue'
+                Account B Account Code Value is Invalid:
+                  $ref: '#/components/examples/InvalidBAcctCodeValue'
+                Account B Program Code Value is Invalid:
+                  $ref: '#/components/examples/InvalidBProgCodeValue'
+                Account B Activity Code Value is Invalid:
+                  $ref: '#/components/examples/InvalidBActvCodeValue'
+                Account B Location Code Value is Invalid:
+                  $ref: '#/components/examples/InvalidBLocnCodeValue'
+                Account B Rule Class 1 Length is Incorrect:
+                  $ref: '#/components/examples/IncorrectBRuclCode1Length'
+                Account B Rule Class 1 Value is Invalid:
+                  $ref: '#/components/examples/InvalidBRuclCode1Value'
+                Account B Rule Class 2 Length is Incorrect:
+                  $ref: '#/components/examples/IncorrectBRuclCode2Length'
+                Account B Rule Class 2 Value is Invalid:
+                  $ref: '#/components/examples/InvalidBRuclCode2Value'
+                Account B Rule Class 3 Length is Incorrect:
+                  $ref: '#/components/examples/IncorrectBRuclCode3Length'
+                Account B Rule Class 3 Value is Invalid:
+                  $ref: '#/components/examples/InvalidBRuclCode3Value'
+
+        "401":
+          description: Failure. Unauthorized
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors-2.0.0'
+              examples:
+                Unauthorized:
+                  $ref: '#/components/examples/Unauthorized'
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors-2.0.0'
+              examples:
+                AccessDenied:
+                  $ref: '#/components/examples/AccessDenied'
+        '404':
+          description: Failure. Not Found.
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors-2.0.0'
+              examples:
+                Unsupported Version:
+                  $ref: '#/components/examples/UnsupportedVersion'
+        '500':
+          description: Server error. Unexpected configuration or data.
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+  /qapi/student-detail-codes:
+    post:
+      tags:
+        - student-detail-codes QAPI (Query by POST)
+      summary: Return resources from TSADETC
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v2.0.0+json:
+            schema:
+              $ref: "#/components/schemas/student-detail-codes-2.0.0_qapi_post_request"
+            example:
+              detailCode: ABC1
+              effDate : 2008-06-21
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v2.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/student-detail-codes-2.0.0_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors-2.0.0'
+              examples:
+                Record exist in TBBDETC but not exist in TBBEACT:
+                  $ref: '#/components/examples/RecordExistInTBBDETCButNotExistInTBBEACT'
+                Invalid Parameter:
+                  $ref: '#/components/examples/InvalidParameter'
+        "401":
+          description: Failure. Unauthorized
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors-2.0.0'
+              examples:
+                Unauthorized:
+                  $ref: '#/components/examples/Unauthorized'
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors-2.0.0'
+              examples:
+                AccessDenied:
+                  $ref: '#/components/examples/AccessDenied'
+        '404':
+          description: Failure. Not Found.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors-2.0.0'
+              examples:
+                Record Not Found - TBBDETC:
+                  $ref: '#/components/examples/RecordNotFound-TBBDETC'
+                Record Not Found - TBBEACT:
+                  $ref: '#/components/examples/RecordNotFound-TBBEACT'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors-2.0.0'
+              examples:
+                Unsupported Version:
+                  $ref: '#/components/examples/UnsupportedVersion'
+        '500':
+          description: Server error. Unexpected configuration or data.
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+components:
+  schemas:
+    student-detail-codes-2.0.0_post_request:
+      required:
+        - criteria.detailCode
+        - tbbeactDetailCode
+        - tbbeactEffDate
+        - TBRACCT
+      type: object
+      properties:
+        criteria.detailCode:
+          title: Detail Code
+          maxLength: 4
+          type: string
+          description: "This field identifies the detail code associated with every charge and payment that can be entered onto an account."
+          x-lineageReferenceObject: TBBDETC_DETAIL_CODE
+        criteria.desc:
+          title: Detail Code Description
+          maxLength: 30
+          type: string
+          description: "This field specifies a free-format description of the detail code."
+          x-lineageReferenceObject: TBBDETC_DESC
+        criteria.typeInd:
+          title: Type
+          maxLength: 1
+          type: string
+          description: "This field indicates the whether the detail code is a charge or a payment.  Valid values are: C - Charge, P - Payment."
+          x-lineageReferenceObject: TBBDETC_TYPE_IND
+        criteria.dcatCode:
+          title: Category
+          maxLength: 3
+          type: string
+          description: "This field identifies the catagory of the detail code.  Detail codes can be group for reporting purposes into catagories like cash, tuition, etc."
+          x-lineageReferenceObject: TBBDETC_DCAT_CODE
+        criteria.detailCodeInd:
+          title: Grant Type
+          maxLength: 1
+          type: string
+          description: "This field identifies the detail code associated with every charge and payment that can be entered onto an account._IND"
+          x-lineageReferenceObject: TBBDETC_DETAIL_CODE_IND
+        criteria.priority:
+          title: Priority
+          maxLength: 3
+          type: string
+          description: "This field indicates the priority of the detail code for use in the application of payments process."
+          x-lineageReferenceObject: TBBDETC_PRIORITY
+        criteria.refundInd:
+          title: Refund Code
+          maxLength: 1
+          type: string
+          description: "This field indicates if the detail code is identified as refund detail code that will generate an accounts payable transaction in the accounting feed.  Valid values are: Y - Generate accounts payable transaction, blank - Do not."
+          x-lineageReferenceObject: TBBDETC_REFUND_IND
+        criteria.dirdInd:
+          title: Direct Deposit
+          maxLength: 1
+          type: string
+          description: "DIRECT DEPOSIT REFUND INDICATOR: Indicator used to determine whether refund code is to be processed through direct deposit payment, (Y)es and (N)o."
+          x-lineageReferenceObject: TBBDETC_DIRD_IND
+        criteria.refundableInd:
+          title: Refundable
+          maxLength: 1
+          type: string
+          description: "Refundable Indicator: Y to include credit amount in refund process (TFRRFND/TSRRFND) and to include in Location Management refund calculations; null if not selected."
+          x-lineageReferenceObject: TBBDETC_REFUNDABLE_IND
+        criteria.receiptInd:
+          title: Receipt
+          maxLength: 1
+          type: string
+          description: "This field indicates if a receipt number should be automatically generated when the detail code is entered on an account.  Valid values are: Y - Yes, generate a receipt, blank - No receipt number."
+          x-lineageReferenceObject: TBBDETC_RECEIPT_IND
+        criteria.payhistInd:
+          title: Payment History
+          maxLength: 1
+          type: string
+          description: "Display transactions with this detail code in Payment History (Y = display, N = do not display)."
+          x-lineageReferenceObject: TBBDETC_PAYHIST_IND
+        criteria.glNosEnterable:
+          title: GL Enterable
+          maxLength: 1
+          type: string
+          description: "Can accounting distribution information be overridden for miscellaneous transactions on the TFAMISC form.  Values are Y and N."
+          x-lineageReferenceObject: TBBDETC_GL_NOS_ENTERABLE
+        criteria.detcActiveInd:
+          title: Active
+          maxLength: 1
+          type: string
+          description: "DETC_ACTIVE_IND: Active Status Indicator of the Detail Code."
+          x-lineageReferenceObject: TBBDETC_DETC_ACTIVE_IND
+        criteria.paytCode:
+          title: Pay Type
+          maxLength: 1
+          type: string
+          description: "This field indicates the type of payment the detail code is.  Default value is N - Non-cash."
+          x-lineageReferenceObject: TBBDETC_PAYT_CODE
+          x-lineageLookupReferenceObject: ttvpayt
+        criteria.taxtCode:
+          title: Tax Type
+          maxLength: 2
+          type: string
+          description: "This field indicates that this tuition fee is eligible for a specified tax type"
+          x-lineageReferenceObject: TBBDETC_TAXT_CODE
+          x-lineageLookupReferenceObject: ttvtaxt
+        criteria.amount:
+          title: Default Amount
+          maxLength: 10
+          type: number
+          description: "This field specifies the default amount associated with the detail code."
+          x-lineageReferenceObject: TBBDETC_AMOUNT
+        criteria.effectiveDate:
+          title: Default Effective Date
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : TBBDETC_EFFECTIVE_DATE"
+          format: date-time
+          x-lineageReferenceObject: TBBDETC_EFFECTIVE_DATE
+        tbbeactEffDate:
+          title: Effective Date
+          maxLength: 26
+          type: string
+          description: "EFFECTIVE DATE: The effective date of this particular record."
+          format: date-time
+          x-lineageReferenceObject: TBBEACT_EFF_DATE
+        tbbeactAbdcInd:
+          title: Aid Year-based
+          maxLength: 1
+          type: string
+          description: "AID YEAR BASED INDICATOR: Indicates whether a detail code is associated with an aid year-based designator (Y/N)."
+          x-lineageReferenceObject: TBBEACT_ABDC_IND
+        tbbeactDetailCode:
+          title: Detail Code
+          maxLength: 6
+          type: string
+          description: "DETAIL CODE: This field identifies the detail code associated with the account definition. The code is validated against the TBBDETC table."
+          x-lineageReferenceObject: TBBEACT_DETAIL_CODE
+        tbbeactTbdcInd:
+          title: Term-based
+          maxLength: 1
+          type: string
+          description: "TERM-BASED INDICATOR: Indicates whether a detail code is associated with a term-based designator (Y/N)."
+          x-lineageReferenceObject: TBBEACT_TBDC_IND
+        TBRACCT:
+          type: array
+          items:
+            required:
+              - aCoasCode
+              - aRuclCode1
+              - aRuclCode2
+              - aRuclCode3
+              - bCoasCode
+              - bRuclCode1
+              - bRuclCode2
+              - bRuclCode3
+              - percent
+            type: object
+            properties:
+              code:
+                title: Designator
+                maxLength: 2
+                type: string
+                description: "Identifies the term-based designator for the detail code."
+                x-lineageReferenceObject: TBRACCT_TBDS_CODE
+              percent:
+                title: Percent
+                maxLength: 8
+                type: number
+                description: "This field identifies the percentage of the amount associated with the detail that would be posted to Account A and Account B."
+                x-lineageReferenceObject: TBRACCT_PERCENT
+              aCoasCode:
+                title: Account A - COA
+                maxLength: 1
+                type: string
+                description: "Banner Finance Chart Of Accounts Code for account a"
+                x-lineageReferenceObject: TBRACCT_A_COAS_CODE
+              aAcciCode:
+                title: Account A - Index Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Index Code for account a"
+                x-lineageReferenceObject: TBRACCT_A_ACCI_CODE
+              aFundCode:
+                title: Account A - Fund Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Fund Code for account a"
+                x-lineageReferenceObject: TBRACCT_A_FUND_CODE
+              aOrgnCode:
+                title: Account A - Organization Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Organization Code for account a"
+                x-lineageReferenceObject: TBRACCT_A_ORGN_CODE
+              aAcctCode:
+                title: Account A - Account Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Account Code for account a"
+                x-lineageReferenceObject: TBRACCT_A_ACCT_CODE
+              aProgCode:
+                title: Account A - Program Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Program Code for account a"
+                x-lineageReferenceObject: TBRACCT_A_PROG_CODE
+              aActvCode:
+                title: Account A - Activity Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Activity Code for account a"
+                x-lineageReferenceObject: TBRACCT_A_ACTV_CODE
+              aLocnCode:
+                title: Account A - Location Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Location Code for account a"
+                x-lineageReferenceObject: TBRACCT_A_LOCN_CODE
+              aRuclCode1:
+                title: Account A - Rule Class 1
+                maxLength: 4
+                type: string
+                description: "This is the rule class code for the A ACCOUNT to be used when the transaction is initially fed to accounting"
+                x-lineageReferenceObject: TBRACCT_A_RUCL_CODE1
+              aRuclCode2:
+                title: Account A - Rule Class 2
+                maxLength: 4
+                type: string
+                description: "This is the rule class code for the A ACCOUNT to be used when the application of payment transaction is fed to accounting and the opposite side of the transaction is the opposite type of detail code"
+                x-lineageReferenceObject: TBRACCT_A_RUCL_CODE2
+              aRuclCode3:
+                title: Account A - Rule Class 3
+                maxLength: 4
+                type: string
+                description: "This is the rule class code for the A ACCOUNT to be used when the application of payment transaction is fed to accounting and the opposite side of the transaction is the same type of detail code"
+                x-lineageReferenceObject: TBRACCT_A_RUCL_CODE3
+              bCoasCode:
+                title: Account B - COA
+                maxLength: 1
+                type: string
+                description: "Banner Finance Chart Of Accounts Code for account b"
+                x-lineageReferenceObject: TBRACCT_B_COAS_CODE
+              bAcciCode:
+                title: Account B - Index Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Index Code for account b"
+                x-lineageReferenceObject: TBRACCT_B_ACCI_CODE
+              bFundCode:
+                title: Account B - Fund Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Fund Code for account b"
+                x-lineageReferenceObject: TBRACCT_B_FUND_CODE
+              bOrgnCode:
+                title: Account B - Organization Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Organization Code for account b"
+                x-lineageReferenceObject: TBRACCT_B_ORGN_CODE
+              bAcctCode:
+                title: Account B - Account Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Account Code for account b"
+                x-lineageReferenceObject: TBRACCT_B_ACCT_CODE
+              bProgCode:
+                title: Account B - Program Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Program Code for account b"
+                x-lineageReferenceObject: TBRACCT_B_PROG_CODE
+              bActvCode:
+                title: Account B - Activity Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Activity Code for account b"
+                x-lineageReferenceObject: TBRACCT_B_ACTV_CODE
+              bLocnCode:
+                title: Account B - Location Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Location Code for account b"
+                x-lineageReferenceObject: TBRACCT_B_LOCN_CODE
+              bRuclCode1:
+                title: Account B - Rule Class 1
+                maxLength: 4
+                type: string
+                description: "This is the rule class code for the B ACCOUNT to be used when the transaction is initially fed to accounting"
+                x-lineageReferenceObject: TBRACCT_B_RUCL_CODE1
+              bRuclCode2:
+                title: Account B - Rule Class 2
+                maxLength: 4
+                type: string
+                description: "This is the rule class code for the B ACCOUNT to be used when the application of payment transaction is fed to accounting and the opposite side of the transaction is the opposite type of detail code"
+                x-lineageReferenceObject: TBRACCT_B_RUCL_CODE2
+              bRuclCode3:
+                title: Account B - Rule Class 3
+                maxLength: 4
+                type: string
+                description: "This is the rule class code for the B ACCOUNT to be used when the application of payment transaction is fed to accounting and the opposite side of the transaction is the same type of detail code"
+                x-lineageReferenceObject: TBRACCT_B_RUCL_CODE3
+            x-lineageReferenceObject: TBRACCT2
+    student-detail-codes-2.0.0_qapi_post_request:
+      type: object
+      properties:
+        amount:
+          title: Default Amount
+          maxLength: 10
+          type: number
+          description: "This field specifies the default amount associated with the detail code."
+          x-lineageReferenceObject: TBBDETC_AMOUNT
+        typeInd:
+          title: Type
+          maxLength: 1
+          type: string
+          description: "This field indicates the whether the detail code is a charge or a payment.  Valid values are: C - Charge, P - Payment."
+          x-lineageReferenceObject: TBBDETC_TYPE_IND
+        detailCodeInd:
+          title: Grant Type
+          maxLength: 1
+          type: string
+          description: "This field identifies the detail code associated with every charge and payment that can be entered onto an account._IND"
+          x-lineageReferenceObject: TBBDETC_DETAIL_CODE_IND
+        paytCode:
+          title: Pay Type
+          maxLength: 1
+          type: string
+          description: "This field indicates the type of payment the detail code is.  Default value is N - Non-cash."
+          x-lineageReferenceObject: TBBDETC_PAYT_CODE
+          x-lineageLookupReferenceObject: ttvpayt
+        detcActiveInd:
+          title: Active
+          maxLength: 1
+          type: string
+          description: "DETC_ACTIVE_IND: Active Status Indicator of the Detail Code."
+          x-lineageReferenceObject: TBBDETC_DETC_ACTIVE_IND
+        payhistInd:
+          title: Payment History
+          maxLength: 1
+          type: string
+          description: "Display transactions with this detail code in Payment History (Y = display, N = do not display)."
+          x-lineageReferenceObject: TBBDETC_PAYHIST_IND
+        refundInd:
+          title: Refund Code
+          maxLength: 1
+          type: string
+          description: "This field indicates if the detail code is identified as refund detail code that will generate an accounts payable transaction in the accounting feed.  Valid values are: Y - Generate accounts payable transaction, blank - Do not."
+          x-lineageReferenceObject: TBBDETC_REFUND_IND
+        priority:
+          title: Priority
+          maxLength: 3
+          type: string
+          description: "This field indicates the priority of the detail code for use in the application of payments process."
+          x-lineageReferenceObject: TBBDETC_PRIORITY
+        detailCode:
+          title: Detail Code
+          maxLength: 4
+          type: string
+          description: "This field identifies the detail code associated with every charge and payment that can be entered onto an account."
+          x-lineageReferenceObject: TBBDETC_DETAIL_CODE
+        receiptInd:
+          title: Receipt
+          maxLength: 1
+          type: string
+          description: "This field indicates if a receipt number should be automatically generated when the detail code is entered on an account.  Valid values are: Y - Yes, generate a receipt, blank - No receipt number."
+          x-lineageReferenceObject: TBBDETC_RECEIPT_IND
+        prebillPrintInd:
+          title: Exclude Invoice Print
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : TBBDETC_PREBILL_PRINT_IND"
+          x-lineageReferenceObject: TBBDETC_PREBILL_PRINT_IND
+        likeTermInd:
+          title: Like Term
+          maxLength: 1
+          type: string
+          description: "Lineage reference object : TBBDETC_LIKE_TERM_IND"
+          x-lineageReferenceObject: TBBDETC_LIKE_TERM_IND
+        dcatCode:
+          title: Category
+          maxLength: 3
+          type: string
+          description: ""
+          x-lineageReferenceObject: TBBDETC_DCAT_CODE
+          x-lineageLookupReferenceObject: ttvdcat
+        dirdInd:
+          title: Direct Deposit
+          maxLength: 1
+          type: string
+          description: "DIRECT DEPOSIT REFUND INDICATOR: Indicator used to determine whether refund code is to be processed through direct deposit payment, (Y)es and (N)o."
+          x-lineageReferenceObject: TBBDETC_DIRD_IND
+        refundableInd:
+          title: Refundable
+          maxLength: 1
+          type: string
+          description: "Refundable Indicator: Y to include credit amount in refund process (TFRRFND/TSRRFND) and to include in Location Management refund calculations; null if not selected."
+          x-lineageReferenceObject: TBBDETC_REFUNDABLE_IND
+        glNosEnterable:
+          title: GL Enterable
+          maxLength: 1
+          type: string
+          description: "Can accounting distribution information be overridden for miscellaneous transactions on the TFAMISC form.  Values are Y and N."
+          x-lineageReferenceObject: TBBDETC_GL_NOS_ENTERABLE
+        taxtCode:
+          title: Tax Type
+          maxLength: 2
+          type: string
+          description: "Lineage reference object : TBBDETC_TAXT_CODE, Lookup lineage
+              reference object : ttvtaxt"
+          x-lineageReferenceObject: TBBDETC_TAXT_CODE
+          x-lineageLookupReferenceObject: ttvtaxt
+        effectiveDate:
+          title: Default Effective Date
+          maxLength: 26
+          type: string
+          description: "This field specifies the default effective date associated with the detail code."
+          format: date-time
+          x-lineageReferenceObject: TBBDETC_EFFECTIVE_DATE
+        desc:
+          title: Detail Code Description
+          maxLength: 30
+          type: string
+          description: "This field specifies a free-format description of the detail code."
+          x-lineageReferenceObject: TBBDETC_DESC
+        termCode:
+          title: Default Term
+          maxLength: 6
+          type: string
+          description: "This field identifies the default term code associated with the detail code."
+          x-lineageReferenceObject: TBBDETC_TERM_CODE
+          x-lineageLookupReferenceObject: stvterm
+        detailDesc:
+          title: Detail Code Description
+          maxLength: 30
+          type: string
+        effDate:
+          title: Effective Date
+          maxLength: 26
+          type: string
+          description: "EFFECTIVE DATE: The effective date of this particular record."
+          format: date-time
+          x-lineageReferenceObject: TBBEACT_EFF_DATE
+        tbbeactAbdcInd:
+          title: Aid Year-based
+          maxLength: 1
+          type: string
+          description: "AID YEAR BASED INDICATOR: Indicates whether a detail code is associated with an aid year-based designator (Y/N)."
+          x-lineageReferenceObject: TBBEACT_ABDC_IND
+        tbbeactDetailCode:
+          title: Detail Code
+          maxLength: 6
+          type: string
+          description: "DETAIL CODE: This field identifies the detail code associated with the account definition. The code is validated against the TBBDETC table."
+          x-lineageReferenceObject: TBBEACT_DETAIL_CODE
+        tbbeactTbdcInd:
+          title: Term-based
+          maxLength: 1
+          type: string
+          description: "TERM-BASED INDICATOR: Indicates whether a detail code is associated with a term-based designator (Y/N)."
+          x-lineageReferenceObject: TBBEACT_TBDC_IND
+    student-detail-codes-2.0.0_response:
+      type: object
+      properties:
+        TBBEACT:
+          type: array
+          items:
+            type: object
+            properties:
+              displayNchgDate:
+                title: Next Change Date
+                type: string
+                description: "NEXT CHANGE DATE: The next change date for this particular record."
+                format: date-time
+                x-lineageReferenceObject: TBBEACT_NCHG_DATE
+              detailDesc:
+                title: Detail Code Description
+                maxLength: 30
+                type: string
+                description: "This field specifies a free-format description of the detail code."
+                x-lineageReferenceObject: TBBDETC_DESC
+              effDate:
+                title: Effective Date
+                type: string
+                description: "EFFECTIVE DATE: The effective date of this particular record."
+                format: date-time
+                x-lineageReferenceObject: TBBEACT_EFF_DATE
+              abdcInd:
+                title: Aid Year-based
+                maxLength: 1
+                type: string
+                description: "AID YEAR BASED INDICATOR: Indicates whether a detail code is associated with an aid year-based designator (Y/N)."
+                x-lineageReferenceObject: TBBEACT_ABDC_IND
+              detailCode:
+                title: Detail Code
+                maxLength: 4
+                type: string
+                description: "DETAIL CODE: This field identifies the detail code associated with the account definition. The code is validated against the TBBDETC table."
+                x-lineageReferenceObject: TBBEACT_DETAIL_CODE
+              tbdcInd:
+                title: Term-based
+                maxLength: 1
+                type: string
+                description: "TERM-BASED INDICATOR: Indicates whether a detail code is associated with a term-based designator (Y/N)."
+                x-lineageReferenceObject: TBBEACT_TBDC_IND
+            x-lineageReferenceObject: tbbeact
+        TBRACCT2:
+          description: "This block will be used to display data when finance is installed for non finance it will be empty"
+          type: array
+          items:
+            type: object
+            properties:
+              tbracctAAcciCode:
+                title: Account A - Index Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Index Code for account a"
+                x-lineageReferenceObject: TBRACCT_A_ACCI_CODE
+              tbracctAAcctCode:
+                title: Account A - Account Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Account Code for account a"
+                x-lineageReferenceObject: TBRACCT_A_ACCT_CODE
+              tbracctAActvCode:
+                title: Account A - Activity Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Activity Code for account a"
+                x-lineageReferenceObject: TBRACCT_A_ACTV_CODE
+              tbracctACoasCode:
+                title: Account A - COA
+                maxLength: 1
+                type: string
+                description: "Banner Finance Chart Of Accounts Code for account a"
+                x-lineageReferenceObject: TBRACCT_A_COAS_CODE
+              tbracctAFundCode:
+                title: Account A - Fund Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Fund Code for account a"
+                x-lineageReferenceObject: TBRACCT_A_FUND_CODE
+              tbracctALocnCode:
+                title: Account A - Location Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Location Code for account a"
+                x-lineageReferenceObject: TBRACCT_A_LOCN_CODE
+              tbracctAOrgnCode:
+                title: Account A - Organization Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Organization Code for account a"
+                x-lineageReferenceObject: TBRACCT_A_ORGN_CODE
+              tbracctAProgCode:
+                title: Account A - Program Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Program Code for account a"
+                x-lineageReferenceObject: TBRACCT_A_PROG_CODE
+              tbracctARuclCode1:
+                title: Account A - Rule Class 1
+                maxLength: 4
+                type: string
+                description: "This is the rule class code for the A ACCOUNT to be used when the transaction is initially fed to accounting"
+                x-lineageReferenceObject: TBRACCT_A_RUCL_CODE1
+              tbracctARuclCode2:
+                title: Account A - Rule Class 2
+                maxLength: 4
+                type: string
+                description: "This is the rule class code for the A ACCOUNT to be used when the application of payment transaction is fed to accounting and the opposite side of the transaction is the opposite type of detail code"
+                x-lineageReferenceObject: TBRACCT_A_RUCL_CODE2
+              tbracctARuclCode3:
+                title: Account A - Rule Class 3
+                maxLength: 4
+                type: string
+                description: "This is the rule class code for the A ACCOUNT to be used when the application of payment transaction is fed to accounting and the opposite side of the transaction is the same type of detail code"
+                x-lineageReferenceObject: TBRACCT_A_RUCL_CODE3
+              tbracctBAcciCode:
+                title: Account B - Index Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Index Code for account b"
+                x-lineageReferenceObject: TBRACCT_B_ACCI_CODE
+              tbracctBAcctCode:
+                title: Account B - Account Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Account Code for account b"
+                x-lineageReferenceObject: TBRACCT_B_ACCT_CODE
+              tbracctBActvCode:
+                title: Account B - Activity Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Activity Code for account b"
+                x-lineageReferenceObject: TBRACCT_B_ACTV_CODE
+              tbracctBCoasCode:
+                title: Account B - COA
+                maxLength: 1
+                type: string
+                description: "Banner Finance Chart Of Accounts Code for account b"
+                x-lineageReferenceObject: TBRACCT_B_COAS_CODE
+              tbracctBFundCode:
+                title: Account B - Fund Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Fund Code for account b"
+                x-lineageReferenceObject: TBRACCT_B_FUND_CODE
+              tbracctBLocnCode:
+                title: Account B - Location Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Location Code for account b"
+                x-lineageReferenceObject: TBRACCT_B_LOCN_CODE
+              tbracctBOrgnCode:
+                title: Account B - Organization Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Organization Code for account b"
+                x-lineageReferenceObject: TBRACCT_B_ORGN_CODE
+              tbracctBProgCode:
+                title: Account B - Program Code
+                maxLength: 6
+                type: string
+                description: "Banner Finance Program Code for account b"
+                x-lineageReferenceObject: TBRACCT_B_PROG_CODE
+              tbracctBRuclCode1:
+                title: Account B - Rule Class 1
+                maxLength: 4
+                type: string
+                description: "This is the rule class code for the B ACCOUNT to be used when the transaction is initially fed to accounting"
+                x-lineageReferenceObject: TBRACCT_B_RUCL_CODE1
+              tbracctBRuclCode2:
+                title: Account B - Rule Class 2
+                maxLength: 4
+                type: string
+                description: "This is the rule class code for the B ACCOUNT to be used when the application of payment transaction is fed to accounting and the opposite side of the transaction is the opposite type of detail code"
+                x-lineageReferenceObject: TBRACCT_B_RUCL_CODE2
+              tbracctBRuclCode3:
+                title: Account B - Rule Class 3
+                maxLength: 4
+                type: string
+                description: "This is the rule class code for the B ACCOUNT to be used when the application of payment transaction is fed to accounting and the opposite side of the transaction is the same type of detail code"
+                x-lineageReferenceObject: TBRACCT_B_RUCL_CODE3
+              tbracctCode:
+                title: Designator
+                maxLength: 2
+                type: string
+                description: "Identifies the term-based designator for the detail code."
+                x-lineageReferenceObject: TBRACCT_TBDS_CODE
+              tbracctPercent:
+                title: Percent
+                maxLength: 8
+                type: number
+                description: "This field identifies the percentage of the amount associated with the detail that would be posted to Account A and Account B."
+                x-lineageReferenceObject: TBRACCT_PERCENT
+            x-lineageReferenceObject: tbracct2
+        TBRACCT:
+          description: "This block will be used to display data when finance is not installed for finance it will be empty"
+          type: array
+          items:
+            type: object
+            properties:
+              accountA:
+                title: Account A
+                maxLength: 60
+                type: string
+                description: "This field identifies the actual account number from the finance system associated with this detail code.  For a detailed description see the field usage notes."
+                x-lineageReferenceObject: TBRACCT_ACCOUNT_A
+              accountB:
+                title: Account B
+                maxLength: 60
+                type: string
+                description: "This field identifies the actual account number from the finance system associated with this detail code.  For a detailed description see the field usage notes."
+                x-lineageReferenceObject: TBRACCT_ACCOUNT_B
+              code:
+                title: Designator
+                maxLength: 2
+                type: string
+              percent:
+                title: Percent
+                maxLength: 8
+                type: number
+                description: "This field identifies the percentage of the amount associated with the detail that would be posted to Account A and Account B."
+                x-lineageReferenceObject: TBRACCT_PERCENT
+            x-lineageReferenceObject: tbracct
+    student-detail-codes-2.0.0_query_request:
+      type: object
+      properties:
+        detailCode:
+          title: Detail Code
+          maxLength: 4
+          type: string
+          description: "DETAIL CODE: This field identifies the detail code associated with the account definition. The code is validated against the TBBDETC table."
+          x-lineageReferenceObject: TBBEACT_DETAIL_CODE
+        effDate:
+          title: Effective Date
+          maxLength: 10
+          type: string
+          description: "EFFECTIVE DATE: The effective date of this particular record."
+          format: date-time
+          x-lineageReferenceObject: TBBEACT_EFF_DATE
+        tbbeactTbdcInd:
+          title: Term-based
+          maxLength: 1
+          type: string
+          description: "TERM-BASED INDICATOR: Indicates whether a detail code is associated with a term-based designator (Y/N)."
+          x-lineageReferenceObject: TBBEACT_TBDC_IND
+        tbbeactAbdcInd:
+          title: Aid Year-based
+          maxLength: 1
+          type: string
+          description: "AID YEAR BASED INDICATOR: Indicates whether a detail code is associated with an aid year-based designator (Y/N)."
+          x-lineageReferenceObject: TBBEACT_ABDC_IND
+    errors-2.0.0:
+      required:
+        - errors
+      type: object
+      properties:
+        message:
+          type: string
+          description: "The detailed actionable error message. "
+        description:
+          type: string
+          description: The error description used to describe the error details.
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EllucianOAuthUserToken:
+      type: http
+      scheme: bearer
+  examples:
+    Unauthorized:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Failed to login"
+            }
+          ]
+        }
+    AccessDenied:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Access is denied"
+            }
+          ]
+        }
+    UnsupportedVersion:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Invalid Version"
+            }
+          ]
+        }
+    RecordExistInTBBDETCButNotExistInTBBEACT:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Do you want to save changes?",
+              "description": "Failed to execute SEARCH action on item TBBEACT.TBBEACT_DETAIL_CODE"
+            }
+          ]
+        }
+    RecordNotFound-TBBEACT:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Failed to EXECUTE_QUERY action on block TBBEACT",
+              "description": "Query caused no records to be retrieved"
+            }
+          ]
+        }
+    InvalidParameter:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Invalid request parameters: xyz"
+            }
+          ]
+        }
+    RecordNotFound-TBBDETC:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Failed to EXECUTE_QUERY action on block TBBDETC",
+              "description": "Query caused no records to be retrieved"
+            }
+          ]
+        }
+    criteria.detailCodeRequired:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Mandatory Field: criteria.detailCode is missing from payload"
+            }
+          ]
+        }
+    tbbeactEffDateRequired:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Mandatory Field: tbbeactEffDate is missing from payload"
+            }
+          ]
+        }
+    tbbeactDetailCodeRequired:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Mandatory Field: tbbeactDetailCode is missing from payload"
+            }
+          ]
+        }
+    percentRequired:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Mandatory Field: percent is missing from payload"
+            }
+          ]
+        }
+    aCoasCodeRequired:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Mandatory Field: aCoasCode is missing from payload"
+            }
+          ]
+        }
+    aRuclCode1Required:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Mandatory Field: aRuclCode1 is missing from payload"
+            }
+          ]
+        }
+    aRuclCode2Required:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Mandatory Field: aRuclCode2 is missing from payload"
+            }
+          ]
+        }
+    aRuclCode3Required:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Mandatory Field: aRuclCode3 is missing from payload"
+            }
+          ]
+        }
+    bCoasCodeRequired:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Mandatory Field: bCoasCode is missing from payload"
+            }
+          ]
+        }
+    bRuclCode1Required:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Mandatory Field: bRuclCode1 is missing from payload"
+            }
+          ]
+        }
+    bRuclCode2Required:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Mandatory Field: bRuclCode2 is missing from payload"
+            }
+          ]
+        }
+    bRuclCode3Required:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Mandatory Field: bRuclCode3 is missing from payload"
+            }
+          ]
+        }
+    InvalidtbbeactEffDate:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Invalid Effective Date value, Value must be in yyyy-MM-dd",
+              "description": "Failed to execute bind on item TBBEACT.TBBEACT_EFF_DATE"
+            }
+          ]
+        }
+    DesignatorRequiredForTermBased:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Designator must be entered if Detail Code is Term-Based.",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_CODE"
+            }
+          ]
+        }
+    DesignatorRequiredForAidYearBased:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Designator must be entered if Detail Code is Aid Year-Based.",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_CODE"
+            }
+          ]
+        }
+    RecordCannotBothAidYearBasedAndTermBased:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Record cannot be both Aid Year based and Term based.",
+              "description": "Failed to execute bind on item TBBEACT.TBBEACT_ABDC_IND"
+            }
+          ]
+        }
+    IncorrectPercentage:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Value must be in range 0 to 100.",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_PERCENT"
+            }
+          ]
+        }
+    PercentageTotalNotEqualToHundred:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Account percentages total do not equal 100; change percents.",
+              "description": "Failed to execute SAVE action on item TBRACCT2.TBRACCT_B_RUCL_CODE3"
+            }
+          ]
+        }
+    IncorrectACoasCodeLength:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Value length must be less or equal to 1.",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_A_COAS_CODE"
+            }
+          ]
+        }
+    InvalidACoasCodeValue:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Chart of Accounts (Z) is invalid. List is available",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_A_COAS_CODE"
+            }
+          ]
+        }
+    InvalidAAcciCodeValue:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Account Index (XYZ) is invalid. List is available",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_A_ACCI_CODE"
+            }
+          ]
+        }
+    InvalidAFundCodeValue:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Fund  (XYZ) is invalid. List is available",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_A_FUND_CODE"
+            }
+          ]
+        }
+    InvalidAOrgnCodeValue:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Organization  Code (XYZ) is invalid. List is available",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_A_ORGN_CODE"
+            }
+          ]
+        }
+    InvalidAAcctCodeValue:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Account  Code (XYZ) is invalid. List is available",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_A_ACCT_CODE"
+            }
+          ]
+        }
+    InvalidAProgCodeValue:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Program  Code (XYZ) is invalid. List is available",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_A_PROG_CODE"
+            }
+          ]
+        }
+    InvalidAActvCodeValue:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Activity  Code (XYZ) is invalid. List is available",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_A_ACTV_CODE"
+            }
+          ]
+        }
+    InvalidALocnCodeValue:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Location  Code (XYZ) is invalid. List is available",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_A_LOCN_CODE"
+            }
+          ]
+        }
+    IncorrectARuclCode1Length:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Value length must be less or equal to 4.",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_A_RUCL_CODE1"
+            }
+          ]
+        }
+    InvalidARuclCode1Value:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Rule Class (WXYZ) is invalid. List is available",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_A_RUCL_CODE1"
+            }
+          ]
+        }
+    IncorrectARuclCode2Length:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Value length must be less or equal to 4.",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_A_RUCL_CODE2"
+            }
+          ]
+        }
+    InvalidARuclCode2Value:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Rule Class (WXYZ) is invalid. List is available",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_A_RUCL_CODE2"
+            }
+          ]
+        }
+    IncorrectARuclCode3Length:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Value length must be less or equal to 4.",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_A_RUCL_CODE3"
+            }
+          ]
+        }
+    InvalidARuclCode3Value:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Rule Class (WXYZ) is invalid. List is available",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_A_RUCL_CODE3"
+            }
+          ]
+        }
+    IncorrectBCoasCodeLength:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Value length must be less or equal to 1.",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_B_COAS_CODE"
+            }
+          ]
+        }
+    InvalidBCoasCodeValue:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Chart of Accounts (Z) is invalid. List is available",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_B_COAS_CODE"
+            }
+          ]
+        }
+    InvalidBAcciCodeValue:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Account Index (XYZ) is invalid. List is available",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_B_ACCI_CODE"
+            }
+          ]
+        }
+    InvalidBFundCodeValue:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Fund  (XYZ) is invalid. List is available",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_B_FUND_CODE"
+            }
+          ]
+        }
+    InvalidBOrgnCodeValue:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Organization  Code (XYZ) is invalid. List is available",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_B_ORGN_CODE"
+            }
+          ]
+        }
+    InvalidBAcctCodeValue:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Account  Code (XYZ) is invalid. List is available",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_B_ACCT_CODE"
+            }
+          ]
+        }
+    InvalidBProgCodeValue:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Program  Code (XYZ) is invalid. List is available",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_B_PROG_CODE"
+            }
+          ]
+        }
+    InvalidBActvCodeValue:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Activity  Code (XYZ) is invalid. List is available",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_B_ACTV_CODE"
+            }
+          ]
+        }
+    InvalidBLocnCodeValue:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Location  Code (XYZ) is invalid. List is available",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_B_LOCN_CODE"
+            }
+          ]
+        }
+    IncorrectBRuclCode1Length:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Value length must be less or equal to 4.",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_B_RUCL_CODE1"
+            }
+          ]
+        }
+    InvalidBRuclCode1Value:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Rule Class (WXYZ) is invalid. List is available",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_B_RUCL_CODE1"
+            }
+          ]
+        }
+    IncorrectBRuclCode2Length:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Value length must be less or equal to 4.",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_B_RUCL_CODE2"
+            }
+          ]
+        }
+    InvalidBRuclCode2Value:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Rule Class (WXYZ) is invalid. List is available",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_B_RUCL_CODE2"
+            }
+          ]
+        }
+    IncorrectBRuclCode3Length:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Value length must be less or equal to 4.",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_B_RUCL_CODE3"
+            }
+          ]
+        }
+    InvalidBRuclCode3Value:
+      value:
+        {
+          "errors": [
+            {
+              "message": "Rule Class (WXYZ) is invalid. List is available",
+              "description": "Failed to execute bind on item TBRACCT2.TBRACCT_B_RUCL_CODE3"
+            }
+          ]
+        }

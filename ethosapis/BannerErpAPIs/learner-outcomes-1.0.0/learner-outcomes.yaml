@@ -1,0 +1,852 @@
+openapi: 3.0.0
+info:
+  title: Learner Outcomes
+  description: >
+    The Learner Outcomes API supports creating learner outcome (degree), and
+    associated learner outcome curricula records, as shown on the SHADEGR admin
+    page. The API does not support the rolling of curriculum from learner to
+    outcome modules with this version. This API is being released to support the
+    importing of learner outcome(degree) records from external products in the
+    sought, pending or awarded statuses and does not support the generation of
+    associated charges/fees. This version supports only POST (create) method,
+    update is not supported. Multiple curricula may be created using the POST
+    method. If the same priority, one of them will be marked current. With
+    different priorities, all will be current. The learner-outcomes API
+    compliments the curricula-summary-curricula API which supports single record
+    GET (query) of the learner outcome (degree) records from SHADEGR.
+  version: 1.0.0
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-audience: all
+  x-source-domain: Student
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/learner-outcomes:
+    post:
+      tags:
+        - learner-outcomes
+      summary: Learner outcome details for a student are posted to SHRDGMR, SORLCUR
+        and SORLFOS.
+      description: Term course header details for a student are posted to the degree
+        and curriculum tables.
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.1.0.0+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/learner-outcomes-1.0.0_post_request"
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/learner-outcomes-1.0.0_post_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - BasicAuth: []
+          EthosIntegrationBearer: []
+      x-method-permissions: API_LEARNER_OUTCOMES
+components:
+  schemas:
+    learner-outcomes-1.0.0_post_request:
+      required:
+        - bannerId
+        - sequenceNumber
+        - studentRecordTerm
+        - curriculumDetails
+        - degreeStatusCode
+      type: object
+      properties:
+        bannerId:
+          title: Banner ID
+          maxLength: 9
+          type: string
+          description: Banner ID
+          format: string
+          x-lineageReferenceObject: SPRIDEN_ID
+        sequenceNumber:
+          title: Sequence Number
+          maxLength: 2
+          type: string
+          description: Number assigned to each degree student has.
+          x-lineageReferenceObject: SHRDGMR_SEQ_NO
+        degreeStatusCode:
+          title: Degree Status Code
+          maxLength: 2
+          type: string
+          description: Status of students degree, for example sought, awarded, etc.  Will
+            default from degree information if not included in POST request.
+          x-lineageReferenceObject: SHRDGMR_DEGS_CODE
+          x-lineageLookupReferenceObject: STVDEGS
+        applicationDate:
+          title: Degree Application Date
+          maxLength: 11
+          type: string
+          description: Date of degree application. Defaults to current date on entry of
+            degree.
+          format: string
+          x-lineageReferenceObject: SHRDGMR_APPL_DATE
+        graduationDate:
+          title: Graduation Date
+          maxLength: 11
+          type: string
+          description: Graduation date of student.
+          format: string
+          x-lineageReferenceObject: SHRDGMR_GRAD_DATE
+        academicYearBulletin:
+          title: Academic Year Bulletin
+          maxLength: 4
+          type: string
+          description: Year of bulletin or catalog under which degree is being offered.
+          format: string
+          x-lineageReferenceObject: SHRDGMR_ACYR_CODE_BULLETIN
+        studentRecordTerm:
+          title: Student Record Term Code
+          maxLength: 6
+          type: string
+          description: The term associated with the general student record when degree
+            information is defaulted.
+          format: string
+          x-lineageReferenceObject: SHRDGMR_TERM_CODE_STUREC
+        graduationTerm:
+          title: Graduation Term
+          maxLength: 6
+          type: string
+          description: Term in which the student graduates.
+          format: string
+          x-lineageReferenceObject: SHRDGMR_TERM_CODE_GRAD
+        academicYear:
+          title: Academic Year
+          maxLength: 4
+          type: string
+          description: Year in which the student graduates.
+          format: string
+          x-lineageReferenceObject: SHRDGMR_ACYR_CODE
+        graduationStatus:
+          title: Graduation Status
+          maxLength: 3
+          type: string
+          description: Graduation Status
+          format: string
+          x-lineageReferenceObject: SHRDGMR_GRST_CODE
+        termCompleted:
+          title: Graduation Completed Term
+          maxLength: 6
+          type: string
+          description: Term designated as the term in which graduate work must be completed.
+          format: string
+          x-lineageReferenceObject: SHRDGMR_TERM_CODE_COMPLETED
+        curriculumDetails:
+          title: Curriculum Details
+          type: array
+          items:
+            required:
+              - curriculumTermCode
+              - priorityNumber
+              - levelCode
+              - collegeCode
+              - degreeCode
+              - fieldOfStudyDetails
+            type: object
+            properties:
+              curriculumTermCode:
+                title: Term Code
+                maxLength: 6
+                type: string
+                description: Term Code
+                x-lineageReferenceObject: SORLCUR_TERM_CODE
+                x-lineageLookupReferenceObject: stvterm
+              priorityNumber:
+                title: Priority Number
+                maxLength: 4
+                type: number
+                description: Priority of the curriculum within the module. Priority will be
+                  derived if not included in POST request.
+                x-lineageReferenceObject: SORLCUR_PRIORITY_NO
+              curriculumActivityStatus:
+                title: Curriculum Activity Status
+                maxLength: 15
+                type: string
+                description: Activity status code for the curriculum.
+                x-lineageReferenceObject: SORLCUR_CACT_CODE
+                x-lineageLookupReferenceObject: stvcact,sobcact
+              levelCode:
+                title: Level Code
+                maxLength: 2
+                type: string
+                description: Level code of the curriculum.
+                x-lineageReferenceObject: SORLCUR_LEVL_CODE
+                x-lineageLookupReferenceObject: stvlevl
+              collegeCode:
+                title: College Code
+                maxLength: 2
+                type: string
+                description: College code of the curriculum.
+                x-lineageReferenceObject: SORLCUR_COLL_CODE
+                x-lineageLookupReferenceObject: stvcoll
+              degreeCode:
+                title: Degree Code
+                maxLength: 6
+                type: string
+                description: Degree code of the curriculum.
+                x-lineageReferenceObject: SORLCUR_DEGC_CODE
+                x-lineageLookupReferenceObject: stvdegc
+              termCatalogCode:
+                title: Catalog Term Code
+                maxLength: 6
+                type: string
+                description: Catalog term code of the learner curriculum.
+                x-lineageReferenceObject: SORLCUR_TERM_CODE_CTLG
+                x-lineageLookupReferenceObject: stvterm
+              campusCode:
+                title: Campus Code
+                maxLength: 3
+                type: string
+                description: Campus code of the curriculum.
+                x-lineageReferenceObject: SORLCUR_CAMP_CODE
+                x-lineageLookupReferenceObject: stvcamp
+              programCode:
+                title: Program
+                maxLength: 12
+                type: string
+                description: Program of the curriculum.
+                x-lineageReferenceObject: SORLCUR_PROGRAM
+                x-lineageLookupReferenceObject: smrprle
+              startDate:
+                title: Start Date
+                maxLength: 11
+                type: string
+                description: Date curriculum starts.
+                format: date
+                x-lineageReferenceObject: SORLCUR_START_DATE
+              endDate:
+                title: End Date
+                maxLength: 11
+                type: string
+                description: Date curriculum ends.
+                format: date
+                x-lineageReferenceObject: SORLCUR_END_DATE
+              fieldOfStudyDetails:
+                title: Field of Study Details
+                type: array
+                items:
+                  required:
+                    - learnerFieldStudyCode
+                    - majorCode
+                    - priorityNumber
+                  type: object
+                  properties:
+                    learnerFieldStudyCode:
+                      title: Field of Study Code
+                      maxLength: 15
+                      type: string
+                      description: Field of study type code, examples are MAJOR, MINOR, CONC.
+                      x-lineageReferenceObject: SORLFOS_LFST_CODE
+                      x-lineageLookupReferenceObject: gtvlfst
+                    priorityNumber:
+                      title: Priority Number
+                      maxLength: 4
+                      type: number
+                      description: Priority number, or ranking of the field of study. Priority will be
+                        derived if not included in POST request.
+                      x-lineageReferenceObject: SORLFOS_PRIORITY_NO
+                    curriculumStatus:
+                      title: Curriculum Status
+                      maxLength: 15
+                      type: string
+                      description: Status of the curriculum. Curriculum status will be derived if not
+                        included in POST request.
+                      x-lineageReferenceObject: SORLFOS_CSTS_CODE
+                      x-lineageLookupReferenceObject: stvcsts
+                    curriculumActivityStatus:
+                      title: Curriculum Activity Status Code
+                      maxLength: 15
+                      type: string
+                      description: Curriculum activity status, table SOBCACT tells if the activity
+                        status is an active or inactive status.  Curriculum
+                        activity status code will be derived if not included in
+                        POST request.
+                      x-lineageReferenceObject: SORLFOS_CACT_CODE
+                      x-lineageLookupReferenceObject: stvcact,sobcact
+                    majorCode:
+                      title: Field of Study
+                      maxLength: 4
+                      type: string
+                      description: Code for the field of study.
+                      x-lineageReferenceObject: SORLFOS_MAJR_CODE
+                      x-lineageLookupReferenceObject: stvmajr,SORLFOS
+                    termCatalogCode:
+                      title: Catalog Term Code
+                      maxLength: 6
+                      type: string
+                      description: Term code identifying the catalog for the curriculum.
+                      x-lineageReferenceObject: SORLFOS_TERM_CODE_CTLG
+                      x-lineageLookupReferenceObject: stvterm
+                    departmentCode:
+                      title: Department Code
+                      maxLength: 15
+                      type: string
+                      description: Department code associated with the major field of study.
+                      x-lineageReferenceObject: SORLFOS_DEPT_CODE
+                      x-lineageLookupReferenceObject: stvdept
+                    majorAttachCode:
+                      title: Attached to Major
+                      maxLength: 4
+                      type: string
+                      description: Major code to which the concentration is attached.
+                      x-lineageReferenceObject: SORLFOS_MAJR_CODE_ATTACH
+                      x-lineageLookupReferenceObject: sobcact,stvmajr,sotlfos,sotlfos
+                    startDate:
+                      title: Start Date
+                      maxLength: 11
+                      type: string
+                      description: Start date of the field of study.
+                      format: date
+                      x-lineageReferenceObject: SORLFOS_START_DATE
+                    endDate:
+                      title: End Date
+                      maxLength: 11
+                      type: string
+                      description: End date of the field of study.
+                      format: date
+                      x-lineageReferenceObject: SORLFOS_END_DATE
+    learner-outcomes-1.0.0_post_response:
+      required:
+        - bannerId
+        - sequenceNumber
+        - studentRecordTerm
+        - curriculumDetails
+        - degreeStatusCode
+        - degreeStatus
+        - lastModified
+      type: object
+      properties:
+        bannerId:
+          title: Banner ID
+          maxLength: 9
+          type: string
+          description: Banner ID
+          format: string
+          x-lineageReferenceObject: SPRIDEN_ID
+        sequenceNumber:
+          title: Sequence Number
+          maxLength: 2
+          type: string
+          description: Number assigned to each degree student has.
+          x-lineageReferenceObject: SHRDGMR_SEQ_NO
+        degreeStatusCode:
+          title: Degree Status Code
+          maxLength: 2
+          type: string
+          description: Status of students degree, for example sought, awarded, etc.
+          x-lineageReferenceObject: SHRDGMR_DEGS_CODE
+        degreeStatus:
+          title: Learner Outcome Information
+          type: string
+        applicationDate:
+          title: Application Date
+          maxLength: 11
+          type: string
+          description: Date of degree application. Defaults to current date on entry of
+            degree.
+          format: string
+          x-lineageReferenceObject: SHRDGMR_APPL_DATE
+        graduationDate:
+          title: Graduation Date
+          maxLength: 11
+          type: string
+          description: Graduation date of student.
+          format: string
+          x-lineageReferenceObject: SHRDGMR_GRAD_DATE
+        academicYearBulletin:
+          title: Degree Bulletin Year
+          maxLength: 4
+          type: string
+          description: Year of bulletin or catalog under which degree is being offered.
+          format: string
+          x-lineageReferenceObject: SHRDGMR_ACYR_CODE_BULLETIN
+        lastModified:
+          title: Activity Date
+          maxLength: 11
+          type: string
+          description: Specifies the date record was created or updated.
+          format: string
+          x-lineageReferenceObject: SHRDGMR_ACTIVITY_DATE
+        lastModifiedBy:
+          title: User ID
+          maxLength: 30
+          type: string
+          description: Specifies the most recent user to create or update a record.
+          format: string
+          x-lineageReferenceObject: SHRDGMR_USER_ID
+        studentRecordTerm:
+          title: Term Code
+          maxLength: 6
+          type: string
+          description: The term associated with the general student record when degree
+            information is defaulted.
+          format: string
+          x-lineageReferenceObject: SHRDGMR_TERM_CODE_STUREC
+        graduationTerm:
+          title: Graduation Term
+          maxLength: 6
+          type: string
+          description: Term in which the student graduates.
+          format: string
+          x-lineageReferenceObject: SHRDGMR_TERM_CODE_GRAD
+        academicYear:
+          title: Academic Year
+          maxLength: 4
+          type: string
+          description: Year in which the student graduates.
+          format: string
+          x-lineageReferenceObject: SHRDGMR_ACYR_CODE
+        graduationStatus:
+          title: Graduation Status
+          maxLength: 3
+          type: string
+          description: Graduation Status
+          format: string
+          x-lineageReferenceObject: SHRDGMR_GRST_CODE
+        authorized:
+          title: Authorized
+          maxLength: 33
+          type: string
+          description: This field identifies the user and the grad status joined together
+            as one field to identify the person who authorized graduation adds
+            or changes.
+          format: string
+          x-lineageReferenceObject: SHRDGMR_AUTHORIZED
+        termCompleted:
+          title: Graduation Completed Term
+          maxLength: 6
+          type: string
+          description: Term designated as the term in which graduate work must be completed.
+          format: string
+          x-lineageReferenceObject: SHRDGMR_TERM_CODE_COMPLETED
+        feeIndicator:
+          title: Fee Indicator
+          maxLength: 1
+          type: string
+          description: This field identifies whether a graduation fee has been assessed.
+          format: string
+          x-lineageReferenceObject: SHRDGMR_FEE_IND
+        feeDate:
+          title: Fee Date
+          maxLength: 10
+          type: string
+          description: This field identifies the date graduation fee has been assessed.
+          format: string
+          x-lineageReferenceObject: SHRDGMR_FEE_DATE
+        studyPathKeySequence:
+          title: Study Path Key Sequence Number
+          maxLength: 99
+          type: string
+          description: This field is the key sequence of the study path of the learner
+            curriculum the outcome curriculum originated from.
+          format: string
+          x-lineageReferenceObject: SHRDGMR_STSP_KEY_SEQUENCE
+        curriculumDetails:
+          title: Curriculum Details
+          type: object
+          properties:
+            primaryCurriculum:
+              $ref: "#/components/schemas/curriculum"
+            secondaryCurricula:
+              type: array
+              items:
+                $ref: "#/components/schemas/curriculum"
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary
+                  data entity used to create the resource. This is useful for
+                  referencing the source item through the applications
+                  administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+    curriculum:
+      title: Curriculum
+      required:
+        - sequenceNumber
+        - curriculumTermCode
+        - curriculumTerm
+        - keySequenceNumber
+        - priorityNumber
+        - rollIndicator
+        - curriculumActivityStatus
+        - levelCode
+        - level
+        - collegeCode
+        - college
+        - degreeCode
+        - degree
+        - majorFieldsOfStudy
+      type: object
+      properties:
+        sequenceNumber:
+          title: Curriculum Sequence Number
+          maxLength: 4
+          type: number
+          description: Sequence number of the learner curriculum.
+          x-lineageReferenceObject: SORLCUR_SEQNO
+        curriculumTermCode:
+          title: Term Code
+          maxLength: 6
+          type: string
+          description: Term Code
+          x-lineageReferenceObject: SORLCUR_TERM_CODE
+        curriculumTerm:
+          type: string
+          x-lineageLookupReferenceObject: stvterm
+        keySequenceNumber:
+          title: Key Sequence Number
+          maxLength: 30
+          type: number
+          description: Sequence number of key record .
+          x-lineageReferenceObject: SORLCUR_KEY_SEQNO
+          x-lineageLookupReferenceObject: sgvstsp,sgrstsp
+        priorityNumber:
+          title: Priority Number
+          maxLength: 4
+          type: number
+          description: Priority of the curriculum within the module.
+          x-lineageReferenceObject: SORLCUR_PRIORITY_NO
+        rollIndicator:
+          title: Roll Learner Indicator
+          maxLength: 1
+          type: string
+          description: Y/N indicator if the learner curriclum should roll to academic
+            history when courses are rolled.
+          x-lineageReferenceObject: SORLCUR_ROLL_IND
+        curriculumActivityStatus:
+          title: Curriculum Activity Status
+          maxLength: 15
+          type: string
+          description: Activity status code for the curriculum.
+          x-lineageReferenceObject: SORLCUR_CACT_CODE
+          x-lineageLookupReferenceObject: stvcact,sobcact
+        levelCode:
+          title: Level Code
+          maxLength: 2
+          type: string
+          description: Level code of the curriculum.
+          x-lineageReferenceObject: SORLCUR_LEVL_CODE
+          x-lineageLookupReferenceObject: stvlevl
+        level:
+          type: string
+        collegeCode:
+          title: College Code
+          maxLength: 2
+          type: string
+          description: College code of the curriculum.
+          x-lineageReferenceObject: SORLCUR_COLL_CODE
+          x-lineageLookupReferenceObject: stvcoll
+        college:
+          type: string
+        degreeCode:
+          title: Degree Code
+          maxLength: 6
+          type: string
+          description: Degree code of the curriculum.
+          x-lineageReferenceObject: SORLCUR_DEGC_CODE
+          x-lineageLookupReferenceObject: stvdegc
+        degree:
+          type: string
+        termCatalogCode:
+          title: Catalog Term Code
+          maxLength: 6
+          type: string
+          description: Catalog term code of the learner curriculum.
+          x-lineageReferenceObject: SORLCUR_TERM_CODE_CTLG
+          x-lineageLookupReferenceObject: stvterm
+        termCatalog:
+          type: string
+        termMatriculateCode:
+          title: Matriculated Term Code
+          maxLength: 6
+          type: string
+          description: Term code learner matriculated into the curriculum.
+          x-lineageReferenceObject: SORLCUR_TERM_CODE_MATRIC
+          x-lineageLookupReferenceObject: stvterm
+        termMatriculate:
+          type: string
+        termAdmitCode:
+          title: Admission Term Code
+          maxLength: 6
+          type: string
+          description: Term code learner was admitted to curriculum.
+          x-lineageReferenceObject: SORLCUR_TERM_CODE_ADMIT
+          x-lineageLookupReferenceObject: stvterm
+        termAdmit:
+          type: string
+        admitTypeCode:
+          title: Admission Type Code
+          maxLength: 2
+          type: string
+          description: Admit code for the learners admission to the curriculum.
+          x-lineageReferenceObject: SORLCUR_ADMT_CODE
+          x-lineageLookupReferenceObject: stvadmt
+        admitType:
+          type: string
+        campusCode:
+          title: Campus Code
+          maxLength: 3
+          type: string
+          description: Campus code of the curriculum.
+          x-lineageReferenceObject: SORLCUR_CAMP_CODE
+          x-lineageLookupReferenceObject: stvcamp
+        campus:
+          type: string
+        programCode:
+          title: Program
+          maxLength: 12
+          type: string
+          description: Program of the curriculum.
+          x-lineageReferenceObject: SORLCUR_PROGRAM
+          x-lineageLookupReferenceObject: smrprle
+        program:
+          type: string
+        startDate:
+          title: Start Date
+          maxLength: 11
+          type: string
+          description: Date curriculum starts.
+          format: date
+          x-lineageReferenceObject: SORLCUR_START_DATE
+        endDate:
+          title: End Date
+          maxLength: 11
+          type: string
+          description: Date curriculum ends.
+          format: date
+          x-lineageReferenceObject: SORLCUR_END_DATE
+        majorFieldsOfStudy:
+          $ref: "#/components/schemas/FieldsOfStudy"
+        minorFieldsOfStudy:
+          $ref: "#/components/schemas/FieldsOfStudy"
+        concentrationFieldsOfStudy:
+          $ref: "#/components/schemas/FieldsOfStudy"
+        otherFieldsOfStudy:
+          $ref: "#/components/schemas/FieldsOfStudy"
+    FieldsOfStudy:
+      title: Field of Study Details
+      type: array
+      items:
+        type: object
+        required:
+          - sequenceNumber
+          - learnerFieldStudyCode
+          - learnerFieldStudy
+          - priorityNumber
+          - curriculumStatus
+          - curriculumActivityStatus
+          - majorCode
+          - major
+        properties:
+          sequenceNumber:
+            title: Field of Study Sequence Number
+            maxLength: 4
+            type: number
+            description: Sequence number of the learner field of study.
+            x-lineageReferenceObject: SORLFOS_SEQNO
+          learnerFieldStudyCode:
+            title: Field of Study Code
+            maxLength: 15
+            type: string
+            description: Field of study type code, examples are MAJOR, MINOR, CONC.
+            x-lineageReferenceObject: SORLFOS_LFST_CODE
+            x-lineageLookupReferenceObject: gtvlfst
+          learnerFieldStudy:
+            title: Field of Study Code Description
+            type: string
+          priorityNumber:
+            title: Priority Number
+            maxLength: 4
+            type: number
+            description: Priority number, or ranking of the field of study.
+            x-lineageReferenceObject: SORLFOS_PRIORITY_NO
+          curriculumStatus:
+            title: Curriculum Status
+            maxLength: 15
+            type: string
+            description: Status of the curriculum.
+            x-lineageReferenceObject: SORLFOS_CSTS_CODE
+            x-lineageLookupReferenceObject: stvcsts
+          curriculumActivityStatus:
+            title: Curriculum Activity Status Code
+            maxLength: 15
+            type: string
+            description: Curriculum activity status, table SOBCACT tells if the activity
+              status is an active or inactive status.
+            x-lineageReferenceObject: SORLFOS_CACT_CODE
+            x-lineageLookupReferenceObject: stvcact,sobcact
+          majorCode:
+            title: Field of Study
+            maxLength: 4
+            type: string
+            description: Code for the field of study.
+            x-lineageReferenceObject: SORLFOS_MAJR_CODE
+            x-lineageLookupReferenceObject: stvmajr,SORLFOS
+          major:
+            title: Field of Study Description
+            type: string
+          termCatalogCode:
+            title: Catalog Term Code
+            maxLength: 6
+            type: string
+            description: "Term code identifying the catalog for the curriculum. "
+            x-lineageReferenceObject: SORLFOS_TERM_CODE_CTLG
+            x-lineageLookupReferenceObject: stvterm
+          termCatalog:
+            type: string
+          departmentCode:
+            title: Department Code
+            maxLength: 15
+            type: string
+            description: Department code associated with the major field of study.
+            x-lineageReferenceObject: SORLFOS_DEPT_CODE
+            x-lineageLookupReferenceObject: stvdept
+          department:
+            title: Department Description
+            type: string
+          majorAttachCode:
+            title: Attached to Major
+            maxLength: 4
+            type: string
+            description: Major code to which the concentration is attached.
+            x-lineageReferenceObject: SORLFOS_MAJR_CODE_ATTACH
+            x-lineageLookupReferenceObject: sobcact,stvmajr,sotlfos,sotlfos
+          majorAttach:
+            title: Attached to Major Description
+            type: string
+          startDate:
+            title: Start Date
+            maxLength: 11
+            type: string
+            description: Start date of the field of study.
+            format: date
+            x-lineageReferenceObject: SORLFOS_START_DATE
+          endDate:
+            title: End Date
+            maxLength: 11
+            type: string
+            description: End date of the field of study.
+            format: date
+            x-lineageReferenceObject: SORLFOS_END_DATE
+          timeStatusCode:
+            title: Time Status Code
+            maxLength: 2
+            type: string
+            description: Time status code to indicate the intent of the students pursuit of
+              the field of study. Full or part time.
+            x-lineageReferenceObject: SORLFOS_TMST_CODE
+            x-lineageLookupReferenceObject: stvtmst
+          timeStatus:
+            title: Full or Part Time Description
+            type: string
+          majorConcentrations:
+            type: array
+            items:
+              type: string
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

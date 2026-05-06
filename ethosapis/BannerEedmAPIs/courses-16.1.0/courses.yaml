@@ -1,0 +1,1145 @@
+openapi: 3.0.0
+info:
+  title: Courses
+  description: >
+    A course is a unit of teaching on an individual subject that typically lasts
+    one academic term. A grade and academic credit can be awarded on successful
+    completion of the course.
+
+
+    Please refer to "API Integration Configuration Settings" section in the Banner Ethos API Handbook" for details on API configuration settings that needs to be configured for this API.
+  version: 16.1.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Student
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/courses:
+    get:
+      summary: Returns resources from SCBCRSE
+      description: >
+        Returns a paged listing of courses records for a unique combination of
+        effective term, subject code and course number.
+
+
+        The course GUIDs are generated and stored in SCBCGID table, for each unique combination of subject code, course number and effective term from SCBCRSE, SCRLEVL, SCRGMOD, SCRSCHD, SCBDESC, SCRINTG, SCRSYLN and SCRATTR tables. All records from SCBCGID are retrieved.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_COURSES
+      tags:
+        - courses
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 10 and upper limit is 30.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Title Value  
+
+            Returns all courses containing the titles values passed.
+
+            ```
+
+            /courses?criteria={"titles":[{"value":"Principles of Marketing"},{"value":"Marketing segments"}]} 
+
+            ```
+
+            ### Subject  
+
+            Returns all courses for the subject ID passed.
+
+            ```
+
+            /courses?criteria={"subject":{"id":"4a0c95f7-0903-408a-8694-77b313809909"}}
+
+            ```
+
+            ### Topic  
+
+            Not Supported
+
+            ```
+
+            /courses?criteria={"topic": {"id": $id}}
+
+            ```
+
+            ### Categories  
+
+            Returns all courses for the categories ID passed.
+
+            ```
+
+            /courses?criteria={"categories":[{"id":"2582835d-3e14-435b-b74f-4311746987ce"}]}
+
+            ```
+
+            ### Number  
+
+            Returns all courses for the course number passed.
+
+            ```
+
+            /courses?criteria={"number":"015"}
+
+            ```
+
+            ### Academic Levels  
+
+            Returns all courses for the academic level ID passed.
+
+            ```
+
+            /courses?criteria={"academicLevels":[{"id":"e3d1af10-26ac-4a29-b56c-b70c34471acb"}]}
+
+            ```
+
+            ### Owning Institution Units  
+
+            Returns all courses for the owningInstitutionUnits IDs passed. A Banner course can have one college, one division and one department associated. If a filter request has multiple college/division/department IDs, an empty array is returned.
+
+            ```
+
+            /courses?criteria={"owningInstitutionUnits":[{"institutionUnit":{"id":"43446b13-2b16-4fcb-90e0-6529d802c8a9"}}]}
+
+            ```
+
+            ### Instructional Method  
+
+            Returns all courses for the instructional method(schedule type) ID passed.
+
+            ```
+
+            /courses?criteria={"instructionalMethodDetails":[{"instructionalMethod":{"id":"8e7c7b1b-81d2-4281-a8c8-0c73a04a29f4"}}]}
+
+            ```
+
+            ### Scheduling Start On  
+
+            Returns all courses for the schedulingStartOn date passed.
+
+            ```
+
+            /courses?criteria={"schedulingStartOn":"2016-01-01"}
+
+            ```
+
+            ### Scheduling End On  
+
+            Returns all courses for the schedulingEndOn date passed.
+
+            ```
+
+            /courses?criteria={"schedulingEndOn":"2016-01-01"}
+
+            ```
+
+            ### Administrative Period  
+
+            Returns all courses for the effective term ID passed.
+
+            ```
+
+            /courses?criteria={"administrativePeriod":{"id":"28e62292-1d7a-40d3-918b-19c91db4f7db"}}
+
+            ```
+        - name: activeOn
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Active On  
+
+            Returns all course records that have a status that identifies the course as active and effective as of the provided date.
+
+            ```
+
+            /courses?activeOn={"activeOn":"2018-05-20"}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-courses.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.1.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new resource in SCBCRSE
+      description: >
+        POST requests must include a nil GUID value
+        ("00000000-0000-0000-0000-000000000000") for the root id property.
+
+
+        Creates a new course record in SCBCRSE.
+
+
+        Below are the API behavior details for titles, owningInstitutionUnits, administrativePeriod and credits properties on a create request:
+
+
+        Titles:
+
+
+        - The API accepts 2 types of titles - short title and long title of the course.
+
+        - The course short title sent in the request should not exceed 30 characters, similarly the course long title sent in the request should not exceed 100 characters.
+
+
+        Owning Institution Units:
+
+
+        - Banner can only accommodate one college, one division, and one department entry. If more than one owning institution unit of each type is sent in the owningIntitutionUnits array, the request is requested with an error message.
+
+        - The course must be defined with a college code. If owningIntitutionUnits property is sent in the create request without college GUID, the request is requested with an error message.The 'ownershipPercentage' value sent in the request should be 100, if any other value is sent then the request is rejected with an error message
+
+
+        Administrative Period:
+
+
+        - If administrative period ID is sent in the create request, the course is created for the effective term corresponding to this ID.
+
+        - If administrative period ID is not sent in the create request, the course effective term is derived for the scheduling start date sent. Based on the ‘MIN’ or ‘MAX’ value configured in the API configuration setting ‘COURSE.DERIVE_TERM_RULE’, either of the ‘DERIVE_MAX_TERM’ OR ‘DERIVE_MIN_TERM’ GORRSQL rule is used to derive the effective term for the scheduling start date sent.
+
+        - If both administrative period ID and scheduling start date are not sent in the create request, the course is created for the default effective term configured in the API configuration setting ‘COURSE.TERM.DEFAULT’.
+
+
+        Credits:
+
+
+        - Only 'ce' and 'institution' credit categories are supported
+
+        - A create request with credit category of 'institution' should be sent with credit measure of 'hour'. Similarly the credit category of 'ce' should be sent with credit measure of 'ceu'.
+
+        - If the credit category sent in the create request is 'ce', then one of the academic levels sent in the request should have SCBCRSE_CEU_IND = 'Y'
+
+
+        The properties 'topic' and 'courseLevels' are not supported. Create request sent with these properties will be rejected with an error message.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_COURSES
+      tags:
+        - courses
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-courses.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v16+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-courses.json"
+  /api/courses/{id}:
+    get:
+      summary: Return the requested resource from SCBCRSE
+      description: >
+        Returns a single course record from SCBCRSE with the requested identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_COURSES
+      tags:
+        - courses
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-courses.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    put:
+      summary: Update the requested resource from SCBCRSE
+      description: >
+        Updates an existing course record. Note that the properties 'subject',
+        'number' and 'administrativePeriod' cannot be changed.
+
+
+        Please refer to the notes in POST section of this document for API behavior details on titles, owningInstitutionUnits, administrativePeriod and credits properties.
+
+
+        The properties 'topic' and 'courseLevels' are not supported. Update request sent with these properties will be rejected with an error message.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_COURSES
+      tags:
+        - courses
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Courses for use in all external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json 
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-courses.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v16+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-courses.json"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-courses.json:
+      title: Courses
+      description: The smallest unit of instruction for which an organization grants
+        credits. Identifies subject, course number and level, availability
+        dates, instructional method, grading schemes, credits granted, and the
+        granting organization.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: A global identifier of a course to be used in all external
+            references.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: SCBCGID_GUID(SCBCGID)
+          x-lineageDerivedLogic: For every unique subject code + course number + effective term combination GUID is generated.
+        titles:
+          title: Titles
+          description: The course titles details.
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                title: Type
+                description: The type of course title (e.g. short title, long title).
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Type.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: course-title-types 
+                    x-lineageReferenceObject: STVCTTPE_GUID(STVCTTPE)
+                additionalProperties: false
+                required:
+                  - id
+              value:
+                title: Value
+                description: The title for the course associated with the type.
+                type: string
+                x-lineageReferenceObject: SCBCRSE_TITLE(SCBCRSE) or SCRSYLN_LONG_COURSE_TITLE(SCRSYLN)
+                x-lineageDerivedLogic: SCBCRSE_TITLE is displayed as short title. SCRSYLN_LONG_COURSE_TITLE is displayed as long title.
+            additionalProperties: false
+            required:
+              - type
+              - value
+        description:
+          title: Description
+          description: A description of the substance and nature of a course as it appears
+            in a course catalog.
+          type: string
+          x-lineageReferenceObject: SCBDESC_TEXT_NARRATIVE(SCBDESC)
+        subject:
+          title: Subject
+          description: The branch of knowledge such as 'Mathematics' or 'Biology'
+            associated with a course.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Subject.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: subjects 
+              x-lineageReferenceObject: SCBCRSE_SUBJ_CODE(SCBCRSE)
+          additionalProperties: false
+          required:
+            - id
+        topic:
+          title: Topic
+          description: The topic associated with the course.(for example - Real Estate,
+            Modern Literature, Travel and Leisure, etc.)
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Topic.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: course-topics 
+                  x-lineageReferenceObject: unsupported
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        categories:
+          title: Categories
+          description: The categories to which the course may belong (for example -
+            Vocational, Co-op Work Experience, Lab, Music, etc.)
+          type: array
+          items:
+            title: Categories
+            description: The categories to which the course may belong (for example -
+              Vocational, Co-op Work Experience, Lab, Music, etc.)
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Categories.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: course-categories 
+                x-lineageReferenceObject: SCRATTR_ATTR_CODE(SCRATTR)
+            additionalProperties: false
+            required:
+              - id
+        courseLevels:
+          title: Course Levels
+          description: The levels of scholarship that apply to a course.
+          type: array
+          items:
+            title: Course Levels
+            description: The levels of scholarship that apply to a course.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Course Levels.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: course-levels 
+                x-lineageReferenceObject: unsupported
+            additionalProperties: false
+            required:
+              - id
+        instructionalMethodDetails:
+          title: Instructional Method Details
+          description: The methods, styles, or formats in which the course is taught (for
+            example, 'Lecture', 'Lab').
+          type: array
+          items:
+            type: object
+            properties:
+              instructionalMethod:
+                title: Instructional Method
+                description: The method, style, or format in which the course is taught (for
+                  example, 'Lecture', 'Lab').
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Instructional Method.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: instructional-methods 
+                    x-lineageReferenceObject: SCRSCHD_SCHD_CODE(SCRSCHD)
+                additionalProperties: false
+                required:
+                  - id
+              instructionalDeliveryMethod:
+                title: Instructional Delivery Method
+                description: The delivery method used for instruction.
+                oneOf:
+                  - type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the Instructional Delivery Method.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                        x-lineageLookupReferenceObject: instructional-delivery-methods 
+                        x-lineageReferenceObject: SCRSCHD_INSM_CODE(SCRSCHD)
+                    additionalProperties: false
+                    required:
+                      - id
+                  - type: object
+                    maxProperties: 0
+            additionalProperties: false
+            required:
+              - instructionalMethod
+        hours:
+          title: Hours
+          description: The hours that may be assigned to the course by instructional method.
+          type: array
+          items:
+            type: object
+            properties:
+              administrativeInstructionalMethod:
+                title: Administrative Instructional Method
+                description: The method, style, or format for which hours are established for a
+                  course.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Administrative Instructional Method.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: administrative-instructional-methods 
+                    x-lineageReferenceObject: SCBCRSE_CON_HR_LOW(SCBCRSE) or SCBCRSE_LEC_HR_LOW(SCBCRSE) or SCBCRSE_LAB_HR_LOW(SCBCRSE) or SCBCRSE_OTH_HR_LOW(SCBCRSE)
+                additionalProperties: false
+                required:
+                  - id
+              minimum:
+                title: Minimum
+                description: The minimum number of hours that may be established for an
+                  instructional method.
+                type: number
+                x-lineageReferenceObject: SCBCRSE_OTH_HR_LOW(SCBCRSE) or SCBCRSE_LEC_HR_LOW(SCBCRSE) or SCBCRSE_LAB_HR_LOW(SCBCRSE) or SCBCRSE_CONT_HR_LOW(SCBCRSE)
+              maximum:
+                title: Maximum
+                description: The maximum number of hours that may be established for an
+                  instructional method.
+                x-lineageReferenceObject: SCBCRSE_LEC_HR_HIGH(SCBCRSE) or SCBCRSE_OTH_HR_HIGH(SCBCRSE) or SCBCRSE_CONT_HR_HIGH(SCBCRSE) or SCBCRSE_LAB_HR_HIGH(SCBCRSE)
+                oneOf:
+                  - type: number
+                  - type: string
+                    nullable: true
+              increment:
+                title: Increment
+                description: The increment specified for the hours.
+                x-lineageReferenceObject: SCBCRSES_CONTACT_INCREMENT(SCBCRSES) or SCBCRSES_LECTURE_INCREMENT(SCBCRSES) or SCBCRSES_LAB_INCREMENT(SCBCRSES) or SCBCRSES_OTHER_INCREMENT(SCBCRSES)
+                oneOf:
+                  - type: number
+                  - type: string
+                    nullable: true
+              interval:
+                title: Interval
+                description: The interval specified for the hours.
+                x-lineageReferenceObject: derived
+                x-lineageDerivedLogic: Display 'week' for all the records.
+                oneOf:
+                  - type: string
+                    enum:
+                      - day
+                      - week
+                      - month
+                      - term
+                  - type: string
+                    maxLength: 0
+            additionalProperties: false
+            required:
+              - administrativeInstructionalMethod
+              - minimum
+        owningInstitutionUnits:
+          title: Owning Institution Units
+          description: A list of units of the educational institution (optionally,
+            hierarchical) that own or are responsible for a course
+          type: array
+          items:
+            type: object
+            properties:
+              institutionUnit:
+                title: Institution Unit
+                description: A School, College, Division, Department, or any other
+                  organizational unit in the institution
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Institution Unit.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: educational-institution-units 
+                    x-lineageReferenceObject: SCBCRSE_COLL_CODE(SCBCRSE) or SCBCRSE_DIVS_CODE(SCBCRSE) or SCBCRSE_DEPT_CODE(SCBCRSE)
+                additionalProperties: false
+                required:
+                  - id
+              ownershipPercentage:
+                title: Ownership Percentage
+                description: The portion of a course that is owned or allocated to a particular
+                  organization.
+                type: number
+                x-lineageReferenceObject: derived
+                x-lineageDerivedLogic: Always 100 is displayed.
+            additionalProperties: false
+            required:
+              - institutionUnit
+              - ownershipPercentage
+        schedulingStartOn:
+          title: Course Effective Starting Date
+          description: The starting date on which a course is available to have sections
+            scheduled. When combined with the Course Effective Ending Date, this
+            defines the time period a course is available for scheduling.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+            - type: string
+              maxLength: 0
+        schedulingEndOn:
+          title: Course Effective Ending Date
+          description: The ending date on which a course is no longer available to have
+            sections scheduled. When combined with the Course Effective Starting
+            Date, this defines the time period a course is available for
+            scheduling.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: SCBCRSES_SCHD_START_ON(SCBCRSES)
+            - type: string
+              maxLength: 0
+        number:
+          title: Course Number
+          description: A numbering scheme that distinguishes courses within a subject.
+            Typically, this is an integer.
+          type: string
+          minLength: 1
+          x-lineageReferenceObject: SCBCRSE_CRSE_NUMB(SCBCRSE)
+        academicLevels:
+          title: Academic Levels
+          description: The academic levels (for example, 'Under Graduate' or 'Graduate')
+            associated with a course.
+          type: array
+          items:
+            title: Academic Levels
+            description: The academic levels (for example, 'Under Graduate' or 'Graduate')
+              associated with a course.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Academic Levels.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: academic-levels 
+                x-lineageReferenceObject: SCRLEVL_LEVL_CODE(SCRLEVL)
+            additionalProperties: false
+            required:
+              - id
+        gradeSchemes:
+          title: Grade Schemes
+          description: The grading schemes that may be used to award a grade to a student
+            taking this course.
+          type: array
+          items:
+            type: object
+            properties:
+              gradeScheme:
+                title: Grade Scheme
+                description: The grading scheme that may be used to award a grade to a student
+                  taking this course.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Grade Scheme.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: grade-schemes 
+                    x-lineageReferenceObject: derived  
+                    x-lineageDerivedLogic: SHRGSCH_GUID for the SCRGMOD_GMOD_CODE and SCRLEVL_LEVL_CODE for the course effective term, subject code, course number being processed.
+                additionalProperties: false
+                required:
+                  - id
+              usage:
+                title: Usage
+                description: An indicator of whether the grade scheme is used as the default for
+                  registration.
+                x-lineageReferenceObject: derived  
+                x-lineageDerivedLogic: if SCRGMOD_DEFAULT_IND ='D' display 'default' else not displayed..
+                oneOf:
+                  - type: string
+                    enum:
+                      - default
+                  - type: string
+                    maxLength: 0
+            additionalProperties: false
+            required:
+              - gradeScheme
+        credits:
+          title: Credits
+          description: The credit specifications that apply to a course (for example,
+            'Regular Credit').
+          type: array
+          items:
+            type: object
+            properties:
+              creditCategory:
+                title: Credit Category
+                description: The academic credit category associated with the course.
+                type: object
+                properties:
+                  creditType:
+                    title: Credit Type
+                    description: The higher level category of academic credits.
+                    x-lineageReferenceObject: derived  
+                    x-lineageDerivedLogic: If SCBCRSE_CEU_IND=Y, course is displayed as 'ce', else display 'institution'. Only ce and institution are supported.
+                    enum:
+                      - ce
+                      - institution
+                      - transfer
+                      - exchange
+                      - exam
+                      - workLifeExperience
+                      - other
+                      - noCredit
+                    type: string
+                  detail:
+                    title: Detail
+                    description: The academic credit category associated with the course.
+                    oneOf:
+                      - type: object
+                        properties:
+                          id:
+                            title: ID
+                            description: The global identifier for the Detail.
+                            type: string
+                            format: guid
+                            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                            x-lineageLookupReferenceObject: credit-categories 
+                            x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = credit-categories) 
+                            x-lineageDerivedLogic: A record in GORGUID with  GORGUID_LDM_NAME as 'credit-categories'  for ce or institution credit type derived.
+                        additionalProperties: false
+                        required:
+                          - id
+                      - type: object
+                        maxProperties: 0
+                additionalProperties: false
+                required:
+                  - creditType
+              measure:
+                title: Measure
+                description: A unit or standard of measurement for a course credit.
+                x-lineageReferenceObject: SCBCRSE_CEU_IND(SCBCRSE)
+                x-lineageDerivedLogic: If SCBCRSE_CEU_IND=Y, course is displayed as 'ceu', else display 'hour'.
+                enum:
+                  - credit
+                  - ceu
+                  - hour
+                type: string
+              minimum:
+                title: Minimum number
+                description: The lower, inclusive bound of the range of values for a course
+                  credit.
+                type: number
+                x-lineageReferenceObject: SCBCRSE_CREDIT_HR_LOW(SCBCRSE)
+              maximum:
+                title: Maximum number
+                description: The upper, inclusive bound of the range of values for a course
+                  credit.
+                x-lineageReferenceObject: SCBCRSE_CREDIT_HR_HIGH(SCBCRSE)
+                oneOf:
+                  - type: number
+                  - type: string
+                    nullable: true
+              increment:
+                title: Increment number
+                description: The increment by which the range of values for a course credit can
+                  change from the minimum to the maximum. For example, a range
+                  of 1 to 3 with an increment of 1 would evaluate to 1, 2, or 3.
+                  Specifying an increment of 0.5 would evaluate to 1, 1.5, 2,
+                  2.5, or 3.
+                x-lineageReferenceObject: SCBCRSES_CREDITS_INCREMENT(SCBCRSES)
+                oneOf:
+                  - type: number
+                  - type: string
+                    nullable: true
+            additionalProperties: false
+            required:
+              - creditCategory
+              - measure
+              - minimum
+        billing:
+          title: Billing
+          description: The number of units that may be used to calculate the charge for
+            the course.
+          oneOf:
+            - type: object
+              properties:
+                minimum:
+                  title: Minimum
+                  description: The minimum number of units that may be used to calculate the
+                    charge for the course.
+                  type: number
+                  x-lineageReferenceObject: SCBCRSE_BILL_HR_LOW(SCBCRSE)
+                maximum:
+                  title: Maximum
+                  description: The maximum number of units that may be used to calculate the
+                    charge for the course.
+                  x-lineageReferenceObject: SCBCRSE_BILL_HR_HIGH(SCBCRSE)
+                  oneOf:
+                    - type: number
+                    - type: string
+                      nullable: true
+                increment:
+                  title: Increment
+                  description: The increment by which the range of values for billing units can
+                    change from the minimum to the maximum.
+                  x-lineageReferenceObject: SCBCRSES_BILLING_INCREMENT(SCBCRSES)
+                  oneOf:
+                    - type: number
+                    - type: string
+                      nullable: true
+              additionalProperties: false
+              required:
+                - minimum
+            - type: object
+              maxProperties: 0
+        waitlistMultipleSections:
+          title: Waitlist Multiple Sections
+          description: An indication if a student is allowed to be on the waitlist for
+            multiple sections of the same course simultaneously.
+          x-lineageReferenceObject: derived
+          x-lineageDerivedLogic: Always 'notAllowed' is displayed.
+          oneOf:
+            - type: string
+              enum:
+                - allowed
+                - notAllowed
+            - type: string
+              maxLength: 0
+        reportingDetail:
+          title: Reporting Detail
+          description: Additional properties required for localized reporting.
+          oneOf:
+            - type: object
+              properties:
+                type:
+                  title: Type
+                  description: The locality requiring additional reporting properties.
+                  x-lineageReferenceObject: derived
+                  x-lineageDerivedLogic: Display 'nebraska' if the course weight value is present.
+                  enum:
+                    - nebraska
+                  type: string
+                courseWeight:
+                  title: Course Weight
+                  description: The weight assigned to the course.
+                  x-lineageReferenceObject: SCBCMIS_CRSE_WEIGHT(SCBCMIS)
+                  oneOf:
+                    - type: number
+                    - type: string
+                      nullable: true
+              additionalProperties: false
+              required:
+                - type
+            - type: object
+              maxProperties: 0
+        administrativePeriod:
+          title: Administrative Period
+          description: The administrative period associated with a course.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Administrative Period.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: administrative-periods 
+                  x-lineageReferenceObject: SCBCGID_TERM_CODE_EFF(SCBCGID)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        status:
+          title: Status
+          description: The status associated with the course.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Status.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: course-statuses 
+              x-lineageReferenceObject: SCBCRSE_CSTA_CODE(SCBCRSE)
+          additionalProperties: false
+          required:
+            - id
+        additionalClassifications:
+          title: Additional Classifications
+          description: Additional classifications associated with the course.
+          type: array
+          items:
+            type: object
+            properties:
+              cipCode:
+                title: CIP Code
+                description: The CIP code associated with the course.
+                oneOf:
+                  - type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the CIP Code.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                        x-lineageLookupReferenceObject: cip-codes 
+                        x-lineageReferenceObject: SCBCRSE_CIPC_CODE(SCBCRSE)
+                    additionalProperties: false
+                    required:
+                      - id
+                  - type: object
+                    maxProperties: 0
+            additionalProperties: false
+      required:
+        - id
+        - titles
+        - subject
+        - number
+        - status
+      additionalProperties: false

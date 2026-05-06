@@ -1,0 +1,419 @@
+openapi: 3.0.0
+info:
+  title: Student Cohort Assignments
+  description: >
+    This student cohort assignments entity publishes the student cohorts defined
+    in SGRCHRT table for a student. Cohorts are defined for an effective term.
+    The API returns every instance of a person's relationship to a cohort for
+    all the effective terms.
+  version: 1.0.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Student
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: student-cohort-assignments
+paths:
+  /api/student-cohort-assignments:
+    get:
+      summary: Returns resources from SGRCHRT
+      description: >
+        Returns all cohorts records from SGRCHRT table of all students for the
+        effective term.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STUD_COHORT_ASSIGNMENTS
+      tags:
+        - student-cohort-assignments
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Person  
+
+            The person who has been assigned to a cohort.
+
+            ```
+
+            /student-cohort-assignments?criteria={"person":{"id":"5674f28b-b216-4055-b236-81a922d93b4c"}}
+
+            ```
+
+            ### Cohort  
+
+            The grouping of students for reporting/tracking purposes (cohorts) to which the student is assigned for a period of time.
+
+            ```
+
+            /student-cohort-assignments?criteria={"cohort": {"id":"42cd0517-fbf8-4340-b852-1becac04792d"}}
+
+            ```
+
+            ### Start On  
+
+            Supported operators are $gte or the default of equals if operator is not specified.
+
+
+            Returns all student cohort assignments for the start on date passed.
+
+            ```
+
+            /student-cohort-assignments?criteria={"startOn":"1995-02-06"}
+
+            ```
+
+            ```
+
+            /student-cohort-assignments?criteria={"startOn":{"$eq":"1995-01-01"}}
+
+            ```
+
+            Returns all student cohort assignments with start date greater than or equals to the start on date passed.
+
+            ```
+
+            /student-cohort-assignments?criteria={"startOn":{"$gte":"1995-01-01"}}
+
+            ```
+
+            ### End On  
+
+            Supported operators are $lte or the default of equals if operator is not specified.
+
+
+            Returns all student cohort assignments for the end on date passed.
+
+            ```
+
+            /student-cohort-assignments?criteria={"endOn":"2016-02-06"}
+
+            ```
+
+            ```
+
+            /student-cohort-assignments?criteria={"endOn":{"$eq":"2016-01-01"}}
+
+            ```
+
+            Returns all student cohort assignments with end date less than or equals to the end on date passed.
+
+            ```
+
+            /student-cohort-assignments?criteria={"endOn":{"$lte":"2016-01-01"}}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-student-cohort-assignments.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/student-cohort-assignments/{id}:
+    get:
+      summary: Return the requested resource from SGRCHRT
+      description: >
+        Returns the detail of cohort record from SGRCHRT of the student for the
+        effective term for the passed in identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_STUD_COHORT_ASSIGNMENTS
+      tags:
+        - student-cohort-assignments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-student-cohort-assignments.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-student-cohort-assignments.json:
+      title: Student Cohort Assignments
+      description: The groupings of students for reporting/tracking purposes (cohorts)
+        to which the student is assigned for a period of time.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the student cohort assignment.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: SGRCHRT(SGRCHRT)
+        person:
+          title: Person
+          description: The person who has been assigned to a cohort.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Person.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: SGRCHRT_PIDM(SGRCHRT)
+          additionalProperties: false
+          required:
+            - id
+        cohort:
+          title: Cohort
+          description: The grouping of students for reporting/tracking purposes (cohorts)
+            to which the student is assigned for a period of time.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Cohort.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: student-cohorts 
+              x-lineageReferenceObject: SGRCHRT_CHRT_CODE(SGRCHRT)
+          additionalProperties: false
+          required:
+            - id
+        academicLevel:
+          title: Academic Level
+          description: The academic level associated with the student.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Academic Level.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: academic-levels 
+                  x-lineageReferenceObject: unsupported
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        startOn:
+          title: Start On
+          description: The effective start date of the cohort.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: STVTERM_START_DATE(STVTERM)
+            - type: string
+              maxLength: 0
+        endOn:
+          title: End On
+          description: The last date of the cohort.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: STVTERM_START_DATE(STVTERM)
+            - type: string
+              maxLength: 0
+        startAdministrativePeriod:
+          title: Start Administrative Period
+          description: The starting administrative period for the cohort.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Start Administrative Period.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: administrative-periods 
+                  x-lineageReferenceObject: SGRCHRT_TERM_CODE_EFF(SGRCHRT)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        endAdministrativePeriod:
+          title: End Administrative Period
+          description: The ending administrative period for the cohort.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the End Administrative Period.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: administrative-periods 
+                  x-lineageReferenceObject: SGRCHRT_END_TERM_ETHOS(SGRCHRT)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        participationStatus:
+          title: Participation Status
+          description: An indicator if the student's participation in the cohort has been
+            suspended due to military, peace corps, religious mission, death,
+            disability, etc.
+          oneOf:
+            - type: string
+              enum:
+                - suspended
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: Display 'suspended' if a cohort assignment is inactivated (SGRCHRT_ACTIVE_IND is Y)
+            - type: string
+              maxLength: 0
+      required:
+        - id
+        - person
+        - cohort
+      additionalProperties: false

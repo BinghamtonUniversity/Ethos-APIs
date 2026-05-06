@@ -1,0 +1,447 @@
+openapi: 3.0.0
+info:
+  title: registration-eligibility
+  description: >
+    The registration eligibility is a step before the actual process of
+    completing student registration. The process will enable the student to
+    check the term eligibility to register for a section before performing the
+    actual registration. If the student and term are eligible the process will
+    respond with a positive eligibility status that enables the student to
+    perform the next set of actions like adding the classes to the student’s
+    summary and performing add or drop actions.   
+
+    The response will include:
+
+
+    1. Eligibility status for the student and term registration to a class
+
+    2. Failed registration from add process or update actions
+
+    3. Summary of registration with total credit and bill hours
+
+    4. Exception messages including those from the administrative drop, auto
+    drop process or drop last class
+
+    5. List of all registration messages
+  version: 1.1.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Student
+  x-source-title: Registration Eligibility
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: registration-eligibility
+paths:
+  /api/registration-eligibility:
+    post:
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_REGSTATUS
+      tags:
+        - registration-eligibility
+      description: >
+        The Request and Response of registration-eligibility API is similar to
+        registration-register API except that there is an additional field
+        called 'isEligibileStatus' in the response of registration-eligibility
+        API. If 'isEligibileStatus' is true, it indicates that student is
+        eligible to register for the specified term and crn.
+          
+        When 'isEligibileStatus' is true, statusIndicator will be 'E' and
+        statusDescription will be 'Eligible'.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          schema:
+            type: string
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+              application/vnd.hedtech.integration.v1.0.0+json
+            ```
+        - name: content-type
+          in: header
+          required: true
+          schema:
+            type: string
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+              application/vnd.hedtech.integration.v1.0.0+json
+            ```
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1.1.0+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/registration-eligibility"
+          application/vnd.hedtech.integration.v1.1.0+xml:
+            schema:
+              type: object
+              $ref: "#/components/schemas/registration-eligibility"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/vnd.hedtech.integration.v1.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/registration-eligibility-response"
+            application/vnd.hedtech.integration.v1.1.0+xml:
+              schema:
+                type: object
+                $ref: "#/components/schemas/registration-eligibility-response"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.1.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    registration-eligibility:
+      type: array
+      items:
+        type: object
+        properties:
+          bannerId:
+            type: string
+            description: Identification number used to access a person
+          term:
+            type: string
+            description: Code value to identify the term
+          systemIn:
+            type: string
+            description: Registration persona value, SB is administrator, WA is the default
+              for student.
+          altPin:
+            type: string
+            description: Students alternate Personal Identification Number
+          keySequenceNumber:
+            type: string
+            description: |
+              The study path key sequence number
+          registrationDate:
+            type: string
+            format: date
+          courseRefererenceNumbers:
+            description: Course Reference Numbers to add new classes to existing
+              registration. This parameter includes the list of CRN that needs
+              to be added to existing registrations. Any invalid CRN will be
+              returned back in the failedRegistration object
+            type: array
+            items:
+              type: object
+              properties:
+                courseRefererenceNumber:
+                  type: string
+          actionsAndOptions:
+            description: List by course reference number for action changes and updates.
+              This parameter list includes selected inputs including drop
+              actions. The selectedAction is the field within the map for status
+              actions and must be set to the valid drop code within the
+              registrationActions for dropping the registration.
+            type: array
+            items:
+              type: object
+              properties:
+                courseReferenceNumber:
+                  type: string
+                selectedAction:
+                  type: string
+                selectedLevel:
+                  type: string
+                selectedGradingMode:
+                  type: string
+                selectedStudyPath:
+                  type: string
+                selectedCreditHour:
+                  type: string
+        required:
+          - bannerId
+          - term
+    registration-eligibility-response:
+      type: array
+      items:
+        type: object
+        properties:
+          adminDropMessages:
+            type: array
+            items:
+              type: string
+          adminErrorMessages:
+            type: array
+            items:
+              type: string
+          autoDropNotificationConfirmPrompt:
+            type: string
+          autoDropNotificationMessage:
+            type: string
+          autoDropNotificationPrompt:
+            type: string
+          failedRegistrations:
+            type: array
+            items:
+              type: object
+              properties:
+                failedCRN:
+                  type: string
+                failure:
+                  type: string
+                registration:
+                  type: object
+          failureReasons:
+            type: array
+            items:
+              type: string
+          linkErrors:
+            type: array
+            items:
+              type: string
+          maxHours:
+            type: number
+            format: int64
+          minHours:
+            type: number
+            format: int64
+          registrations:
+            type: array
+            items:
+              type: object
+              properties:
+                addDate:
+                  type: string
+                  format: date
+                approvalReceivedIndicator:
+                  type: string
+                attemptedHours:
+                  type: number
+                  format: int64
+                billHour:
+                  type: number
+                  format: int64
+                billHours:
+                  type: object
+                  properties:
+                    creditHourHigh:
+                      type: number
+                      format: int64
+                    creditHourIndicator:
+                      type: number
+                      format: int64
+                    creditHourList:
+                      type: string
+                    creditHourLow:
+                      type: string
+                blockRuleSequenceNumber:
+                  type: integer
+                campus:
+                  type: string
+                class:
+                  type: string
+                completionDate:
+                  type: string
+                  format: date
+                courseContinuingEducationIndicator:
+                  type: string
+                courseNumber:
+                  type: string
+                courseReferenceNumber:
+                  type: string
+                courseRegistrationStatus:
+                  type: string
+                courseRegistrationStatusDescription:
+                  type: string
+                courseTitle:
+                  type: string
+                creditHour:
+                  type: number
+                  format: int64
+                creditHours:
+                  type: object
+                  properties:
+                    creditHourHigh:
+                      type: number
+                      format: int64
+                    creditHourIndicator:
+                      type: string
+                    creditHourList:
+                      type: array
+                      items:
+                        type: string
+                    creditHourLow:
+                      type: number
+                      format: int64
+                crnErrors:
+                  type: array
+                  items:
+                    type: string
+                dataOrigin:
+                  type: string
+                durationUnit:
+                  type: string
+                errorFlag:
+                  type: string
+                grade:
+                  type: string
+                gradeDate:
+                  type: string
+                  format: date
+                gradeMid:
+                  type: string
+                gradingMode:
+                  type: string
+                gradingModeDescription:
+                  type: string
+                id:
+                  type: number
+                instructionalMethodDescription:
+                  type: string
+                level:
+                  type: string
+                levelDescription:
+                  type: string
+                message:
+                  type: string
+                messageType:
+                  type: string
+                numberOfUnits:
+                  type: number
+                partOfTerm:
+                  type: string
+                partOfTermDescription:
+                  type: string
+                recordStatus:
+                  type: string
+                registrationActions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      courseRegistrationStatus:
+                        type: string
+                      description:
+                        type: string
+                      remove:
+                        type: boolean
+                      voiceType:
+                        type: string
+                registrationFromDate:
+                  type: string
+                registrationGradingModes:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      description:
+                        type: string
+                      gradingMode:
+                        type: string
+                registrationLevels:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      description:
+                        type: string
+                      level:
+                        type: string
+                registrationStatusDate:
+                  type: string
+                  format: date
+                registrationStudyPaths:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      description:
+                        type: string
+                      keySequenceNumber:
+                        type: integer
+                registrationToDate:
+                  type: string
+                  format: date
+                scheduleDescription:
+                  type: string
+                scheduleType:
+                  type: string
+                sequenceNumber:
+                  type: string
+                startDate:
+                  type: string
+                  format: date
+                statusDescription:
+                  type: string
+                statusIndicator:
+                  type: string
+                studyPathKeySequence:
+                  type: integer
+                studyPathName:
+                  type: string
+                subject:
+                  type: string
+                subjectDescription:
+                  type: string
+                submitResultIndicator:
+                  type: string
+                term:
+                  type: string
+                timeStatusHours:
+                  type: number
+                voiceResponseStatusType:
+                  type: string
+                waivHour:
+                  type: number
+                courseAlias:
+                  type: string
+                  description: Additional identifier value associated with the course, example (Course Alias or Common Course Number).
+                courseIdentifierDisplay:
+                  type: string
+                  description: System-managed course identifier that should be displayed for the course (e.g., Course Number, Course Alias, or Common Course Number).
+          totalBill:
+            type: string
+          totalCeu:
+            type: string
+          totalCredit:
+            type: string
+          validStudent:
+            type: boolean

@@ -1,0 +1,197 @@
+openapi: 3.0.0
+info:
+  title: Leave Balances
+  description: API for Leave Balances that fetches the data from the leave-plans,
+    leave-types and employee-leave-balances to display the appropriate leave
+    types with balance on priority sequencing.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Human Resources
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/leave-balances:
+    get:
+      summary: Return data from the leave-plans, leave-types and
+        employee-leave-balances.
+      description: Returns the data from the leave-plans, leave-types and
+        employee-leave-balances.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_LEAVE_BALANCES
+      tags:
+        - leave-balances
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: bannerId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-leave-balances.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ErrorsObj"
+              examples:
+                MandtoryFieldsMissing:
+                  $ref: "#/components/examples/MandtoryFieldsMissing"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-leave-balances.json:
+      title: Leave Balances
+      description: Displays the details of the Leave Balances for the particular person.
+      type: object
+      properties:
+        lastModifiedBy:
+          title: Last Modified By
+          description: The user ID of the person who inserted or last updated this record.
+          type: string
+        lastModified:
+          title: Last Modified
+          description: Date of last activity of the record.
+          type: string
+        accrued:
+          title: Leave Accrued
+          description: Amount of Leave Accrued.
+          type: number
+        beginBalance:
+          title: Leave Beginning Balance
+          description: The leave balance at the beginning of the year.
+          type: number
+        dateAvail:
+          title: Available Date
+          description: Date leave will become available for employee.
+          type: string
+        leaveCode:
+          title: Leave Code
+          description: The code identifying which type of leave it is. The code must
+            be   previously defined on the Leave Codes Rule Form (PTRLEAV).
+          type: string
+        leaveTaken:
+          title: Leave Taken
+          description: The amount of leave taken this year.
+          type: number
+        leaveCategoryCode:
+          title: Leave Category Code
+          description: The group of Leave Codes being defined.
+          type: string
+        payCheckSequenceNumber:
+          title: Pay Check Sequence Number
+          description: Identifies the relative order this Leave Code should appear on an
+            employees pay document.
+          type: string
+        leaveDescription:
+          title: Leave code description
+          description: The full description or title for the Leave Code defined.
+          type: string
+        totalBalance:
+          title: Total Balance
+          description: The sum of begin balance and accrued by differencing with the leave
+            taken.
+          type: number
+        hourDayIndicator:
+          title: Hour or Day Indicator
+          description: Specifies the leave code will be regulated in days or hours -  D =
+            in Day, H = in Hour.
+          type: string
+      required:
+        - bannerId
+    ErrorsObj:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        message:
+          type: string
+  examples:
+    MandtoryFieldsMissing:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Filter value is required"
+                }
+            ]
+        }

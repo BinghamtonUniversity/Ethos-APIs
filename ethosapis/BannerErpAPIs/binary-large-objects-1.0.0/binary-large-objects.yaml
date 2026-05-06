@@ -1,0 +1,647 @@
+openapi: 3.0.0
+info:
+  title: binary-large-objects
+  description: This API queries/stores binary files by media ID
+  version: 1.0.0
+  x-api-type: erp
+  x-release-status: ga
+  x-source-system: banner
+  x-source-domain: Foundation
+  x-source-name: GORBLOB
+  x-source-title: Binary Large Objects
+  x-audience: all
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/binary-large-objects:
+    get:
+      tags:
+        - binary-large-objects
+      summary: Provide GORBLOB records for the given criteria.
+      description: |
+        <p>Returns a paged listing of records from GORBLOB based on the requested criteria.</p>
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description:
+            The maximum number of resources requesting for this result set.
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          description: The filter criteria as a single URL query parameter. Use this
+            parameter or the individual parameters listed. Criteria can contain any of the
+            properties listed on the URL and must be a json representation
+            that can be validated against the GET schema. Limit
+            and Offset are the only supported additional parameters on the URL.
+          required: false
+          schema:
+            type: string
+        - name: mediaId
+          in: query
+          description: A unique media ID of the resource to match with.
+          required: false
+          schema:
+            type: integer
+          x-lineageReferenceObject: GORBLOB_MEDIA_ID
+        - name: type
+          in: query
+          description: >
+            Type that describes the contents of the binary object:
+             * `LIS` - Banner Admin JobSub report files
+             * `PDF` - PDF files
+             * `TXT` - Text files
+             * `DOC` - Microsoft word files
+             * `XLS` - Microsoft excel files
+             * `GIF` - Graphics images
+             * `JPG` - JPEG images
+             * `TIF` - TIFF images
+             * `WAV` - Audio files in wav format
+          required: false
+          schema:
+            type: string
+            enum: [LIS, PDF, TXT, DOC, XLS, GIF, JPG, TIF, WAV]
+          x-lineageReferenceObject: GORBLOB_BLOT_CODE
+        - name: userId
+          in: query
+          description: User ID of the User who created or last updated the record.
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: GORBLOB_USER_ID
+        - name: dataOrigin
+          in: query
+          description: Binary object originated from.
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: GORBLOB_DATA_ORIGIN
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/binary-large-objects-v1_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                InvalidFilterCriteria:
+                  $ref: '#/components/examples/InvalidFilterCriteria'
+        '401':
+          description: Failure. Unauthorized.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/Unauthorized"
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                NoPermission:
+                  $ref: "#/components/examples/NoPermission"
+        '404':
+          description: Failure. Not Found.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                MethodNotAllowed:
+                  $ref: "#/components/examples/MethodNotAllowed"
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client�s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                UnsupportedVersion:
+                  $ref: "#/components/examples/UnsupportedVersion"
+        '500':
+          description: Server error. Unexpected configuration or data.
+      security:
+        - BasicAuth: []
+        - EthosIntegrationBearer: []
+      x-method-permission: API_BINARY_LARGE_OBJECTS
+    post:
+      tags:
+        - binary-large-objects
+      summary: Update binary file(BLOB) of a GORBLOB resource.
+      description: |
+        <p>Update binary object(GORBLOB_BLOB) of a GORBLOB record for the given ID(mediaId).</p>
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              $ref: '#/components/schemas/binary-large-objects-v1_post_request_body'
+            encoding:
+              multipartFile:
+                contentType: application/octet-stream, text/plain, application/pdf, application/msword, application/vnd.ms-excel, image/gif, image/jpeg, image/tiff, audio/wav
+            example:
+              id: 123
+              multipartFile: 'sample binary data'
+              dataOrigin: 'ERP-API'
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/binary-large-objects-v1_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                InvalidRequestData:
+                  $ref: '#/components/examples/InvalidRequestBody'
+        '401':
+          description: Failure. Unauthorized.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/Unauthorized"
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                NoPermission:
+                  $ref: "#/components/examples/NoPermission"
+        '404':
+          description: Failure. Not Found.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                MethodNotAllowed:
+                  $ref: "#/components/examples/MethodNotAllowed"
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client�s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                UnsupportedVersion:
+                  $ref: "#/components/examples/UnsupportedVersion"
+        '500':
+          description: Server error. Unexpected configuration or data.
+      security:
+        - BasicAuth: []
+        - EthosIntegrationBearer: []
+      x-method-permission: API_BINARY_LARGE_OBJECTS
+  /api/binary-large-objects/{id}:
+    get:
+      summary: Provide binary file(BLOB) for the given media ID.
+      description: |
+        <p>Returns the binary file(GORBLOB_BLOB) for the requested media ID.</p>
+      tags:
+        - binary-large-objects
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          description: Unique GORBLOB media ID.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+            text/plain:
+              schema:
+                type: string
+                format: binary
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            application/msword:
+              schema:
+                type: string
+                format: binary
+            application/vnd.ms-excel:
+              schema:
+                type: string
+                format: binary
+            image/gif:
+              schema:
+                type: string
+                format: binary
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/tiff:
+              schema:
+                type: string
+                format: binary
+            audio/wav:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                InvalidID:
+                  $ref: '#/components/examples/InvalidID'
+        '401':
+          description: Failure. Unauthorized.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/Unauthorized"
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                NoPermission:
+                  $ref: "#/components/examples/NoPermission"
+        '404':
+          description: Failure. Not Found.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                MethodNotAllowed:
+                  $ref: "#/components/examples/MethodNotAllowed"
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client�s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+              examples:
+                UnsupportedVersion:
+                  $ref: "#/components/examples/UnsupportedVersion"
+        '500':
+          description: Server error. Unexpected configuration or data.
+      security:
+        - BasicAuth: []
+        - EthosIntegrationBearer: []
+      x-method-permission: API_BINARY_LARGE_OBJECTS    
+components:
+  schemas:
+    binary-large-objects-v1_response:
+      type: object
+      properties:
+        dataOrigin:
+          "title": "dataOrigin"
+          "description": "binary object originated from."
+          "type": string
+          "maxLength": 30
+          "x-lineageReferenceObject": GORBLOB.GORBLOB_DATA_ORIGIN
+        mediaId:
+          "title": "mediaId"
+          "description": "Unique media ID."
+          "type": integer
+          "maxLength": 38
+          "x-lineageReferenceObject": GORBLOB.GORBLOB_MEDIA_ID
+        mimeType:
+          "title": "mimeType"
+          "description": "The MIME header required to display this object type via a browser."
+          "type": string
+          "maxLength": 100
+          "readOnly": true
+          "x-lineageReferenceObject": GTVBLOT.GTVBLOT_MIME_TYPE
+          "x-lineageLookupReferenceObject": GTVBLOT
+        modifiedOn:
+          "title": "modifiedOn"
+          "description": "Date the record was created or last updated."
+          "type": string
+          "readOnly": true
+          "x-lineageReferenceObject": GORBLOB.GORBLOB_ACTIVITY_DATE
+        type:
+          "title": "binaryLargeObjectType"
+          "description": "Type that describes the contents of the binary object."
+          "type": string
+          "maxLength": 30
+          "readOnly": true
+          "x-lineageReferenceObject": GORBLOB.GORBLOB_BLOT_CODE
+        userId:
+          "title": "userId"
+          "description": "User ID of the User who created or last updated the record."
+          "type": string
+          "maxLength": 30
+          "readOnly": true
+          "x-lineageReferenceObject": GORBLOB.GORBLOB_USER_ID
+      required:
+        - mediaId
+        - mimeType
+        - modifiedOn
+        - type
+        - userId
+    binary-large-objects-v1_post_request_body:
+      type: object
+      properties:
+        id:
+          "description": "Unique media ID."
+          "type": integer
+          "maxLength": 38
+          "x-lineageReferenceObject": GORBLOB.GORBLOB_MEDIA_ID
+        multipartFile:
+          "description": "Binary large object file."
+          type: string
+          format: binary
+          "x-lineageReferenceObject": GORBLOB.GORBLOB_BLOB
+        dataOrigin:
+          "description": "Binary object being updated/originated from. If not passed then it will be updated with value 'ERP-API'."
+          "type": string
+          "maxLength": 30
+          "x-lineageReferenceObject": GORBLOB.GORBLOB_DATA_ORIGIN
+      required:
+        - id
+        - multipartFile
+    errors-2.0.0_response:
+      description: Object containing errors list.
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            required:
+              - message
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary
+                  data entity used to create the resource. This is useful for
+                  referencing the source item through the applications
+                  administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  examples:
+    Unauthorized:
+      value: >-
+        {
+          "errors": [
+            {
+              "code": "401",
+              "message": "Unauthorized"
+            }
+          ]
+        }
+    NoPermission:
+      value: |-
+        {
+          "errors": [
+            {
+              "code": "403",
+              "message": "Access is denied"
+            }
+          ]
+        }
+    MethodNotAllowed:
+      value: |-
+        {
+          "errors": [
+            {
+              "code": "Operation.Not.Permitted",
+              "description": "Operation not permitted",
+              "message":  "Method not allowed."
+            }
+          ]
+        }
+    UnsupportedVersion:
+      value: >-
+        {
+          "errors": [
+            {
+              "code": "unknownrepresentation.error",
+              "description": "Unknown representation error",
+              "message": "Unsupported media type 'application/vnd.hedtech.integration.vX+json' for resource 'binary-large-objects'"
+            }
+          ]
+        }
+    InvalidFilterCriteria:
+      value: |-
+        {
+          "errors": [
+            {
+              "code": "Global.SchemaValidation.Error",
+              "description": "Errors parsing input JSON.",
+              "message": "Invalid filter property [xyz]"
+            }
+          ]
+        }
+    InvalidID:
+      value: |-
+        {
+          "errors": [
+            {
+              "code": "Global.SchemaValidation.Error",
+              "description": "Errors parsing input JSON.",
+              "message": "Invalid ID. Media id 2342 does not exist"
+            }
+          ]
+        }
+    InvalidRequestBody:
+      value: |-
+        {
+          "errors": [
+            {
+              "code": "Global.SchemaValidation.Error",
+              "description": "Errors parsing input JSON.",
+              "message": "Missing File. No file supplied with parameter [multipartFile]"
+            }
+          ]
+        }

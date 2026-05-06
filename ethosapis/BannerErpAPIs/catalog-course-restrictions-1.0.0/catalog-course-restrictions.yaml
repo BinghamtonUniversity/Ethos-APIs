@@ -1,0 +1,1238 @@
+openapi: 3.0.0
+info:
+  title: Catalog Course Restrictions
+  description: >
+  
+    This QAPI returns catalog course registration and schedule restriction details using a 
+    combination of subject, course number and term as seen on the SCARRES, SCASRES, and SCAMEXC
+    administrative pages. 
+    
+
+    Course registration restrictions related to department, field of study, class, level, degree, 
+    program, campus, college, student attribute, cohort, and mutual exclusions associated with the base 
+    catalog course are returned in the response.  Course scheduling restrictions related to 
+    term and campus are also included.  
+
+       
+
+    Catalog course restriction details can be created and maintained using catalog-course-restrictions-adjustments-process.
+
+  version: 1.0.0-beta
+  x-api-type: erp
+  x-release-status: beta
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Student
+  x-source-name: SCARRES, SCASRES and SCAMEXC
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /qapi/catalog-course-restrictions:
+    post:
+      tags:
+      - catalog-course-restrictions QAPI
+      summary: Returns resources from SCRRDEP, SCRRMAJ, SCRRCLS, SCRRLVL, SCRRDEG, SCRRPRG, SCRRCAM, SCRRCOL, SCRRATT, SCRRCHR, SCRRTRM, SCRRCMP and SCRMEXC.
+      description: >
+        Queries for the requested resource using a set of attributes provided in the post
+        request body.  Please note the path to use is /qapi/{resource} in the URL and not /api/{resource}.
+        
+        
+        Returns any SCRRDEP, SCRRMAJ, SCRRCLS, SCRRLVL, SCRRDEG, SCRRPRG, SCRRCAM, SCRRCOL, SCRRATT, SCRRCHR, SCRRTRM, SCRRCMP and SCRMEXC records meeting the required submitted criteria of subject, course 
+        number and query term. 
+     
+          
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string  
+        - name: limit
+          in: query
+          description:  |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer                      
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/catalog-course-restrictions-1.0.0_qapi_post_request"
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/catalog-course-restrictions-1.0.0_qapi_post_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the clientâ€™s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_CTLG_CRSE_RSTRCTNS
+components:
+  schemas:
+    catalog-course-restrictions-1.0.0_qapi_post_request:
+      type: object
+      required:
+        - queryTerm        
+      properties:              
+        subject:
+          title: Subject
+          maxLength: 4
+          type: string
+          description: "The subject area of the course."
+          x-lineageReferenceObject: SCBCRKY_SUBJ_CODE
+          x-lineageLookupReferenceObject: STVSUBJ
+          example: MATH
+        courseNumber: 
+          title: Course Number
+          maxLength: 5
+          type: string
+          description: "The course number associated with the subject for the course."
+          x-lineageReferenceObject: SCBCRKY_CRSE_NUMB
+          example: ENGL1        
+        queryTerm:
+          title: Query Term
+          maxLength: 6
+          type: string
+          description: "A user provided value.  The query term code is used to retrieve the most current course registration and schedule restrictions that are less than, or equal to, the provided value."         
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202201    
+    catalog-course-restrictions-1.0.0_qapi_post_response:
+      type: object
+      required:
+        - subject
+        - courseNumber
+        - queryTerm        
+      properties:
+        subject:
+          title: Subject
+          maxLength: 4
+          type: string
+          description: "The subject area of the course."
+          x-lineageReferenceObject: SCBCRKY_SUBJ_CODE
+          x-lineageLookupReferenceObject: STVSUBJ
+          example: MATH
+        courseNumber: 
+          title: Course Number
+          maxLength: 5
+          type: string
+          description: "The course number associated with the subject for the course."
+          x-lineageReferenceObject: SCBCRKY_CRSE_NUMB
+          example: ENGL1        
+        queryTerm:
+          title: Query Term
+          maxLength: 6
+          type: string
+          description: "A user provided value.  The query term code is used to retrieve the most current course registration and schedule restriction details that are less than, or equal to, the provided value."
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202201      
+        departmentRegistrationRestriction:
+          title: Department Registration Restriction
+          type: object
+          required:
+          - fromTerm 
+          properties:  
+            fromTerm:
+              title: Effective Term
+              maxLength: 6
+              type: string
+              description: "The starting term code for a set of course department registration restrictions.  An empty set indicates a period of time with no defined course department registration restrictions."
+              x-lineageReferenceObject: SCRRDEP_EFF_TERM
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202201    
+            toTerm:
+              title: Ending Term
+              maxLength: 6
+              type: string
+              description: "The ending term code for a set of course department registration restrictions."
+              x-lineageReferenceObject: derived
+              x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+              x-lineageLookupReferenceObject: STVTERM
+              example: 999999  
+            restrictionType:
+              title: Restriction Type
+              maxLength: 1
+              type: string
+              description: "Indicates whether the restrictions are to be inclusions or exclusions. Values may be compared to student data to control which students may register."
+              x-lineageReferenceObject: SCRRDEP_DEPT_IE_CDE   
+              enum:
+                - includeRestriction
+                - excludeRestriction
+              example: includeRestriction                             
+            departments:
+              title: Departments
+              type: array               
+              items:
+                type: object           
+                properties:            
+                  department:
+                    title: Department Code
+                    maxLength: 4
+                    type: string
+                    description: "The department of students for which course registration restrictions exist. The Include/Exclude field will determine how the department is restricted. An unlimited number of departments may be defined."
+                    x-lineageReferenceObject: SCRRDEP_DEPT_CODE
+                    x-lineageLookupReferenceObject: STVDEPT             
+                    example: NURS
+                  departmentDescription:
+                    title: Department Code Description
+                    maxLength: 30
+                    type: string
+                    description: "The description of the department."
+                    x-lineageReferenceObject: STVDEPT_DESC
+                    example: Nursing     
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SCRRDEP_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z   
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SCRRDEP_USER_ID
+                    example: SYSTEST08                                                                                                                    
+        fieldOfStudyRegistrationRestrictions:
+          title: Field of Study Registration Restrictions
+          type: array
+          items:
+            type: object
+            required:
+            - fromTerm         
+            properties:  
+              fromTerm:
+                title: Effective Term
+                maxLength: 6
+                type: string
+                description: "The starting term code for a set of course field of study registration restrictions.  An empty set indicates a period of time with no defined course field of study registration restrictions."
+                x-lineageReferenceObject: SCRRMAJ_EFF_TERM
+                x-lineageLookupReferenceObject: STVTERM
+                example: 202201    
+              toTerm:
+                title: Ending Term
+                maxLength: 6
+                type: string
+                description: "The ending term code for a set of course field of study registration restrictions."
+                x-lineageReferenceObject: derived
+                x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+                x-lineageLookupReferenceObject: STVTERM
+                example: 999999  
+              restrictionType:
+                title: Restriction Type
+                maxLength: 1
+                type: string
+                description: "Indicates whether the restrictions are to be inclusions or exclusions. Values may be compared to student data to control which students may register."
+                x-lineageReferenceObject: SCRRMAJ_MAJOR_IND  
+                enum:
+                  - includeRestriction
+                  - excludeRestriction                        
+                example: excludeRestriction                
+              fieldOfStudyType:
+                oneOf:
+                - type: string
+                  title: Field of Study Type Code
+                  maxLength: 15
+                  description: "The field of study type code associated with the field of study."                    
+                  x-lineageReferenceObject: SCRRMAJ_LFST_CODE
+                  x-lineageLookupReferenceObject: GTVLFST             
+                  example: MINOR  
+                - type: string
+                  enum:
+                  - all
+                  maxLength: 0
+              fieldOfStudyTypeDescription:
+                title: "The description of the field of study type code."
+                maxLength: 30
+                type: string
+                description: "The description of the field of study type."
+                x-lineageReferenceObject: GTVLFST_DESC        
+                example: Minor                             
+              fieldsOfStudy:
+                title: Fields of Study
+                type: array               
+                items:
+                  type: object           
+                  properties:            
+                    fieldOfStudy:
+                      title: Field of Study Code
+                      maxLength: 4
+                      type: string
+                      description: "The field of study of students for which registration restrictions exist. The Include/Exclude field will determine how the field of study is restricted. An unlimited number of fields of study may be defined."
+                      x-lineageReferenceObject: SCRRMAJ_MAJR_CODE
+                      x-lineageLookupReferenceObject: STVMAJR             
+                      example: CHEE
+                    fieldOfStudyDescription:
+                      title: Field of Study Code Description
+                      maxLength: 30
+                      type: string
+                      description: "The description of the field of study."
+                      x-lineageReferenceObject: STVMAJR_DESC        
+                      example: Chemical Engineering                  
+                    modifiedOn:
+                      title: Modified On
+                      maxLength: 11
+                      type: string
+                      format: date-time
+                      pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                      description: "Most current date the record was created or changed."
+                      x-lineageReferenceObject: SCRRMAJ_ACTIVITY_DATE
+                      example: 2024-05-05T04:00:00Z   
+                    modifiedBy:
+                      title: Modified By User ID
+                      maxLength: 30
+                      type: string
+                      description: "User who inserted or last updated the data."
+                      x-lineageReferenceObject: SCRRMAJ_USER_ID
+                      example: SYSTEST08 
+        classRegistrationRestriction:
+          title: Class Registration Restriction
+          type: object
+          required:
+            - fromTerm        
+          properties:  
+            fromTerm:
+              title: Effective Term
+              maxLength: 6
+              type: string
+              description: "The starting term code for a set of course class registration restrictions.  An empty set indicates a period of time with no defined course class registration restrictions."
+              x-lineageReferenceObject: SCRRCLS_EFF_TERM
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202201    
+            toTerm:
+              title: Ending Term
+              maxLength: 6
+              type: string
+              description: "The ending term code for a set of course class registration restrictions."
+              x-lineageReferenceObject: derived
+              x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+              x-lineageLookupReferenceObject: STVTERM
+              example: 999999  
+            restrictionType:
+              title: Restriction Type
+              maxLength: 1
+              type: string
+              description: "Indicates whether the restrictions are to be inclusions or exclusions. Values may be compared to student data to control which students may register."
+              x-lineageReferenceObject: SCRRCLS_CLASS_IND
+              enum:
+                - includeRestriction
+                - excludeRestriction                 
+              example: excludeRestriction                            
+            classes:
+              title: Classes
+              type: array               
+              items:
+                type: object            
+                properties:            
+                  class:
+                    title: Class Code
+                    maxLength: 2
+                    type: string
+                    description: "The classification of students for which course registration restrictions exist. The Include/Exclude field will determine how the class is restricted. An unlimited number of classes may be defined."
+                    x-lineageReferenceObject: SCRRCLS_CLAS_CODE
+                    x-lineageLookupReferenceObject: STVCLAS             
+                    example: 01
+                  classDescription:
+                    title: Class Code Description
+                    maxLength: 30
+                    type: string
+                    description: "The description of the class."
+                    x-lineageReferenceObject: STVCLAS_DESC           
+                    example: First Year     
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SCRRCLS_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z   
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SCRRCLS_USER_ID
+                    example: SYSTEST08         
+        levelRegistrationRestriction:
+          title: Level Registration Restriction
+          type: object
+          required:
+            - fromTerm         
+          properties:  
+            fromTerm:
+              title: Effective Term
+              maxLength: 6
+              type: string
+              description: "The starting term code for a set of course level registration restrictions.  An empty set indicates a period of time with no defined course level registration restrictions."
+              x-lineageReferenceObject: SCRRLVL_EFF_TERM
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202201    
+            toTerm:
+              title: Ending Term
+              maxLength: 6
+              type: string
+              description: "The ending term code for a set of course level registration restrictions."
+              x-lineageReferenceObject: derived
+              x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+              x-lineageLookupReferenceObject: STVTERM
+              example: 999999  
+            restrictionType:
+              title: Restriction Type
+              maxLength: 1
+              type: string
+              description: "Indicates whether the restrictions are to be inclusions or exclusions. Values may be compared to student data to control which students may register."
+              x-lineageReferenceObject: SCRRLVL_LEVL_IND 
+              enum:
+                - includeRestriction
+                - excludeRestriction                         
+              example: includeRestriction                            
+            levels:
+              title: Levels
+              type: array               
+              items:
+                type: object               
+                properties:            
+                  level:
+                    title: Level Code
+                    maxLength: 4
+                    type: string
+                    description: "The level of students for which course registration restrictions exist. The Include/Exclude field will determine how the level is restricted. An unlimited number of levels may be defined."
+                    x-lineageReferenceObject: SCRRLVL_LEVL_CODE
+                    x-lineageLookupReferenceObject: STVLEVL             
+                    example: UG
+                  levelDescription:
+                    title: Level Code Description
+                    maxLength: 30
+                    type: string
+                    description: "The description of the level."
+                    x-lineageReferenceObject: STVLEVL_DESC           
+                    example: Undergraduate     
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SCRRLVL_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z   
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SCRRLVL_USER_ID
+                    example: SYSTEST08  
+        degreeRegistrationRestriction:
+          title: Degree Registration Restriction
+          type: object
+          required:
+            - fromTerm         
+          properties:  
+            fromTerm:
+              title: Effective Term
+              maxLength: 6
+              type: string
+              description: "The starting term code for a set of course degree registration restrictions.  An empty set indicates a period of time with no defined course degree registration restrictions."
+              x-lineageReferenceObject: SCRRDEG_TERM_CODE_EFFECTIVE
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202201    
+            toTerm:
+              title: Ending Term
+              maxLength: 6
+              type: string
+              description: "The ending term code for a set of course degree registration restrictions."
+              x-lineageReferenceObject: derived
+              x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+              x-lineageLookupReferenceObject: STVTERM
+              example: 999999  
+            restrictionType:
+              title: Restriction Type
+              maxLength: 1
+              type: string
+              description: "Indicates whether the restrictions are to be inclusions or exclusions. Values may be compared to student data to control which students may register."
+              x-lineageReferenceObject: SCRRDEG_DEGC_IND   
+              enum:
+                - includeRestriction
+                - excludeRestriction                     
+              example: includeRestriction                        
+            degrees:
+              title: Degrees
+              type: array               
+              items:
+                type: object               
+                properties:            
+                  degree:
+                    title: Degree Code
+                    maxLength: 6
+                    type: string
+                    description: "The degree of students for which course registration restrictions exist. The Include/Exclude field will determine how the degree is restricted. An unlimited number of degrees may be defined."
+                    x-lineageReferenceObject: SCRRDEG_DEGC_CODE
+                    x-lineageLookupReferenceObject: STVDEGC             
+                    example: BS
+                  degreeDescription:
+                    title: Degree Code Description
+                    maxLength: 30
+                    type: string
+                    description: "The description of the degree."
+                    x-lineageReferenceObject: STVDEGC_DESC        
+                    example: Bachelor of Science     
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SCRRDEG_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z   
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SCRRDEG_USER_ID
+                    example: SYSTEST08     
+        programRegistrationRestriction:
+          title: Program Registration Restriction
+          type: object
+          required:
+            - fromTerm           
+          properties:  
+            fromTerm:
+              title: Effective Term
+              maxLength: 6
+              type: string
+              description: "The starting term code for a set of course program registration restrictions.  An empty set indicates a period of time with no defined course program registration restrictions."
+              x-lineageReferenceObject: SCRRPRG_TERM_CODE_EFFECTIVE
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202201    
+            toTerm:
+              title: Ending Term
+              maxLength: 6
+              type: string
+              description: "The ending term code for a set of course program registration restrictions."
+              x-lineageReferenceObject: derived
+              x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+              x-lineageLookupReferenceObject: STVTERM
+              example: 999999  
+            restrictionType:
+              title: Restriction Type
+              maxLength: 1
+              type: string
+              description: "Indicates whether the restrictions are to be inclusions or exclusions. Values may be compared to student data to control which students may register."
+              x-lineageReferenceObject: SCRRPRG_PROGRAM_IND      
+              enum:
+                - includeRestriction
+                - excludeRestriction                    
+              example: excludeRestriction                            
+            programs:
+              title: Programs
+              type: array               
+              items:
+                type: object              
+                properties:            
+                  program:
+                    title: Program Code
+                    maxLength: 12
+                    type: string
+                    description: "The program of students for which course registration restrictions exist. The Include/Exclude field will determine how the program is restricted. An unlimited number of programs may be defined."
+                    x-lineageReferenceObject: SCRRPRG_PROGRAM
+                    x-lineageLookupReferenceObject: SMRPRLE             
+                    example: BSCE
+                  programDescription:
+                    title: Program Code Description
+                    maxLength: 30
+                    type: string
+                    description: "The description of the program."
+                    x-lineageReferenceObject: SMRPRLE_PROGRAM_DESC           
+                    example: BS in Civil Engineering     
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SCRRPRG_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z   
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SCRRPRG_USER_ID
+                    example: SYSTEST08    
+        campusRegistrationRestriction:
+          title: Campus Registration Restriction
+          type: object
+          required:
+            - fromTerm          
+          properties:  
+            fromTerm:
+              title: Effective Term
+              maxLength: 6
+              type: string
+              description: "The starting term code for a set of course campus registration restrictions.  An empty set indicates a period of time with no defined course campus registration restrictions."
+              x-lineageReferenceObject: SCRRCAM_EFF_TERM
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202201    
+            toTerm:
+              title: Ending Term
+              maxLength: 6
+              type: string
+              description: "The ending term code for a set of course campus registration restrictions."
+              x-lineageReferenceObject: derived
+              x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+              x-lineageLookupReferenceObject: STVTERM
+              example: 999999  
+            restrictionType:
+              title: Restriction Type
+              maxLength: 1
+              type: string
+              description: "Indicates whether the restrictions are to be inclusions or exclusions. Values may be compared to student data to control which students may register."
+              x-lineageReferenceObject: SCRRCAM_CAMP_IND     
+              enum:
+                - includeRestriction
+                - excludeRestriction                      
+              example: includeRestriction
+            campuses:
+              title: Campuses
+              type: array               
+              items:
+                type: object            
+                properties:            
+                  campus:
+                    title: Campus Code
+                    maxLength: 3
+                    type: string
+                    description: "The campus of students for which course registration restrictions exist. The Include/Exclude field will determine how the campus is restricted. An unlimited number of campuses may be defined."
+                    x-lineageReferenceObject: SCRRCAM_CAMP_CODE
+                    x-lineageLookupReferenceObject: STVCAMP             
+                    example: D
+                  campusDescription:
+                    title: Campus Code Description
+                    maxLength: 30
+                    type: string
+                    description: "The description of the campus."
+                    x-lineageReferenceObject: STVCAMP_DESC     
+                    example: Downtown     
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SCRRCAM_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z   
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SCRRCAM_USER_ID
+                    example: SYSTEST08      
+        collegeRegistrationRestriction:
+          title: College Registration Restriction
+          type: object
+          required:
+            - fromTerm         
+          properties:  
+            fromTerm:
+              title: Effective Term
+              maxLength: 6
+              type: string
+              description: "The starting term code for a set of course college registration restrictions.  An empty set indicates a period of time with no defined course college registration restrictions."
+              x-lineageReferenceObject: SCRRCOL_EFF_TERM
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202201    
+            toTerm:
+              title: Ending Term
+              maxLength: 6
+              type: string
+              description: "The ending term code for a set of course college registration restrictions."
+              x-lineageReferenceObject: derived
+              x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+              x-lineageLookupReferenceObject: STVTERM
+              example: 999999  
+            restrictionType:
+              title: Restriction Type
+              maxLength: 1
+              type: string
+              description: "Indicates whether the restrictions are to be inclusions or exclusions. Values may be compared to student data to control which students may register."
+              x-lineageReferenceObject: SCRRCOL_COLL_IND
+              enum:
+                - includeRestriction
+                - excludeRestriction                 
+              example: includeRestriction
+            colleges:
+              title: Colleges
+              type: array               
+              items:
+                type: object              
+                properties:            
+                  college:
+                    title: College Code
+                    maxLength: 2
+                    type: string
+                    description: "The college of students for which course registration restrictions exist. The Include/Exclude field will determine how the college is restricted. An unlimited number of colleges may be defined."
+                    x-lineageReferenceObject: SCRRCOL_COLL_CODE
+                    x-lineageLookupReferenceObject: STVCOLL             
+                    example: NU
+                  collegeDescription:
+                    title: College Code Description
+                    maxLength: 100
+                    type: string
+                    description: "The description of the college."
+                    x-lineageReferenceObject: STVCOLL_DESC       
+                    example: College of Nursing     
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SCRRCOL_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z   
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SCRRCOL_USER_ID
+                    example: SYSTEST08  
+        studentAttributeRegistrationRestriction:
+          title: Student Attribute Registration Restriction
+          type: object
+          required:
+            - fromTerm         
+          properties:  
+            fromTerm:
+              title: Effective Term
+              maxLength: 6
+              type: string
+              description: "The starting term code for a set of course student attribute registration restrictions.  An empty set indicates a period of time with no defined course student attribute registration restrictions."
+              x-lineageReferenceObject: SCRRATT_EFF_TERM
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202201    
+            toTerm:
+              title: Ending Term
+              maxLength: 6
+              type: string
+              description: "The ending term code for a set of course student attribute registration restrictions."
+              x-lineageReferenceObject: derived
+              x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+              x-lineageLookupReferenceObject: STVTERM
+              example: 999999  
+            restrictionType:
+              title: Restriction Type
+              maxLength: 1
+              type: string
+              description: "Indicates whether the restrictions are to be inclusions or exclusions. Values may be compared to student data to control which students may register."
+              x-lineageReferenceObject: SCRRATT_ATTS_IE_CDE   
+              enum:
+                - includeRestriction
+                - excludeRestriction                     
+              example: excludeRestriction
+            studentAttributes:
+              title: Student Attributes
+              type: array               
+              items:
+                type: object          
+                properties:            
+                  studentAttribute:
+                    title: Student Attribute Code
+                    maxLength: 4
+                    type: string
+                    description: "The student attribute of students for which course registration restrictions exist. The Include/Exclude field will determine how the student attribute is restricted. An unlimited number of student attributes may be defined."
+                    x-lineageReferenceObject: SCRRATT_ATTS_CODE
+                    x-lineageLookupReferenceObject: STVATTS             
+                    example: 30
+                  studentAttributeDescription:
+                    title: Student Attribute Code Description
+                    maxLength: 30
+                    type: string
+                    description: "The description of the student attribute."
+                    x-lineageReferenceObject: STVATTS_DESC          
+                    example: 30 credits per year     
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SCRRATT_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z   
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SCRRATT_USER_ID
+                    example: SYSTEST08  
+        cohortRegistrationRestriction:
+          title: Cohort Registration Restriction
+          type: object
+          required:
+            - fromTerm        
+          properties:  
+            fromTerm:
+              title: Effective Term
+              maxLength: 6
+              type: string
+              description: "The starting term code for a set of course cohort registration restrictions.  An empty set indicates a period of time with no defined course cohort registration restrictions."
+              x-lineageReferenceObject: SCRRCHR_EFF_TERM
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202201    
+            toTerm:
+              title: Ending Term
+              maxLength: 6
+              type: string
+              description: "The ending term code for a set of course cohort registration restrictions."
+              x-lineageReferenceObject: derived
+              x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+              x-lineageLookupReferenceObject: STVTERM
+              example: 999999  
+            restrictionType:
+              title: Restriction Type
+              maxLength: 1
+              type: string
+              description: "Indicates whether the restrictions are to be inclusions or exclusions. Values may be compared to student data to control which students may register."
+              x-lineageReferenceObject: SCRRCHR_CHRT_IE_CDE   
+              enum:
+                - includeRestriction
+                - excludeRestriction                     
+              example: excludeRestriction                            
+            cohorts:
+              title: Cohorts
+              type: array               
+              items:
+                type: object           
+                properties:            
+                  cohort:
+                    title: Cohort Code
+                    maxLength: 10
+                    type: string
+                    description: "The cohort of students for which course registration restrictions exist. The Include/Exclude field will determine how the cohort is restricted. An unlimited number of cohorts may be defined."
+                    x-lineageReferenceObject: SCRRCHR_CHRT_CODE
+                    x-lineageLookupReferenceObject: STVCHRT             
+                    example: C4
+                  cohortDescription:
+                    title: Cohort Code Description
+                    maxLength: 30
+                    type: string
+                    description: "The description of the cohort."
+                    x-lineageReferenceObject: STVCHRT_DESC
+                    example: Cohort C4     
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SCRRCHR_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z   
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SCRRCHR_USER_ID
+                    example: SYSTEST08     
+        termScheduleRestriction:
+          title: Term Schedule Restriction
+          type: object
+          required:
+            - fromTerm          
+          properties:  
+            fromTerm:
+              title: Effective Term
+              maxLength: 6
+              type: string
+              description: "The starting term code for a set of course term schedule restrictions.  An empty set indicates a period of time with no defined course term schedule restrictions."
+              x-lineageReferenceObject: SCRRTRM_EFF_TERM
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202201    
+            toTerm:
+              title: Ending Term
+              maxLength: 6
+              type: string
+              description: "The ending term code for a set of course term schedule restrictions."
+              x-lineageReferenceObject: derived
+              x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+              x-lineageLookupReferenceObject: STVTERM
+              example: 999999  
+            restrictionType:
+              title: Restriction Type
+              maxLength: 1
+              type: string
+              description: "Indicates whether the restrictions are to be inclusions or exclusions."
+              x-lineageReferenceObject: SCRRTRM_TERM_IND
+              enum:
+                - includeRestriction
+                - excludeRestriction                 
+              example: includeRestriction                            
+            terms:
+              title: Terms
+              type: array               
+              items:
+                type: object            
+                properties:            
+                  term:
+                    title: Term Code
+                    maxLength: 2
+                    type: string
+                    description: "The term for which term scheduling restrictions exist. The Include/Exclude field will determine how the term is restricted. An unlimited number of terms may be defined."
+                    x-lineageReferenceObject: SCRRTRM_RTRM_CODE
+                    x-lineageLookupReferenceObject: STVRTRM             
+                    example: 10
+                  termDescription:
+                    title: Term Code Description
+                    maxLength: 30
+                    type: string
+                    description: "The description of the term."
+                    x-lineageReferenceObject: STVRTRM_DESC        
+                    example: Fall     
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SCRRTRM_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z   
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SCRRTRM_USER_ID
+                    example: SYSTEST08         
+        campusScheduleRestriction:
+          title: Campus Schedule Restriction
+          type: object
+          required:
+            - fromTerm          
+          properties:  
+            fromTerm:
+              title: Effective Term
+              maxLength: 6
+              type: string
+              description: "The starting term code for a set of course campus schedule restrictions.  An empty set indicates a period of time with no defined course campus schedule restrictions."
+              x-lineageReferenceObject: SCRRCMP_EFF_TERM
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202201    
+            toTerm:
+              title: Ending Term
+              maxLength: 6
+              type: string
+              description: "The ending term code for a set of course campus schedule restrictions."
+              x-lineageReferenceObject: derived
+              x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+              x-lineageLookupReferenceObject: STVTERM
+              example: 999999  
+            restrictionType:
+              title: Restriction Type
+              maxLength: 1
+              type: string
+              description: "Indicates whether the restrictions are to be inclusions or exclusions."
+              x-lineageReferenceObject: SCRRCMP_CAMP_IND 
+              enum:
+                - includeRestriction
+                - excludeRestriction                        
+              example: excludeRestriction                            
+            campuses:
+              title: Campuses
+              type: array               
+              items:
+                type: object              
+                properties:            
+                  campus:
+                    title: Campus Code
+                    maxLength: 3
+                    type: string
+                    description: "The campus for which campus scheduling restrictions exist. The Include/Exclude field will determine how the campus is restricted. An unlimited number of campuses may be defined."
+                    x-lineageReferenceObject: SCRRCMP_CAMP_CODE
+                    x-lineageLookupReferenceObject: STVCAMP             
+                    example: PHL
+                  campusDescription:
+                    title: Class Code Description
+                    maxLength: 30
+                    type: string
+                    description: "The description of the campus."
+                    x-lineageReferenceObject: STVCAMP_DESC         
+                    example: Philadelphia Campus     
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SCRRCMP_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z   
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SCRRCMP_USER_ID
+                    example: SYSTEST08  
+        mutualCourseExclusion:
+          title: Mutual Course Exclusion Restriction
+          type: object
+          required:
+            - fromTerm          
+          properties:  
+            fromTerm:
+              title: Effective Term
+              maxLength: 6
+              type: string
+              description: "The starting term code for a set of mutually exclusive course restrictions.  An empty set indicates a period of time with no defined mutually exclusive course restrictions."
+              x-lineageReferenceObject: SCRMEXC_EFF_TERM
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202202    
+            toTerm:
+              title: Ending Term
+              maxLength: 6
+              type: string
+              description: "The ending term code for a set of mutually exclusive course restrictions."
+              x-lineageReferenceObject: derived
+              x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+              x-lineageLookupReferenceObject: STVTERM
+              example: 999999                  
+            courseExclusions:
+              title: Course Exclusion
+              description: Courses with content too similar to the base catalog course to prevent registration in both. 
+              type: array               
+              items:
+                type: object  
+                required: 
+                - subject
+                - courseNumber
+                - level
+                - gradeMinimum
+                - startTerm
+                - endTerm
+                properties:            
+                  subject:
+                    title: Subject Code
+                    maxLength: 4
+                    type: string
+                    description: "Subject code of the course that is considered mutually exclusive."
+                    x-lineageReferenceObject: SCRMEXC_SUBJ_CODE_MEXC            
+                    example: ENGL  
+                  courseNumber:
+                    title: Course Number
+                    maxLength: 5
+                    type: string
+                    description: "Course Number of the course that is considered mutually exclusive."
+                    x-lineageReferenceObject: SCRMEXC_CRSE_NUMB_MEXC         
+                    example: 201  
+                  level:
+                    title: Level 
+                    maxLength: 2
+                    type: string
+                    description: "Level for which the minimum grade will be established."
+                    x-lineageReferenceObject: SCRMEXC_LEVL_CODE            
+                    example: UG 
+                  gradeMinimum:
+                    title: Grade
+                    maxLength: 6
+                    type: string
+                    description: "Minimum grade for the mutual exclusion restriction."
+                    x-lineageReferenceObject: SCRMEXC_GRDE_CODE            
+                    example: A
+                  startTerm:
+                    title: Start Term
+                    maxLength: 6
+                    type: string
+                    description: "Start term for the mutually exclusive course definition."
+                    x-lineageReferenceObject: SCRMEXC_START_TERM           
+                    example: 202310 
+                  endTerm:
+                    title: End Term
+                    maxLength: 6
+                    type: string
+                    description: "Start term for the mutually exclusive course definition."
+                    x-lineageReferenceObject: SCRMEXC_END_TERM           
+                    example: 202410                                                                                                     
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SCRMEXC_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z   
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SCRMEXC_USER_ID
+                    example: SYSTEST08                                                                                                                                                                                                                 
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

@@ -1,0 +1,165 @@
+openapi: 3.0.0
+info:
+  title: ca-import-mass-basic-needs
+  description: Process to load Basic Needs services delivered information into SVANEED
+  version: 1.0.0-beta
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: beta
+  x-source-domain: Student
+  x-source-title: CA Import Mass Basic Needs
+paths:
+  /api/ca-import-mass-basic-needs:
+    post:
+      tags:
+        - ca-import-mass-basic-needs
+      summary: Add a new CaImportMassBasic to the store
+      description: Add a new CaImportMassBasic to the store
+      operationId: addCaImportMassBasic
+      requestBody:
+        description: Create a new CaImportMassBasic in the store
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ca-import-mass-basic-needs"
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ca-import-mass-basic-needs"
+        "405":
+          description: Invalid input
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_CA_IMPORT_MASS_WIOA
+  /ca-import-mass-basic-needs/{stuId}{stuTermcode}{stuDicdCode}{stuSeidCode}:
+    get:
+      tags:
+        - ca-import-mass-basic-needs
+      summary: Find ca-import-mass-basic-needs by ID
+      description: Returns a single ca-import-mass-basic-needs
+      operationId: getCaImportMassBasicNeedsById
+      parameters:
+        - name: stuId
+          in: path
+          description: ID of student
+          required: true
+          schema:
+            type: string
+        - name: stuTermcode
+          in: path
+          description: Term code of student
+          required: true
+          schema:
+            type: string
+        - name: stuDicdCode
+          in: path
+          description: District Collegue Id
+          required: true
+          schema:
+            type: string
+        - name: stuSeidCode
+          in: path
+          description: Social economic identity report code
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ca-import-mass-basic-needs"
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: CaImportMassBasic not found
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_CA_IMPORT_MASS_WIOA
+components:
+  schemas:
+    ca-import-mass-basic-needs:
+      type: object
+      properties:
+        stuTermCode:
+          type: string
+          description: Term Code
+          example: "202210"
+        stuDicdCode:
+          type: string
+          description: Dicd Code
+          example: "123"
+        fileCode:
+          type: string
+          description: File Code (Choose from FOOD, HSNG, TRANS, MNTL, CHLD, PHYS, TECH,
+            VETERANS)
+          example: FOOD_SRV
+        needs:
+          type: array
+          items:
+            type: object
+            properties:
+              stuId:
+                type: string
+                description: ID of student
+                example: A00000719
+              stuServiceCode:
+                type: string
+                description: Service Code
+                example: "1"
+              stuServiceDate:
+                type: string
+                description: Service Date
+                example: 2022-08-29
+              stuStatus:
+                type: string
+                description: Student Status
+                example: A
+              stuProviderOrigin:
+                type: string
+                description: Provider Origin
+                example: STDN
+      required:
+        - stuId
+        - stuTermCode
+        - stuDicdCode
+        - fileCode
+        - stuServiceCode
+        - stuServiceDate
+        - stuProviderOrigin
+    ApiResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          stuId:
+            type: string
+          serviceCode:
+            type: string
+          serviceType:
+            type: string
+          providerUserId:
+            type: string
+          status:
+            type: string
+          providerOrigin:
+            type: string
+          message:
+            type: string
+  requestBodies:
+    CaImportMassBasic:
+      description: CaImportMassBasic object that needs to be added to the store
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ca-import-mass-basic-needs"
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

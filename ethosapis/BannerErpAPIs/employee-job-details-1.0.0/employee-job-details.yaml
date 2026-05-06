@@ -1,0 +1,2378 @@
+openapi: 3.0.0
+info:
+  title: Employee Job Details
+  description: >
+    This API can be used to retrieve, post, or delete an employee's job detail data.
+    This information is displayed in the Banner administrative page NBAJOBS.
+    Additionally, the API supports the option to create or update employee job detail data in batches.
+  version: 1.0.0-beta
+  x-audience: all
+  x-release-status: beta
+  x-source-domain: Human Resources
+  x-source-system: banner
+  x-source-name: NBRJOBS
+  x-api-type: erp
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/employee-job-details:
+    get:
+      tags:
+        - employee-job-details
+      summary: Get employee job details
+      description: Query and retrieve employee job detail data for a given criteria. Data is extracted from NBRJOBS.
+      parameters:
+        - name: limit
+          in: query
+          description:
+            The maximum number of resources requesting for this result set.
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/employee-job-details-1.0.0_get_request_criteria'
+          description: >
+            ### Person ID
+            
+            Returns the employee job detail information for this Person ID.  This filter should not be used if a Banner ID filter is used.
+            
+            ```
+
+            /employee-job-details?criteria={"personId": "085df706-ee15-4947-93f8-8c260e64795e"}
+
+            ```
+
+            ### Banner ID
+            
+            Returns the employee job detail information for this Banner ID.   This filter should not be used if a Person ID filter is used.
+            
+            ```
+
+            /employee-job-details?criteria={"bannerId":"123456789"}
+            
+            ```
+
+            ### Position
+
+            Returns the employee job detail information for this Position.
+
+            ```
+
+            /employee-job-details?criteria={"position":"A000001"}
+
+            ```
+            
+            ### Suffix
+
+            Returns the employee job detail information for this position suffix.
+
+            ```
+
+            /employee-job-details?criteria={"suffix":"00"}
+
+            ```
+            
+            ### Effective On
+
+            Returns the employee job detail information that becomes effective on this date.  This filter will support the following operators: $eq, $ne, $gt, $gte, $lt, $lte.
+
+            ```
+
+            /employee-job-details?criteria={"effectiveOn":"2024-03-15"}
+            
+
+            /employee-job-details?criteria={"effectiveOn":{"$gte": "2024-03-15"}}
+          
+            ```
+            
+            ### Job Status
+
+            Returns the employee job detail information that matches the job status.
+
+            ```
+
+            /employee-job-details?criteria={"jobStatus":"active"}
+            
+            ```
+            
+            ### Contract Type
+
+            Returns the employee job detail information that matches the contract type.
+            
+            ```
+
+            /employee-job-details?criteria={"contractType":"primary"}
+            
+            ```
+        - name: effectiveAsOf
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/employee-job-details-1.0.0_get_request_effective_as_of'
+          description: >
+            A named query that returns a list of employee job detail resources that are effective as of the specified "asOf" date and matches on other filter fields.
+            This is an alternative to using the criteria query.
+           
+            ### As Of
+
+            REQUIRED. Returns the employee job detail information that is in effect as of this date.
+
+            ```
+
+            /employee-job-details?effectiveAsOf={"asOf":"2024-03-15"}
+
+            ```
+           
+            ### Person ID
+            
+            Returns the employee job detail information for this Person ID.  This filter should not be used if a Banner ID filter is used.
+            
+            ```
+
+            /employee-job-details?effectiveAsOf={"personId": "085df706-ee15-4947-93f8-8c260e64795e"}
+
+            ```
+
+            ### Banner ID
+            
+            Returns the employee job detail information for this Banner ID.   This filter should not be used if a Person ID filter is used.
+            
+            ```
+
+            /employee-job-details?effectiveAsOf={"bannerId":"123456789"}
+            
+            ```
+
+            ### Position
+
+            Returns the employee job detail information for this Position.
+
+            ```
+
+            /employee-job-details?effectiveAsOf={"position":"A000001"}
+
+            ```
+            
+            ### Suffix
+
+            Returns the employee job detail information for this position suffix.
+
+            ```
+
+            /employee-job-details?effectiveAsOf={"suffix":"00"}
+
+            ```
+
+            ### Job Status
+
+            Returns the employee job detail information that matches the job status.
+
+            ```
+
+            /employee-job-details?effectiveAsOf={"jobStatus":"active"}
+            
+            ```
+            
+            ### Contract Type
+
+            Returns the employee job detail information that matches the contract type.
+            
+            ```
+
+            /employee-job-details?effectiveAsOf={"contractType":"primary"}
+            
+            ```
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/employee-job-details-1.0.0_get_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+    post:
+      tags:
+        - employee-job-details
+      summary: Creates a new resource in NBRJOBS.
+      description: >
+        Creates a new job detail for an employee in NBRJOBS with a POST request.
+
+
+        POST requests must include a nil GUID value
+        ("00000000-0000-0000-0000-000000000000") for the root id property.
+        
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.1.0.0+json:
+            schema:
+              $ref: '#/components/schemas/employee-job-details-1.0.0_post_request'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                $ref: '#/components/schemas/employee-job-details-1.0.0_post_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+  /api/employee-job-details/{id}:
+    get:
+      summary: Return the requested resource from NBRJOBS
+      description: |
+        Returns a single employee job detail record with the requested global identifier.
+      tags:
+        - employee-job-details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier (GUID) of the resource for use in all external
+            references.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                $ref: "#/components/schemas/employee-job-details-1.0.0_get_response"
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+    put:
+      tags:
+        - employee-job-details
+      summary: Updates an existing NBRJOBS resource.
+      description: Updates the employee job detail data for an employee.
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: '#/components/schemas/employee-job-details-1.0.0_put_request'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the employee's job detail resource.
+          schema:
+            type: string
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+            
+            ```
+            
+            application/vnd.hedtech.integration.v1.0.0+json
+            
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+            
+            ```
+            
+            application/vnd.hedtech.integration.v1.0.0+json
+            
+            ```
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                $ref: "#/components/schemas/employee-job-details-1.0.0_put_response"
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+    delete:
+      summary: Removes an employee job detail resource from NBRJOBS.
+      description: >
+        Removes a job detail record from the employee.
+      tags:
+        - employee-job-details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID for the employee job detail record.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: No Content
+        '204':
+          description: No Content
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Resource not found
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+  /api/employee-job-details/batches:
+    post:
+      tags:
+        - employee-job-details
+      summary: "Submit a batch of employee job details to be created or updated."
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/employee-job-details-batch-2.0.0_post_request"
+      responses:
+        "201":
+          "description": "Created or Updated"
+          "headers":
+            "X-Media-Type":
+              "description": "The full semantic version with the media type of the response."
+              "required": true
+              "schema":
+                "type": "string"
+            "X-Content-Restricted":
+              "description": "If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included."
+              "schema":
+                "type": "string"
+          "content":
+            "application/vnd.hedtech.integration.v1.0.0+json":
+              "schema":
+                "$ref": "#/components/schemas/employee-job-details-batch-2.0.0_post_response"
+        "400":
+          "description": "Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+        "401":
+          "description": "Failure. Unauthorized."
+        "403":
+          "description": "Failure. Forbidden. The user does not have the required permissions for the resource."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+        "404":
+          "description": "Failure. Not Found. Cannot map the URI to a resource."
+        "405":
+          "description": "Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+        "406":
+          "description": "Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+        "500":
+          "description": "Server error. Unexpected configuration or data."
+          "content":
+            "application/vnd.hedtech.integration.errors.v2+json":
+              "schema":
+                "type": "array"
+                "items":
+                  "$ref": "#/components/schemas/errors_2_0_0"
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_EMP_JOB_ASSIGNMENT
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    employee-job-details-1.0.0_get_request_criteria:    
+      properties:
+        personId:
+          title: Person ID
+          description: The global identifier for the Person.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageLookupReferenceObject: persons 
+          x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+          x-lineageDerivedLogic: A record from GORGUID where GORGUID_LDM_NAME = 'persons' and GORGUID_DOMAIN_KEY matches the PIDM value
+        bannerId:
+          title: Banner ID
+          description: Banner ID of the employee.
+          type: string
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: "123456789"      
+        position:
+          title: Position
+          description: The position to which the job is attached.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_POSN
+          example: "ADM0001"
+        suffix:
+          title: Suffix
+          description: Used to uniquely create multiple jobs in the same position.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_SUFF
+          example: "00"
+        effectiveOn:
+          title: Date for which the job detail data becomes effective.
+          type: string
+          format: date
+          description: "Effective date of the job detail data."
+          x-lineageReferenceObject: NBRJOBS_EFFECTIVE_DATE
+          example: "2024-03-15"
+        jobStatus:
+          title: Job Status
+          description: >
+            The status of the employee's job. 
+            Valid values are:
+              * `active`               Active
+              * `leaveWithBenefits`    Leave without pay and with benefits
+              * `leaveWithoutBenefits` Leave without pay and without benefits
+              * `leaveWithFullPay`     Leave with full pay and with benefits
+              * `leaveWithPartialPay`  Leave with partial pay and with benefits
+              * `terminated`           Terminated
+          type: string
+          enum:
+            - active
+            - leaveWithBenefits
+            - leaveWithoutBenefits
+            - leaveWithFullPay
+            - leaveWithPartialPay
+            - terminated
+          example: "active"
+          x-lineageReferenceObject: NBRJOBS_STATUS
+        contractType:
+          title: Contract Type
+          description: >
+            Indicates the type of job assignment. Valid values are:
+              * `primary` Primary job
+              * `overload` Overload job
+              * `secondary` Secondary job
+          type: string
+          enum:
+            - primary
+            - overload
+            - secondary
+          example: "primary"
+          x-lineageReferenceObject: NBRBJOB_CONTRACT_TYPE'
+    employee-job-details-1.0.0_get_request_effective_as_of:
+      properties:
+        asOf:
+          title: Effective As Of Date
+          type: string
+          format: date
+          description: Used to query a job detail resource that is effective as of this date.
+          x-lineageReferenceObject: NBRJOBS_EFFECTIVE_DATE
+          example: "2024-03-15"      
+        personId:
+          title: Person ID
+          description: The global identifier for the Person.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageLookupReferenceObject: persons 
+          x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+          x-lineageDerivedLogic: A record from GORGUID where GORGUID_LDM_NAME = 'persons' and GORGUID_DOMAIN_KEY matches the PIDM value
+        bannerId:
+          title: Banner ID
+          description: Banner ID of the employee.
+          type: string
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: "123456789"      
+        position:
+          title: Position
+          description: The position to which the job is attached.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_POSN
+          example: "ADM0001"
+        suffix:
+          title: Suffix
+          description: Used to uniquely create multiple jobs in the same position.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_SUFF
+          example: "00"
+        jobStatus:
+          title: Job Status
+          description: >
+            The status of the employee's job. 
+            Valid values are:
+              * `active`               Active
+              * `leaveWithBenefits`    Leave without pay and with benefits
+              * `leaveWithoutBenefits` Leave without pay and without benefits
+              * `leaveWithFullPay`     Leave with full pay and with benefits
+              * `leaveWithPartialPay`  Leave with partial pay and with benefits
+              * `terminated`           Terminated
+          type: string
+          enum:
+            - active
+            - leaveWithBenefits
+            - leaveWithoutBenefits
+            - leaveWithFullPay
+            - leaveWithPartialPay
+            - terminated
+          example: "active"
+          x-lineageReferenceObject: NBRJOBS_STATUS'
+        contractType:
+          title: Contract Type
+          description: >
+            Indicates the type of job assignment. Valid values are:
+              * `primary` Primary job
+              * `overload` Overload job
+              * `secondary` Secondary job
+          type: string
+          enum:
+            - primary
+            - overload
+            - secondary
+          example: "primary"
+          x-lineageReferenceObject: NBRBJOB_CONTRACT_TYPE'
+      required:
+         - asOf
+      additionalProperties: false
+    employee-job-details-1.0.0_get_response:
+      properties:
+        id:
+          title: Id
+          type: string
+          description: "The global identifier of the employee job detail."
+          x-lineageReferenceObject: NBRJOBS_GUID
+          example: 085df706-ee15-4947-93f8-8c260e64795e
+        bannerId:
+          title: Banner ID
+          description: Banner ID of the employee.
+          type: string
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: "123456789"          
+        position:
+          title: Position
+          description: The position to which the job is attached.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_POSN
+          example: "ADM0001"
+        suffix:
+          title: Suffix
+          description: Used to uniquely create multiple jobs in the same position.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_SUFF
+          example: "00"
+        effectiveOn:
+          title: Effective Date
+          type: string
+          format: date
+          description:  Date for which the job detail data becomes effective.
+          x-lineageReferenceObject: NBRJOBS_EFFECTIVE_DATE
+          example: "2024-03-15"
+        annualSalary: 
+          title: Annual Salary
+          description: The annual salary attached to the job based on the calendar year. If the Annual Salary is entered, the Assignment Salary is system calculated based the factor and vice versa.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_ANN_SALARY
+          example: 60000.55 
+        appointmentPercentage: 
+          title: Appointment Percentage
+          description: The Appointment percent is used to establish the percentage of full time appointment for an employee in a position. The value defaults from the position record, but can be updated at the job level.  The appointment percent cannot exceed 100%.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_APPT_PCT
+          example: 100.00 
+        assignmentSalary: 
+          title: Assignment Salary
+          description: The salary to be paid each pay period.  If the Assignment Salary is entered, the Annual Salary is calculated based on the factor and vice versa.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_ASSGN_SALARY
+          example: 5000.04
+        calpersAppointmentId:
+          title: California PERS Appointment ID
+          description: 10-digit CalPERS ID for this employee which indicates their association with this employer by CalPERS Member Category.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_PERS_APPT_ID
+          example: "1234567890"
+        calpersPayCode:
+          title: California PERS Pay Code
+          description: >
+            The code that determines how the employee's salary will be reported to PERS administration on the PERS Monthly Contribution Report. Valid values are:
+              * `monthly` Monthly
+              * `monthlyLA` Monthly for LA 
+              * `hourly` Hourly
+              * `daily` Daily
+              * `miscellaneous` Miscellaneous
+          type: string
+          enum:
+            - monthly
+            - monthlyLA
+            - hourly
+            - daily
+            - miscellaneous
+          example: "monthly"
+          x-lineageReferenceObject: NBRJOBS_PERS_PAY_CODE
+        calpersPayRateOver:
+          title: California PERS Pay Rate Over
+          description: Pay rate reported to CalPERS where the derived pay rate must be changed for proper reporting.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_PERS_PAY_RATE_OVER
+          example: 50.12
+        calpersPayRateType:
+          title: California PERS Pay Rate Type
+          description: >
+            CalPERS Pay Rate Type identifies hourly, daily or monthly pay. Valid values are:
+              * `monthly` Monthly
+              * `hourly` Hourly
+              * `daily` Daily
+          type: string
+          enum:
+            - monthly
+            - hourly
+            - daily
+          example: "monthly"
+          x-lineageReferenceObject: NBRJOBS_PERS_PAY_RATE_TYPE
+        calpersScheduledDays:
+          title: California PERS Scheduled Days
+          description: Number of days per week considered full time if the Pay Rate Type is Daily.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_PERS_SCHED_DAYS
+          example: 6.5
+        calpersScheduledHoursPerWeek:
+          title: California PERS Scheduled Hours Per Week
+          description: Number of hours per week considered full time if the Pay Rate Type is not Daily.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_PERS_SCHED_HRS_WEEK
+          example: 35
+        calpersSpecialOnlyIndicator:
+          title: California PERS Special Only Indicator
+          description: Indicates this job only includes special compensation earnings and no regular earnings. Special compensation will be reported under the matching/primary PERS XML payroll record.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_PERS_SPECIAL_ONLY_IND
+          example: "N"
+        calstrsAssignmentCode:
+          title: California STRS Assignment Code
+          description: STRS Assignment Code attached to the job. Valid values are STRS mandated.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_STRS_ASSN_CODE
+          example: "00"
+        calstrsClassificationCode:
+          title: California STRS Classification Code
+          description: A code that identifies classifications used in CalSTRS monthly and supplemental reports of retirement contributions.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_SCLS_CODE
+          example: "01"
+        calstrsClassificationBaseHours:
+          title: California STRS Classification Base Hours
+          description: Minimum base hours associated to a classification code.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_SCLS_BASE_HRS
+          example: 35.50
+        calstrsExpectedPayPeriodCode:
+          title: California STRS Expected Pay Period Code
+          description: Four digit California State Teachers Retirement System Expected Pay Periods Code used in Defined Benefit Reporting for Defined Benefit Members (DB1) or Defined Benefit Non-members (DB2).
+          type: string
+          x-lineageReferenceObject: NBRJOBS_CSPP_CODE
+          example: "7713"
+        calstrsFullTimeBaseHours:
+          title: California STRS Full-Time Base Hours
+          description: The number of hours required in a school term for full-time. Required for reporting California State Teachers Retirement System Defined Benefit Non-member (DB2) employees performing creditable service.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_STRS_FT_BASE_HRS
+          example: 40
+        calstrsHoursPerDay:
+          title: California STRS Hours Per Day
+          description: The number of hours required per day in a complete workday for full-time.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_STRS_HRS_DAY
+          example: 7.5
+        calstrsPayCode:
+          title: California STRS Pay Code
+          description: >
+            The code that determines how the employee's salary will be reported to STRS administration on the monthly F-496 report. Valid values are:
+              * `monthly12` Monthly for 12 months
+              * `monthly11` Monthly for 11 montly 
+              * `monthly10` Monthly for 10 months
+              * `hourly` Hourly
+              * `daily` Daily
+              * `pay13` 13 pays
+          type: string
+          enum:
+            - monthly12
+            - monthly11
+            - monthly11
+            - hourly
+            - daily
+            - pay13
+          example: "monthly"
+          x-lineageReferenceObject: NBRJOBS_STRS_PAY_CODE
+        calstrsServiceTypeCode:
+          title: California STRS Service Type Code
+          description: California State Teachers Retirement System Service Type Code. Required for CalSTRS Defined Benefit Reporting for both members (DB1) and non-members (DB2).
+          type: string
+          x-lineageReferenceObject: NBRJOBS_CSST_CODE
+          example: "0012"
+        calstrsStinCode:
+          title: California STRS STIN Code
+          description: Code indicates whether an employee has been marked in CalSTRS system as eligible for recalculation of benefits.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_STIN_CODE
+          example: "1"
+        calstrsTimeBaseCode:
+          title: California STRS Time Base Code
+          description: California State Teachers Retirement System Time Base Code. Basis of employment associated with the contribution line. 
+          type: string
+          x-lineageReferenceObject: NBRJOBS_CSTB_CODE
+          example: "1003"
+        contractNumber:
+          title: Contract Number
+          description: The job contract number attached to the job.
+          type: string
+          example: "10001276"
+          x-lineageReferenceObject: NBRJOBS_CONTRACT_NO
+        deferPayScheduleCode:
+          title: Defer Pay Schedule Code
+          description: The defer pay schedule attached to the job. Defaults from PTRDFPR.
+          type: string
+          example: "DP10"
+          x-lineageReferenceObject: NBRJOBS_DFPR_CODE
+        deferPays:
+          title: Deferred Pays
+          description: Used for deferred pay calculations.
+          type: number
+          example: 10
+          x-lineageReferenceObject: NBRJOBS_PAYS
+        deferPerPayAmount:
+          title: Deferred Per Pay Amount
+          description: The amount deferred each pay period for deferred pay calculation.
+          type: number
+          example: 1000.62
+          x-lineageReferenceObject: NBRJOBS_PER_PAY_DEFER_AMT
+        description:
+          title: Description
+          description: Description of the job.  Defaults from the Position Title if left blank.
+          type: string
+          example: "Lab Assistant"
+          x-lineageReferenceObject: NBRJOBS_DESC
+        eeoLocationCode:
+          title: EEO Location Code
+          description: EEO location attached to the job.
+          type: string
+          example: "000004"
+          x-lineageReferenceObject: NBRJOBS_LOCN_CODE
+        eeoSchoolCode:
+          title: EEO School Code
+          description: EEO school attached to the job.
+          type: string
+          example: "000015"
+          x-lineageReferenceObject: NBRJOBS_SCHL_CODE
+        employeeClassCode:
+          title: Employee Class Code
+          description: The employee class attached to the job, based on the Employee Class entered on the Position Form (NBAPOSN). 
+          type: string
+          example: "AD"
+          x-lineageReferenceObject: NBRJOBS_ECLS_CODE
+        employerCode:
+          title: Employer Code
+          description: The Employer Identification code attached to the job.
+          type: string
+          example: "MN"
+          x-lineageReferenceObject: NBRJOBS_EMPR_CODE
+        encumbranceHours:
+          title: Encumbrance Hours
+          description: Hours used to calculate the encumbrance amount for this job in the active fiscal year.
+          type: number
+          example: 1030.22
+          x-lineageReferenceObject: NBRJOBS_ENCUMBRANCE_HRS
+        factor:
+          title: Pay Factor
+          description: The number of pays per calendar year.
+          type: number
+          example: 26
+          x-lineageReferenceObject: NBRJOBS_FACTOR
+        fte:
+          title: Full Time Equivalency
+          description: The full time percentage attached to the job. Defaults to 1.
+          type: number
+          example: .5
+          x-lineageReferenceObject: NBRJOBS_FTE
+        hoursPerDay:
+          title: Hours Per Day
+          description: The hours attached to the job that are normally worked in a pay period.
+          type: number
+          example: 7.5
+          x-lineageReferenceObject: NBRJOBS_HRS_DAY
+        hoursPerPay:
+          title: Hours Per Pay
+          description: The hours attached to the job that are normally worked in a pay period. 
+          type: number
+          example: 37.5
+          x-lineageReferenceObject: NBRJOBS_HRS_PAY
+        jobChangeReasonCode:
+          title: Job Change Reason Code
+          description: Associates the reason for the change with the job detail record. 
+          type: string
+          example: "MERIT"
+          x-lineageReferenceObject: NBRJOBS_JCRE_CODE
+        jobLocationCode:
+          title: Job Location Code
+          description: Job Location Code attached to the job. 
+          type: string
+          example: "DTOWN"
+          x-lineageReferenceObject: NBRJOBS_JBLN_CODE
+        leaveCategoryCode:
+          title: Leave Category Code
+          description: A code which identifies a group of leave types. It is used when the Leave by Job Method has been selected for leave processing.
+          type: string
+          example: "F1"
+          x-lineageReferenceObject: NBRJOBS_LCAT_CODE
+        leaveReportMethod:
+          title: Leave Reporting Method
+          description: >
+            Leave Reporting Method attached to the job assignment. Valid values are:
+              * `payroll` Entered through PHAHOUR
+              * `web` Entered through Employee self-service application
+              * `departmental` Entered through PHATIME
+              * `thirdParty` Entered through third-party integrations
+          type: string
+          enum:
+            - payroll
+            - web
+            - departmental
+            - thirdParty
+          example: "web"
+          x-lineageReferenceObject: NBRJOBS_LEAV_REPT_METHOD
+        leaveReportPayrollCode:
+          title: Leave Report Payroll Code
+          description: The Leave Report Pay ID attached to the job and associated with a leave report or leave request.
+          type: string
+          example: "MN"
+          x-lineageReferenceObject: NBRJOBS_PICT_CODE_LEAV_REPT
+        longevityCode:
+          title: Longevity Code
+          description: Longevity code attached to the job.
+          type: string
+          example: "SECR"
+          x-lineageReferenceObject: NBRJOBS_LGCD_CODE
+        perPaySalary:
+          title: Per Pay Salary
+          description: Used for deferred pay calculations.
+          type: number
+          example: 5000.04
+          x-lineageReferenceObject: NBRJOBS_PER_PAY_SALARY
+        premiumPayCategoryCode:
+          title: Premium Pay Category Code
+          description: Generates premium pay attached to the job.
+          type: string
+          example: "UNIO"
+          x-lineageReferenceObject: NBRJOBS_PCAT_CODE
+        personnelChangeOn:
+          title: Personnel Change Date
+          description: Date the change was actually made as opposed to the effective date which is for payroll purposes.
+          type: string
+          format: date
+          example: "2024-03-15"
+          x-lineageReferenceObject: NBRJOBS_PERS_CHG_DATE
+        payrollCode:
+          title: Payroll Code
+          description: The Pay ID attached to the job.
+          type: string
+          example: "MN"
+          x-lineageReferenceObject: NBRJOBS_PICT_CODE
+        regularRate:
+          title: Regular Rate
+          description: The regular rate attached to the job.  If this field is entered or defaulted from the Salary/Rate Rule Form, the Assignment Salary is system calculated and vice versa.
+          type: number
+          example: 36.058386
+          x-lineageReferenceObject: NBRJOBS_REG_RATE
+        jobStatus:
+          title: Job Status
+          description: >
+            The status of the employee's job. 
+            Valid values are:
+              * `active`               Active
+              * `leaveWithBenefits`    Leave without pay and with benefits
+              * `leaveWithoutBenefits` Leave without pay and without benefits
+              * `leaveWithFullPay`     Leave with full pay and with benefits
+              * `leaveWithPartialPay`  Leave with partial pay and with benefits
+              * `terminated`           Terminated
+          type: string
+          enum:
+            - active
+            - leaveWithBenefits
+            - leaveWithoutBenefits
+            - leaveWithFullPay
+            - leaveWithPartialPay
+            - terminated
+          example: "active"
+          x-lineageReferenceObject: NBRJOBS_STATUS
+        salaryGrade:
+          title: Salary Grade
+          description: The Salary Grade attached to the job. Defaults from the Salary/Rate Rule Form (NTRSALA) via the Position Form (NBAPOSN).
+          type: string
+          example: "01"
+          x-lineageReferenceObject: NBRJOBS_SAL_GRADE
+        salaryGroup:
+          title: Salary Group
+          description: The Salary Group Code attached to the job.
+          type: string
+          example: "2024"
+          x-lineageReferenceObject: NBRJOBS_SGRP_CODE
+        salaryStep:
+          title: Salary Step
+          description: The Salary Step attached to the job. Defaults from the Salary/Rate Rule Form (NTRSALA) or can be entered online.
+          type: integer
+          example: 1
+          x-lineageReferenceObject: NBRJOBS_SAL_STEP
+        salaryTable:
+          title: Salary Table
+          description: The Salary Table attached to the job. Defaults from the Salary/Rate Rule Form (NTRSALA) via the Position Form (NBAPOSN).
+          type: string
+          example: "AD"
+          x-lineageReferenceObject: NBRJOBS_SAL_TABLE
+        shift:
+          title: Shift
+          description: The shift attached to the job.
+          type: string
+          example: "1"
+          x-lineageReferenceObject: NBRJOBS_SHIFT
+        supervisorBannerId:
+          title: Supervisor's Banner ID
+          description: The Banner ID of the supervisor for this employee's job.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_SUPERVISOR_PIDM
+          example: "510000001"
+        supervisorPosition:
+          title: Supervisor's Position
+          description: The position of the supervisor for this employee's job.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_SUPERVISOR_POSN
+          example: "ADM0002"
+        supervisorSuffix:
+          title:  Supervisor's Suffix
+          description: The position suffix of the supervisor for this employee's job.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_SUPERVISOR_SUFF
+          example: "00"
+        timeEntryMethod:
+          title: Time Entry Method
+          description: >
+            Time Entry Method attached to the job assignment. Valid values are:
+              * `payroll` Entered through PHAHOUR
+              * `web` Entered through Employee self-service application
+              * `departmental` Entered through PHATIME
+              * `thirdParty` Entered through third-party integrations
+          type: string
+          enum:
+            - payroll
+            - web
+            - departmental
+            - thirdParty
+          example: "web"
+          x-lineageReferenceObject: NBRJOBS_TIME_ENTRY_METHOD
+        timeEntryType:
+          title: Time Entry Type
+          description: >
+            The structure of how time will be entered against the job assignment.  Valid values are:
+              * `timesheet` All time is entered
+              * `exceptionTime` Only exception time is entered
+              * `none` Not applicable
+          type: string
+          enum:
+            - timesheet
+            - exceptionTime
+            - none
+          example: "timesheet"
+          x-lineageReferenceObject: NBRJOBS_TIME_ENTRY_TYPE
+        isTimeInOut:
+          title: Time In Out Indicator
+          description: Time In/Out Indicator attached to the job. If true, this employee must enter time in and out information on the Web or have it entered by a department administrator on the Electronic Approvals of Time Entry Form (PHATIME).  Time In and out must be entered for all earn codes that require hours entry. Time in and out will not be entered for earn codes that require units entry.
+          type: boolean
+          example: false
+          x-lineageReferenceObject: NBRJOBS_TIME_IN_OUT_IND
+        timesheetCoasCode:
+          title: Timesheet Chart of Accounts Code
+          description: This is the Chart of Accounts associated with the timesheet. Used only when Finance is installed.
+          type: string
+          example: "A"
+          x-lineageReferenceObject: NBRJOBS_COAS_CODE_TS
+        timesheetOrganizationCode:
+          title: Timesheet Organization Code
+          description: Organization where timesheet is sent for this job.
+          type: string
+          example: "12201"
+          x-lineageReferenceObject: NBRJOBS_ORGN_CODE_TS
+        workerCompensationCode:
+          title: Worker's Compensation Code
+          description: Workers' Compensation Classification Code attached to the job.
+          type: string
+          example: "0001"
+          x-lineageReferenceObject: NBRJOBS_WKCP_CODE
+        employeeJob:
+          title: Employee Job
+          description: A reference to link an employee job to the employee job detail entity.
+          type: object
+          properties:
+            id:
+              title: Id
+              type: string
+              description: "The global identifier of the employee job."
+              x-lineageReferenceObject: NBRBJOB_GUID
+              example: 085df706-ee15-4947-93f8-8c260e64795e
+            contractType:
+              title: Contract Type
+              description: >
+                Indicates the type of job assignment. Valid values are:
+                  * `primary` Primary job
+                  * `overload` Overload job
+                  * `secondary` Secondary job
+              type: string
+              enum:
+                - primary
+                - overload
+                - secondary
+              example: "primary"
+              x-lineageReferenceObject: NBRBJOB_CONTRACT_TYPE'
+        person:
+          $ref: '#/components/schemas/person' 
+        warnings:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+                description: The detailed warning message.          
+    employee-job-details-1.0.0_post_request:
+      type: object
+      properties:
+        id:
+          title: Id
+          type: string
+          description: "The global identifier of the employee job detail."
+          x-lineageReferenceObject: NBRJOBS_GUID
+          example: "00000000-0000-0000-0000-000000000000"
+        bannerId:
+          title: Banner ID
+          description: Banner ID of the employee.
+          type: string
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: "123456789" 
+        position:
+          title: Position
+          description: The position to which the job is attached.
+          type: string
+          x-lineageReferenceObject: NBRBJOB_POSN
+          example: "ADM0001"
+        suffix:
+          title: Suffix
+          description: Used to uniquely create multiple jobs in the same position.
+          type: string
+          x-lineageReferenceObject: NBRBJOB_SUFF
+          example: "00"
+        effectiveOn:
+          title: Effective Date
+          type: string
+          format: date
+          description:  Date for which the job detail data becomes effective.
+          x-lineageReferenceObject: NBRJOBS_EFFECTIVE_DATE
+          example: "2024-03-15"
+        annualSalary: 
+          title: Annual Salary
+          description: The annual salary attached to the job based on the calendar year. If the Annual Salary is entered, the Assignment Salary is system calculated based the factor and vice versa.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_ANN_SALARY
+          example: 60000.55 
+        appointmentPercentage: 
+          title: Appointment Percentage
+          description: The Appointment percent is used to establish the percentage of full time appointment for an employee in a position. The value defaults from the position record, but can be updated at the job level.  The appointment percent cannot exceed 100%.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_APPT_PCT
+          example: 100.00 
+        assignmentSalary: 
+          title: Assignment Salary
+          description: The salary to be paid each pay period.  If the Assignment Salary is entered, the Annual Salary is calculated based on the factor and vice versa.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_ASSGN_SALARY
+          example: 5000.04
+        calpersAppointmentId:
+          title: California PERS Appointment ID
+          description: 10-digit CalPERS ID for this employee which indicates their association with this employer by CalPERS Member Category.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_PERS_APPT_ID
+          example: "1234567890"
+        calpersPayCode:
+          title: California PERS Pay Code
+          description: >
+            The code that determines how the employee's salary will be reported to PERS administration on the PERS Monthly Contribution Report. Valid values are:
+              * `monthly` Monthly
+              * `monthlyLA` Monthly for LA 
+              * `hourly` Hourly
+              * `daily` Daily
+              * `miscellaneous` Miscellaneous
+          type: string
+          enum:
+            - monthly
+            - monthlyLA
+            - hourly
+            - daily
+            - miscellaneous
+          example: "monthly"
+          x-lineageReferenceObject: NBRJOBS_PERS_PAY_CODE
+        calpersPayRateOver:
+          title: California PERS Pay Rate Over
+          description: Pay rate reported to CalPERS where the derived pay rate must be changed for proper reporting.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_PERS_PAY_RATE_OVER
+          example: 50.12
+        calpersPayRateType:
+          title: California PERS Pay Rate Type
+          description: >
+            CalPERS Pay Rate Type identifies hourly, daily or monthly pay. Valid values are:
+              * `monthly` Monthly
+              * `hourly` Hourly
+              * `daily` Daily
+          type: string
+          enum:
+            - monthly
+            - hourly
+            - daily
+          example: "monthly"
+          x-lineageReferenceObject: NBRJOBS_PERS_PAY_RATE_TYPE
+        calpersScheduledDays:
+          title: California PERS Scheduled Days
+          description: Number of days per week considered full time if the Pay Rate Type is Daily.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_PERS_SCHED_DAYS
+          example: 6.5
+        calpersScheduledHoursPerWeek:
+          title: California PERS Scheduled Hours Per Week
+          description: Number of hours per week considered full time if the Pay Rate Type is not Daily.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_PERS_SCHED_HRS_WEEK
+          example: 35
+        calpersSpecialOnlyIndicator:
+          title: California PERS Special Only Indicator
+          description: Indicates this job only includes special compensation earnings and no regular earnings. Special compensation will be reported under the matching/primary PERS XML payroll record.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_PERS_SPECIAL_ONLY_IND
+          example: "N"
+        calstrsAssignmentCode:
+          title: California STRS Assignment Code
+          description: STRS Assignment Code attached to the job. Valid values are STRS mandated.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_STRS_ASSN_CODE
+          example: "00"
+        calstrsClassificationCode:
+          title: California STRS Classification Code
+          description: A code that identifies classifications used in CalSTRS monthly and supplemental reports of retirement contributions.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_SCLS_CODE
+          example: "01"
+        calstrsClassificationBaseHours:
+          title: California STRS Classification Base Hours
+          description: Minimum base hours associated to a classification code.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_SCLS_BASE_HRS
+          example: 35.50
+        calstrsExpectedPayPeriodCode:
+          title: California STRS Expected Pay Period Code
+          description: Four digit California State Teachers Retirement System Expected Pay Periods Code used in Defined Benefit Reporting for Defined Benefit Members (DB1) or Defined Benefit Non-members (DB2).
+          type: string
+          x-lineageReferenceObject: NBRJOBS_CSPP_CODE
+          example: "7713"
+        calstrsFullTimeBaseHours:
+          title: California STRS Full-Time Base Hours
+          description: The number of hours required in a school term for full-time. Required for reporting California State Teachers Retirement System Defined Benefit Non-member (DB2) employees performing creditable service.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_STRS_FT_BASE_HRS
+          example: 40
+        calstrsHoursPerDay:
+          title: California STRS Hours Per Day
+          description: The number of hours required per day in a complete workday for full-time.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_STRS_HRS_DAY
+          example: 7.5
+        calstrsPayCode:
+          title: California STRS Pay Code
+          description: >
+            The code that determines how the employee's salary will be reported to STRS administration on the monthly F-496 report. Valid values are:
+              * `monthly12` Monthly for 12 months
+              * `monthly11` Monthly for 11 montly 
+              * `monthly10` Monthly for 10 months
+              * `hourly` Hourly
+              * `daily` Daily
+              * `pay13` 13 pays
+          type: string
+          enum:
+            - monthly12
+            - monthly11
+            - monthly11
+            - hourly
+            - daily
+            - pay13
+          example: "monthly"
+          x-lineageReferenceObject: NBRJOBS_STRS_PAY_CODE
+        calstrsServiceTypeCode:
+          title: California STRS Service Type Code
+          description: California State Teachers Retirement System Service Type Code. Required for CalSTRS Defined Benefit Reporting for both members (DB1) and non-members (DB2).
+          type: string
+          x-lineageReferenceObject: NBRJOBS_CSST_CODE
+          example: "0012"
+        calstrsStinCode:
+          title: California STRS STIN Code
+          description: Code indicates whether an employee has been marked in CalSTRS system as eligible for recalculation of benefits.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_STIN_CODE
+          example: "1"
+        calstrsTimeBaseCode:
+          title: California STRS Time Base Code
+          description: California State Teachers Retirement System Time Base Code. Basis of employment associated with the contribution line. 
+          type: string
+          x-lineageReferenceObject: NBRJOBS_CSTB_CODE
+          example: "1003"
+        comment:
+          title: Comment
+          description: Used to add a comment about the job detail change.
+          type: string
+          example: "Merit increase"
+          x-lineageReferenceObject: PERJHIS_COMMENT
+        contractNumber:
+          title: Contract Number
+          description: The job contract number attached to the job.
+          type: string
+          example: "10001276"
+          x-lineageReferenceObject: NBRJOBS_CONTRACT_NO
+        deferPayScheduleCode:
+          title: Defer Pay Schedule Code
+          description: The defer pay schedule attached to the job. Defaults from PTRDFPR.
+          type: string
+          example: "DP10"
+          x-lineageReferenceObject: NBRJOBS_DFPR_CODE
+        deferPays:
+          title: Deferred Pays
+          description: Used for deferred pay calculations.
+          type: number
+          example: 10
+          x-lineageReferenceObject: NBRJOBS_PAYS
+        description:
+          title: Description
+          description: Description of the job.  Defaults from the Position Title if left blank.
+          type: string
+          example: "Lab Assistant"
+          x-lineageReferenceObject: NBRJOBS_DESC
+        eeoLocationCode:
+          title: EEO Location Code
+          description: EEO location attached to the job.
+          type: string
+          example: "000004"
+          x-lineageReferenceObject: NBRJOBS_LOCN_CODE
+        eeoSchoolCode:
+          title: EEO School Code
+          description: EEO school attached to the job.
+          type: string
+          example: "000015"
+          x-lineageReferenceObject: NBRJOBS_SCHL_CODE
+        employeeClassCode:
+          title: Employee Class Code
+          description: The employee class attached to the job, based on the Employee Class entered on the Position Form (NBAPOSN). 
+          type: string
+          example: "AD"
+          x-lineageReferenceObject: NBRJOBS_ECLS_CODE
+        employerCode:
+          title: Employer Code
+          description: The Employer Identification code attached to the job.
+          type: string
+          example: "MN"
+          x-lineageReferenceObject: NBRJOBS_EMPR_CODE
+        encumbranceHours:
+          title: Encumbrance Hours
+          description: Hours used to calculate the encumbrance amount for this job in the active fiscal year.
+          type: number
+          example: 1030.22
+          x-lineageReferenceObject: NBRJOBS_ENCUMBRANCE_HRS
+        factor:
+          title: Pay Factor
+          description: The number of pays per calendar year.
+          type: number
+          example: 26
+          x-lineageReferenceObject: NBRJOBS_FACTOR
+        fte:
+          title: Full Time Equivalency
+          description: The full time percentage attached to the job. Defaults to 1.
+          type: number
+          example: .5
+          x-lineageReferenceObject: NBRJOBS_FTE
+        hoursPerDay:
+          title: Hours Per Day
+          description: The hours attached to the job that are normally worked in a pay period.
+          type: number
+          example: 7.5
+          x-lineageReferenceObject: NBRJOBS_HRS_DAY
+        hoursPerPay:
+          title: Hours Per Pay
+          description: The hours attached to the job that are normally worked in a pay period. 
+          type: number
+          example: 37.5
+          x-lineageReferenceObject: NBRJOBS_HRS_PAY
+        jobChangeReasonCode:
+          title: Job Change Reason Code
+          description: Associates the reason for the change with the job detail record. 
+          type: string
+          example: "MERIT"
+          x-lineageReferenceObject: NBRJOBS_JCRE_CODE
+        jobLocationCode:
+          title: Job Location Code
+          description: Job Location Code attached to the job. 
+          type: string
+          example: "DTOWN"
+          x-lineageReferenceObject: NBRJOBS_JBLN_CODE
+        leaveCategoryCode:
+          title: Leave Category Code
+          description: A code which identifies a group of leave types. It is used when the Leave by Job Method has been selected for leave processing.
+          type: string
+          example: "F1"
+          x-lineageReferenceObject: NBRJOBS_LCAT_CODE
+        leaveReportMethod:
+          title: Leave Reporting Method
+          description: >
+            Leave Reporting Method attached to the job assignment. Valid values are:
+              * `payroll` Entered through PHAHOUR
+              * `web` Entered through Employee self-service application
+              * `departmental` Entered through PHATIME
+              * `thirdParty` Entered through third-party integrations
+          type: string
+          enum:
+            - payroll
+            - web
+            - departmental
+            - thirdParty
+          example: "web"
+          x-lineageReferenceObject: NBRJOBS_LEAV_REPT_METHOD
+        leaveReportPayrollCode:
+          title: Leave Report Payroll Code
+          description: The Leave Report Pay ID attached to the job and associated with a leave report or leave request.
+          type: string
+          example: "MN"
+          x-lineageReferenceObject: NBRJOBS_PICT_CODE_LEAV_REPT
+        longevityCode:
+          title: Longevity Code
+          description: Longevity code attached to the job.
+          type: string
+          example: "SECR"
+          x-lineageReferenceObject: NBRJOBS_LGCD_CODE
+        premiumPayCategoryCode:
+          title: Premium Pay Category Code
+          description: Generates premium pay attached to the job.
+          type: string
+          example: "UNIO"
+          x-lineageReferenceObject: NBRJOBS_PCAT_CODE
+        personnelChangeOn:
+          title: Personnel Change Date
+          description: Date the change was actually made as opposed to the effective date which is for payroll purposes.
+          type: string
+          format: date
+          example: "2024-03-15"
+          x-lineageReferenceObject: NBRJOBS_PERS_CHG_DATE
+        payrollCode:
+          title: Payroll Code
+          description: The Pay ID attached to the job.
+          type: string
+          example: "MN"
+          x-lineageReferenceObject: NBRJOBS_PICT_CODE
+        regularRate:
+          title: Regular Rate
+          description: The regular rate attached to the job.  If this field is entered or defaulted from the Salary/Rate Rule Form, the Assignment Salary is system calculated and vice versa.
+          type: number
+          example: 36.058386
+          x-lineageReferenceObject: NBRJOBS_REG_RATE
+        jobStatus:
+          title: Job Status
+          description: >
+            The status of the employee's job. 
+            Valid values are:
+              * `active`               Active
+              * `leaveWithBenefits`    Leave without pay and with benefits
+              * `leaveWithoutBenefits` Leave without pay and without benefits
+              * `leaveWithFullPay`     Leave with full pay and with benefits
+              * `leaveWithPartialPay`  Leave with partial pay and with benefits
+              * `terminated`           Terminated
+          type: string
+          enum:
+            - active
+            - leaveWithBenefits
+            - leaveWithoutBenefits
+            - leaveWithFullPay
+            - leaveWithPartialPay
+            - terminated
+          example: "active"
+          x-lineageReferenceObject: NBRJOBS_STATUS
+        salaryGrade:
+          title: Salary Grade
+          description: The Salary Grade attached to the job. Defaults from the Salary/Rate Rule Form (NTRSALA) via the Position Form (NBAPOSN).
+          type: string
+          example: "01"
+          x-lineageReferenceObject: NBRJOBS_SAL_GRADE
+        salaryGroup:
+          title: Salary Group
+          description: The Salary Group Code attached to the job.
+          type: string
+          example: "2024"
+          x-lineageReferenceObject: NBRJOBS_SGRP_CODE
+        salaryStep:
+          title: Salary Step
+          description: The Salary Step attached to the job. Defaults from the Salary/Rate Rule Form (NTRSALA) or can be entered online.
+          type: integer
+          example: 1
+          x-lineageReferenceObject: NBRJOBS_SAL_STEP
+        salaryTable:
+          title: Salary Table
+          description: The Salary Table attached to the job. Defaults from the Salary/Rate Rule Form (NTRSALA) via the Position Form (NBAPOSN).
+          type: string
+          example: "AD"
+          x-lineageReferenceObject: NBRJOBS_SAL_TABLE
+        shift:
+          title: Shift
+          description: The shift attached to the job.
+          type: string
+          example: "1"
+          x-lineageReferenceObject: NBRJOBS_SHIFT
+        supervisorBannerId:
+          title: Supervisor's Banner ID
+          description: The Banner ID of the supervisor for this employee's job.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_SUPERVISOR_PIDM
+          example: "510000001"
+        supervisorPosition:
+          title: Supervisor's Position
+          description: The position of the supervisor for this employee's job.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_SUPERVISOR_POSN
+          example: "ADM0002"
+        supervisorSuffix:
+          title:  Supervisor's Suffix
+          description: The position suffix of the supervisor for this employee's job.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_SUPERVISOR_SUFF
+          example: "00"
+        timeEntryMethod:
+          title: Time Entry Method
+          description: >
+            Time Entry Method attached to the job assignment. Valid values are:
+              * `payroll` Entered through PHAHOUR
+              * `web` Entered through Employee self-service application
+              * `departmental` Entered through PHATIME
+              * `thirdParty` Entered through third-party integrations
+          type: string
+          enum:
+            - payroll
+            - web
+            - departmental
+            - thirdParty
+          example: "web"
+          x-lineageReferenceObject: NBRJOBS_TIME_ENTRY_METHOD
+        timeEntryType:
+          title: Time Entry Type
+          description: >
+            The structure of how time will be entered against the job assignment.  Valid values are:
+              * `timesheet` All time is entered
+              * `exceptionTime` Only exception time is entered
+              * `none` Not applicable
+          type: string
+          enum:
+            - timesheet
+            - exceptionTime
+            - none
+          example: "timesheet"
+          x-lineageReferenceObject: NBRJOBS_TIME_ENTRY_TYPE'
+        isTimeInOut:
+          title: Time In Out Indicator
+          description: Time In/Out Indicator attached to the job. If true, this employee must enter time in and out information on the Web or have it entered by a department administrator on the Electronic Approvals of Time Entry Form (PHATIME).  Time In and out must be entered for all earn codes that require hours entry. Time in and out will not be entered for earn codes that require units entry.
+          type: boolean
+          example: false
+          x-lineageReferenceObject: NBRJOBS_TIME_IN_OUT_IND
+        timesheetCoasCode:
+          title: Timesheet Chart of Accounts Code
+          description: This is the Chart of Accounts associated with the timesheet. Used only when Finance is installed.
+          type: string
+          example: "A"
+          x-lineageReferenceObject: NBRJOBS_COAS_CODE_TS
+        timesheetOrganizationCode:
+          title: Timesheet Organization Code
+          description: Organization where timesheet is sent for this job.
+          type: string
+          example: "12201"
+          x-lineageReferenceObject: NBRJOBS_ORGN_CODE_TS
+        workerCompensationCode:
+          title: Worker's Compensation Code
+          description: Workers' Compensation Classification Code attached to the job.
+          type: string
+          example: "0001"
+          x-lineageReferenceObject: NBRJOBS_WKCP_CODE
+      required:
+        - id
+        - bannerId
+        - position
+        - suffix
+        - effectiveOn
+    employee-job-details-1.0.0_post_response:
+      $ref: '#/components/schemas/employee-job-details-1.0.0_get_response'
+    employee-job-details-1.0.0_put_request:
+      type: object
+      properties:
+        annualSalary: 
+          title: Annual Salary
+          description: The annual salary attached to the job based on the calendar year. If the Annual Salary is entered, the Assignment Salary is system calculated based the factor and vice versa.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_ANN_SALARY
+          example: 60000.55 
+        appointmentPercentage: 
+          title: Appointment Percentage
+          description: The Appointment percent is used to establish the percentage of full time appointment for an employee in a position. The value defaults from the position record, but can be updated at the job level.  The appointment percent cannot exceed 100%.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_APPT_PCT
+          example: 100.00 
+        assignmentSalary: 
+          title: Assignment Salary
+          description: The salary to be paid each pay period.  If the Assignment Salary is entered, the Annual Salary is calculated based on the factor and vice versa.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_ASSGN_SALARY
+          example: 5000.04
+        calpersAppointmentId:
+          title: California PERS Appointment ID
+          description: 10-digit CalPERS ID for this employee which indicates their association with this employer by CalPERS Member Category.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_PERS_APPT_ID
+          example: "1234567890"
+        calpersPayCode:
+          title: California PERS Pay Code
+          description: >
+            The code that determines how the employee's salary will be reported to PERS administration on the PERS Monthly Contribution Report. Valid values are:
+              * `monthly` Monthly
+              * `monthlyLA` Monthly for LA 
+              * `hourly` Hourly
+              * `daily` Daily
+              * `miscellaneous` Miscellaneous
+          type: string
+          enum:
+            - monthly
+            - monthlyLA
+            - hourly
+            - daily
+            - miscellaneous
+          example: "monthly"
+          x-lineageReferenceObject: NBRJOBS_PERS_PAY_CODE
+        calpersPayRateOver:
+          title: California PERS Pay Rate Over
+          description: Pay rate reported to CalPERS where the derived pay rate must be changed for proper reporting.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_PERS_PAY_RATE_OVER
+          example: 50.12
+        calpersPayRateType:
+          title: California PERS Pay Rate Type
+          description: >
+            CalPERS Pay Rate Type identifies hourly, daily or monthly pay. Valid values are:
+              * `monthly` Monthly
+              * `hourly` Hourly
+              * `daily` Daily
+          type: string
+          enum:
+            - monthly
+            - hourly
+            - daily
+          example: "monthly"
+          x-lineageReferenceObject: NBRJOBS_PERS_PAY_RATE_TYPE
+        calpersScheduledDays:
+          title: California PERS Scheduled Days
+          description: Number of days per week considered full time if the Pay Rate Type is Daily.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_PERS_SCHED_DAYS
+          example: 6.5
+        calpersScheduledHoursPerWeek:
+          title: California PERS Scheduled Hours Per Week
+          description: Number of hours per week considered full time if the Pay Rate Type is not Daily.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_PERS_SCHED_HRS_WEEK
+          example: 35
+        calpersSpecialOnlyIndicator:
+          title: California PERS Special Only Indicator
+          description: Indicates this job only includes special compensation earnings and no regular earnings. Special compensation will be reported under the matching/primary PERS XML payroll record.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_PERS_SPECIAL_ONLY_IND
+          example: "N"
+        calstrsAssignmentCode:
+          title: California STRS Assignment Code
+          description: STRS Assignment Code attached to the job. Valid values are STRS mandated.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_STRS_ASSN_CODE
+          example: "00"
+        calstrsClassificationCode:
+          title: California STRS Classification Code
+          description: A code that identifies classifications used in CalSTRS monthly and supplemental reports of retirement contributions.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_SCLS_CODE
+          example: "01"
+        calstrsClassificationBaseHours:
+          title: California STRS Classification Base Hours
+          description: Minimum base hours associated to a classification code.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_SCLS_BASE_HRS
+          example: 35.50
+        calstrsExpectedPayPeriodCode:
+          title: California STRS Expected Pay Period Code
+          description: Four digit California State Teachers Retirement System Expected Pay Periods Code used in Defined Benefit Reporting for Defined Benefit Members (DB1) or Defined Benefit Non-members (DB2).
+          type: string
+          x-lineageReferenceObject: NBRJOBS_CSPP_CODE
+          example: "7713"
+        calstrsFullTimeBaseHours:
+          title: California STRS Full-Time Base Hours
+          description: The number of hours required in a school term for full-time. Required for reporting California State Teachers Retirement System Defined Benefit Non-member (DB2) employees performing creditable service.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_STRS_FT_BASE_HRS
+          example: 40
+        calstrsHoursPerDay:
+          title: California STRS Hours Per Day
+          description: The number of hours required per day in a complete workday for full-time.
+          type: number
+          x-lineageReferenceObject: NBRJOBS_STRS_HRS_DAY
+          example: 7.5
+        calstrsPayCode:
+          title: California STRS Pay Code
+          description: >
+            The code that determines how the employee's salary will be reported to STRS administration on the monthly F-496 report. Valid values are:
+              * `monthly12` Monthly for 12 months
+              * `monthly11` Monthly for 11 montly 
+              * `monthly10` Monthly for 10 months
+              * `hourly` Hourly
+              * `daily` Daily
+              * `pay13` 13 pays
+          type: string
+          enum:
+            - monthly12
+            - monthly11
+            - monthly11
+            - hourly
+            - daily
+            - pay13
+          example: "monthly"
+          x-lineageReferenceObject: NBRJOBS_STRS_PAY_CODE
+        calstrsServiceTypeCode:
+          title: California STRS Service Type Code
+          description: California State Teachers Retirement System Service Type Code. Required for CalSTRS Defined Benefit Reporting for both members (DB1) and non-members (DB2).
+          type: string
+          x-lineageReferenceObject: NBRJOBS_CSST_CODE
+          example: "0012"
+        calstrsStinCode:
+          title: California STRS STIN Code
+          description: Code indicates whether an employee has been marked in CalSTRS system as eligible for recalculation of benefits.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_STIN_CODE
+          example: "1"
+        calstrsTimeBaseCode:
+          title: California STRS Time Base Code
+          description: California State Teachers Retirement System Time Base Code. Basis of employment associated with the contribution line. 
+          type: string
+          x-lineageReferenceObject: NBRJOBS_CSTB_CODE
+          example: "1003"
+        comment:
+          title: Comment
+          description: Used to add a comment about the job detail change.
+          type: string
+          example: "Merit increase"
+          x-lineageReferenceObject: PERJHIS_COMMENT
+        contractNumber:
+          title: Contract Number
+          description: The job contract number attached to the job.
+          type: string
+          example: "10001276"
+          x-lineageReferenceObject: NBRJOBS_CONTRACT_NO
+        deferPayScheduleCode:
+          title: Defer Pay Schedule Code
+          description: The defer pay schedule attached to the job. Defaults from PTRDFPR.
+          type: string
+          example: "DP10"
+          x-lineageReferenceObject: NBRJOBS_DFPR_CODE
+        deferPays:
+          title: Deferred Pays
+          description: Used for deferred pay calculations.
+          type: number
+          example: 10
+          x-lineageReferenceObject: NBRJOBS_PAYS
+        description:
+          title: Description
+          description: Description of the job.  Defaults from the Position Title if left blank.
+          type: string
+          example: "Lab Assistant"
+          x-lineageReferenceObject: NBRJOBS_DESC
+        eeoLocationCode:
+          title: EEO Location Code
+          description: EEO location attached to the job.
+          type: string
+          example: "000004"
+          x-lineageReferenceObject: NBRJOBS_LOCN_CODE
+        eeoSchoolCode:
+          title: EEO School Code
+          description: EEO school attached to the job.
+          type: string
+          example: "000015"
+          x-lineageReferenceObject: NBRJOBS_SCHL_CODE
+        employeeClassCode:
+          title: Employee Class Code
+          description: The employee class attached to the job, based on the Employee Class entered on the Position Form (NBAPOSN). 
+          type: string
+          example: "AD"
+          x-lineageReferenceObject: NBRJOBS_ECLS_CODE
+        employerCode:
+          title: Employer Code
+          description: The Employer Identification code attached to the job.
+          type: string
+          example: "MN"
+          x-lineageReferenceObject: NBRJOBS_EMPR_CODE
+        encumbranceHours:
+          title: Encumbrance Hours
+          description: Hours used to calculate the encumbrance amount for this job in the active fiscal year.
+          type: number
+          example: 1030.22
+          x-lineageReferenceObject: NBRJOBS_ENCUMBRANCE_HRS
+        factor:
+          title: Pay Factor
+          description: The number of pays per calendar year.
+          type: number
+          example: 26
+          x-lineageReferenceObject: NBRJOBS_FACTOR
+        fte:
+          title: Full Time Equivalency
+          description: The full time percentage attached to the job. Defaults to 1.
+          type: number
+          example: .5
+          x-lineageReferenceObject: NBRJOBS_FTE
+        hoursPerDay:
+          title: Hours Per Day
+          description: The hours attached to the job that are normally worked in a pay period.
+          type: number
+          example: 7.5
+          x-lineageReferenceObject: NBRJOBS_HRS_DAY
+        hoursPerPay:
+          title: Hours Per Pay
+          description: The hours attached to the job that are normally worked in a pay period. 
+          type: number
+          example: 37.5
+          x-lineageReferenceObject: NBRJOBS_HRS_PAY
+        jobChangeReasonCode:
+          title: Job Change Reason Code
+          description: Associates the reason for the change with the job detail record. 
+          type: string
+          example: "MERIT"
+          x-lineageReferenceObject: NBRJOBS_JCRE_CODE
+        jobLocationCode:
+          title: Job Location Code
+          description: Job Location Code attached to the job. 
+          type: string
+          example: "DTOWN"
+          x-lineageReferenceObject: NBRJOBS_JBLN_CODE
+        leaveCategoryCode:
+          title: Leave Category Code
+          description: A code which identifies a group of leave types. It is used when the Leave by Job Method has been selected for leave processing.
+          type: string
+          example: "F1"
+          x-lineageReferenceObject: NBRJOBS_LCAT_CODE
+        leaveReportMethod:
+          title: Leave Reporting Method
+          description: >
+            Leave Reporting Method attached to the job assignment. Valid values are:
+              * `payroll` Entered through PHAHOUR
+              * `web` Entered through Employee self-service application
+              * `departmental` Entered through PHATIME
+              * `thirdParty` Entered through third-party integrations
+          type: string
+          enum:
+            - payroll
+            - web
+            - departmental
+            - thirdParty
+          example: "web"
+          x-lineageReferenceObject: NBRJOBS_LEAV_REPT_METHOD
+        leaveReportPayrollCode:
+          title: Leave Report Payroll Code
+          description: The Leave Report Pay ID attached to the job and associated with a leave report or leave request.
+          type: string
+          example: "MN"
+          x-lineageReferenceObject: NBRJOBS_PICT_CODE_LEAV_REPT
+        longevityCode:
+          title: Longevity Code
+          description: Longevity code attached to the job.
+          type: string
+          example: "SECR"
+          x-lineageReferenceObject: NBRJOBS_LGCD_CODE
+        premiumPayCategoryCode:
+          title: Premium Pay Category Code
+          description: Generates premium pay attached to the job.
+          type: string
+          example: "UNIO"
+          x-lineageReferenceObject: NBRJOBS_PCAT_CODE
+        personnelChangeOn:
+          title: Personnel Change Date
+          description: Date the change was actually made as opposed to the effective date which is for payroll purposes.
+          type: string
+          format: date
+          example: "2024-03-15"
+          x-lineageReferenceObject: NBRJOBS_PERS_CHG_DATE
+        payrollCode:
+          title: Payroll Code
+          description: The Pay ID attached to the job.
+          type: string
+          example: "MN"
+          x-lineageReferenceObject: NBRJOBS_PICT_CODE
+        regularRate:
+          title: Regular Rate
+          description: The regular rate attached to the job.  If this field is entered or defaulted from the Salary/Rate Rule Form, the Assignment Salary is system calculated and vice versa.
+          type: number
+          example: 36.058386
+          x-lineageReferenceObject: NBRJOBS_REG_RATE
+        jobStatus:
+          title: Job Status
+          description: >
+            The status of the employee's job. 
+            Valid values are:
+              * `active`               Active
+              * `leaveWithBenefits`    Leave without pay and with benefits
+              * `leaveWithoutBenefits` Leave without pay and without benefits
+              * `leaveWithFullPay`     Leave with full pay and with benefits
+              * `leaveWithPartialPay`  Leave with partial pay and with benefits
+              * `terminated`           Terminated
+          type: string
+          enum:
+            - active
+            - leaveWithBenefits
+            - leaveWithoutBenefits
+            - leaveWithFullPay
+            - leaveWithPartialPay
+            - terminated
+          example: "active"
+          x-lineageReferenceObject: NBRJOBS_STATUS
+        salaryGrade:
+          title: Salary Grade
+          description: The Salary Grade attached to the job. Defaults from the Salary/Rate Rule Form (NTRSALA) via the Position Form (NBAPOSN).
+          type: string
+          example: "01"
+          x-lineageReferenceObject: NBRJOBS_SAL_GRADE
+        salaryGroup:
+          title: Salary Group
+          description: The Salary Group Code attached to the job.
+          type: string
+          example: "2024"
+          x-lineageReferenceObject: NBRJOBS_SGRP_CODE
+        salaryStep:
+          title: Salary Step
+          description: The Salary Step attached to the job. Defaults from the Salary/Rate Rule Form (NTRSALA) or can be entered online.
+          type: integer
+          example: 1
+          x-lineageReferenceObject: NBRJOBS_SAL_STEP
+        salaryTable:
+          title: Salary Table
+          description: The Salary Table attached to the job. Defaults from the Salary/Rate Rule Form (NTRSALA) via the Position Form (NBAPOSN).
+          type: string
+          example: "AD"
+          x-lineageReferenceObject: NBRJOBS_SAL_TABLE
+        shift:
+          title: Shift
+          description: The shift attached to the job.
+          type: string
+          example: "1"
+          x-lineageReferenceObject: NBRJOBS_SHIFT
+        supervisorBannerId:
+          title: Supervisor's Banner ID
+          description: The Banner ID of the supervisor for this employee's job.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_SUPERVISOR_PIDM
+          example: "510000001"
+        supervisorPosition:
+          title: Supervisor's Position
+          description: The position of the supervisor for this employee's job.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_SUPERVISOR_POSN
+          example: "ADM0002"
+        supervisorSuffix:
+          title:  Supervisor's Suffix
+          description: The position suffix of the supervisor for this employee's job.
+          type: string
+          x-lineageReferenceObject: NBRJOBS_SUPERVISOR_SUFF
+          example: "00"
+        timeEntryMethod:
+          title: Time Entry Method
+          description: >
+            Time Entry Method attached to the job assignment. Valid values are:
+              * `payroll` Entered through PHAHOUR
+              * `web` Entered through Employee self-service application
+              * `departmental` Entered through PHATIME
+              * `thirdParty` Entered through third-party integrations
+          type: string
+          enum:
+            - payroll
+            - web
+            - departmental
+            - thirdParty
+          example: "web"
+          x-lineageReferenceObject: NBRJOBS_TIME_ENTRY_METHOD
+        timeEntryType:
+          title: Time Entry Type
+          description: >
+            The structure of how time will be entered against the job assignment.  Valid values are:
+              * `timesheet` All time is entered
+              * `exceptionTime` Only exception time is entered
+              * `none` Not applicable
+          type: string
+          enum:
+            - timesheet
+            - exceptionTime
+            - none
+          example: "timesheet"
+          x-lineageReferenceObject: NBRJOBS_TIME_ENTRY_TYPE
+        isTimeInOut:
+          title: Time In Out Indicator
+          description: Time In/Out Indicator attached to the job. If true, this employee must enter time in and out information on the Web or have it entered by a department administrator on the Electronic Approvals of Time Entry Form (PHATIME).  Time In and out must be entered for all earn codes that require hours entry. Time in and out will not be entered for earn codes that require units entry.
+          type: boolean
+          example: false
+          x-lineageReferenceObject: NBRJOBS_TIME_IN_OUT_IND
+        timesheetCoasCode:
+          title: Timesheet Chart of Accounts Code
+          description: This is the Chart of Accounts associated with the timesheet. Used only when Finance is installed.
+          type: string
+          example: "A"
+          x-lineageReferenceObject: NBRJOBS_COAS_CODE_TS
+        timesheetOrganizationCode:
+          title: Timesheet Organization Code
+          description: Organization where timesheet is sent for this job.
+          type: string
+          example: "12201"
+          x-lineageReferenceObject: NBRJOBS_ORGN_CODE_TS
+        workerCompensationCode:
+          title: Worker's Compensation Code
+          description: Workers' Compensation Classification Code attached to the job.
+          type: string
+          example: "0001"
+          x-lineageReferenceObject: NBRJOBS_WKCP_CODE      
+    employee-job-details-1.0.0_put_request_batch:
+      allOf: # Combines the id with the put request model
+        - type: object
+          required:
+            - id
+          properties:
+            id:
+              title: Id
+              type: string
+              description: "The global identifier of the employee job detail."
+              x-lineageReferenceObject: NBRJOBS_GUID
+              example: 085df706-ee15-4947-93f8-8c260e64795e
+        - $ref: '#/components/schemas/employee-job-details-1.0.0_put_request'
+    employee-job-details-1.0.0_put_response:
+      $ref: '#/components/schemas/employee-job-details-1.0.0_get_response'
+    employee-job-details-batch-2.0.0_post_request:
+      type: object
+      properties:
+        items:
+          title: items
+          description: List of items to be processed.
+          type: array
+          items:
+            type: object
+            oneOf:
+              - $ref: "#/components/schemas/employee-job-details-1.0.0_post_request"
+              - $ref: "#/components/schemas/employee-job-details-1.0.0_put_request_batch"
+      required:
+        - items
+    employee-job-details-batch-2.0.0_post_response:
+      description: >
+        Returns the list of Ids for those employee job details that were successfully created. 
+        For those that did not, it returns the list of error messages.
+      type: object
+      x-last-modified:
+      properties:
+        id:
+          title: ID
+          description: A globally unique identifier of a batch to be used in all external references.
+          type: string
+          example: 085df706-ee15-4947-93f8-8c260e64795e
+        status:
+          title: status
+          description: status of the batch.
+          type: string
+          enum:
+            - completed
+            - inProgress
+            - aborted
+          example: completed
+        resource:
+          title: Resource
+          description: The affected resource.
+          type: object
+          properties:
+            name:
+              title: Resource Name
+              description: The pluralized name of the affected resource
+              type: string
+              example: employee-job-details
+            version:
+              title: Resource version
+              description: The version of the resource
+              type: string
+              example: 2.0.0
+          additionalProperties: false
+          required:
+            - name
+            - version
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+            oneOf:
+              - $ref: '#/components/schemas/employee-job-details-1.0.0_get_response'
+              - $ref: '#/components/schemas/errors_2_0_0'
+            required:
+              - items
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+    person:
+      title: Person
+      description: A reference to link an employee job detail to the common persons entity.
+      type: object
+      properties:
+        id:
+          title: ID
+          description: The global identifier for the Person.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageLookupReferenceObject: persons 
+          x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+          x-lineageDerivedLogic: A record from GORGUID where GORGUID_LDM_NAME = 'persons' and GORGUID_DOMAIN_KEY matches the PIDM value

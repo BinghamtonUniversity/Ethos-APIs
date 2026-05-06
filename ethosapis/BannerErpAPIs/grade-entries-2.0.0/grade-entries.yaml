@@ -1,0 +1,470 @@
+openapi: 3.0.1
+info:
+  title: grade-entries
+  description: >
+    This API allows to update midTermGrade, finalGrade, defaultGrade,
+    extensionDate, lastAttendDate, startOn date, endOn date of the students
+    based on course reference number, term and faculty assigned. Finally it
+    rolls the grades and calculate the GPA of the students.
+  version: 2.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Student
+  x-source-title: Grade Entries
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: grade-entries
+paths:
+  /api/grade-entries/1:
+    put:
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_GRADE_ENTRIES
+      tags:
+        - grade-entries
+      description: JSON-formatted string of data that contains __banner id__ or
+        __source id__ of faculty and students for updating course grade
+        information.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version.
+                        
+            ```
+             application/vnd.hedtech.integration.v2.0.0+json
+             ```
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v2.0.0+json:
+            schema:
+              type: object
+              oneOf:
+                - $ref: "#/components/schemas/grade-entries-1"
+                - $ref: "#/components/schemas/grade-entries-2"
+            examples:
+              grade-entries:
+                $ref: "#/components/examples/grade-entries"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/vnd.hedtech.integration.v2.0.0+json:
+              schema:
+                type: object
+                oneOf:
+                  - $ref: "#/components/schemas/grade-entries-response-1"
+                  - $ref: "#/components/schemas/grade-entries-response-2"
+              examples:
+                grade-entries:
+                  $ref: "#/components/examples/grade-entries-response"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v2.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    grade-entries-1:
+      type: object
+      properties:
+        courseReferenceNumber:
+          type: string
+        term:
+          type: string
+        bannerId:
+          type: string
+        students:
+          type: array
+          items:
+            type: object
+            properties:
+              studentData1:
+                type: object
+                properties:
+                  bannerId:
+                    type: string
+                  midTermGrade:
+                    type: string
+                  lastAttendDate:
+                    type: string
+                    format: date
+              studentData2:
+                type: object
+                properties:
+                  bannerId:
+                    type: string
+                  finalGrade:
+                    type: string
+                  lastAttendDate:
+                    type: string
+                    format: date
+                  defaultGrade:
+                    type: string
+                  extensionDate:
+                    type: string
+                    format: date
+              studentData3:
+                type: object
+                properties:
+                  bannerId:
+                    type: string
+                  startOn:
+                    type: string
+                    format: date
+                  endOn:
+                    type: string
+                    format: date
+    grade-entries-2:
+      type: object
+      properties:
+        courseReferenceNumber:
+          type: string
+        term:
+          type: string
+        sourceId:
+          type: string
+        students:
+          type: array
+          items:
+            type: object
+            properties:
+              studentData1:
+                type: object
+                properties:
+                  bannerId:
+                    type: string
+                  midTermGrade:
+                    type: string
+                  lastAttendDate:
+                    type: string
+                    format: date
+              studentData2:
+                type: object
+                properties:
+                  bannerId:
+                    type: string
+                  finalGrade:
+                    type: string
+                  lastAttendDate:
+                    type: string
+                    format: date
+                  defaultGrade:
+                    type: string
+                  extensionDate:
+                    type: string
+                    format: date
+              studentData3:
+                type: object
+                properties:
+                  bannerId:
+                    type: string
+                  startOn:
+                    type: string
+                    format: date
+                  endOn:
+                    type: string
+                    format: date
+    grade-entries-response-1:
+      type: object
+      properties:
+        courseReferenceNumber:
+          type: string
+        term:
+          type: string
+        facultyId:
+          type: string
+        failureList:
+          type: array
+          items:
+            type: object
+            properties:
+              failureList1:
+                type: object
+                properties:
+                  studentId:
+                    type: string
+                  midTermGrade:
+                    type: string
+                  errorCode:
+                    type: string
+                  errorMessage:
+                    type: string
+              failureList2:
+                type: object
+                properties:
+                  studentId:
+                    type: string
+                  finalGrade:
+                    type: string
+                  lastAttendDate:
+                    type: string
+                    format: date
+                  errorCode:
+                    type: string
+                  errorMessage:
+                    type: string
+              failureList3:
+                type: object
+                properties:
+                  studentId:
+                    type: string
+                  finalGrade:
+                    type: string
+                  defaultGrade:
+                    type: string
+                  extensionDate:
+                    type: string
+                    format: date
+                  errorCode:
+                    type: string
+                  errorMessage:
+                    type: string
+        successList:
+          type: array
+          items:
+            type: object
+            properties:
+              successList1:
+                type: object
+                properties:
+                  studentId:
+                    type: string
+                  midTermGrade:
+                    type: string
+                  statusCode:
+                    type: string
+                  message:
+                    type: string
+              successList2:
+                type: object
+                properties:
+                  studentId:
+                    type: string
+                  finalGrade:
+                    type: string
+                  lastAttendDate:
+                    type: string
+                    format: date
+                  statusCode:
+                    type: string
+                  message:
+                    type: string
+              failureList3:
+                type: object
+                properties:
+                  studentId:
+                    type: string
+                  finalGrade:
+                    type: string
+                  defaultGrade:
+                    type: string
+                  extensionDate:
+                    type: string
+                    format: date
+                  statusCode:
+                    type: string
+                  message:
+                    type: string
+    grade-entries-response-2:
+      type: object
+      properties:
+        courseReferenceNumber:
+          type: string
+        term:
+          type: string
+        sourceId:
+          type: string
+        failureList:
+          type: array
+          items:
+            type: object
+            properties:
+              failureList1:
+                type: object
+                properties:
+                  studentId:
+                    type: string
+                  midTermGrade:
+                    type: string
+                  errorCode:
+                    type: string
+                  errorMessage:
+                    type: string
+              failureList2:
+                type: object
+                properties:
+                  studentId:
+                    type: string
+                  finalGrade:
+                    type: string
+                  lastAttendDate:
+                    type: string
+                    format: date
+                  errorCode:
+                    type: string
+                  errorMessage:
+                    type: string
+              failureList3:
+                type: object
+                properties:
+                  studentId:
+                    type: string
+                  finalGrade:
+                    type: string
+                  defaultGrade:
+                    type: string
+                  extensionDate:
+                    type: string
+                    format: date
+                  errorCode:
+                    type: string
+                  errorMessage:
+                    type: string
+        successList:
+          type: array
+          items:
+            type: object
+            properties:
+              successList1:
+                type: object
+                properties:
+                  studentId:
+                    type: string
+                  midTermGrade:
+                    type: string
+                  statusCode:
+                    type: string
+                  message:
+                    type: string
+              successList2:
+                type: object
+                properties:
+                  studentId:
+                    type: string
+                  finalGrade:
+                    type: string
+                  lastAttendDate:
+                    type: string
+                    format: date
+                  statusCode:
+                    type: string
+                  message:
+                    type: string
+              failureList3:
+                type: object
+                properties:
+                  studentId:
+                    type: string
+                  finalGrade:
+                    type: string
+                  defaultGrade:
+                    type: string
+                  extensionDate:
+                    type: string
+                    format: date
+                  statusCode:
+                    type: string
+                  message:
+                    type: string
+  examples:
+    grade-entries:
+      value:
+        - courseReferenceNumber: Course Reference Number
+          term: Code value to identify the term
+          bannerId/sourceId: Faculty banner id or Faculty source Id
+          students:
+            - bannerId: Student banner id
+              midTermGrade: Field that identifies the mid-term grade code associated with the
+                CRN
+              lastAttendDate: Field that indicates the date when the student last attended the
+                class
+            - sourcedId: Student banner id
+              finalGrade: Field that identifies the finalGrade
+              lastAttendDate: Field that indicates the lastAttendDate
+            - bannerId: Student banner id
+              finalGrade: "Field that identifies the finalGrade "
+              defaultGrade: "Field that identifies the defaultGrade "
+              extensionDate: Field that identifies the extensionDate
+    grade-entries-response:
+      value:
+        - courseReferenceNumber: Course Reference Number
+          term: Code value to identify the term
+          bannerId/sourceId: Faculty banner id o Faculty Source id
+          failureList:
+            - studentId: Student banner id
+              midTermGrade: Field that identifies the mid-term grade code associated with the
+                CRN
+              lastAttendDate: Field that indicates the date when the student last attended the
+                class
+              errorCode: Error code
+              errorMessage: Error message
+            - sourcedId: Student banner id
+              finalGrade: Field that identifies the finalGrade
+              lastAttendDate: Field that indicates the lastAttendDate
+              errorCode: Error code
+              errorMessage: Error message
+            - bannerId: Student banner id
+              finalGrade: "Field that identifies the finalGrade "
+              defaultGrade: "Field that identifies the defaultGrade "
+              extensionDate: Field that identifies the extensionDate
+              errorCode: Error code
+              errorMessage: Error message
+          successList:
+            - studentId: Student banner id
+              midTermGrade: Field that identifies the mid-term grade code associated with the
+                CRN
+              lastAttendDate: Field that indicates the date when the student last attended the
+                class
+              statusCode: Success Response code
+              message: Success Response
+            - sourcedId: Student banner id
+              finalGrade: Field that identifies the finalGrade
+              lastAttendDate: Field that indicates the lastAttendDate
+              statusCode: Success Response code
+              message: Success Response
+            - bannerId: Student banner id
+              finalGrade: "Field that identifies the finalGrade "
+              defaultGrade: "Field that identifies the defaultGrade "
+              extensionDate: Field that identifies the extensionDate
+              statusCode: Success Response code
+              message: Success Response

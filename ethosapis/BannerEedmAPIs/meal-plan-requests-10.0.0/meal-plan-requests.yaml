@@ -1,0 +1,473 @@
+openapi: 3.0.0
+info:
+  title: Meal Plan Requests
+  description: >
+    A student's requests for campus meal plans. Meal plan rquests/application
+    can be for a specific term or span a range of terms.
+
+
+    Please refer to the section "API Integration Configuration Settings" in Banner Ethos API Handbook for all the configuration settings needed for this API.
+  version: "10.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Foundation
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/meal-plan-requests:
+    get:
+      summary: Returns resources from SLBRMAP
+      description: >
+        Returns all the records from SLBRMAP with application type with meal
+        required indicator is set to Y.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_MEAL_PLAN_REQUESTS
+      tags:
+        - meal-plan-requests
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-meal-plan-requests.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v10+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new resource in SLBRMAP
+      description: >
+        A meal plan request application will be created with a POST request in
+        SLBRMAP.
+
+
+        Note:
+
+
+        When academicPeriod is not sent in the request, depending on the 'MIN' and 'MAX' values defined in the DERIVE.TERM_RULE integration configuration setting, the API uses either the DERIVE_MIN_TERM or DERIVE_MAX_TERM delivered in GORRSQL to derive the effective term of the housing request application. Please refer to 'Housing and meal plan APIs' section in Banner Ethos API handbook for more details.
+
+
+        POST requests must include a nil GUID value ("00000000-0000-0000-0000-000000000000") for the root id property.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_MEAL_PLAN_REQUESTS
+      tags:
+        - meal-plan-requests
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v10+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v10+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-meal-plan-requests.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-meal-plan-requests.json"
+  /api/meal-plan-requests/{id}:
+    get:
+      summary: Return the requested resource from SLBRMAP
+      description: >
+        Returns a record from SLBRMAP with the passed in identifier whose
+        application type with meal required indicator is set to Y.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_MEAL_PLAN_REQUESTS
+      tags:
+        - meal-plan-requests
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v10+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v10+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-meal-plan-requests.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    put:
+      summary: Update the requested resource from SLBRMAP
+      description: |
+        Updates an existing meal plan request record in SLBRMAP.
+
+        Properties that are not updatable: id, person.id, academicPeriod.id
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_MEAL_PLAN_REQUESTS
+      tags:
+        - meal-plan-requests
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Meal Plan Requests for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json 
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v10+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v10+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-meal-plan-requests.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-meal-plan-requests.json"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-meal-plan-requests.json:
+      title: Meal Plan Requests
+      description: Requests for campus meal plans.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the meal plan request.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: SLBRMAP_MEAL_GUID(SLBRMAP)
+        person:
+          title: Person
+          description: The person applying for the meal plan.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Person.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+              x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME as 'persons' and GORGUID_DOMAIN_KEY = SLBRMAP_PIDM
+          additionalProperties: false
+          required:
+            - id
+        mealPlan:
+          title: Meal Plan
+          description: The meal plan the person requested.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Meal Plan.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: meal-plans 
+              x-lineageReferenceObject: SLBRMAP_MRCD_CODE(SLBRMAP)
+          additionalProperties: false
+          required:
+            - id
+        academicPeriod:
+          title: Academic Period
+          description: The academic period for which the meal plan is requested.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Academic Period.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: academic-periods 
+                  x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = term) 
+                  x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME = 'term' and GORGUID_DOMAIN_KEY = SLBRMAP_FROM_TERM
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        startOn:
+          title: Start On
+          description: The requested start date of the meal plan.
+          oneOf:
+            - type: string
+              format: date-time
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: Display SLBRMAP_HOUSING_STARTON if column value is not NULL, else STVTERM_START_DATE from STVTERM where STVTERM_CODE = SLBRMAP_FROM_TERM.
+            - type: string
+              maxLength: 0
+        endOn:
+          title: End On
+          description: The requested end date of the meal plan.
+          oneOf:
+            - type: string
+              format: date-time
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: Display SLBRMAP_HOUSING_ENDON if column value is not NULL, else STVTERM_END_DATE from STVTERM where STVTERM_CODE = SLBRMAP_TO_TERM.
+            - type: string
+              maxLength: 0
+        submittedOn:
+          title: Submitted On
+          description: The date when the request was submitted.
+          oneOf:
+            - type: string
+              format: date-time
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+              x-lineageReferenceObject: SLBRMAP_ADD_DATE(SLBRMAP)
+            - type: string
+              maxLength: 0
+        status:
+          title: Status
+          description: The status of the request.
+          oneOf:
+            - type: string
+              enum:
+                - submitted
+                - approved
+                - rejected
+                - withdrawn
+              x-lineageReferenceObject: GORICCR_TRANSLATION_VALUE(GORICCR)
+              x-lineageDerivedLogic: A record in GORICCR where GORICCR_SQPR_CODE = 'HEDM' and GORICCR_ICSN_CODE = HOUSING.APPLICATION.STATUS and GORICCR_VALUE = SLBRMAP_HAPS_CODE
+            - type: string
+              maxLength: 0
+      required:
+        - id
+        - person
+        - mealPlan
+      additionalProperties: false

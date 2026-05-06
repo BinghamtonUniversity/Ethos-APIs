@@ -1,0 +1,990 @@
+openapi: 3.0.0
+info:
+  title: Institution Jobs
+  description: >
+    A detailed description of an employee's job-related data such as position,
+    start and end, pay details, status at an institution.
+  version: 12.2.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Human Resources
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/institution-jobs:
+    get:
+      summary: Returns resources from NBRJOBS
+      description: >
+        Returns all the records from NBRJOBS(base table) for the unique
+        combination of active employee(NBRJOBS_PIDM), active
+        position(NBRJOBS_POSN), position suffix(NBRJOBS_SUFF) and effective
+        date(NBRJOBS_EFFECTIVE_DATE) along with the corresponding data from
+        NBRBJOB(detail) and NBRJLBD(labor distributions) tables.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_INSTITUTION_JOBS
+      tags:
+        - institution-jobs
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v12+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Person  
+
+            Returns all institution jobs for the given person
+
+            ```
+
+            /institution-jobs?criteria={"person":{"id":"4ff5a7da-1db9-4f5f-9c6c-86b05374eb52"}}
+
+            ```   
+
+            ### Employer  
+
+            Returns all institution jobs for the given employer
+
+            ```
+
+            /institution-jobs?criteria={"employer":{"id":"dd8f3701-c40a-454c-bd4c-8daab228826e"}}
+
+            ```  
+
+            ### Position  
+
+            Returns all institution jobs for the given position
+
+            ```
+
+            /institution-jobs?criteria={"position":{"id":"dd8947db-a61e-43f9-98c8-42a0168e95c3"}}
+
+            ```  
+
+            ### Department  
+
+            Returns all institution jobs for the given department
+
+            ```
+
+            /institution-jobs?criteria={"department":{"id":"a018c92c-48c4-45da-aca1-be273ada8047"}}
+
+            ``` 
+             ### Start On  
+            Returns all institution jobs for the given startOn
+
+            ```
+
+            /institution-jobs?criteria={"startOn":"2014-07-01"}
+
+            ``` 
+             ### End On  
+            Returns all institution jobs for the given endOn
+
+            ```
+
+            /institution-jobs?criteria={"startOn":"2018-07-01"}
+
+            ```
+
+            ### Status 
+
+            Returns all institution jobs for the given status. Only the status with ‘active’, ‘terminated’ and ‘leave’ are supported
+
+            ```
+
+            /institution-jobs?criteria={"status":"active"}
+
+            ```
+
+            ### Classification 
+
+            Returns all institution jobs for the given classification
+
+            ```
+
+            /institution-jobs?criteria={"classification":{"id":"5aef2b09-049e-4ed9-8ff5-c80c8207d5ba"}}
+
+            ```
+
+            ### Preference 
+
+            Returns all institution jobs for the given preference. Preference with ‘primary’, ‘secondary’ and ‘overload’ are supported
+
+            ```
+
+            /institution-jobs?criteria={"preference":"primary"}
+
+            ```
+
+            ### Active On Named Query
+
+            Returns all institution jobs for the effective date lesser than or equal to the given date with status as Active.
+
+            ```
+
+            /institution-jobs?activeOn={"activeOn":"2018-07-01"}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-institution-jobs.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v12.2.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new resource in NBRJOBS
+      description: >
+        Creates a new job assignment record for an active employee in
+        NBRJOBS(base), NBRBJOB(detail) and NBRJLBD(labor distributions) tables
+        with a POST request.
+
+
+        Note: 
+
+
+        To create a new job assignment
+
+
+        • The person id sent in the request should be an active employee.
+
+
+        • The position id sent in the request should be an active position.
+
+
+        • If the person sent in the request has already a primary job, then the primary job must be changed to secondary before a new primary job request is sent.
+
+
+        • The effective date of the job should not be earlier than the current hire date in PEBEMPL.
+
+
+        • The suffix sent in the request has a corresponding record in NBRJOBS table, a new effective dated record for the person id and position id is added to NBRJOBS base table.
+
+
+        • If the suffix is not sent in the request and if there are no job assignments in NBRJOBS table, then a new job assignment will be created with "00" suffix.
+
+
+        • If the suffix is not sent in the request and if there are job assignments in NBRJOBS table, then a new job assignment will be created with the suffix value incremented.
+
+
+        POST requests must include a nil GUID value ("00000000-0000-0000-0000-000000000000") for the root id property.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_INSTITUTION_JOBS
+      tags:
+        - institution-jobs
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v12+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v12+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v12.2.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v12.2.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-institution-jobs.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v12+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-institution-jobs.json"
+  /api/institution-jobs/{id}:
+    get:
+      summary: Return the requested resource from NBRJOBS
+      description: >
+        Returns the record from NBRJOBS(base table) for the unique combination
+        of active employee(NBRJOBS_PIDM), active position(NBRJOBS_POSN),
+        position suffix(NBRJOBS_SUFF) and effective date(NBRJOBS_EFFECTIVE_DATE)
+        along with the corresponding data from NBRBJOB(detail) and NBRJLBD(labor
+        distributions) tables with the passed in identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_INSTITUTION_JOBS
+      tags:
+        - institution-jobs
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v12+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v12.2.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v12.2.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-institution-jobs.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-institution-jobs.json:
+      title: Institution Jobs
+      description: A detailed description of the job at an institution.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the institution job.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: NBRJOBS_GUID(NBRJOBS)
+        person:
+          title: Person
+          description: The employee to which the job is associated.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Person.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: NBRJOBS_PIDM(NBRJOBS)
+          additionalProperties: false
+          required:
+            - id
+        employer:
+          title: Employer
+          description: The operational unit of the institution to which the job belongs.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Employer.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: institution-employers 
+              x-lineageReferenceObject: NBRJOBS_EMPR_CODE(NBRJOBS)
+          additionalProperties: false
+          required:
+            - id
+        position:
+          title: Position
+          description: The position associated with the job.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Position.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: institution-positions 
+              x-lineageReferenceObject: NBRBJOB_POSN(NBRBJOB)
+          additionalProperties: false
+          required:
+            - id
+        department:
+          title: Department
+          description: The department or organization of the institution to which the job
+            belongs.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Department.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: employment-departments 
+              x-lineageReferenceObject: NBRJOBS_ORGN_CODE_TS(NBRJOBS)
+          additionalProperties: false
+          required:
+            - id
+        startOn:
+          title: Start On
+          description: The first day of the job.
+          type: string
+          format: date
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+          x-lineageReferenceObject: NBRJOBS_EFFECTIVE_DATE(NBRJOBS)
+        endOn:
+          title: End On
+          description: The last day of the job.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: NBRJOBS_EFFECTIVE_DATE(NBRJOBS)
+            - type: string
+              maxLength: 0
+        jobChangeReason:
+          title: Job Change Reason
+          description: The reason associated with the change of job.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Job Change Reason.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: job-change-reasons 
+                  x-lineageReferenceObject: NBRJOBS_JCRE_CODE(NBRJOBS)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        accountingStringAllocations:
+          title: Accounting String Allocations
+          description: The accounting strings with allocated percentages associated with
+            the job.
+          type: array
+          items:
+            type: object
+            properties:
+              accountingString:
+                title: Accounting String
+                description: An accounting string associated with the job.
+                type: string
+                minLength: 1
+                x-lineageReferenceObject: derived  
+                x-lineageDerivedLogic: If finance is installed concatenate the fields 'NBRJLBD_COAS_CODE, NBRJLBD_ACCI_CODE, NBRJLBD_FUND_CODE, NBRJLBD_ORGN_CODE, NBRJLBD_ACCT_CODE, NBRJLBD_PROG_CODE, NBRJLBD_ACTV_CODE, NBRJLBD_LOCN_CODE, NBRJLBD_PROJ_CODE' and display. Else NBRJLBD_ACCT_CODE_EXTERNAL(NBRJLBD)
+              allocatedPercentage:
+                title: Allocated Percentage
+                description: The percentage allocation of the job expenses to the accounting
+                  string.
+                type: number
+                x-lineageReferenceObject: NBRJLBD_PERCENT(NBRJLBD)
+              startOn:
+                title: Start On
+                description: The start date associated with the accounting string.
+                oneOf:
+                  - type: string
+                    format: date
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                    x-lineageReferenceObject: NBRJLBD_EFFECTIVE_DATE(NBRJLBD)
+                  - type: string
+                    maxLength: 0
+              endOn:
+                title: End On
+                description: The end date associated with the accounting string.
+                oneOf:
+                  - type: string
+                    format: date
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                    x-lineageReferenceObject: NBRJLBD_EFFECTIVE_DATE(NBRJLBD)
+                  - type: string
+                    maxLength: 0
+            additionalProperties: false
+            required:
+              - accountingString
+              - allocatedPercentage
+        status:
+          title: Status
+          description: The status of the employee on the job.
+          enum:
+            - active
+            - ended
+            - leave
+          type: string
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: NBRJOBS_STATUS. Display 'active' if status is A, Display 'terminated' if status is T, Display 'leave' if status is any of the following values B, L, F, P.
+        hoursPerPeriod:
+          title: Hours Per Period
+          description: The number of hours of work in specified time periods.
+          type: array
+          items:
+            type: object
+            properties:
+              period:
+                title: Period
+                description: The defined time period (e.g. day, week, month, etc.) associated
+                  with the job.
+                enum:
+                  - day
+                  - week
+                  - month
+                  - year
+                  - payPeriod
+                type: string
+                x-lineageReferenceObject: NBRJOBS_HRS_DAY(NBRJOBS) or  NBRJOBS_HRS_PAY(NBRJOBS)
+                x-lineageDerivedLogic: Display 'day' if the value is from NBRJOBS_HRS_DAY. Note only day and payPeriod are supported. Display 'payPeriod' if the valus is from NBRJOBS_HRS_PAY. Note only day and payPeriod are supported.
+              hours:
+                title: Hours
+                description: The number of hours of work in the specified time period.
+                minimum: 0
+                type: number
+                format: positiveNumber
+                x-lineageReferenceObject: NBRJOBS_HRS_PAY(NBRJOBS) or NBRJOBS_HRS_DAY(NBRJOBS)
+            additionalProperties: false
+            required:
+              - period
+              - hours
+        fullTimeEquivalent:
+          title: Full Time Equivalent
+          description: The ratio of hours of work for the position to the hours of work
+            expected of a full-time employee.
+          oneOf:
+            - type: number
+              minimum: 0
+              format: positiveNumber
+              x-lineageReferenceObject: NBRJOBS_FTE(NBRJOBS)
+            - type: string
+              nullable: true
+        appointmentPercentage:
+          title: Appointment Percentage
+          description: The percentage of the position filled by the employee.
+          oneOf:
+            - type: number
+              minimum: 0
+              format: positiveNumber
+              x-lineageReferenceObject: NBRJOBS_APPT_PCT(NBRJOBS)
+            - type: string
+              nullable: true
+        supervisors:
+          title: Supervisors
+          description: The supervisors associated with the job.
+          type: array
+          items:
+            type: object
+            properties:
+              supervisor:
+                title: Supervisor
+                description: The supervisor for the job.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Supervisor.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: persons 
+                    x-lineageReferenceObject: NBRJOBS_SUPERVISOR_PIDM(NBRJOBS)
+                additionalProperties: false
+                required:
+                  - id
+              type:
+                title: Type
+                description: The type of supervisor (e.g. primary, alternate, etc.).
+                enum:
+                  - primary
+                  - alternate
+                type: string
+                x-lineageReferenceObject: derived  
+                x-lineageDerivedLogic: Always 'primary' is displayed.
+            additionalProperties: false
+            required:
+              - supervisor
+              - type
+        salaries:
+          title: Salaries
+          description: The details of the salary associated with the job.
+          type: array
+          items:
+            type: object
+            properties:
+              grade:
+                title: Grade
+                description: The grade of salary for the job.
+                type: string
+                x-lineageReferenceObject: NBRJOBS_SAL_GRADE(NBRJOBS)
+              step:
+                title: Step
+                description: The step of salary for the job.
+                type: string
+                x-lineageReferenceObject: NBRJOBS_SAL_STEP(NBRJOBS)
+              amount:
+                title: Amount
+                description: The amount of salary for the job.
+                type: object
+                properties:
+                  period:
+                    title: Period
+                    description: The time period of the salary.
+                    enum:
+                      - hour
+                      - year
+                      - contract
+                    type: string
+                    x-lineageReferenceObject: derived  
+                    x-lineageDerivedLogic: For the employee class code if salary indicator (PTRECLS_SALARY_IND)  is 'H' display 'hour' else if salaray indicator(PTRECLS_SALARY_IND)  is 'S' or 'V' display year.
+                  rate:
+                    title: Rate
+                    description: The amount awarded per time period.
+                    format: currency
+                    type: object
+                    properties:
+                      value:
+                        title: Value
+                        description: The monetary value
+                        type: number
+                        x-lineageReferenceObject: derived  
+                        x-lineageDerivedLogic: If the period derived is 'hour' then display 'NBRJOBS_REG_RATE' else if period is 'year' then display 'NBRJOBS_ANN_SALARY'
+                      currency:
+                        title: Currency
+                        description: The ISO 4217 currency code
+                        enum:
+                          - AED
+                          - AFN
+                          - ALL
+                          - AMD
+                          - ANG
+                          - AOA
+                          - ARS
+                          - AUD
+                          - AWG
+                          - AZN
+                          - BAM
+                          - BBD
+                          - BDT
+                          - BGN
+                          - BHD
+                          - BIF
+                          - BMD
+                          - BND
+                          - BOB
+                          - BRL
+                          - BSD
+                          - BTN
+                          - BWP
+                          - BYR
+                          - BZD
+                          - CAD
+                          - CDF
+                          - CHF
+                          - CLP
+                          - CNY
+                          - COP
+                          - CRC
+                          - CUC
+                          - CUP
+                          - CVE
+                          - CZK
+                          - DJF
+                          - DKK
+                          - DOP
+                          - DZD
+                          - EGP
+                          - ERN
+                          - ETB
+                          - EUR
+                          - FJD
+                          - FKP
+                          - GBP
+                          - GEL
+                          - GHS
+                          - GIP
+                          - GMD
+                          - GNF
+                          - GTQ
+                          - GYD
+                          - HKD
+                          - HNL
+                          - HRK
+                          - HTG
+                          - HUF
+                          - IDR
+                          - ILS
+                          - INR
+                          - IQD
+                          - IRR
+                          - ISK
+                          - JMD
+                          - JOD
+                          - JPY
+                          - KES
+                          - KGS
+                          - KHR
+                          - KMF
+                          - KPW
+                          - KRW
+                          - KWD
+                          - KYD
+                          - KZT
+                          - LAK
+                          - LBP
+                          - LKR
+                          - LRD
+                          - LSL
+                          - LYD
+                          - MAD
+                          - MDL
+                          - MGA
+                          - MKD
+                          - MMK
+                          - MNT
+                          - MOP
+                          - MRO
+                          - MUR
+                          - MVR
+                          - MWK
+                          - MXN
+                          - MYR
+                          - MZN
+                          - NAD
+                          - NGN
+                          - NIO
+                          - NOK
+                          - NPR
+                          - NZD
+                          - OMR
+                          - PAB
+                          - PEN
+                          - PGK
+                          - PHP
+                          - PKR
+                          - PLN
+                          - PYG
+                          - QAR
+                          - RON
+                          - RSD
+                          - RUB
+                          - RWF
+                          - SAR
+                          - SBD
+                          - SCR
+                          - SDG
+                          - SEK
+                          - SGD
+                          - SHP
+                          - SLL
+                          - SOS
+                          - SRD
+                          - SSP
+                          - STD
+                          - SVC
+                          - SYP
+                          - SZL
+                          - THB
+                          - TJS
+                          - TMT
+                          - TND
+                          - TOP
+                          - TRY
+                          - TTD
+                          - TWD
+                          - TZS
+                          - UAH
+                          - UGX
+                          - USD
+                          - UYU
+                          - UZS
+                          - VEF
+                          - VND
+                          - VUV
+                          - WST
+                          - XAF
+                          - XCD
+                          - XOF
+                          - XPF
+                          - YER
+                          - ZAR
+                          - ZMW
+                          - ZWL
+                        type: string
+                        x-lineageReferenceObject: derived  
+                        x-lineageDerivedLogic: Display the institution Currency value.
+                    additionalProperties: false
+                    required:
+                      - value
+                      - currency
+                additionalProperties: false
+                required:
+                  - period
+                  - rate
+              startOn:
+                title: Start On
+                description: The start date associated with the salary.
+                oneOf:
+                  - type: string
+                    format: date
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                    x-lineageReferenceObject: NBRJOBSS_SAL_START_ON(NBRJOBSS)
+                  - type: string
+                    maxLength: 0
+              endOn:
+                title: End On
+                description: The end date associated with the salary.
+                oneOf:
+                  - type: string
+                    format: date
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                    x-lineageReferenceObject: NBRJOBSS_SAL_END_ON(NBRJOBSS)
+                  - type: string
+                    maxLength: 0
+            additionalProperties: false
+            required:
+              - amount
+        classification:
+          title: Classification
+          description: The position classification of the job.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Classification.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: position-classifications 
+                  x-lineageReferenceObject: NTRPCLS_GUID(NTRPCLS)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        payClass:
+          title: Pay Class
+          description: The pay class associated with the job.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Pay Class.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: pay-classes 
+                  x-lineageReferenceObject: NBRJOBS_ECLS_CODE(NBRJOBS)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        payCycle:
+          title: Pay Cycle
+          description: The pay cycle associated with the job.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Pay Cycle.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: pay-cycles 
+                  x-lineageReferenceObject: NBRJOBS_PICT_CODE(NBRJOBS)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        preference:
+          title: Preference
+          description: The preference for a job (e.g. primary, secondary or overload).
+          oneOf:
+            - type: string
+              enum:
+                - primary
+                - secondary
+                - overload
+              x-lineageReferenceObject: NBRBJOB_CONTRACT_TYPE(NBRBJOB)
+              x-lineageDerivedLogic: Display 'primary' is contract type is 'P', Display 'secondary' if contract type is 'S', Display 'overload' if contract type is 'O'
+            - type: string
+              maxLength: 0
+        suffix:
+          title: Suffix
+          description: Suffix is a two-character identification that distinguishes jobs.
+            Unless otherwise specified, the first job associated with a position
+            has a suffix of '00', the second job would be a suffix of '01, and
+            so on.
+          oneOf:
+            - type: string
+              maxLength: 2
+              x-lineageReferenceObject: NBRJOBS_SUFF(NBRJOBS)
+            - type: string
+              maxLength: 0
+      required:
+        - id
+        - person
+        - employer
+        - position
+        - department
+        - startOn
+        - status
+      additionalProperties: false

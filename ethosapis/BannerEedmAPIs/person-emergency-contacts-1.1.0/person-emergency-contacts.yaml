@@ -1,0 +1,743 @@
+openapi: 3.0.0
+info:
+  title: Person Emergency Contacts
+  description: >
+    People who will be contacted in the event of an emergency situation related
+    to the subject person.
+  version: 1.1.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Foundation
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/person-emergency-contacts:
+    get:
+      summary: Returns resources from SPREMRG
+      description: >
+        Returns a paged listing of all the person emergency contact records from
+        SPREMRG table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSON_EMERGENCY_CONTACTS
+      tags:
+        - person-emergency-contacts
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+          example: "application/vnd.hedtech.integration.v1+json"
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+          example: 100
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+          example: 0
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: |
+            ### Person  
+            The subject person.
+            ```
+            /person-emergency-contacts?criteria={"person": {"id": $id}}
+            ```
+          example: {"person": {"id": "12345678-1234-1234-1234-123456789012"}}
+        - name: personFilter
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Person Filter  
+
+            Retrieve information for a specified population.
+
+            ```
+
+            /person-emergency-contacts?personFilter={"personFilter": {"id": $id}}
+
+            ```
+          example: {"personFilter": {"id": "12345678-1234-1234-1234-123456789012"}}
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-person-emergency-contacts.json"
+              example:
+                  id: "87654321-4321-4321-4321-210987654321"
+                  person:
+                    id: "12345678-1234-1234-1234-123456789012"
+                  contact:
+                    name:
+                      fullName: "Jane Mary Smith"
+                      firstName: "Jane"
+                      middleName: "Mary"
+                      lastName: "Smith"
+                    types:
+                      - id: "abcd1234-5678-9012-3456-789012345678"
+                    phones:
+                      - contactAvailability:
+                          id: "fedcba98-7654-3210-9876-543210987654"
+                        countryCallingCode: "+1"
+                        number: "5551234567"
+                        extension: "123"
+                    relationship:
+                      type: "Mother"
+                      detail:
+                        id: "11111111-2222-3333-4444-555555555555"
+                  priority: 1
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.1.0+json
+              schema:
+                type: string
+              example: "application/vnd.hedtech.integration.v1.1.0+json"
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+              example: 25
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new resource in SPREMRG
+      description: >
+        Creates a new person emergency contact record in SPREMRG.
+
+
+        POST requests must include a nil GUID value ("00000000-0000-0000-0000-000000000000") for the root id property.
+
+
+
+        A maximum of 9 emergency contacts are allowed to be created for a person. A create request sent for a person with 9 emergency contacts already existing in SPREMRG will be rejected with an error message.
+
+
+        For every person emeregency contact record created in SPREMRG table, priority in SPREMRG_PRIORITY should be populated. The Priority field is not identified in this data model and requires an assumption that the first record created on SPREMRG for a person will require a Priority of '1' to be inserted by the API. Subsequent emergency contact records for the same person will require a check to identify the first available priority number between '1' to '9' to be defaulted as SPREMRG_PRIORITY by the API.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSON_EMERGENCY_CONTACTS
+      tags:
+        - person-emergency-contacts
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+          example: "application/vnd.hedtech.integration.v1+json"
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+          example: "application/vnd.hedtech.integration.v1+json"
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.1.0+json
+              schema:
+                type: string
+              example: "application/vnd.hedtech.integration.v1.1.0+json"
+          content:
+            application/vnd.hedtech.integration.v1.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-person-emergency-contacts.json"
+              example:
+                id: "87654321-4321-4321-4321-210987654321"
+                person:
+                  id: "12345678-1234-1234-1234-123456789012"
+                contact:
+                  name:
+                    fullName: "Robert James Johnson"
+                    firstName: "Robert"
+                    middleName: "James"
+                    lastName: "Johnson"
+                  types:
+                    - id: "abcd1234-5678-9012-3456-789012345678"
+                  phones:
+                    - contactAvailability:
+                        id: "fedcba98-7654-3210-9876-543210987654"
+                      countryCallingCode: "+1"
+                      number: "5559876543"
+                      extension: "456"
+                  relationship:
+                    type: "Father"
+                    detail:
+                      id: "22222222-3333-4444-5555-666666666666"
+                priority: 2
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-person-emergency-contacts.json"
+            example:
+              id: "00000000-0000-0000-0000-000000000000"
+              person:
+                id: "12345678-1234-1234-1234-123456789012"
+              contact:
+                name:
+                  fullName: "Sarah Elizabeth Davis"
+                  firstName: "Sarah"
+                  middleName: "Elizabeth"
+                  lastName: "Davis"
+                types:
+                  - id: "abcd1234-5678-9012-3456-789012345678"
+                phones:
+                  - contactAvailability:
+                      id: "fedcba98-7654-3210-9876-543210987654"
+                    countryCallingCode: "+1"
+                    number: "5551112222"
+                    extension: "789"
+                relationship:
+                  type: "Spouse"
+                  detail:
+                    id: "33333333-4444-5555-6666-777777777777"
+              priority: 1
+  /api/person-emergency-contacts/{id}:
+    get:
+      summary: Return the requested resource from SPREMRG
+      description: |
+        Returns a single SPREMRG resource with the requested identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSON_EMERGENCY_CONTACTS
+      tags:
+        - person-emergency-contacts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+          example: "87654321-4321-4321-4321-210987654321"
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+          example: "application/vnd.hedtech.integration.v1+json"
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.1.0+json
+              schema:
+                type: string
+              example: "application/vnd.hedtech.integration.v1.1.0+json"
+          content:
+            application/vnd.hedtech.integration.v1.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-person-emergency-contacts.json"
+              example:
+                id: "87654321-4321-4321-4321-210987654321"
+                person:
+                  id: "12345678-1234-1234-1234-123456789012"
+                contact:
+                  name:
+                    fullName: "Michael Thomas Wilson"
+                    firstName: "Michael"
+                    middleName: "Thomas"
+                    lastName: "Wilson"
+                  types:
+                    - id: "abcd1234-5678-9012-3456-789012345678"
+                  phones:
+                    - contactAvailability:
+                        id: "fedcba98-7654-3210-9876-543210987654"
+                      countryCallingCode: "+1"
+                      number: "5554445555"
+                      extension: "342"
+                  relationship:
+                    type: "Brother"
+                    detail:
+                      id: "44444444-5555-6666-7777-888888888888"
+                priority: 3
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    put:
+      summary: Update the requested resource from SPREMRG
+      description: |
+        Updates an existing person emergency contact record in SPREMRG table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSON_EMERGENCY_CONTACTS
+      tags:
+        - person-emergency-contacts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Person Emergency Contacts for use in all
+            external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+          example: "87654321-4321-4321-4321-210987654321"
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json 
+
+            ```
+          schema:
+            type: string
+          example: "application/vnd.hedtech.integration.v1+json"
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json 
+
+            ```
+          schema:
+            type: string
+          example: "application/vnd.hedtech.integration.v1+json"
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.1.0+json
+              schema:
+                type: string
+              example: "application/vnd.hedtech.integration.v1.1.0+json"
+          content:
+            application/vnd.hedtech.integration.v1.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-person-emergency-contacts.json"
+              example:
+                id: "87654321-4321-4321-4321-210987654321"
+                person:
+                  id: "12345678-1234-1234-1234-123456789012"
+                contact:
+                  name:
+                    fullName: "Emily Rose Anderson"
+                    firstName: "Emily"
+                    middleName: "Rose"
+                    lastName: "Anderson"
+                  types:
+                    - id: "abcd1234-5678-9012-3456-789012345678"
+                  phones:
+                    - contactAvailability:
+                        id: "fedcba98-7654-3210-9876-543210987654"
+                      countryCallingCode: "+1"
+                      number: "5556667777"
+                      extension: "101"
+                  relationship:
+                    type: "Sister"
+                    detail:
+                      id: "55555555-6666-7777-8888-999999999999"
+                priority: 4
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-person-emergency-contacts.json"
+            example:
+              id: "87654321-4321-4321-4321-210987654321"
+              person:
+                id: "12345678-1234-1234-1234-123456789012"
+              contact:
+                name:
+                  fullName: "David Michael Brown"
+                  firstName: "David"
+                  middleName: "Michael"
+                  lastName: "Brown"
+                types:
+                  - id: "abcd1234-5678-9012-3456-789012345678"
+                phones:
+                  - contactAvailability:
+                      id: "fedcba98-7654-3210-9876-543210987654"
+                    countryCallingCode: "+1"
+                    number: "5558889999"
+                    extension: "202"
+                relationship:
+                  type: "Uncle"
+                  detail:
+                    id: "66666666-7777-8888-9999-aaaaaaaaaaaa"
+              priority: 5
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-person-emergency-contacts.json:
+      title: Person Emergency Contacts
+      description: People who will be contacted in the event of an emergency situation
+        related to the subject person.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+              example: "admin.user"
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+              example: "2025-08-15T14:30:00Z"
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+              example: "system.batch"
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+              example: "2025-08-20T09:15:30Z"
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the person emergency contact.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: SPREMRG_EMERGENCY_GUID(SPREMRG)
+          example: "87654321-4321-4321-4321-210987654321"
+        person:
+          title: Person
+          description: The subject person.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Person.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+              x-lineageDerivedLogic: A record from GORGUID where GORGUID_LDM_NAME = 'persons' and GORGUID_DOMAIN_KEY matches the SPREMRG_PIDM
+              example: "12345678-1234-1234-1234-123456789012"
+          additionalProperties: false
+          required:
+            - id
+        contact:
+          title: Contact
+          description: The details of the person who is the emergency contact.
+          type: object
+          properties:
+            name:
+              title: Name
+              description: The name of the contact.
+              type: object
+              properties:
+                fullName:
+                  title: Full Name
+                  description: The full name of the contact.
+                  type: string
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: Display the concatenated string of SPREMRG_FIRST_NAME + SPREMRG_MI + SPREMRG_LAST_NAME
+                  example: "Jennifer Lynn Martinez"
+                firstName:
+                  title: First Name
+                  description: The first name of the contact.
+                  type: string
+                  x-lineageReferenceObject: SPREMRG_FIRST_NAME(SPREMRG)
+                  example: "Jennifer"
+                middleName:
+                  title: Middle Name
+                  description: The middle name of the contact.
+                  type: string
+                  x-lineageReferenceObject: SPREMRG_MI(SPREMRG)
+                  example: "Lynn"
+                lastName:
+                  title: Last Name
+                  description: The last name of the contact.
+                  type: string
+                  x-lineageReferenceObject: SPREMRG_LAST_NAME(SPREMRG)
+                  example: "Martinez"
+              additionalProperties: false
+              minProperties: 1
+            types:
+              title: Types
+              description: The types of situations when the person should be contacted.
+              type: array
+              items:
+                title: Types
+                description: The types of situations when the person should be contacted.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Types.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: emergency-contact-types 
+                    x-lineageReferenceObject: GTVEMCTE_GUID(GTVEMCTE)
+                    example: "abcd1234-5678-9012-3456-789012345678"
+                additionalProperties: false
+                required:
+                  - id
+              example:
+                - id: "abcd1234-5678-9012-3456-789012345678"
+            phones:
+              title: Phones
+              description: The phone details at which the contact can be reached.
+              type: array
+              items:
+                type: object
+                properties:
+                  contactAvailability:
+                    title: Contact Availability
+                    description: The availability of the contact for this number.
+                    oneOf:
+                      - type: object
+                        properties:
+                          id:
+                            title: ID
+                            description: The global identifier for the Contact Availability.
+                            type: string
+                            format: guid
+                            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                            x-lineageLookupReferenceObject: emergency-contact-phone-availabilities 
+                            x-lineageReferenceObject: SPREMRG_PHONE_AVAIL_GUID(SPREMRG)
+                            example: "fedcba98-7654-3210-9876-543210987654"
+                        additionalProperties: false
+                        required:
+                          - id
+                      - type: object
+                        maxProperties: 0
+                    example:
+                      id: "fedcba98-7654-3210-9876-543210987654"
+                  countryCallingCode:
+                    title: Country Calling Code
+                    description: The country calling code of the telephone and/or mobile device when
+                      dialing internationally.
+                    type: string
+                    x-lineageReferenceObject: SPREMRG_CTRY_CODE_PHONE(SPREMRG)
+                    example: "+1"
+                  number:
+                    title: Number
+                    description: The number assigned to the phone.
+                    type: string
+                    minLength: 1
+                    x-lineageReferenceObject: derived
+                    x-lineageDerivedLogic: concatenated value of SPREMRG_PHONE_AREA(SPREMRG) and SPREMRG_PHONE_NUMBER(SPREMRG)
+                    example: "5551234567"
+                  extension:
+                    title: Extension
+                    description: The extension used to connect to the phone when multiple phones
+                      share the same primary number.
+                    type: string
+                    x-lineageReferenceObject: SPREMRG_PHONE_EXT(SPREMRG)
+                    example: "123"
+                additionalProperties: false
+                required:
+                  - number
+              example:
+                - contactAvailability:
+                    id: "fedcba98-7654-3210-9876-543210987654"
+                  countryCallingCode: "+1"
+                  number: "5551234567"
+                  extension: "123"
+            relationship:
+              title: Relationship
+              description: The relationship between the subject person and the contact.
+              type: object
+              properties:
+                type:
+                  title: Type
+                  description: The type of the relationship.
+                  type: string
+                  x-lineageReferenceObject: STVRELT_DESC(STVRELT)
+                  example: "Mother"
+                detail:
+                  title: Detail
+                  description: The user defined type of the relationship.
+                  oneOf:
+                    - type: object
+                      properties:
+                        id:
+                          title: ID
+                          description: The global identifier for the Detail.
+                          type: string
+                          format: guid
+                          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                          x-lineageLookupReferenceObject: relationship-types 
+                          x-lineageReferenceObject: SPREMRG_RELT_CODE(SPREMRG)
+                          example: "11111111-2222-3333-4444-555555555555"
+                      additionalProperties: false
+                      required:
+                        - id
+                    - type: object
+                      maxProperties: 0
+                  example:
+                    id: "11111111-2222-3333-4444-555555555555"
+              additionalProperties: false
+              example:
+                type: "Mother"
+                detail:
+                  id: "11111111-2222-3333-4444-555555555555"
+          additionalProperties: false
+          required:
+            - name
+            - types
+        priority: 
+              title: Priority
+              description: The priority of the emergency contact for the Person (values 1-9).
+              type: number
+              x-lineageReferenceObject: SPREMRG_PRIORITY(SPREMRG)
+              format: positiveInteger
+              minimum: 0
+              example: 1
+      required:
+        - id
+        - person
+        - contact
+      additionalProperties: false

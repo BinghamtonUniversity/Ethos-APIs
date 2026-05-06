@@ -1,0 +1,1319 @@
+openapi: 3.0.0
+info:
+  title: Catalog Course Additional Details
+  description: >
+  
+    This QAPI returns additional details related to catalog courses using a 
+    combination of subject, course number and term as seen on the SCADETL and SCACRSE 
+    administrative page. 
+    
+
+    Course details related to attributes, reporting classifications, course transfer agreements, partition preferences, room attributes and anonymous grading details
+    associated with the base catalog course are returned in the response.  
+
+
+    Additional catalog course details can be created or maintained using catalog-course-additional-details-adjustments-process.
+
+
+  version: 1.0.0-beta
+  x-api-type: erp
+  x-release-status: beta
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Student
+  x-source-name: SCADETL, SCACRSE
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /qapi/catalog-course-additional-details:
+    post:
+      tags:
+      - catalog-course-additional-details QAPI
+      summary: Returns resources from SCRFEES, SCRATTR, SCBSUPP, SCRSBGI, SCRCPRT, SCRCRDF, SCRINTG and SCRANGD.
+      description: >
+        Queries for the requested resource using a set of attributes provided in the post
+        request body.  Please note the path to use is /qapi/{resource} in the URL and not /api/{resource}.
+        
+        
+        Returns any SCRFEES, SCRATTR, SCBSUPP, SCRSBGI, SCRCPRT, SCRCRDF, SCRINTG and SCRANGD records meeting the required submitted criteria of subject, course 
+        number and query term.    
+          
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string            
+        - name: limit
+          in: query
+          description:  |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/catalog-course-additional-details-1.0.0_qapi_post_request"
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/catalog-course-additional-details-1.0.0_qapi_post_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client's preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_CAT_CRSE_ADDTL_DETS
+components:
+  schemas:
+    catalog-course-additional-details-1.0.0_qapi_post_request:
+      type: object
+      required:
+        - queryTerm        
+      properties:              
+        subject:
+          title: Subject
+          maxLength: 4
+          type: string
+          description: "The subject area of the course."
+          x-lineageReferenceObject: SCBCRKY_SUBJ_CODE
+          x-lineageLookupReferenceObject: STVSUBJ
+          example: MATH
+        courseNumber: 
+          title: Course Number
+          maxLength: 5
+          type: string
+          description: "The course number associated with the subject for the course."
+          x-lineageReferenceObject: SCBCRKY_CRSE_NUMB
+          example: 101        
+        queryTerm:
+          title: Query Term
+          maxLength: 6
+          type: string
+          description: "A user provided value.  The query term code is used to retrieve the most current course details that are less than, or equal to, the provided value."         
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202201    
+    catalog-course-additional-details-1.0.0_qapi_post_response:
+      type: object
+      required:
+        - subject
+        - courseNumber
+        - queryTerm      
+      properties:
+        subject:
+          title: Subject
+          maxLength: 4
+          type: string
+          description: "The subject area of the course."
+          x-lineageReferenceObject: SCBCRKY_SUBJ_CODE
+          x-lineageLookupReferenceObject: STVSUBJ
+          example: MATH
+        courseNumber: 
+          title: Course Number
+          maxLength: 5
+          type: string
+          description: "The course number associated with the subject for the course."
+          x-lineageReferenceObject: SCBCRKY_CRSE_NUMB
+          example: 101        
+        queryTerm:
+          title: Query Term
+          maxLength: 6
+          type: string
+          description: "A user provided value.  The query term code is used to retrieve the most current course details that are less than, or equal to, the provided value."
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202201  
+        feeDetail:
+          title: Fee Detail
+          type: object
+          required:
+            - fromTerm             
+          properties:
+            fromTerm:
+              title: Effective Term
+              maxLength: 6
+              type: string
+              format: string              
+              description: "The starting term code for a set of course fees.  An empty set indicates a period of time with no defined course attributes."
+              x-lineageReferenceObject: SCRFEES_EFF_TERM
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202201     
+            toTerm:
+              title: Ending Term
+              maxLength: 6
+              type: string
+              description: "The ending term code for a set of course attributes."
+              x-lineageReferenceObject: derived
+              x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+              x-lineageLookupReferenceObject: STVTERM
+              example: 999999                                  
+            fees:
+              title: Course Fee Details
+              type: array
+              items: 
+                type: object
+                required:
+                  - detailCode
+                  - amount
+                  - feeType             
+                properties:
+                  sequenceNumber:
+                    title: Sequence Number
+                    maxLength: 4
+                    type: number
+                    description: "Sequence number identifying the section fee."
+                    x-lineageReferenceObject: SCRFEES_SEQ_NO
+                    example: 1                 
+                  detailCode:
+                    title: Detail Code
+                    maxLength: 4
+                    type: string
+                    description: "The detail code associated with the fee."
+                    x-lineageReferenceObject: SCRFEES_DETL_CODE
+                    x-lineageLookupReferenceObject: TBBDETC
+                    example: 0009
+                  detailCodeDescription: 
+                    title: Attribute Code Description
+                    maxLength: 30
+                    type: string
+                    description: "Description of the detail code."
+                    x-lineageReferenceObject: TBBDETC_DESC
+                    example: Tuition Fee
+                  amount: 
+                    title: Fee Amount
+                    maxLength: 16
+                    multipleOf: 0.01
+                    type: number
+                    description: "Amount of the fee."
+                    x-lineageReferenceObject: SCRFEES_AMOUNT
+                    example: 15.99     
+                  feeType: 
+                    title: Fee Type Code
+                    maxLength: 4
+                    type: string
+                    description: "Code of the fee type, such as flat fee, per credit hour, per billing hour, per duration unit, used in the fee assessment calculation for a student's registration fees for a section/course."
+                    x-lineageReferenceObject: SCRFEES_FTYP_CODE
+                    x-lineageLookupReferenceObject: STVFTYP
+                    example: F  
+                  feeTypeDescription: 
+                    title: Fee Type Code Description
+                    maxLength: 30
+                    type: string
+                    description: "Description of the fee type code."
+                    x-lineageReferenceObject: STVFTYP_DESC
+                    example: Tuition Fee                                 
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SCRFEES_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z                     
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last update the data."
+                    x-lineageReferenceObject: SCRFEES_USER_ID
+                    example: SAISUSR                         
+                  studentCurriculumRule:
+                    title: Student Curriculum Rule
+                    type: object      
+                    properties:                  
+                      level:
+                        title: Level Code
+                        maxLength: 2
+                        type: string
+                        description: "Student level for the fee assessment rule."
+                        x-lineageReferenceObject: SCRFEES_LEVL_CODE_STDN
+                        x-lineageLookupReferenceObject: STVLEVL          
+                        example: AP
+                      levelDescription:
+                        title: Level Description
+                        maxLength: 30
+                        type: string
+                        description: "Description of the level code."
+                        x-lineageReferenceObject: STVLEVL_DESC
+                        example: Apprenticeship
+                      campus:
+                        title: Campus Code
+                        maxLength: 3
+                        type: string
+                        description: "Campus for the fee assessment rule."
+                        x-lineageReferenceObject: SCRFEES_CAMP_CODE
+                        x-lineageLookupReferenceObject: STVCAMP          
+                        example: M
+                      campusDescription:
+                        title: Campus Code Description
+                        maxLength: 30
+                        type: string
+                        description: "Description of the campus code."
+                        x-lineageReferenceObject: STVCAMP_DESC
+                        example: Main Campus
+                      college:
+                        title: College Code
+                        maxLength: 2
+                        type: string
+                        description: "College for the fee assessment rule."
+                        x-lineageReferenceObject: SCRFEES_COLL_CODE
+                        x-lineageLookupReferenceObject: STVCOLL         
+                        example: M
+                      collegeDescription:
+                        title: College Code Description
+                        maxLength: 30
+                        type: string
+                        description: "Description of the college code."
+                        x-lineageReferenceObject: STVCOLL_DESC
+                        example: Main Campus   
+                      degree:
+                        title: Degree Code
+                        maxLength: 6
+                        type: string
+                        description: "Degree for the fee assessment rule."
+                        x-lineageReferenceObject: SCRFEES_DEGC_CODE
+                        x-lineageLookupReferenceObject: STVDEGC         
+                        example: BA
+                      degreeDescription:
+                        title: Degree Code Description
+                        maxLength: 30
+                        type: string
+                        description: "Description of the degree code."
+                        x-lineageReferenceObject: STVDEGC_DESC
+                        example: Bachelor of Arts        
+                      program:
+                        title: Program Code
+                        maxLength: 12
+                        type: string
+                        description: "Program for the fee assessment rule."
+                        x-lineageReferenceObject: SCRFEES_PROGRAM
+                        x-lineageLookupReferenceObject: SMARPLE         
+                        example: BA-ENGL
+                      programDescription:
+                        title: Program Code Description
+                        maxLength: 30
+                        type: string
+                        description: "Description of the program code."
+                        x-lineageReferenceObject: SMARPLE_DESC
+                        example: BA in English 
+                      fieldOfStudyType:
+                        title: Field of Study Type Code
+                        maxLength: 15
+                        type: string
+                        description: "Student field of study type for the fee assessment rule."
+                        x-lineageReferenceObject: SCRFEES_LFST_CODE
+                        x-lineageLookupReferenceObject: GTVFLST         
+                        example: INTERNSHIP
+                      fieldOfStudyTypeDescription:
+                        title: Field of Study Type Code Description
+                        maxLength: 30
+                        type: string
+                        description: "Description of the field of study type code."
+                        x-lineageReferenceObject: GTVFLST_DESC
+                        example: Internship Program
+                      fieldOfStudy:
+                        title: Field of Study Code
+                        maxLength: 4
+                        type: string
+                        description: "The field of study of students subject to the fee rule."
+                        x-lineageReferenceObject: SCRFEES_MAJR_CODE
+                        x-lineageLookupReferenceObject: STVMAJR             
+                        example: CHEE
+                      fieldOfStudyDescription:
+                        title: Field of Study Code Description
+                        maxLength: 30
+                        type: string
+                        description: "Description of the field of study."
+                        x-lineageReferenceObject: STVMAJR_DESC        
+                        example: Chemical Engineering                        
+                      department:
+                        title: Department Code
+                        maxLength: 4
+                        type: string
+                        description: "The department of students subject to the fee rule."
+                        x-lineageReferenceObject: SCRFEES_DEPT_CODE
+                        x-lineageLookupReferenceObject: STVDEPT             
+                        example: NURS
+                      departmentDescription:
+                        title: Department Code Description
+                        maxLength: 30
+                        type: string
+                        description: "Description of the department."
+                        x-lineageReferenceObject: STVDEPT_DESC
+                        example: Nursing  
+                      admissionTerm:
+                        title: Admission Term
+                        maxLength: 6
+                        type: string
+                        description: "The term code student was admitted to the curriculum."
+                        x-lineageReferenceObject: SCRFEES_TERM_CODE_ADMIT
+                        x-lineageLookupReferenceObject: STVTERM             
+                        example: 202430
+                      admissionTermDescription:
+                        title: Admission Term Description
+                        maxLength: 30
+                        type: string
+                        description: "Description of the admission term."
+                        x-lineageReferenceObject: STVTERM_DESC
+                        example: Summer 2024
+                      curriculumRate:
+                        title: Curriculum Rate Code
+                        maxLength: 5
+                        type: string
+                        description: "This is the fee assessment rate code on the curriculum record."
+                        x-lineageReferenceObject: SCRFEES_RATE_CODE_CURRIC
+                        x-lineageLookupReferenceObject: STVRATE             
+                        example: LOCAL
+                      curriculumRateDescription:
+                        title: Curriculum Rate Code Description
+                        maxLength: 30
+                        type: string
+                        description: "Description of the curriculum rate code."
+                        x-lineageReferenceObject: STVRATE_DESC
+                        example: Local Resident 
+                      curriculumStudentType:
+                        title: Curriculum Student Type Code
+                        maxLength: 1
+                        type: string
+                        description: "This is the student type code on the curriculum record."
+                        x-lineageReferenceObject: SCRFEES_STYP_CODE_CURRIC
+                        x-lineageLookupReferenceObject: STVSTYP          
+                        example: 0
+                      curriculumStudentTypeDescription:
+                        title: Curriculum Student Type Code Description
+                        maxLength: 30
+                        type: string
+                        description: "Description of the curriculum student type code."
+                        x-lineageReferenceObject: STVRATE_DESC
+                        example: Undeclared  
+                      curriculumRank:
+                        title: Curriculum Rank
+                        description: "Curriculum rank for the fee assessment rule."
+                        x-lineageReferenceObject: SCRFEES_PRIM_SEC_CDE        
+                        oneOf:
+                        - type: string
+                          enum: 
+                          - primary
+                          - secondary
+                          - any
+                        - type: string
+                          maxLength: 0
+                        example: primary
+                  studentCharacteristicRule:
+                    title: Student Characteristic Rule
+                    type: object      
+                    properties:                  
+                      residency:
+                        title: Residency Status Code
+                        maxLength: 1
+                        type: string
+                        description: "The residency status of the student for the effective term."
+                        x-lineageReferenceObject: SCRFEES_RESD_CODE
+                        x-lineageLookupReferenceObject: STVRESD
+                        example: R        
+                      residencyDescription:
+                        title: Residency Status Code Description
+                        maxLength: 30
+                        type: string
+                        description: "Description of the residency status code."
+                        x-lineageReferenceObject: STVRESD_DESC
+                        example: In State Resident
+                      attribute:
+                        title: Attribute Code
+                        maxLength: 4
+                        type: string
+                        description: "Attribute code on the general student record."
+                        x-lineageReferenceObject: SCRFEES_ATTS_CODE
+                        x-lineageLookupReferenceObject: STVATTS
+                        example: 01      
+                      attributeDescription:
+                        title: Attribute Code Description
+                        maxLength: 30
+                        type: string
+                        description: "Description of the attribute code."
+                        x-lineageReferenceObject: STVATTS_DESC
+                        example: Level 01
+                      rate:
+                        title: Rate Code
+                        maxLength: 5 
+                        type: string
+                        description: "The fee assessment rate code on the general student record."
+                        x-lineageReferenceObject: SCRFEES_RATE_CODE
+                        x-lineageLookupReferenceObject: STVRATE
+                        example: FPPC     
+                      rateDescription:
+                        title: Rate Code Description
+                        maxLength: 30
+                        type: string
+                        description: "Description of the rate code."
+                        x-lineageReferenceObject: STVRATE_DESC
+                        example: Flat Plus  
+                      type:
+                        title: Student Type Code
+                        maxLength: 1 
+                        type: string
+                        description: "The type of student on the general student record."
+                        x-lineageReferenceObject: SCRFEES_STYP_CODE
+                        x-lineageLookupReferenceObject: STVSTYP
+                        example: R    
+                      typeDescription:
+                        title: Student Type Code Description
+                        maxLength: 30
+                        type: string
+                        description: "Description of the student type code."
+                        x-lineageReferenceObject: STVSTYP_DESC
+                        example: Returning    
+                      cohort:
+                        title: Cohort Code
+                        maxLength: 10 
+                        type: string
+                        description: "The cohort code on the general student record."
+                        x-lineageReferenceObject: SCRFEES_CHRT_CODE
+                        x-lineageLookupReferenceObject: STVCHRT
+                        example: B148    
+                      cohortDescription:
+                        title: Cohort Code Description
+                        maxLength: 30
+                        type: string
+                        description: "Description of the cohort code."
+                        x-lineageReferenceObject: STVCHRT_DESC
+                        example: Cohort B148      
+                      class:
+                        title: Class Code
+                        maxLength: 2 
+                        type: string
+                        description: "The class code associated with the general student record and primary curriculum level code."
+                        x-lineageReferenceObject: SCRFEES_CLAS_CODE
+                        x-lineageLookupReferenceObject: STVCLAS
+                        example: 11    
+                      classDescription:
+                        title: Class Code Description
+                        maxLength: 30
+                        type: string
+                        description: "Description of the class code."
+                        x-lineageReferenceObject: STVCLAS_DESC
+                        example: Year 1, Semester 1     
+                      visaType:
+                        title: Visa Type Code
+                        maxLength: 2 
+                        type: string
+                        description: "Visa type code for the student."
+                        x-lineageReferenceObject: SCRFEES_VTYP_CODE
+                        x-lineageLookupReferenceObject: STVVTYP
+                        example: PR 
+                      visaTypeDescription:
+                        title: Visa Type Code Description
+                        maxLength: 30
+                        type: string
+                        description: "Description of the visa type code."
+                        x-lineageReferenceObject: STVVTYP_DESC
+                        example: Permanent Resident                 
+        attributeDetail:
+          title: Attribute Detail
+          type: object
+          required:
+            - fromTerm             
+          properties:
+            fromTerm:
+              title: Effective Term
+              maxLength: 6
+              type: string
+              format: string              
+              description: "The starting term code for a set of course attributes.  An empty set indicates a period of time with no defined course attributes."
+              x-lineageReferenceObject: SCRATTR_EFF_TERM
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202201     
+            toTerm:
+              title: Ending Term
+              maxLength: 6
+              type: string
+              description: "The ending term code for a set of course attributes."
+              x-lineageReferenceObject: derived
+              x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+              x-lineageLookupReferenceObject: STVTERM
+              example: 999999                       
+            attributes:
+              title: Course Attributes
+              type: array               
+              items:
+                type: object              
+                properties:
+                  attribute:
+                    title: Attribute Code
+                    maxLength: 4
+                    type: string
+                    description: "The attribute of the course."
+                    x-lineageReferenceObject: SCRATTR_ATTR_CODE
+                    x-lineageLookupReferenceObject: STVATTR
+                    example: ANTH
+                  attributeDescription: 
+                    title: Attribute Code Description
+                    maxLength: 30
+                    type: string
+                    description: "The description of the attribute."
+                    x-lineageReferenceObject: STVATTR_DESC
+                    example: Anthropology
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SCRATTR_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z                     
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last update the data."
+                    x-lineageReferenceObject: SCRATTR_USER_ID
+                    example: SAISUSR                         
+        reportingClassificationDetail:
+          title: Reporting Classification Detail
+          type: object
+          required:
+            - fromTerm         
+          properties:     
+            fromTerm:
+              title: Effective Term
+              maxLength: 6
+              type: string
+              format: string              
+              description: "The starting term code for a set of course reporting classifications.  An empty set indicates a period of time with no defined course reporting classifications."
+              x-lineageReferenceObject: SCBSUPP_EFF_TERM
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202201     
+            toTerm:
+              title: Ending Term
+              maxLength: 6
+              type: string
+              description: "The ending term code for a set of course reporting classifications."
+              x-lineageReferenceObject: derived
+              x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+              x-lineageLookupReferenceObject: STVTERM
+              example: 999999       
+            modifiedOn:
+              title: Modified On
+              maxLength: 11
+              type: string
+              format: date-time
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+              description: "Most current date the record was created or changed."
+              x-lineageReferenceObject: SCBSUPP_ACTIVITY_DATE
+              example: 2024-05-05T04:00:00Z   
+            modifiedBy:
+              title: Modified By User ID
+              maxLength: 30
+              type: string
+              description: "User who inserted or last updated the data."
+              x-lineageReferenceObject: SCBSUPP_USER_ID
+              example: SYSTEST08                
+            programTaxomony:
+              title: Program Taxomony
+              maxLength: 6
+              type: string
+              description: "The taxomony of the program code."
+              x-lineageReferenceObject: SCBSUPP_TOPS_CODE
+              x-lineageLookupReferenceObject: STVTOPS          
+              example: 010230 
+            programTaxonomyDescription:
+              title: ProgramTaxonomy Description
+              maxLength: 30
+              type: string
+              description: "The description of the program taxonomy."
+              x-lineageReferenceObject: STVTOPS_DESC
+              example: Dairy Science    
+            occupationalCourse:
+              title: Occupational Course Code
+              maxLength: 2
+              type: string
+              description: "Occupational Code associated with the course."
+              x-lineageReferenceObject: SCBSUPP_OCCS_CODE
+              x-lineageLookupReferenceObject: STVOCCS             
+              example: E  
+            occupationalCourseDescription:
+              title: Occupational Course Code Description
+              maxLength: 30
+              type: string
+              description: "The description of the occupational code."
+              x-lineageReferenceObject: STVOCCS_DESC
+              example: Non-occupational
+            classification:
+              title: Classification Code
+              maxLength: 2
+              type: string
+              description: "Classification Code associated with the course."
+              x-lineageReferenceObject: SCBSUPP_CCSL_CODE
+              x-lineageLookupReferenceObject: STVCCSL             
+              example: L  
+            classificationDescription:
+              title: Classification Code Description
+              maxLength: 30
+              type: string
+              description: "The description of the classification code."
+              x-lineageReferenceObject: STVCCSL_DESC
+              example: NC N/A for enhanced funding
+            isCooperativeEducation:
+              title: Cooperative Education Indicator
+              type: boolean
+              description: "Indicates whether the course is a cooperative education course."
+              x-lineageReferenceObject: SCBSUPP_COOP_ED_IND          
+              example: true
+            courseIdentifier:
+              title: Permanent District Identifier
+              maxLength: 12
+              type: string
+              description: "Permanent District Identifier for course reporting."
+              x-lineageReferenceObject: SCBSUPP_PERM_DIST_IND
+              example: A257   
+            creditCategory:
+              title: Credit Category Code
+              maxLength: 5
+              type: string
+              description: "Course credit category code for California MIS process for field CB22."
+              x-lineageReferenceObject: SCBSUPP_CREDIT_CATEGORY_IND            
+            institutionalReportingElement1:
+              title: Institutional Reporting Element 1 
+              maxLength: 15
+              type: string
+              description: "Course Institutional Reporting Element 1 Code. CalB-Stu: Special Class Status Institutional Reporting"
+              x-lineageReferenceObject: SCBSUPP_CUDA_CODE
+              x-lineageLookupReferenceObject: STVCUDA                 
+              example: S
+            institutionalReportingElement1Description:
+              title: Institutional Reporting Element 1 Description
+              maxLength: 30
+              type: string
+              description: "Description of the course institutional reporting element 1 code. CalB-Stu: Description of the special class status code."
+              x-lineageReferenceObject: STVCUDA_DESC
+              example: Approved Special Class
+            institutionalReportingElement2:
+              title: Institutional Reporting Element 2
+              maxLength: 15
+              type: string
+              description: "Course Institutional Reporting Element 2 Code. CalB-Stu: The California Articulation Number (CAN) Code for which the course has been qualified. "
+              x-lineageReferenceObject: SCBSUPP_CUDB_CODE
+              x-lineageLookupReferenceObject: STVCUDB              
+              example: ESL
+            institutionalReportingElement2Description:
+              title: Institutional Reporting Element 2 Description
+              maxLength: 30
+              type: string
+              description: "Description of the course institutional reporting element 2 code. CalB-Stu: Description of the CAN code."
+              x-lineageReferenceObject: STVCUDB_DESC
+              example: English Second Language
+            institutionalReportingElement3:
+              title: Institutional Reporting Element 3
+              maxLength: 15
+              type: string
+              description: "Course Institutional Reporting Element 3 Code. CalB-Stu: CAN Code for which the course has been qualified as a component of a sequence of courses."
+              x-lineageReferenceObject: SCBSUPP_CUDC_CODE
+              x-lineageLookupReferenceObject: STVCUDC              
+              example: A1
+            institutionalReportingElement3Description:
+              title: Institutional Reporting Element 3 Description
+              maxLength: 30
+              type: string
+              description: "Description of the course institutional reporting element 3 code. CalB-Stu: Description of the CAN code."
+              x-lineageReferenceObject: STVCUDC_DESC
+              example: Course Area 10 Rep
+            institutionalReportingElement4:
+              title: Institutional Reporting Element 4
+              maxLength: 15
+              type: string
+              description: "Course Institutional Reporting Element 4 Code. CalB-Stu: Course Department Code reported to California State University (CSU)."
+              x-lineageReferenceObject: SCBSUPP_CUDD_CODE
+              x-lineageLookupReferenceObject: STVCUDD              
+              example: CR2
+            institutionalReportingElement4Description:
+              title: Institutional Reporting Element 4 Description
+              maxLength: 30
+              type: string
+              description: "Description of the course institutional reporting element 4 code. CalB-Stu: Description of the course department code."
+              x-lineageReferenceObject: STVCUDD_DESC
+              example: Credit Level 2
+            institutionalReportingElement5:
+              title: Institutional Reporting Element 5
+              maxLength: 15
+              type: string
+              description: "Course Institutional Reporting Element 5 Code. CalB-Stu: Course Number Code reported to CSU. "
+              x-lineageReferenceObject: SCBSUPP_CUDE_CODE
+              x-lineageLookupReferenceObject: STVCUDE              
+              example: STEM
+            institutionalReportingElement5Description:
+              title: Institutional Reporting Element 5 Description
+              maxLength: 30
+              type: string
+              description: "Description of the course institutional reporting element 5 code. CalB-Stu: Description of the course number code."
+              x-lineageReferenceObject: STVCUDE_DESC
+              example: SCI, ENG, TECH, MATH                
+            institutionalReportingElement6:
+              title: Institutional Reporting Element 6
+              maxLength: 15
+              type: string
+              description: "Course Institutional Reporting Element 6 Code. CalB-Stu: Course Level Status Code."
+              x-lineageReferenceObject: SCBSUPP_CUDF_CODE
+              x-lineageLookupReferenceObject: STVCUDF              
+              example: GR5
+            institutionalReportingElement6Description:
+              title: Institutional Reporting Element 6 Description
+              maxLength: 30
+              type: string
+              description: "Description of the course institutional reporting element 6 code. CalB-Stu: Description of the course level status code."
+              x-lineageReferenceObject: STVCUDF_DESC
+              example: Group 5                             
+            fundingAgency:
+              title: Funding Agency Code
+              maxLength: 1
+              type: string
+              description: "The Funding Agency Code of the course."
+              x-lineageReferenceObject: SCBSUPP_FUNC_CODE
+              x-lineageLookupReferenceObject: SVVCFUN               
+              x-product-region: CalB-Stu                          
+              example: N 
+            fundingAgencyDescription:
+              title: Funding Agency Description
+              maxLength: 30
+              type: string
+              description: "Description of the funding agency code."
+              x-lineageReferenceObject: SVVCFUN_DESC
+              x-product-region: CalB-Stu                
+              example: NASA    
+            noncreditCategory:
+              title: Noncredit Category Code
+              maxLength: 1
+              type: string
+              description: "Course Non-credit Status Code. CalB-Stu: Required."
+              x-lineageReferenceObject: SCBSUPP_CNCC_CODE
+              x-lineageLookupReferenceObject: SVVCNCC               
+              x-product-region: CalB-Stu                          
+              example: J
+            noncreditCategoryDescription:
+              title: Noncredit Category Code Description
+              maxLength: 30
+              type: string
+              description: "Description of the non-credit category status code."
+              x-lineageReferenceObject: SVVCNCC_DESC
+              x-product-region: CalB-Stu                
+              example: Workforce Preparation      
+            programStatus:
+              title: Program Status Code
+              maxLength: 1
+              type: string
+              description: "Course Program Status Code. CalB-Stu: Required."
+              x-lineageReferenceObject: SCBSUPP_CPSC_CODE
+              x-lineageLookupReferenceObject: SVVCPSC           
+              x-product-region: CalB-Stu                          
+              example: 1
+            programStatusDescription:
+              title: Program Status Code Description
+              maxLength: 30
+              type: string
+              description: "Description of the program status code."
+              x-lineageReferenceObject: SVVCPSC_DESC
+              x-product-region: CalB-Stu                
+              example: Program Applicable                                              
+            basicSkill:
+              title: Basic Skill Code 
+              maxLength: 1
+              type: string
+              description: "Indicates whether the course is a basic skills type course. Valid values: N = Not Applicable, default; Null is treated as N; B = Basic Skills."
+              x-lineageReferenceObject: SCBSUPP_BASIC_SKILL_CDE  
+              x-product-region: CalB-Stu                   
+              example: N  
+            maximumHours:
+              title: Maximum Hours
+              maxLength: 6
+              type: number
+              multipleOf: 0.01              
+              description: "The maximum number of credit hours for which the course can be taken. Information only."
+              x-lineageReferenceObject: SCBSUPP_OUTLINE_HRS_MAX
+              x-product-region: CalB-Stu            
+              example: 1       
+            minimumHours:
+              title: Minimum Hours
+              maxLength: 6
+              type: number
+              multipleOf: 0.01              
+              description: "The minimum number of credit hours for which the course can be taken. Information only."
+              x-lineageReferenceObject: SCBSUPP_OUTLINE_HRS_MIN
+              x-product-region: CalB-Stu            
+              example: 4                  
+            isNoncreditEnhancedFunding:
+              title: Noncredit Enhanced Funding Indicator
+              type: boolean
+              description: "Indicates whether a noncredit course is considered as a noncredit enhanced funding course for CCFS-320 reporting. This applies only to courses defined as noncredit on SCACRSE."
+              x-lineageReferenceObject: SCBSUPP_ENHC_FUND_NOCR_IND
+              x-product-region: CalB-Stu                
+              example: false
+            isInService:
+              title: In Service Indicator
+              type: boolean
+              description: "Indicates whether the course is considered as an in-service course for CCFS-320 reporting. This applies only to courses defined as credit on SCACRSE."
+              x-lineageReferenceObject: SCBSUPP_IN_SERVICE_IND   
+              x-product-region: CalB-Stu                         
+              example: true     
+            isPhysicalEducation:
+              title: Physical Education Indicator
+              type: boolean
+              description: "Indicates whether the course is considered as a sports or physical education class for CCFS-320 reporting."
+              x-lineageReferenceObject: SCBSUPP_PHYS_ED_IND      
+              x-product-region: CalB-Stu  
+              example: false                                                      
+        partitionPreferenceDetail:
+          title: Partition Preference Detail
+          type: object
+          required:
+            - fromTerm          
+          properties:             
+            fromTerm:
+              title: Starting Term
+              maxLength: 6
+              type: string
+              description: "The starting term code for a set of course partition preferences.  An empty set indicates a period of time with no defined course partition preferences."
+              x-lineageReferenceObject: SCRCPRT_TERM_CODE_EFF
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202201      
+            toTerm:
+              title: Ending Term
+              maxLength: 6
+              type: string
+              description: "The ending term code for a set of course partition preferences."
+              x-lineageReferenceObject: derived
+              x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+              x-lineageLookupReferenceObject: STVTERM
+              example: 999999         
+            partitionPreferences:
+              title: Partition Preferences
+              type: array
+              items:
+                type: object             
+                properties:
+                  partition:
+                    title: Partition Code
+                    maxLength: 1
+                    type: string
+                    description: "Partition code for catalog course entry."
+                    x-lineageReferenceObject: SCRCPRT_PARS_CODE
+                    x-lineageLookupReferenceObject: GTVPARS
+                    example: NORTH
+                  partitionDescription: 
+                    title: Partition Code Description
+                    maxLength: 30
+                    type: string
+                    description: "Description of the partition code."
+                    x-lineageReferenceObject: GTVPARS_DESC
+                    example: North Campus
+                  preferenceNumber: 
+                    title: Preference Number
+                    maxLength: 2
+                    type: number
+                    description: "Preference Number for partition code for catalog course entry."
+                    x-lineageReferenceObject: SCRCPRT_PARS_PREF_NUMBER
+                    example: 11     
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SCRCPRT_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z                     
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SCRCPRT_USER_ID
+                    example: SYSTEST08                                                    
+        roomAttributeDetail:
+          title: Room Attribute Detail
+          type: object
+          required:
+            - fromTerm        
+          properties:
+            fromTerm:
+              title: Starting Term
+              maxLength: 6
+              type: string
+              format: string              
+              description: "The starting term code for a set of course room attributes.  An empty set indicates a period of time with no defined course room attributes."
+              x-lineageReferenceObject: SCRCRDF_TERM_CODE_EFF
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202201    
+            toTerm:
+              title: Ending Term
+              maxLength: 6
+              type: string
+              description: "The ending term code for a set of course room attributes."
+              x-lineageReferenceObject: derived
+              x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+              x-lineageLookupReferenceObject: STVTERM
+              example: 999999            
+            roomAttributes:
+              title: Room Attributes
+              type: array
+              items:
+                type: object
+                properties:
+                  roomAttribute:
+                    title: Room Attribute Code
+                    maxLength: 4
+                    type: string
+                    description: "Room definition/attribute code for catalog course entry."
+                    x-lineageReferenceObject: SCRCRDF_RDEF_CODE
+                    x-lineageLookupReferenceObject: STVRDEF
+                    example: DORM
+                  roomAttributeDescription: 
+                    title: Room Attribute Code Description
+                    maxLength: 30
+                    type: string
+                    description: "Description of the room attribute code."
+                    x-lineageReferenceObject: STVRDEF_DESC
+                    example: Dorm Room
+                  preferenceNumber: 
+                    title: Preference Number
+                    maxLength: 2
+                    type: number
+                    description: "Preference Number for room definition/attribute code for catalog course entry."
+                    x-lineageReferenceObject: SCRCRDF_RDEF_PREF_NUMBER
+                    example: 01      
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SCRCRDF_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z                     
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SCRCRDF_USER_ID
+                    example: SYSTEST08    
+        transferAgreementDetail:
+          title: Transfer Agreement Detail
+          type: object
+          required:
+            - fromTerm        
+          properties:
+            fromTerm:
+              title: Starting Term
+              maxLength: 6
+              type: string
+              format: string              
+              description: "The starting term code for a set of course transfer agreements.  An empty set indicates a period of time with no defined course transfer agreements."
+              x-lineageReferenceObject: SCRSBGI_TERM_CODE_EFF
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202201    
+            toTerm:
+              title: Ending Term
+              maxLength: 6
+              type: string
+              description: "The ending term code for a set of course transfer agreements."
+              x-lineageReferenceObject: derived
+              x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+              x-lineageLookupReferenceObject: STVTERM
+              example: 999999            
+            transferAgreements:
+              title: Transfer Agreements
+              type: array
+              items:
+                type: object
+                properties:
+                  institution:
+                    title: Transfer Institution Code
+                    maxLength: 20
+                    type: string
+                    description: "Code of the institution with which there is a course transfer agreement."
+                    x-lineageReferenceObject: SCRSBGI_SBSI_CODE
+                    x-lineageLookupReferenceObject: STVSBGI
+                    example: 10019
+                  institutionDescription: 
+                    title: Institution Code Description
+                    maxLength: 30
+                    type: string
+                    description: "Description of the transfer institution code."
+                    x-lineageReferenceObject: STVSBGI_DESC
+                    example: Ellucian University
+                  agreementStartOn: 
+                    title: Agreement Date
+                    type: string
+                    format: date
+                    description: "Date of the transfer agreement."
+                    x-lineageReferenceObject: SCRSBGI_AGREEMENT_DATE
+                    example: 2020-09-01     
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SCRSBGI_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z                     
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SCRSBGI_USER_ID
+                    example: SYSTEST08  
+        integrationPartnerDetail:
+          title: Integration Partner Detail
+          type: object
+          required:
+            - fromTerm         
+          properties:     
+            fromTerm:
+              title: Effective Term
+              maxLength: 6
+              type: string
+              format: string              
+              description: "The starting term code for the course integration partner."
+              x-lineageReferenceObject: SCRINTG_TERM_CODE_EFF
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202201     
+            toTerm:
+              title: Ending Term
+              maxLength: 6
+              type: string
+              description: "The ending term code for the course integration partner."
+              x-lineageReferenceObject: derived
+              x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+              x-lineageLookupReferenceObject: STVTERM
+              example: 999999 
+            integrationPartners:
+              title: Integration Partners
+              type: array
+              items:
+                type: object
+                properties: 
+                  integrationPartner:
+                    title: Integration Partner System Code
+                    type: string
+                    description: "The code used to identify a partner system."
+                    x-lineageReferenceObject: SCRINTG_INTG_CDE
+                    x-lineageLookupReferenceObject: GORINTG
+                    example: BCW                                        
+                  modifiedOn:
+                    title: Modified On
+                    maxLength: 11
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    description: "Most current date the record was created or changed."
+                    x-lineageReferenceObject: SCRINTG_ACTIVITY_DATE
+                    example: 2024-05-05T04:00:00Z   
+                  modifiedBy:
+                    title: Modified By User ID
+                    maxLength: 30
+                    type: string
+                    description: "User who inserted or last updated the data."
+                    x-lineageReferenceObject: SCRINTG_USER_ID
+                    example: SYSTEST08                                        
+        anonymousGrading:
+          title: Anonymous Grading Detail
+          type: object
+          required:
+            - fromTerm         
+          properties:     
+            fromTerm:
+              title: Effective Term
+              maxLength: 6
+              type: string
+              format: string              
+              description: "The starting term code for the course anonymous grading."
+              x-lineageReferenceObject: SCRANGD_TERM_CODE_EFF
+              x-lineageLookupReferenceObject: STVTERM
+              example: 202201     
+            toTerm:
+              title: Ending Term
+              maxLength: 6
+              type: string
+              description: "The ending term code for the course anonymous grading."
+              x-lineageReferenceObject: derived
+              x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."
+              x-lineageLookupReferenceObject: STVTERM
+              example: 999999       
+            modifiedOn:
+              title: Modified On
+              maxLength: 11
+              type: string
+              format: date-time
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+              description: "Most current date the record was created or changed."
+              x-lineageReferenceObject: SCRANGD_ACTIVITY_DATE
+              example: 2024-05-05T04:00:00Z   
+            modifiedBy:
+              title: Modified By User ID
+              maxLength: 30
+              type: string
+              description: "User who inserted or last updated the data."
+              x-lineageReferenceObject: SCRANGD_USER_ID
+              example: SYSTEST08                
+            allowsAnonymousGrading:
+              title: Anonymous Grading Indicator
+              type: boolean
+              description: "Indicates whether the course can be graded by Anonymous ID. Default value is false."
+              x-lineageReferenceObject: SCRANGD_ANON_GRADING_IND
+              example: false                
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

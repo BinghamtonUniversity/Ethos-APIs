@@ -1,0 +1,912 @@
+openapi: 3.0.0
+info:
+  title: progression-award-results
+  description: This API is used to fetch and update Progression and Award Classification results for students on the Student Profile page for a specific stage, including progression outcomes, honors classifications, and committee actions (Update, Approve, Unlock, Roll).
+  version: 1.1.0
+  x-source-name: SVQ_PROGRESSION_AWARD_RESULTS
+  x-source-title: Progression Award Results
+  x-source-system: banner
+  x-api-type: erp
+  x-audience: all
+  x-release-status: ga
+  x-source-domain: Student
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/progression-award-results:
+    get:
+      tags:
+        - progression-award-results
+      summary: Retrieve progression and award results for a student.
+      description: Fetch Progression Result information for a student on the Student Profile page for a specific Stage including progression outcomes, GPA, credits, honors classifications, and committee information.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.1.0+json
+
+            ```
+          schema:
+            type: string
+        - name: committeeCode
+          in: query
+          description: Committee code. This parameter is required.
+          required: true
+          schema:
+            type: string
+            maxLength: 6
+          example: "ARTCOM"
+        - name: studentId
+          in: query
+          description: Student ID. This parameter is required.
+          required: true
+          schema:
+            type: string
+            maxLength: 9
+          example: "A00308581"
+        - name: level
+          in: query
+          description: Academic level code. This parameter is required.
+          required: true
+          schema:
+            type: string
+            maxLength: 2
+          example: "UG"
+        - name: program
+          in: query
+          description: Program code to filter results.
+          required: false
+          schema:
+            type: string
+            maxLength: 12
+          example: "ELECTRONICS"
+        - name: stageNumber
+          in: query
+          description: Stage number to filter results.
+          required: false
+          schema:
+            type: integer
+          example: 1
+        - name: studyPathNumber
+          in: query
+          description: Study path number to filter results.
+          required: false
+          schema:
+            type: integer
+          example: 1
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+                default: 10
+          content:
+            application/vnd.hedtech.integration.v1.1.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/progression-award-results-1.1.0_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client's preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_PROGRESS_AWARDS_RESULTS
+    put:
+      tags:
+        - progression-award-results
+      summary: Update progression and award results.
+      description: Update, Approve, Unlock, or Roll student progression outcomes and honors classifications. Supports batch operations for multiple students.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.1.0+json
+
+            ```
+          schema:
+            type: string
+        - name: committeeCode
+          in: query
+          description: Committee code. This parameter is required.
+          required: true
+          schema:
+            type: string
+            maxLength: 6
+          example: "ARTCOMM"
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1.1.0+json:
+            schema:
+              $ref: "#/components/schemas/progression-award-results-1.1.0_request"
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.1.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/progression-award-results-1.1.0_put_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client's preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_PROGRESSION_AWARD_RESULTS
+components:
+  schemas:
+    progression-award-results-1.1.0_response:
+      type: object
+      required:
+        - studentName
+        - term
+        - level
+        - stageNumber
+        - stageRequirementsMet
+        - programRequirementsMet
+      properties:
+        studentName:
+          title: Student Name
+          description: Full name of the student
+          type: string
+          maxLength: 250
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.STUDENT_NAME
+          example: "Jackson, Kim"
+        progressionCalculatedOnDate:
+          title: Progression Calculated On Date
+          description: Date on which the progression result has been calculated for a student
+          type: string
+          format: date-time
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+          x-lineageReferenceObject: SHRSPSG.SHRSPSG_ACTIVITY_DATE
+          example: "2025-09-19T11:46:50Z"
+        stageGpa:
+          title: Stage GPA
+          description: Grade point average for a stage
+          type: number
+          format: double
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.SHRSPSG_STAGE_GPA
+          example: 52.916
+        stageNumber:
+          title: Stage Number
+          description: Stage number for which the progression and award details are extracted
+          type: integer
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.SHRSPSG_STAGE_NO
+          example: 1
+        stageNumbers:
+          title: Stage Numbers
+          description: Collection of stage numbers for which the student has been evaluated for a program
+          type: array
+          items:
+            type: integer
+          x-lineageReferenceObject: SHRSPSG.SHRSPSG_STAGE_NO
+          example: [1, 2]
+        program:
+          title: Program Code
+          description: Academic program code associated to a student curriculum record
+          type: string
+          maxLength: 12
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.PROGRAM
+          example: "ELECTRONICS"
+        programDescription:
+          title: Program Description
+          description: Description of the academic program
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.PROGRAM_DESC
+          example: "TheQuickBrownFoxJumpsOverTheLazyDogAndProvidesExactlyOneHundredAndTwentyCharactersByAddingExtraWordsUntilTheLimitIsReach"
+        term:
+          title: Term Code
+          description: Code value that identifies the student term
+          type: string
+          maxLength: 6
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.TERM
+          x-lineageLookupReferenceObject: STVTERM
+          example: "202420"
+        termDescription:
+          title: Term Description
+          description: Description of the term
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.TERM_DESC
+          example: "Spring 2024 (202420)"
+        level:
+          title: Level Code
+          description: Academic level code associated with the student record
+          type: string
+          maxLength: 2
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.LEVL
+          x-lineageLookupReferenceObject: STVLEVL
+          example: "UG"
+        levelDescription:
+          title: Level Description
+          description: Description of the academic level
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.LEVL_DESC
+          example: "Undergraduate"
+        studyPathNumber:
+          title: Study Path Number
+          description: Study path key sequence number stored against a program
+          type: integer
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.STUDY_PATH
+          example: 1
+        progressionStatus:
+          title: Progression Status
+          description: Status of the student progression assessment
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.SHRSPSG_STATUS
+          example: "APPROVED"
+        currentProgressionOutcome:
+          title: Current Progression Outcome
+          description: Progression outcome assigned to student in Banner
+          type: string
+          maxLength: 2
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.SHRAPSP_ASTD_CODE_END_OF_TERM
+          example: "00"
+        currentProgressionOutcomeDescription:
+          title: Current Progression Outcome Description
+          description: Description of the current progression outcome
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.STVASTD_DESC_END_OF_TERM
+          example: "Good Standing"
+        proposedProgressionOutcome:
+          title: Proposed Progression Outcome
+          description: Progression outcome proposed by system (SHPPGAW job process)
+          type: string
+          maxLength: 2
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.SHRSPSG_ASTD_CODE
+          example: "PS"
+        proposedProgressionOutcomeDescription:
+          title: Proposed Progression Outcome Description
+          description: Description of the proposed progression outcome
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.STVASTD_DESC_SHRSPSG
+          example: "Pass Stage"
+        proposedProgressionOutcomesList:
+          title: Proposed Progression Outcomes List
+          description: Dropdown list of all progression outcome codes
+          type: array
+          items:
+            type: object
+            properties:
+              progressionOutcomeCode:
+                title: Progression Outcome Code
+                description: Academic standing code
+                type: string
+                maxLength: 2
+                x-lineageReferenceObject: STVASTD.STVASTD_CODE
+                example: "PS"
+              description:
+                title: Description
+                description: Description of the progression outcome
+                type: string
+                maxLength: 30
+                x-lineageReferenceObject: STVASTD.STVASTD_DESC
+                example: "Pass Stage"
+          x-lineageReferenceObject: DERIVED_FIELD (Transient)
+        stageCreditAttempted:
+          title: Stage Credit Attempted
+          description: Total attempted credits by student in a stage
+          type: number
+          format: double
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.SHRSPSG_CRED_ATTEMPTED_STAGE
+          example: 120.0
+        stageCreditEarned:
+          title: Stage Credit Earned
+          description: Total earned credits by student in a stage
+          type: number
+          format: double
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.SHRSPSG_CRED_EARNED_STAGE
+          example: 80.0
+        stageCreditRequired:
+          title: Stage Credit Required
+          description: Total credits required for a stage
+          type: number
+          format: double
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.SHRSPSG_CRED_REQUIRED_STAGE
+          example: 120.0
+        compensatedCreditsEarned:
+          title: Compensated Credits Earned
+          description: Compensated credits earned by a student for a stage
+          type: number
+          format: double
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.SHRSPSG_EARNED_CRED_COMP
+          example: 0.0
+        condonedCreditsEarned:
+          title: Condoned Credits Earned
+          description: Condoned credits earned by a student for a stage
+          type: number
+          format: double
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.SHRSPSG_EARNED_CRED_COND
+          example: 0.0
+        deferredCreditsEarned:
+          title: Deferred Credits Earned
+          description: Deferred credits earned by a student for a stage
+          type: number
+          format: double
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.SHRSPSG_EARNED_CRED_DEFER
+          example: 0.0
+        passedAtFirstAttemptCredits:
+          title: Passed At First Attempt Credits
+          description: Total credits earned at first attempt
+          type: number
+          format: double
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.SHRSPSG_PASS_FIRST_AMPT_CRED
+          example: 80.0
+        progressionRuleNumber:
+          title: Progression Rule Number
+          description: Rule number for which the progression outcome has been defined for a student
+          type: integer
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.SHRSPSG_PGRC_RULE_NO
+          example: 19
+        progressionCalculationSummary:
+          title: Progression Calculation Summary
+          description: Summary of job process calculation for progression outcome
+          type: string
+          maxLength: 4000
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.SHRSPSG_MESSAGE
+          example: "Progression Outcome has been approved by exam committee."
+        stageRequirementsMet:
+          title: Stage Requirements Met
+          description: Indicator to identify if stage requirements are met or not by student
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.SHRSPSG_STAGE_REQ_MET_IND
+          example: "N"
+        overallGpa:
+          title: Overall GPA
+          description: Grade point average for a program
+          type: number
+          format: double
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.SHROGAC_OVERALL_GPA
+          example: 3.65
+        degreeSequence:
+          title: Degree Sequence Number
+          description: Degree sequence assigned to each degree student
+          type: integer
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.DEGREE_SEQ_NO
+          example: 1
+        currentClassification:
+          title: Current Classification
+          description: Honors classification assigned to student in Banner
+          type: string
+          maxLength: 6
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.SHRDGIH_HONR_CODE
+          example: "FIRST"
+        currentClassificationDescription:
+          title: Current Classification Description
+          description: Description of the current honors classification
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.STVHONR_DESC_SHRDGIH
+          example: "First Class Honours"
+        proposedClassification:
+          title: Proposed Classification
+          description: Honors classification proposed by system (SHPPGAW job process)
+          type: string
+          maxLength: 6
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.SHROGAC_HONR_CODE
+          example: "FIRST"
+        proposedClassificationDescription:
+          title: Proposed Classification Description
+          description: Description of the proposed honors classification
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.STVHONR_DESC_SHROGAC
+          example: "First Class Honours"
+        proposedFinalProgressionOutcome:
+          title: Proposed Final Progression Outcome
+          description: Final progression outcome linked to an honors code
+          type: string
+          maxLength: 2
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.SHROGAC_ASTD_CODE
+          example: "PS"
+        proposedFinalProgressionOutcomeDescription:
+          title: Proposed Final Progression Outcome Description
+          description: Description for the final progression outcome linked to an honors code
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.STVASTD_DESC_SHROGAC
+          example: "Pass Stage"
+        proposedClassificationsList:
+          title: Proposed Classifications List
+          description: Dropdown list of all honors classification codes
+          type: array
+          items:
+            type: object
+            properties:
+              honorsCode:
+                title: Honors Code
+                description: Institutional honors code
+                type: string
+                maxLength: 6
+                x-lineageReferenceObject: STVHONR.STVHONR_CODE
+                example: "FIRST"
+              description:
+                title: Description
+                description: Description of the honors classification
+                type: string
+                maxLength: 30
+                x-lineageReferenceObject: STVHONR.STVHONR_DESC
+                example: "First Class Honours"
+          x-lineageReferenceObject: DERIVED_FIELD (Transient)
+        programCreditRequired:
+          title: Program Credits Required
+          description: Total credits required for a program
+          type: number
+          format: double
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.SHROGAC_CRED_REQUIRED_OVERALL
+          example: 360.0
+        programCreditAttempted:
+          title: Program Credits Attempted
+          description: Total attempted credits by student in a program
+          type: number
+          format: double
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.SHROGAC_CRED_ATTEMPTED_OVERALL
+          example: 240.0
+        programCreditEarned:
+          title: Program Credits Earned
+          description: Total earned credits by student in a program
+          type: number
+          format: double
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.SHROGAC_CRED_EARNED_OVERALL
+          example: 160.0
+        classificationRuleNumber:
+          title: Classification Rule Number
+          description: Rule number for which the honors classification has been defined for a student
+          type: integer
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.SHROGAC_PGRC_RULE_NO
+          example: 25
+        classificationStatus:
+          title: Classification Status
+          description: Status of the student honors classification assessment
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.SHROGAC_STATUS
+          example: "APPROVED"
+        classificationCalculatedOnDate:
+          title: Classification Calculated On Date
+          description: Date on which the classification result has been calculated for a student
+          type: string
+          format: date-time
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+          x-lineageReferenceObject: SHROGAC.SHROGAC_ACTIVITY_DATE
+          example: "2025-09-20T14:22:30Z"
+        classificationCalculationSummary:
+          title: Classification Calculation Summary
+          description: Summary of job process calculation for honors classification
+          type: string
+          maxLength: 4000
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.SHROGAC_MESSAGE
+          example: "Classification has been approved by exam committee."
+        programRequirementsMet:
+          title: Program Requirements Met
+          description: Indicator to identify if program requirements are met or not by student
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: SVQ_PROGRESSION_AWARD_RESULTS.SHRSPSG_PROGRAM_REQ_MET_IND
+          example: "N"
+        stageAndCommitteeList:
+          title: Stage and Committee List
+          description: List of stages and associated committees
+          type: array
+          items:
+            type: object
+            properties:
+              stageNumber:
+                title: Stage Number
+                description: Stage number
+                type: integer
+                x-lineageReferenceObject: SVQ_STAGE_PROGRESSION.STAGE_NUMBER
+                example: 1
+              committeeCode:
+                title: Committee Code
+                description: Committee code for this stage
+                type: string
+                maxLength: 6
+                x-lineageReferenceObject: SVQ_STAGE_PROGRESSION.SHRCSPD_COMT_CODE
+                example: "ELERST"
+              committeeDescription:
+                title: Committee Description
+                description: Committee description for this stage
+                type: string
+                maxLength: 30
+                x-lineageReferenceObject: STVCOMT.STVCOMT_DESC
+                example: "Electronics Resit Committee"
+              term:
+                title: Term Code
+                description: Term code for this stage
+                type: string
+                maxLength: 6
+                x-lineageReferenceObject: SVQ_STAGE_PROGRESSION.TERM_CODE
+                example: "202430"
+          x-lineageReferenceObject: DERIVED_FIELD (Transient)
+    progression-award-results-1.1.0_request:
+      type: object
+      required:
+        - action
+        - committeeCode
+        - updateDate
+        - updateUserId
+        - updateSource
+        - data
+      properties:
+        action:
+          title: Action
+          description: Action to perform (update, approve, unlock, roll)
+          type: string
+          enum:
+            - update
+            - approve
+            - unlock
+            - roll
+          example: "approve"
+        committeeCode:
+          title: Committee Code
+          description: Committee code from which the student record is updated
+          type: string
+          maxLength: 6
+          x-lineageReferenceObject: SHRSPSG.SHRSPSG_COMT_CODE
+          example: "ARTCOMM"
+        updateDate:
+          title: Update Date
+          description: Date and time when the record is updated
+          type: string
+          format: date-time
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+          x-lineageReferenceObject: SHRSPSG.SHRSPSG_ACTIVITY_DATE
+          example: "2012-03-03T04:30:00.890Z"
+        updateUserId:
+          title: Update User ID
+          description: User ID from which the record has been updated
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: SHRSPSG.SHRSPSG_USER_ID
+          example: "A00089765"
+        updateSource:
+          title: Update Source
+          description: System from which the data has been updated
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: SHRSPSG.SHRSPSG_DATA_ORIGIN
+          example: "EXPERIENCE-USER"
+        data:
+          title: Student Data
+          description: Array of student records to update
+          type: array
+          items:
+            type: object
+            required:
+              - studentId
+              - level
+              - term
+              - stageNumber
+            properties:
+              studentId:
+                title: Student ID
+                description: Student identification number
+                type: string
+                maxLength: 9
+                x-lineageReferenceObject: SPRIDEN.SPRIDEN_ID
+                example: "51908484"
+              program:
+                title: Program Code
+                description: Program associated to student curriculum record
+                type: string
+                maxLength: 12
+                x-lineageReferenceObject: SHRSPSG.SHRSPSG_PROGRAM
+                example: "MA-HIST"
+              level:
+                title: Level Code
+                description: Academic level code
+                type: string
+                maxLength: 2
+                x-lineageReferenceObject: SHRSPSG.SHRSPSG_LEVL_CODE
+                example: "UG"
+              term:
+                title: Term Code
+                description: Term code identifying the student term
+                type: string
+                maxLength: 6
+                x-lineageReferenceObject: SHRSPSG.SHRSPSG_TERM_CODE_EVAL
+                example: "202103"
+              nextRollTerm:
+                title: Next Roll Term
+                description: Term code for next stage (required for roll action)
+                type: string
+                maxLength: 6
+                x-lineageReferenceObject: SGBSTDN.SGBSTDN_TERM_CODE_EFF
+                example: "202201"
+              stageNumber:
+                title: Stage Number
+                description: Stage number
+                type: integer
+                x-lineageReferenceObject: SHRSPSG.SHRSPSG_STAGE_NO
+                example: 1
+              studyPathNumber:
+                title: Study Path Number
+                description: Study path key sequence number
+                type: integer
+                x-lineageReferenceObject: SHRSPSG.SHRSPSG_STSP_KEY_SEQNO
+                example: 1
+              progression:
+                title: Progression Data
+                description: Progression outcome information
+                type: object
+                properties:
+                  finalProgressionOutcome:
+                    title: Final Progression Outcome
+                    description: Progression outcome proposed by exam committee member
+                    type: string
+                    maxLength: 2
+                    x-lineageReferenceObject: SHRSPSG.SHRSPSG_ASTD_CODE
+                    example: "PS"
+              classification:
+                title: Classification Data
+                description: Honors classification information
+                type: object
+                properties:
+                  finalClassification:
+                    title: Final Classification
+                    description: Honors classification proposed by exam committee member
+                    type: string
+                    maxLength: 6
+                    x-lineageReferenceObject: SHROGAC.SHROGAC_HONR_CODE
+                    example: "2:1"
+                  degreeSequenceNumber:
+                    title: Degree Sequence Number
+                    description: Degree sequence assigned to student
+                    type: integer
+                    x-lineageReferenceObject: SHRDGMR.SHRDGMR_SEQ_NO
+                    example: 1
+    progression-award-results-1.1.0_put_response:
+      type: object
+      required:
+        - studentId
+        - stageNumber
+        - level
+        - term
+        - success
+      properties:
+        studentId:
+          title: Student ID
+          description: Student identification number
+          type: string
+          maxLength: 9
+          example: "51908484"
+        stageNumber:
+          title: Stage Number
+          description: Stage number
+          type: integer
+          example: 1
+        program:
+          title: Program Code
+          description: Program code
+          type: string
+          maxLength: 12
+          example: "MA-HIST"
+        level:
+          title: Level Code
+          description: Academic level code
+          type: string
+          maxLength: 2
+          example: "UG"
+        term:
+          title: Term Code
+          description: Term code
+          type: string
+          maxLength: 6
+          example: "202103"
+        studyPathNumber:
+          title: Study Path Number
+          description: Study path number
+          type: integer
+          example: 1
+        success:
+          title: Success
+          description: Indicator if the operation was successful
+          type: boolean
+          example: true
+        message:
+          title: Message
+          description: Success message
+          type: string
+          example: "Student record updated successfully"
+        errors:
+          title: Errors
+          description: List of errors if operation failed
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                title: Error Code
+                description: Error code
+                type: string
+                example: "ABC-001"
+              description:
+                title: Error Description
+                description: Brief error description
+                type: string
+                example: "Failed to update student record"
+              message:
+                title: Error Message
+                description: Detailed error message
+                type: string
+                example: "Cannot update student record when Job Status is ERROR, APPROVED or ROLLED"
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

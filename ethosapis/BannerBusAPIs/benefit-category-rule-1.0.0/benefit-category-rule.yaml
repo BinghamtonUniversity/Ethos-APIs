@@ -1,0 +1,379 @@
+openapi: 3.0.0
+info:
+  title: benefit-category-rule
+  description: API for PTRBCAT administrative page
+  version: 1.0.0
+  x-audience: all
+  x-release-status: beta
+  x-source-name: PTRBCAT
+  x-source-domain: Human Resources
+  x-source-title: Benefit Category Rules
+  x-source-system: banner
+  x-api-type: bus-poc
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/benefit-category-rule:
+    get:
+      tags:
+        - benefit-category-rule
+      summary: Return resources from PTRBCAT
+      parameters:
+        - name: X-SDE-Expand
+          in: header
+          description: The comma seperated value list of block names
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: The maximum number of resources requesting for this result set.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          description: The filter criteria as a single URL query parameter. Use this
+            parameter or the individual parameters listed. Must be a JSON
+            representation of the property searching for. This can be any of the
+            properties listed on the URL or QAPI and must be a json
+            representation that can be validated against the GET schema. Limit
+            and Offset are the only supported additional parameters on the URL.
+          required: false
+          schema:
+            type: string
+        - name: bcatCode
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/benefit-category-rule-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+  /qapi/benefit-category-rule:
+    post:
+      tags:
+        - benefit-category-rule QAPI (Query by POST)
+      summary: Return resources from PTRBCAT
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/benefit-category-rule-1.0.0_get_request"
+            example:
+              bcatCode: CF
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/benefit-category-rule-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+components:
+  schemas:
+    benefit-category-rule-1.0.0_qapi_post:
+      required:
+        - bcatCode
+      type: object
+      properties:
+        bcatCode:
+          type: string
+    errors-2.0.0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+              description:
+                type: string
+    benefit-category-rule-1.0.0_get_response:
+      type: object
+      properties:
+        ptrbcat:
+          type: array
+          items:
+            required:
+              - desc
+              - enrlBaseDateMethod
+            type: object
+            properties:
+              calcFactor:
+                maxLength: 11
+                type: string
+              newhireEnrollDays:
+                title: Enrollment Days
+                maxLength: 3
+                type: number
+                description: "Lineage reference object : PTRBCAT_NEWHIRE_ENROLL_DAYS"
+                x-lineageReferenceObject: PTRBCAT_NEWHIRE_ENROLL_DAYS
+              flexAmt:
+                title: Flex Amount
+                maxLength: 14
+                type: number
+                description: "Lineage reference object : PTRBCAT_FLEX_AMT"
+                x-lineageReferenceObject: PTRBCAT_FLEX_AMT
+              openBeginDate:
+                title: Open Enrollment Begins
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : PTRBCAT_OPEN_BEGIN_DATE"
+                format: date-time
+                x-lineageReferenceObject: PTRBCAT_OPEN_BEGIN_DATE
+              enrlBaseDateMethod:
+                title: Employment Base Enrollment Date
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : PTRBCAT_ENRL_BASE_DATE_METHOD"
+                x-lineageReferenceObject: PTRBCAT_ENRL_BASE_DATE_METHOD
+              openEffectiveDate:
+                title: Updates made via Web will become effective
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : PTRBCAT_OPEN_EFFECTIVE_DATE"
+                format: date-time
+                x-lineageReferenceObject: PTRBCAT_OPEN_EFFECTIVE_DATE
+              webAccessInd:
+                title: Benefits or Deductions can be Accessed via Web
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : PTRBCAT_WEB_ACCESS_IND"
+                x-lineageReferenceObject: PTRBCAT_WEB_ACCESS_IND
+              dateOverrideInd:
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : PTRBCAT_DATE_OVERRIDE_IND"
+                x-lineageReferenceObject: PTRBCAT_DATE_OVERRIDE_IND
+              desc:
+                title: Category Description
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : PTRBCAT_DESC"
+                x-lineageReferenceObject: PTRBCAT_DESC
+              openEndDate:
+                title: Open Enrollment Ends
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : PTRBCAT_OPEN_END_DATE"
+                format: date-time
+                x-lineageReferenceObject: PTRBCAT_OPEN_END_DATE
+            x-lineageReferenceObject: ptrbcat
+        ptrbcdn:
+          type: array
+          items:
+            required:
+              - bdcaCode
+              - beginDate
+              - beginDateInd
+              - coverageEndDateInd
+              - enrlBeginDateMethod
+              - setupInd
+              - waitDayMonthInd
+            type: object
+            properties:
+              newhireCutoffDay:
+                title: Cut-Off Day
+                maxLength: 2
+                type: number
+                description: "Lineage reference object : PTRBCDN_NEWHIRE_CUTOFF_DAY"
+                x-lineageReferenceObject: PTRBCDN_NEWHIRE_CUTOFF_DAY
+              waitDayMonthInd:
+                title: Waiting Period Day or Month Indicator
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : PTRBCDN_WAIT_DAY_MONTH_IND"
+                x-lineageReferenceObject: PTRBCDN_WAIT_DAY_MONTH_IND
+              defaultValuesInd:
+                maxLength: 3
+                type: string
+              dispOnStmtInd:
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : PTRBCDN_DISP_ON_STMT_IND"
+                x-lineageReferenceObject: PTRBCDN_DISP_ON_STMT_IND
+              bdcaCode:
+                title: Benefit or Deduction
+                maxLength: 3
+                type: string
+                description: "Lineage reference object : PTRBCDN_BDCA_CODE"
+                x-lineageReferenceObject: PTRBCDN_BDCA_CODE
+              seqNo:
+                title: Check Sequence Number
+                maxLength: 2
+                type: number
+                description: "Lineage reference object : PTRBCDN_SEQ_NO"
+                x-lineageReferenceObject: PTRBCDN_SEQ_NO
+              endDate:
+                title: Benefit or Deduction End Date
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : PTRBCDN_END_DATE"
+                format: date-time
+                x-lineageReferenceObject: PTRBCDN_END_DATE
+              enrlBeginDateMethod:
+                title: New Hire Enrollment Begin Date Indicator
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : PTRBCDN_ENRL_BEGIN_DATE_METHOD"
+                x-lineageReferenceObject: PTRBCDN_ENRL_BEGIN_DATE_METHOD
+              reqInd:
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : PTRBCDN_REQ_IND"
+                x-lineageReferenceObject: PTRBCDN_REQ_IND
+              stmtSetupBdsgDesc:
+                title: Secondary Group
+                type: string
+              beginDate:
+                title: Benefit or Deduction Begin Date
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : PTRBCDN_BEGIN_DATE"
+                format: date-time
+                x-lineageReferenceObject: PTRBCDN_BEGIN_DATE
+              setupInd:
+                title: Quick Setup
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : PTRBCDN_SETUP_IND"
+                x-lineageReferenceObject: PTRBCDN_SETUP_IND
+              beginDateInd:
+                title: Payroll Begin Date Indicator
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : PTRBCDN_BEGIN_DATE_IND"
+                x-lineageReferenceObject: PTRBCDN_BEGIN_DATE_IND
+              acaStartPlanMonth:
+                title: ACA Plan Start Month
+                maxLength: 2
+                type: number
+                description: "Lineage reference object : PTRBCDN_ACA_START_PLAN_MONTH"
+                x-lineageReferenceObject: PTRBCDN_ACA_START_PLAN_MONTH
+              bdcaDesc:
+                title: Description
+                type: string
+              coverageEndDateInd:
+                title: Coverage End Date Indicator
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : PTRBCDN_COVERAGE_END_DATE_IND"
+                x-lineageReferenceObject: PTRBCDN_COVERAGE_END_DATE_IND
+              newhireWaitingPeriod:
+                title: Waiting Period
+                maxLength: 3
+                type: number
+                description: "Lineage reference object : PTRBCDN_NEWHIRE_WAITING_PERIOD"
+                x-lineageReferenceObject: PTRBCDN_NEWHIRE_WAITING_PERIOD
+            x-lineageReferenceObject: ptrbcdn
+    benefit-category-rule-1.0.0_get_request:
+      required:
+        - bcatCode
+      type: object
+      properties:
+        bcatCode:
+          title: Benefit Category
+          maxLength: 2
+          type: string
+          description: "Lineage reference object : bcatCode, Lookup lineage reference
+            object : ptrbcat"
+          x-lineageReferenceObject: bcatCode
+          x-lineageLookupReferenceObject: ptrbcat
+      x-lineageReferenceObject: KEY_BLOCK
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EllucianOAuthUserToken:
+      type: http
+      scheme: bearer
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

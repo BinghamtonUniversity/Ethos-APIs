@@ -1,0 +1,148 @@
+openapi: 3.0.1
+
+info:
+  title: Resource Specifications
+  description: >
+    The resource-specification API is an alternate representation of the api-specifications v1.0.0 API.
+    The resource specification is the data model (JSON schema) that acts as the data contract for the API.
+    This schema is used for documentation and as validation of the API itself.
+    Use a resource specification to create the data model for your custom API.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Foundation
+
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+
+paths:
+  /IntegrationApi/api/api-specifications/{id}:
+    put:
+      summary: Update Resource Specification for Custom API
+      x-method-permissions: API_SPECIFICATIONS
+      tags:
+        - api-specifications
+      description: >
+        Upload or update the Resource Specification (JSON Schema) for a custom API.
+
+        A successful PUT updates the following columns in GURASPC:
+        - GURASPC_RESOURCE_SPEC  
+        - GURASPC_RETURNED_MEDIA_TYPE  
+        - GURASPC_KNOWN_MEDIA_TYPES  
+        - GURASPC_MAJOR_VERSION  
+
+        The resource specification defines the JSON schema used for:
+        - Documentation of the API  
+        - Validation of incoming/outgoing data  
+        - Establishing the API’s data contract  
+
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: UUID of the custom API specification in GURASPC.
+          schema:
+            type: string
+            format: uuid
+
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.resource-specifications.v1+json:
+            schema:
+              $ref: "#/components/schemas/resourceSpecification"
+            example:
+              resource: x-cipc-codes
+              version: "1.0.0"
+              jsonSchema:
+                $schema: "http://json-schema.org/draft-07/schema#"
+                title: "x-cipc-codes"
+                type: object
+                properties:
+                  id:
+                    type: string
+                  title:
+                    type: string
+                  code:
+                    type: string
+                  revisionYear:
+                    type: integer
+                  datetime:
+                    type: string
+                    format: date-time
+                required:
+                  - id
+                  - code
+
+      responses:
+        "200":
+          description: Resource specification updated successfully.
+          content:
+            application/vnd.hedtech.integration.resource-specifications.v1+json:
+              schema:
+                $ref: "#/components/schemas/resourceSpecification"
+              example:
+                resource: x-cipc-codes
+                version: "1.0.0"
+                jsonSchema:
+                  $schema: "http://json-schema.org/draft-07/schema#"
+                  title: "x-cipc-codes"
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    title:
+                      type: string
+                    code:
+                      type: string
+                    revisionYear:
+                      type: integer
+                    datetime:
+                      type: string
+                      format: date-time
+                  required:
+                    - id
+                    - code
+
+        "400":
+          description: Invalid resource specification or malformed JSON Schema.
+
+        "404":
+          description: api-specification ID not found.
+
+        "500":
+          description: Server error during processing of resource specification.
+
+components:
+  schemas:
+
+    resourceSpecification:
+      type: object
+      description: >
+        The resource specification defines the data model (JSON schema) for the custom API.
+        This schema is stored in GURASPC_RESOURCE_SPEC and is used for validation and API documentation.
+      properties:
+        resource:
+          type: string
+          description: Name of the custom API resource.
+        version:
+          type: string
+          description: Semantic version of the resource specification.
+        jsonSchema:
+          type: object
+          description: JSON Schema defining the data model.
+          additionalProperties: true

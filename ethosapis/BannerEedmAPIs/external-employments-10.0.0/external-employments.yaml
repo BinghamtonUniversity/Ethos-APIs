@@ -1,0 +1,678 @@
+openapi: 3.0.0
+info:
+  title: External Employments
+  description: Information about applicants&#x27; or employees&#x27; previous employments.
+  version: "10.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Human Resources
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/external-employments:
+    get:
+      summary: Return all resources from PPREXPE
+      description: Returns a paged listing of all the external employment records from
+        PPREXPE table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EXTERNAL_EMPLOYMENTS
+      tags:
+        - external-employments
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-external-employments.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v10+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/external-employments/{id}:
+    get:
+      summary: Return the requested resource from PPREXPE
+      description: Return the one resource with the passed in identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_EXTERNAL_EMPLOYMENTS
+      tags:
+        - external-employments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of External Employments for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v10+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v10+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-external-employments.json"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-external-employments.json:
+      title: External Employments
+      description: Information about applicants' or employees' previous employments.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the external employment.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: PPREXPE_GUID(PPREXPE)
+        person:
+          title: Person
+          description: The person associated with the external employment.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Person.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+              x-lineageDerivedLogic: Display GUID from GORGUID where GORGUID_LDM_NAME = 'persons' and GORGUID_DOMAIN_KEY matches PPREXPE_PIDM.
+          additionalProperties: false
+          required:
+            - id
+        position:
+          title: Position
+          description: The position associated with the external employment.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Position.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: external-employment-positions 
+                  x-lineageReferenceObject: unsupported
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        organization:
+          title: Organization
+          description: The organization associated with the external employment.
+          type: object
+          properties:
+            name:
+              title: Name
+              description: The name of the organization.
+              type: string
+              minLength: 1
+              x-lineageReferenceObject: PPREXPE_EMPR_NAME(PPREXPE)
+            detail:
+              title: Detail
+              description: The organization associated with the external employment.
+              oneOf:
+                - type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Detail.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: organizations 
+                      x-lineageReferenceObject: unsupported
+                  additionalProperties: false
+                  required:
+                    - id
+                - type: object
+                  maxProperties: 0
+            region:
+              title: Region
+              description: The region where the organization is located.
+              type: string
+              x-lineageReferenceObject: STVSTAT_DESC(STVSTAT)
+            country:
+              title: Country
+              description: The country where the organization is located.
+              type: string
+              x-lineageReferenceObject: STVNATN_NATION(STVNATN)
+              x-lineageDerivedLogic: For the PPREXPE_NATN_CODE, fetch the matching record from STVNATN. Display STVNATN_NATION.
+          additionalProperties: false
+          required:
+            - name
+        startOn:
+          title: Start On
+          description: The start of employment at the organization.
+          oneOf:
+            - type: object
+              properties:
+                year:
+                  title: Year
+                  description: The year when employment began.
+                  type: number
+                  x-lineageReferenceObject: PPREXPE_START_DATE(PPREXPE)
+                  x-lineageDerivedLogic: Display year after parsing PPREXPE_START_DATE into year, month and day
+                month:
+                  title: Month
+                  description: The month when employment began.
+                  maximum: 12
+                  type: number
+                  x-lineageReferenceObject: PPREXPE_START_DATE(PPREXPE)
+                  x-lineageDerivedLogic: Display month after parsing PPREXPE_START_DATE into year, month and day
+                day:
+                  title: Day
+                  description: The day of the month when employment began.
+                  x-lineageReferenceObject: PPREXPE_START_DATE(PPREXPE)
+                  x-lineageDerivedLogic: Display day after parsing PPREXPE_START_DATE into year, month and day
+                  oneOf:
+                    - type: number
+                      maximum: 31
+                    - type: string
+                      nullable: true
+              additionalProperties: false
+              required:
+                - year
+                - month
+            - type: object
+              maxProperties: 0
+        endOn:
+          title: End On
+          description: The end of employment at the organization.
+          oneOf:
+            - type: object
+              properties:
+                year:
+                  title: Year
+                  description: The year when employment ended.
+                  type: number
+                  x-lineageReferenceObject: PPREXPE_END_DATE(PPREXPE)
+                  x-lineageDerivedLogic: Display year after parsing PPREXPE_END_DATE into year, month and day
+                month:
+                  title: Month
+                  description: The month when employment ended.
+                  maximum: 12
+                  type: number
+                  x-lineageReferenceObject: PPREXPE_END_DATE(PPREXPE)
+                  x-lineageDerivedLogic: Display month after parsing PPREXPE_END_DATE into year, month and day
+                day:
+                  title: Day
+                  description: The day of the month when employment ended.
+                  x-lineageReferenceObject: PPREXPE_END_DATE(PPREXPE)
+                  x-lineageDerivedLogic: Display day after parsing PPREXPE_END_DATE into year, month and day
+                  oneOf:
+                    - type: number
+                      maximum: 31
+                    - type: string
+                      nullable: true
+              additionalProperties: false
+              required:
+                - year
+                - month
+            - type: object
+              maxProperties: 0
+        compensation:
+          title: Compensation
+          description: The salary or wages earned.
+          oneOf:
+            - type: object
+              properties:
+                rate:
+                  title: Rate
+                  description: The amount per time period.
+                  format: currency
+                  type: object
+                  properties:
+                    value:
+                      title: Value
+                      description: The monetary value
+                      type: number
+                      x-lineageReferenceObject: PPREXPE_CURR_SALARY(PPREXPE) or PPREXPE_CURR_HOURLY(PPREXPE)
+                      x-lineageDerivedLogic: Display PPREXPE_CURR_SALARY is not null or display PPREXPE_CURR_HOURLY is salary is null.
+                    currency:
+                      title: Currency
+                      description: The ISO 4217 currency code
+                      x-lineageReferenceObject: GUBINST_BASE_CURR_CODE(GUBINST)
+                      x-lineageDerivedLogic: Display the currency ISO code from GTVCURR_SCOD_CODE_ISO for the GUBINST_BASE_CURR_CODE.
+                      enum:
+                        - AED
+                        - AFN
+                        - ALL
+                        - AMD
+                        - ANG
+                        - AOA
+                        - ARS
+                        - AUD
+                        - AWG
+                        - AZN
+                        - BAM
+                        - BBD
+                        - BDT
+                        - BGN
+                        - BHD
+                        - BIF
+                        - BMD
+                        - BND
+                        - BOB
+                        - BRL
+                        - BSD
+                        - BTN
+                        - BWP
+                        - BYR
+                        - BZD
+                        - CAD
+                        - CDF
+                        - CHF
+                        - CLP
+                        - CNY
+                        - COP
+                        - CRC
+                        - CUC
+                        - CUP
+                        - CVE
+                        - CZK
+                        - DJF
+                        - DKK
+                        - DOP
+                        - DZD
+                        - EGP
+                        - ERN
+                        - ETB
+                        - EUR
+                        - FJD
+                        - FKP
+                        - GBP
+                        - GEL
+                        - GHS
+                        - GIP
+                        - GMD
+                        - GNF
+                        - GTQ
+                        - GYD
+                        - HKD
+                        - HNL
+                        - HRK
+                        - HTG
+                        - HUF
+                        - IDR
+                        - ILS
+                        - INR
+                        - IQD
+                        - IRR
+                        - ISK
+                        - JMD
+                        - JOD
+                        - JPY
+                        - KES
+                        - KGS
+                        - KHR
+                        - KMF
+                        - KPW
+                        - KRW
+                        - KWD
+                        - KYD
+                        - KZT
+                        - LAK
+                        - LBP
+                        - LKR
+                        - LRD
+                        - LSL
+                        - LYD
+                        - MAD
+                        - MDL
+                        - MGA
+                        - MKD
+                        - MMK
+                        - MNT
+                        - MOP
+                        - MRO
+                        - MUR
+                        - MVR
+                        - MWK
+                        - MXN
+                        - MYR
+                        - MZN
+                        - NAD
+                        - NGN
+                        - NIO
+                        - NOK
+                        - NPR
+                        - NZD
+                        - OMR
+                        - PAB
+                        - PEN
+                        - PGK
+                        - PHP
+                        - PKR
+                        - PLN
+                        - PYG
+                        - QAR
+                        - RON
+                        - RSD
+                        - RUB
+                        - RWF
+                        - SAR
+                        - SBD
+                        - SCR
+                        - SDG
+                        - SEK
+                        - SGD
+                        - SHP
+                        - SLL
+                        - SOS
+                        - SRD
+                        - SSP
+                        - STD
+                        - SVC
+                        - SYP
+                        - SZL
+                        - THB
+                        - TJS
+                        - TMT
+                        - TND
+                        - TOP
+                        - TRY
+                        - TTD
+                        - TWD
+                        - TZS
+                        - UAH
+                        - UGX
+                        - USD
+                        - UYU
+                        - UZS
+                        - VEF
+                        - VND
+                        - VUV
+                        - WST
+                        - XAF
+                        - XCD
+                        - XOF
+                        - XPF
+                        - YER
+                        - ZAR
+                        - ZMW
+                        - ZWL
+                      type: string
+                  additionalProperties: false
+                  required:
+                    - value
+                    - currency
+                period:
+                  title: Period
+                  description: The time period of the salary.
+                  x-lineageReferenceObject: derived  
+                  x-lineageDerivedLogic: If compensation.rate.value is using PPREXPE_CURR_SALARY  then display as 'year' else if compensation.rate.value is using PPREXPE_CURR_HOURLY then display as 'hour'.
+                  enum:
+                    - hour
+                    - year
+                  type: string
+              additionalProperties: false
+              required:
+                - rate
+                - period
+            - type: object
+              maxProperties: 0
+        jobTitle:
+          title: Job Title
+          description: The job title for the external employment.
+          type: string
+          x-lineageReferenceObject: PPREXPE_POSN_TITLE(PPREXPE)
+        jobDescription:
+          title: Job Description
+          description: The job responsibilities of the external employment.
+          type: string
+          x-lineageReferenceObject: PPREXPE_POSN_DUTIES(PPREXPE)
+        priority:
+          title: Priority
+          description: An indication whether the position was considered as primary for
+            the employee.
+          x-lineageReferenceObject: unsupported
+          oneOf:
+            - type: string
+              enum:
+                - primary
+                - secondary
+            - type: string
+              maxLength: 0
+        status:
+          title: Status
+          description: The status of the external employment.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Status.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: external-employment-statuses 
+                  x-lineageReferenceObject: unsupported
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        hoursWorked:
+          title: Hours Worked
+          description: The number of hours the person worked per period.
+          oneOf:
+            - type: object
+              properties:
+                hours:
+                  title: Hours
+                  description: The number of hours worked.
+                  type: number
+                  x-lineageReferenceObject: unsupported
+                period:
+                  title: Period
+                  description: The period for which the hours of work are defined.
+                  x-lineageReferenceObject: unsupported
+                  enum:
+                    - week
+                    - month
+                  type: string
+              additionalProperties: false
+              required:
+                - hours
+                - period
+            - type: object
+              maxProperties: 0
+        vocations:
+          title: Vocations
+          description: The vocations associated with the external employment.
+          type: array
+          items:
+            title: Vocations
+            description: The vocations associated with the external employment.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Vocations.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: employment-vocations 
+                x-lineageReferenceObject: unsupported
+            additionalProperties: false
+            required:
+              - id
+        supervisors:
+          title: Supervisors
+          description: The supervisors of the person for the external employment.
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                title: Name
+                description: The name of the supervisor.
+                type: string
+                x-lineageReferenceObject: PPREXPE_SUPER_NAME(PPREXPE)
+              phone:
+                title: Phone
+                description: The phone number of the supervisor.
+                type: string
+                x-lineageReferenceObject: derived  
+                x-lineageDerivedLogic: Display the concatenated value of PPREXPE_CTRY_CODE_SUPER_PHONE, PPREXPE_SUPER_PHONE_AREA, PPREXPE_SUPER_PHONE_NUMBER and PPREXPE_SUPER_PHONE_EXT.
+              email:
+                title: Email
+                description: The email address of the supervisor.
+                type: string
+                x-lineageReferenceObject: unsupported
+            additionalProperties: false
+        employeesSupervised:
+          title: Employees Supervised
+          description: The number of employees supervised.
+          x-lineageReferenceObject: PPREXPE_EMPS_SUPERVISE(PPREXPE)
+          oneOf:
+            - type: integer
+            - type: string
+              nullable: true
+        leavingReason:
+          title: Leaving Reason
+          description: The reason given for leaving the external employment.
+          type: string
+          x-lineageReferenceObject: PPREXPE_REASON_LEFT(PPREXPE)
+        comment:
+          title: Comment
+          description: Any comment associated with the external employment.
+          type: string
+          x-lineageReferenceObject: PPREXPE_SUPER_COMMENT(PPREXPE)
+      required:
+        - id
+        - person
+        - organization
+      additionalProperties: false

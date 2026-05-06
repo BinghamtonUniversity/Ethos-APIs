@@ -1,0 +1,291 @@
+openapi: 3.0.0
+info:
+  title: Financial Aid Offices
+  description: The offices responsible for financial aid.
+  version: "9.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Financial Aid
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/financial-aid-offices:
+    get:
+      summary: Return all resources from RORCAMP
+      description: Returns a paged listing of all the financial aid fund office
+        records from RORCAMP table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_FIN_AID_OFFICES
+      tags:
+        - financial-aid-offices
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v9+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-financial-aid-offices.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v9+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/financial-aid-offices/{id}:
+    get:
+      summary: Return the requested resource from RORCAMP
+      description: Return the single financial aid office record with the passed in
+        identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_FIN_AID_OFFICES
+      tags:
+        - financial-aid-offices
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Financial Aid Offices for use in all
+            external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v9+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v9+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v9+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-financial-aid-offices.json"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-financial-aid-offices.json:
+      title: Financial Aid Offices
+      description: The offices responsible for financial aid.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the financial aid office.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: RORCAMP_GUID(RORCAMP)
+        name:
+          title: Name
+          description: The name of the financial aid office.
+          type: string
+          minLength: 1
+          x-lineageReferenceObject: STVCAMP_DEC(STVCAMP)
+        code:
+          title: Code
+          description: A code that may be used to identify the financial aid office.
+          type: string
+          x-lineageReferenceObject: RORCAMP_CAMP_CODE(RORCAMP)
+        addressLines:
+          title: Address Lines
+          description: The address lines of the financial aid office location.
+          type: array
+          items:
+            type: string
+            x-lineageReferenceObject: RORCAMP_MAIL_LINE4_INST_FAA(RORCAMP) or  RORCAMP_HOUSE_NUMBER(RORCAMP) or RORCAMP_MAIL_LINE1_INST_FAA(RORCAMP) or RORCAMP_MAIL_LINE2_INST_FAA(RORCAMP) or  RORCAMP_MAIL_LINE3_INST_FAA(RORCAMP)
+        city:
+          title: City
+          description: The city of the financial aid office location.
+          type: string
+          x-lineageReferenceObject: RORCAMP_MAIL_CITY_INST_FAA(RORCAMP)
+        state:
+          title: State
+          description: The state of the financial aid office location.
+          type: string
+          x-lineageReferenceObject: RORCAMP_STAT_CODE_INST_FAA(RORCAMP)
+        postalCode:
+          title: Postal Code
+          description: The postal code of the financial aid office location.
+          type: string
+          x-lineageReferenceObject: RORCAMP_ZIP_INST_FAA(RORCAMP)
+        aidAdministrator:
+          title: Aid Administrator
+          description: The name of the financial aid administrator for the office.
+          type: string
+          x-lineageReferenceObject: RORCAMP_FAA_ADMIN_NAME(RORCAMP)
+        phone:
+          title: Phone
+          description: The phone number of the financial aid office.
+          oneOf:
+            - type: object
+              properties:
+                number:
+                  title: Number
+                  description: The number assigned to the phone.
+                  type: string
+                  x-lineageReferenceObject: RORCAMP_FAA_PHONE_AREA  RORCAMP_FAA_PHONE_NO(RORCAMP)
+                extension:
+                  title: Extension
+                  description: The extension used to connect to the phone when multiple phones
+                    share the same primary number.
+                  type: string
+                  x-lineageReferenceObject: RORCAMP_FAA_PHONE_EXT(RORCAMP)
+              additionalProperties: false
+              required:
+                - number
+            - type: object
+              maxProperties: 0
+        fax:
+          title: Fax
+          description: The fax number of the financial aid office.
+          oneOf:
+            - type: object
+              properties:
+                number:
+                  title: Number
+                  description: The number assigned to the fax line.
+                  type: string
+                  x-lineageReferenceObject: RORCAMP_FAA_FAX_AREA RORCAMP_FAA_FAX_NO(RORCAMP)
+                extension:
+                  title: Extension
+                  description: The extension used to connect to the fax line when multiple lines
+                    share the same primary number.
+                  type: string
+                  x-lineageReferenceObject: RORCAMP_FAA_FAX_EXT(RORCAMP)
+              additionalProperties: false
+              required:
+                - number
+            - type: object
+              maxProperties: 0
+        emailAddress:
+          title: Email Address
+          description: The e-mail address of the financial aid office.
+          oneOf:
+            - type: string
+              format: email
+              pattern: ^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$
+              x-lineageReferenceObject: RORCAMP_FAA_EMAIL(RORCAMP)
+            - type: string
+              maxLength: 0
+      required:
+        - id
+        - name
+      additionalProperties: false

@@ -1,0 +1,309 @@
+openapi: 3.0.1
+info:
+  title: committee-student-population
+  description: Get student population for a committee
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Student
+  x-source-title: Committee Student Population
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: '{server_url}'
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost  
+paths:
+  /api/committee-student-population:
+    get:
+      tags:
+        - committee-student-population
+      summary: Get student population for a committee by passing committeeCode.  
+      x-method-permissions: API_COMMITTEE_STU_POPULATION
+      parameters:
+        - name: committeeCode
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: stageNumber
+          in: query
+          schema:
+            type: number
+        - name: offset
+          in: query
+          schema:
+            type: number
+        - name: limit
+          in: query
+          schema:
+            type: number
+        - name: order
+          in: query
+          schema:
+            type: string
+        - name: sort
+          in: query
+          schema:
+            type: string
+        - name: department
+          in: query
+          schema:
+            type: string
+        - name: program
+          in: query
+          schema:
+            type: string
+        - name: term
+          in: query
+          schema:
+            type: string
+        - name: mode
+          in: query
+          schema:
+            type: string
+        - name: proposedProgressionOutcome
+          in: query
+          schema:
+            type: string
+        - name: proposedClassification
+          in: query
+          schema:
+            type: string
+        - name: progressionStatus
+          in: query
+          schema:
+            type: string
+        - name: classificationStatus
+          in: query
+          schema:
+            type: string
+        - name: rolled
+          in: query
+          schema:
+            type: boolean
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/StudentPopulationObj'
+              examples:
+                population-data:
+                  $ref: '#/components/examples/StudentPopulation'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                       $ref: '#/components/schemas/ErrorsObj'
+              examples:
+                committeeCodeRequired:
+                  $ref: '#/components/examples/CommitteeCodeRequired' 
+                invalidParams:
+                  $ref: '#/components/examples/InvalidParams'   
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                unauthorizedNoParams:
+                  $ref: '#/components/examples/Unauthorized'
+                unauthorizedNoAuth:
+                  $ref: '#/components/examples/UnauthorizedNoAuth'                   
+components:  
+  schemas:
+    StudentPopulationObj:
+      type: object
+      properties:
+        studentId:
+          type: string
+        studentName:
+          type: string
+        program:
+          type: string
+        programDescription:
+          type: string
+        programClassification:
+          type: string
+        department:
+          type: string
+        departmentDescription:
+          type: string
+        term:
+          type: string
+        termDescription:
+          type: string
+        levelCode:
+          type: string
+        levelDescription:
+          type: string 
+        mode:
+          type: string
+        modeDescription:
+          type: string 
+        stageNumber:
+          type: number
+        stageNumbers:
+          type: array
+          items:
+            type: number
+        stageGpa:
+          type: number  
+        overAllGpa:
+          type: number
+        proposedProgressionOutcome:
+          type: string
+        proposedProgressionOutcomeDescription:
+          type: string
+        proposedClassification:
+          type: string
+        proposedClassificationDescription:
+          type: string
+        progressionStatus:
+          type: string
+        classificationStatus:
+          type: string
+        rolled:
+          type: boolean
+        approvalDate:
+          type: string
+        gradeCommentExist:
+          type: boolean 
+        committeeCode:
+          type: string
+        committeeDescription:
+          type: string
+        studyPathNumber:
+          type: number
+        trailingCourseExists:
+          type: boolean
+        anonymousInd:
+          type: string  
+    ErrorsObj:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        message:
+          type: string
+  examples:
+    Unauthorized:
+      description: If the request send blank params for auth
+      value: "401 - Unauthorized"
+    UnauthorizedNoAuth:
+      description: If the request does not authenticate
+      value: "401 - Full authentication is required to access this resource"      
+    CommitteeCodeRequired:
+      value: |-
+          {
+              "errors": [
+                  {
+                      "code": "Global.SchemaValidation.Error",
+                      "description": "Errors parsing input JSON.",
+                      "message": "Mandatory Field: committeeCode is missing from payload"
+                  }
+              ]
+          }       
+    InvalidParams:
+      value: |-
+          {
+              "errors": [
+                  {
+                      "code": "Global.SchemaValidation.Error",
+                      "description": "Errors parsing input JSON.",
+                      "message": "Valid stageNumber value must be entered."
+                  }
+              ]
+          }      
+    StudentPopulation:
+      value:
+          [
+            {
+                "approvalDate": "2022-09-22T10:08:53Z",
+                "classificationStatus": "APPROVED",
+                "committeeCode": "APTEST",
+                "department": "CLED",
+                "departmentDescription": "Civil Department",
+                "gradeCommentExist": false,
+                "levelCode": "UG",
+                "levelDescription": "Undergraduate",
+                "mode": "CLEC",
+                "modeDescription": "Civil Concentration",
+                "overAllGpa": 1,
+                "program": "CIVIL",
+                "programClassification": "M",
+                "programDescription": "Civil Engineering",
+                "progressionStatus": "ROLLED",
+                "proposedClassification": "I",
+                "proposedClassificationDescription": "First Class Honors",
+                "proposedProgressionOutcome": "CN",
+                "proposedProgressionOutcomeDescription": "Continue on Stage",
+                "rolled": true,
+                "stageGpa": 75,
+                "stageNumber": 1,
+                "stageNumbers": [
+                    1,
+                    2,
+                    3
+                ],
+                "studentId": "RESIT4",
+                "studentName": "4, Resit",
+                "studyPathNumber": 1,
+                "term": "202101",
+                "termDescription": "2021 - Sem 1",
+                "trailingCourseExists": true
+            },
+            {
+                "classificationStatus": "PENDING CALCULATION",
+                "committeeCode": "APTEST",
+                "department": "CLED",
+                "departmentDescription": "Civil Department",
+                "gradeCommentExist": false,
+                "levelCode": "UG",
+                "levelDescription": "Undergraduate",
+                "mode": "CLEC",
+                "modeDescription": "Civil Concentration",
+                "program": "CIVIL",
+                "programDescription": "Civil Engineering",
+                "progressionStatus": "ERROR",
+                "rolled": false,
+                "stageGpa": 85,
+                "stageNumber": 1,
+                "stageNumbers": [
+                    1
+                ],
+                "studentId": "A00084800",
+                "studentName": "Laver, Frank",
+                "studyPathNumber": 1,
+                "term": "202101",
+                "termDescription": "2021 - Sem 1",
+                "trailingCourseExists": false
+            }
+          ]   

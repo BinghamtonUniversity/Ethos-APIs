@@ -1,0 +1,832 @@
+openapi: 3.0.0
+info:
+  title: Transfer Institution Academic Histories
+  description: The Transfer Institution Academic Histories API provides
+    information on the full transfer course details for a student, including all
+    transfer institutions, attendance periods, transfer coursework,
+    institutional equivalents, course equivalent attributes, and associated
+    grades.
+  version: 1.1.0
+  x-source-domain: Student
+  x-source-name: SHATRNS
+  x-source-title: null
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-audience: all
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/transfer-institution-academic-histories:
+    get:
+      summary: Returns the full transfer course details for a student
+      description: Returns the full transfer course details for a student, including
+        all transfer institutions, attendance periods, transfer coursework,
+        institutional equivalents, course equivalent attributes, and associated
+        grades.
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      tags:
+        - transfer-institution-academic-histories
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.1.0+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >
+            ### Note : We can use either the 'criteria' parameter or the
+            'bannerId' parameter directly to filter the API.
+
+            ### bannerId  (Required)
+
+            x-lineageReferenceObject: SPRIDEN_ID 
+
+
+            Returns the full transfer course details for a student based on the
+            bannerId
+
+            ```
+
+            /transfer-institution-academic-histories?criteria={"bannerId":"STRREGA24"}
+
+            ```
+
+            ### institutionSequenceNumber
+
+            x-lineageReferenceObject: SHRTRIT_SEQ_NO
+
+
+            Returns the full transfer course details for a student based on the
+            bannerId and institutionSequenceNumber
+
+            ```
+
+            /transfer-institution-academic-histories?criteria={"bannerId":"STRREGA24","institutionSequenceNumber":1}
+
+            ```
+
+            ### attendancePeriodSequenceNumber
+
+            x-lineageReferenceObject: SHRTRAM_SEQ_NO
+
+
+            Returns the full transfer course details for a student based on the
+            bannerId,institutionSequenceNumber and
+            attendancePeriodSequenceNumber
+
+            ```
+
+            /transfer-institution-academic-histories?criteria={"bannerId":"STRREGA24","institutionSequenceNumber":1,"attendancePeriodSequenceNumber":1}
+
+            ```
+        - name: bannerId
+          in: query
+          required: true
+          schema:
+            type: string
+            maxLength: 9
+          x-lineageReferenceObject: SPRIDEN_ID
+          description: >
+            ###  Banner Id 
+
+            Returns the full transfer course details for a student based on the
+            bannerId
+
+            ```
+
+            /transfer-institution-academic-histories?bannerId=STRREGA24
+
+            ```
+        - name: institutionSequenceNumber
+          in: query
+          required: false
+          schema:
+            type: integer
+            maxLength: 2
+          x-lineageReferenceObject: SHRTRIT_SEQ_NO
+          description: >
+            ### Transfer Institution Sequence Number
+
+            Returns the full transfer course details for a student based on the
+            bannerId and institutionSequenceNumber
+
+            ```
+
+            /transfer-institution-academic-histories?bannerId=STRREGA24&institutionSequenceNumber=1
+
+            ```
+        - name: attendancePeriodSequenceNumber
+          in: query
+          required: false
+          schema:
+            type: object
+            maxLength: 2
+          x-lineageReferenceObject: SHRTRAM_SEQ_NO
+          description: >
+            ### Attendance Period Sequence Number 
+
+             Returns the full transfer course details for a student based on the
+            bannerId, institutionSequenceNumber and
+            attendancePeriodSequenceNumber
+
+             ```
+
+             /transfer-institution-academic-histories?bannerId=STRREGA24&institutionSequenceNumber=1&attendancePeriodSequenceNumber=1
+
+             ```
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/transfer-institution-academic-histories-1.1.0"
+        "400":
+          description: Failure
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                MandtoryFieldsMissing:
+                  $ref: "#/components/examples/MandtoryFieldsMissing"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      x-method-permissions: API_TRANS_INST_ACAD_HISTORIES
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    transfer-institution-academic-histories-1.1.0:
+      title: transfer-institution-academic-histories-1.1.0
+      description: Full transfer course details for a student.
+      type: array
+      items:
+        type: object
+        x-lineageReferenceObject: SHRTRIT
+        properties:
+          attendancePeriods:
+            type: array
+            title: Attendance Periods
+            description: List of attendance periods for the student.
+            items:
+              type: object
+              x-lineageReferenceObject: SHRTRAM
+              additionalProperties: false
+              properties:
+                acceptedOn:
+                  type: string
+                  format: date
+                  title: Acceptance Date
+                  description: Identifies the date transfer work for attendance period was
+                    accepted at the institution.
+                  x-lineageReferenceObject: SHRTRAM_ACCEPTANCE_DATE
+                attendancePeriodGpas:
+                  type: array
+                  title: Attendance Period Term GPAs
+                  description: List of GPA details for the attendance period.
+                  items:
+                    type: object
+                    x-lineageReferenceObject: SHRTGPA
+                    additionalProperties: false
+                    properties:
+                      attendancePeriodSequenceNumber:
+                        type: integer
+                        maxLength: 2
+                        title: Attendance Period Sequence Number.
+                        description: Transfer Institution Attendance Period Sequence Number.
+                        x-lineageReferenceObject: SHRTGPA_TRAM_SEQ_NO
+                        x-lineageLookupReferenceObject: SHRTRAM
+                      gpa:
+                        type: number
+                        title: Grade Point Average.
+                        description: GPA for the term.  Calculated by dividing GPA hours for the term
+                          into Quality points for the term.
+                        x-lineageReferenceObject: SHRTGPA_GPA
+                      gpaHours:
+                        type: number
+                        title: GPA Hours
+                        description: Hours Used for GPA calculation for the term.
+                        x-lineageReferenceObject: SHRTGPA_GPA_HOURS
+                      gpaTypeInd:
+                        type: string
+                        maxLength: 1
+                        title: GPA Type Indicator
+                        description: GPA Type Indicator.  Valid values are, I - Institutional Course
+                          Term GPA, and T - Transfer Course Term GPA.
+                        x-lineageReferenceObject: SHRTGPA_GPA_TYPE_IND
+                      hoursAttempted:
+                        type: number
+                        title: Hours Attempted
+                        description: Hours Attempted for the term.
+                        x-lineageReferenceObject: SHRTGPA_HOURS_ATTEMPTED
+                      hoursEarned:
+                        type: number
+                        title: Hours Earned
+                        description: Hours Earned for the term.
+                        x-lineageReferenceObject: SHRTGPA_HOURS_EARNED
+                      hoursPassed:
+                        type: number
+                        title: Hours Passed
+                        description: Hours Passed for the term.
+                        x-lineageReferenceObject: SHRTGPA_HOURS_PASSED
+                      institutionSequenceNumber:
+                        type: integer
+                        maxLength: 2
+                        title: Transfer Institutuion Sequence Number
+                        description: Identifies the transfer institution record.
+                        x-lineageReferenceObject: SHRTGPA_TRIT_SEQ_NO
+                        x-lineageLookupReferenceObject: SHRTRIT
+                      levelCode:
+                        type: string
+                        maxLength: 2
+                        title: Level Code
+                        description: Level Code associated with GPA hours and calculations.
+                        x-lineageReferenceObject: SHRTGPA_LEVL_CODE
+                        x-lineageLookupReferenceObject: STVLEVL
+                      qualityPoints:
+                        type: number
+                        title: Quality Points for the term.
+                        description: Calculated by multiplying credit hours of the course by quality
+                          points associated with the grade.
+                      termCode:
+                        type: string
+                        maxLength: 6
+                        title: Term Code
+                        description: Term code for the GPA hours and calculation.
+                        x-lineageReferenceObject: SHRTGPA_TERM_CODE
+                        x-lineageLookupReferenceObject: STVTERM
+                beginOn:
+                  type: string
+                  format: date
+                  title: Attendance Begin Date
+                  description: Identifies the date the student began attending the institution.
+                  x-lineageReferenceObject: SHRTRAM_ATTN_BEGIN_DATE
+                endOn:
+                  type: string
+                  format: date
+                  title: Attendance End Date
+                  description: Identifies the date the student ended attendance at the
+                    institution.
+                  x-lineageReferenceObject: SHRTRAM_ATTN_END_DATE
+                period:
+                  type: string
+                  maxLength: 12
+                  title: Attendance Period.
+                  description: Identifies the attendance period description.
+                  x-lineageReferenceObject: SHRTRAM_ATTN_PERIOD
+                sequenceNumber:
+                  type: integer
+                  maxLength: 2
+                  title: Attendance Period Sequence Number.
+                  description: Transfer Institution Attendance Period Sequence Number.
+                  x-lineageReferenceObject: SHRTRAM_SEQ_NO
+                degreeCode:
+                  type: string
+                  maxLength: 6
+                  title: Degree Code.
+                  description: Identifies degree student received within the attendance period.
+                  x-lineageReferenceObject: SHRTRAM_DEGC_CODE
+                  x-lineageLookupReferenceObject: STVDEGC
+                degreeDesc:
+                  type: string
+                  maxLength: 30
+                  title: Degree Description
+                  description: This field specifies the degree (e.g. Bachelor of Business
+                    Administration, Master of Arts, Juris Doctor, etc.)
+                    associated with the degree code.
+                  x-lineageReferenceObject: STVDEGC_DESC
+                institutionSequenceNumber:
+                  type: integer
+                  maxLength: 2
+                  title: Transfer Institutuion Sequence Number.
+                  description: Identifies the transfer institution record.
+                  x-lineageReferenceObject: SHRTRAM_TRIT_SEQ_NO
+                  x-lineageLookupReferenceObject: SHRTRIT
+                levelCode:
+                  type: string
+                  maxLength: 2
+                  title: Level Code
+                  description: Code for the level of education like UG,PG.
+                  x-lineageReferenceObject: SHRTRAM_LEVL_CODE
+                  x-lineageLookupReferenceObject: STVLEVL
+                levelDesc:
+                  type: string
+                  maxLength: 30
+                  title: Level Description
+                  description: Description of the education level like UnderGraduate,PostGraduate
+                    etc.
+                  x-lineageReferenceObject: STVLEVL_DESC
+                effectiveTermCode:
+                  type: string
+                  maxLength: 6
+                  title: Effective Term Code
+                  description: The term to which transfer attendance period applies.
+                  x-lineageReferenceObject: SHRTRAM_TERM_CODE_ENTERED
+                  x-lineageLookupReferenceObject: STVTERM
+                termDesc:
+                  type: string
+                  maxLength: 30
+                  title: Term Code Description
+                  description: This field specifies the term associated with the term code. The
+                    term is identified by the academic year and term number and
+                    is formatted YYYYTT.
+                  x-lineageReferenceObject: STVTERM_DESC
+                termType:
+                  type: string
+                  maxLength: 30
+                  title: Term Type.
+                  description: Specifies the type of term, for example - semester, quarter, etc.
+                  x-lineageReferenceObject: SHRTRAM_TERM_TYPE
+                transferCourseDetails:
+                  type: array
+                  title: Transfer Course Details
+                  description: List of transfer course details.
+                  items:
+                    type: object
+                    x-lineageReferenceObject: SHRTRCR
+                    additionalProperties: false
+                    properties:
+                      attendancePeriodSequenceNumber:
+                        type: integer
+                        maxLength: 2
+                        title: Attendance Period Sequence Number
+                        description: The sequence number for the attendance period in the transfer
+                          institution.
+                        x-lineageReferenceObject: SHRTRCR_TRAM_SEQ_NO
+                        x-lineageLookupReferenceObject: SHRTRAM
+                      duplicate:
+                        type: string
+                        maxLength: 2
+                        title: Duplicate subject/course
+                        description: Indicates a duplicate transfer subject/course for a given term
+                          entered.
+                        x-lineageReferenceObject: SHRTRCR_DUPLICATE
+                      group:
+                        type: string
+                        maxLength: 2
+                        title: Transfer Course Group
+                        description: Group connector for many to one transfer course relationships
+                        x-lineageReferenceObject: SHRTRCR_GROUP
+                      groupPrimaryInd:
+                        type: string
+                        maxLength: 1
+                        title: Group Primary Indicator
+                        description: Designates primary course in a transfer course group
+                        x-lineageReferenceObject: SHRTRCR_GROUP_PRIMARY_IND
+                      institutionSequenceNumber:
+                        type: integer
+                        maxLength: 2
+                        title: Institution Sequence Number
+                        description: Identifier for the institution where the course was taken.
+                        x-lineageReferenceObject: SHRTRCR_TRIT_SEQ_NO
+                        x-lineageLookupReferenceObject: SHRTRIT
+                      transferCourseEquivalents:
+                        type: array
+                        title: Transfer Course Equivalent
+                        description: List of equivalent courses for the transfer course.
+                        items:
+                          type: object
+                          x-lineageReferenceObject: SHRTRCE
+                          additionalProperties: false
+                          properties:
+                            applicationNumber:
+                              type: integer
+                              maxLength: 2
+                              title: Application Number.
+                              description: Application number of the admissions record to which this transfer
+                                credit is linked.
+                              x-lineageReferenceObject: SHRTRCE_APPL_NO
+                            attendancePeriodSequenceNumber:
+                              type: integer
+                              maxLength: 2
+                              title: Attendance Period Sequence Number.
+                              description: The sequence number for the attendance period in the transfer
+                                institution.
+                              x-lineageReferenceObject: SHRTRCE_TRAM_SEQ_NO
+                              x-lineageLookupReferenceObject: SHRTRAM
+                            countInGpaInd:
+                              type: string
+                              maxLength: 1
+                              title: Count in GPA Indicator
+                              description: Specifies whether transfer course should be used in the calculation
+                                of transfer and overall hours and GPA.
+                            creditHours:
+                              type: number
+                              title: Credit Hours
+                              description: Identifies credit hours associated with the equivalent
+                                transfer   course.
+                              x-lineageReferenceObject: SHRTRCE_CREDIT_HOURS
+                            courseNumber:
+                              type: string
+                              maxLength: 5
+                              title: Course Number of Equivalent Course
+                              description: Course Number of the equivalent transfer course.
+                              x-lineageReferenceObject: SHRTRCE_CRSE_NUMB
+                            courseTitle:
+                              type: string
+                              maxLength: 30
+                              title: Course Title
+                              description: The title of the equivalent transfer course.
+                              x-lineageReferenceObject: SHRTRCE_CRSE_TITLE
+                            courseIdentifierDisplay:
+                              type: string
+                              maxLength: 30
+                              title: Course Identifier Display
+                              description: Returns course alias else course number depending on setting.
+                            courseAlias:
+                              type: string
+                              maxLength: 30
+                              title: Course Alias
+                              description: The course alias for the course.
+                            sequenceNumber:
+                              type: integer
+                              maxLength: 3
+                              title: Equivalent Sequence Number
+                              description: Internal Transfer Course Sequence Number.  Identifies transfer
+                                course.
+                              x-lineageReferenceObject: SHRTRCE_SEQ_NO
+                            gradeMode:
+                              type: string
+                              maxLength: 1
+                              title: Grade Mode Code
+                              description: This field identifies the grading mode code referenced in the
+                                Catalog, Class Schedule, Registration, and
+                                Academic History Modules.
+                              x-lineageReferenceObject: SHRTRCE_GMOD_CODE
+                              x-lineageLookupReferenceObject: STVGMOD
+                            gradeModeDesc:
+                              type: string
+                              maxLength: 30
+                              title: Grade Mode Description
+                              description: This field specifies the grading mode (e.g. pass/fail, audit,
+                                normal grading  mode) associated with the
+                                grading mode code.
+                              x-lineageReferenceObject: STVGMOD_DESC
+                            grade:
+                              type: string
+                              maxLength: 4
+                              title: Grade Code
+                              description: The code that represents the grade for the equivalent course.
+                              x-lineageReferenceObject: SHRTRCE_GRDE_CODE
+                            institutionSequenceNumber:
+                              type: integer
+                              maxLength: 2
+                              title: Transfer Institutuion Sequence Number.
+                              description: Identifies the transfer institution record.
+                              x-lineageReferenceObject: SHRTRCE_TRIT_SEQ_NO
+                              x-lineageLookupReferenceObject: SHRTRIT
+                            levelCode:
+                              type: string
+                              maxLength: 2
+                              title: Level Code
+                              description: Code for the level of education like UG,PG.
+                              x-lineageReferenceObject: SHRTRCE_LEVL_CODE
+                              x-lineageLookupReferenceObject: STVLEVL
+                            levelDesc:
+                              type: string
+                              maxLength: 30
+                              title: Level Description
+                              description: This field specifies the student level (e.g. undergraduate,
+                                graduate, professional) associated with the
+                                student level code.
+                              x-lineageReferenceObject: STVLEVL_DESC
+                            repeatCourse:
+                              type: string
+                              maxLength: 1
+                              title: Repeat Code
+                              description: This field indicates if a course is to be Included, Excluded or
+                                Averaged.
+                              x-lineageReferenceObject: SHRTRCE_REPEAT_COURSE
+                            repeatSystem:
+                              type: string
+                              maxLength: 1
+                              title: Repeat System Code
+                              description: This field indicates if the repeat code was entered Manually or
+                                calculated by the System.
+                              x-lineageReferenceObject: SHRTRCE_REPEAT_SYS
+                            studyPathSequenceNumber:
+                              type: integer
+                              maxLength: 2
+                              title: Study Path Sequence.
+                              description: Key sequence of the study path associated with the application
+                                learner record
+                              x-lineageReferenceObject: SHRTRCE_STSP_KEY_SEQUENCE
+                            subjectCode:
+                              type: string
+                              maxLength: 4
+                              title: Subject Code
+                              description: The code that represents the subject of the equivalent course.
+                              x-lineageReferenceObject: SHRTRCE_SUBJ_CODE
+                              x-lineageLookupReferenceObject: STVSUBJ
+                            effectiveTermCode:
+                              type: string
+                              maxLength: 6
+                              title: Effective Term Code
+                              description: This field identifies the term code referenced in the Catalog,
+                                Recruiting, Admissions, General Student,
+                                Registration, Student Billing and Academic
+                                History Modules etc.
+                              x-lineageReferenceObject: SHRTRCE_TERM_CODE_EFF
+                              x-lineageLookupReferenceObject: STVTERM
+                            termDesc:
+                              type: string
+                              maxLength: 30
+                              title: Term Description
+                              description: This field specifies the term associated with the term code. The
+                                term is identified by the academic year and term
+                                number and is formatted YYYYTT.
+                              x-lineageReferenceObject: STVTERM_DESC
+                            transferCourseSequenceNumber:
+                              type: integer
+                              maxLength: 3
+                              title: Transfer Course Sequence Number
+                              description: The sequence number that identifies the transfer course in the
+                                transcript.
+                              x-lineageReferenceObject: SHRTRCE_TRCR_SEQ_NO
+                              x-lineageLookupReferenceObject: SHRTRCR
+                            transferEquivalentCourseAttributes:
+                              type: array
+                              title: Transfer Equivalent Course Attribute
+                              description: List of attributes for the transfer equivalent course.
+                              items:
+                                type: object
+                                x-lineageReferenceObject: SHRTATT
+                                additionalProperties: false
+                                properties:
+                                  attendancePeriodSequenceNumber:
+                                    type: integer
+                                    maxLength: 2
+                                    title: Attendance Period Sequence Number.
+                                    description: Transfer Institution Attendance Period Sequence Number.
+                                    x-lineageReferenceObject: SHRTATT_TRAM_SEQ_NO
+                                    x-lineageLookupReferenceObject: SHRTRAM
+                                  attributeCode:
+                                    type: string
+                                    maxLength: 4
+                                    title: Course section attribute code.
+                                    description: Attribute code which defines degree requirements that may be either
+                                      required by a degree program or satisfied
+                                      by passing a course
+                                    x-lineageReferenceObject: SHRTATT_ATTR_CODE
+                                    x-lineageLookupReferenceObject: STVATTR
+                                  equivalentCourseSequenceNumber:
+                                    type: integer
+                                    maxLength: 3
+                                    title: Equivalent Sequence Number
+                                    description: Internal Transfer Course Sequence Number.  Identifies transfer
+                                      course.
+                                    x-lineageReferenceObject: SHRTATT_TRCE_SEQ_NO
+                                    x-lineageLookupReferenceObject: SHRTRCE
+                                  institutionSequenceNumber:
+                                    type: integer
+                                    maxLength: 2
+                                    title: Transfer Institutuion Sequence Number
+                                    description: Identifies the transfer institution record.
+                                    x-lineageReferenceObject: SHRTATT_TRIT_SEQ_NO
+                                    x-lineageLookupReferenceObject: SHRTRIT
+                                  attributeDesc:
+                                    type: string
+                                    maxLength: 30
+                                    title: Attribute Description
+                                    description: Description for the attribute code
+                                    x-lineageReferenceObject: STVATTR_DESC
+                                  transferCourseSequenceNumber:
+                                    type: integer
+                                    maxLength: 3
+                                    title: Transfer Course Sequence Number
+                                    description: The sequence number that identifies the transfer course in the
+                                      transcript.
+                                    x-lineageReferenceObject: SHRTATT_TRCR_SEQ_NO
+                                    x-lineageLookupReferenceObject: SHRTRCR
+                      courseName:
+                        type: string
+                        maxLength: 60
+                        title: Transfer Course Name
+                        description: The name of the transfer course as mentioned in the original
+                          transcript.
+                        x-lineageReferenceObject: SHRTRCR_TRANS_COURSE_NAME
+                      courseNumber:
+                        type: string
+                        maxLength: 60
+                        title: Transfer Course Numbers.
+                        description: Identifies the transfer course number(s) for which equivalent
+                          course information will be entered.
+                        x-lineageReferenceObject: SHRTRCR_TRANS_COURSE_NUMBERS
+                      sequenceNumber:
+                        type: integer
+                        maxLength: 3
+                        title: Transfer Course Sequence Number
+                        description: The sequence number that identifies the transfer course in the
+                          transcript.
+                        x-lineageReferenceObject: SHRTRCR_SEQ_NO
+                      courseTitle:
+                        type: string
+                        maxLength: 30
+                        title: Transfer Course Title
+                        description: The title of the transfer course.
+                        x-lineageReferenceObject: SHRTRCR_TCRSE_TITLE
+                      creditHours:
+                        type: number
+                        title: Transfer Course Credit Hours
+                        description: Specifies the credit hours of the transfer course from the original
+                          transcript.
+                        x-lineageReferenceObject: SHRTRCR_TRANS_CREDIT_HOURS
+                      grade:
+                        type: string
+                        maxLength: 6
+                        title: Transfer Course Grade
+                        description: Identifies the grade of the transfer course from the original
+                          transcript.
+                        x-lineageReferenceObject: SHRTRCR_TRANS_GRADE
+          institutionSequenceNumber:
+            type: integer
+            maxLength: 2
+            title: Transfer Institutuion Sequence Number
+            description: Identifies the transfer institution record.
+            x-lineageReferenceObject: SHRTRIT_SEQ_NO
+          officialTransInd:
+            type: string
+            maxLength: 1
+            title: Official Transcript Indicator
+            description: Specifies whether information being entered is  from an official
+              transcript.
+            x-lineageReferenceObject: SHRTRIT_OFFICIAL_TRANS_IND
+          institutionCode:
+            type: string
+            maxLength: 20
+            title: Transfer Institution Code
+            description: Source/Background Institution Code that identifies the transfer
+              institution.
+            x-lineageReferenceObject: SHRTRIT_SBGI_CODE
+            x-lineageLookupReferenceObject: STVSBGI
+          institutionDesc:
+            type: string
+            maxLength: 100
+            title: Transfer Institution Description
+            description: Source/Background Institution Description
+            x-lineageReferenceObject: SHRTRIT_SBGI_DESC or STVSBGI_DESC
+          transcriptReceivedOn:
+            type: string
+            format: date
+            title: Transcript Receipt Date
+            description: Identifies the date the transcript was received.
+            x-lineageReferenceObject: SHRTRIT_TRANS_DATE_RCVD
+        required:
+          - institutionSequenceNumber
+          - institutionCode
+        additionalProperties: false
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary
+                  data entity used to create the resource. This is useful for
+                  referencing the source item through the applications
+                  administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  examples:
+    MandtoryFieldsMissing:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Filter value for [bannerId] is required"
+                }
+            ]
+        }

@@ -1,0 +1,1007 @@
+openapi: 3.0.0
+info:
+  title: applicant-disbursement-details
+  description: The Applicant Disbursement details API provides information from KVRDISB table.
+  version: 1.0.0
+  x-source-domain: Financial Aid
+  x-source-name: KVRDISB
+  x-source-title: Applicant Disbursement Details (Student Aid)
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-audience: all
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/applicant-disbursement-details:
+    get:
+      summary: Returns listing of all applicant disbursements.
+      description: Return all information on disbursement details for applicants.
+      security:
+        - EthosIntegrationBearer: []
+      tags:
+        - applicant-disbursement-details
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards for more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### studentId
+
+            Returns disbursements for a specific student based on Student ID.
+
+            ```
+
+            /applicant-disbursement-details?criteria={"studentId":"123456"}
+
+            ```
+
+            ### Aid Year Code
+
+            Returns disbursements for a specific aid year.
+
+            ```
+
+            /applicant-disbursement-details?criteria={"aidyCode":"2025"}
+
+            ```
+
+            ### Aid Period Code
+
+            Returns disbursements for a specific aid period.
+
+            ```
+
+            /applicant-disbursement-details?criteria={"aidpCode":"LGWNTR20"}
+
+            ```
+
+            ### Fund Code
+
+            Returns disbursements for a specific fund code.
+
+            ```
+
+            /applicant-disbursement-details?criteria={"fndcCode":"D-BURSTYP"}
+
+            ```
+
+            ### Term Code
+
+            Returns disbursements for a specific term.
+
+            ```
+
+            /applicant-disbursement-details?criteria={"termCode":"202501"}
+
+            ```
+
+            ### Posting Method Indicator
+
+            Returns disbursements with specific posting method (R=A/R, P=A/P).
+
+            ```
+
+            /applicant-disbursement-details?criteria={"postingMethodIndicator":"R"}
+
+            ```
+
+            ### Multiple Criteria
+            
+            Returns disbursements for multiple criteria.
+
+            ```
+            
+            /applicant-disbursement-details?criteria={"studentId":"123456","aidyCode":"2025","fndcCode":"D-BURSTYP"}
+            
+            ```
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/applicant-disbursement-details-1.0.0_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the clientâ€™s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      x-method-permissions: API_APLT_DISB_DETAIL
+  /api/applicant-disbursement-details/batches:
+    post:
+      tags:
+        - applicant-disbursement-details
+      summary: Submit a batch of applicant disbursement details to be posted to KVRDISB.
+      description: A batch of applicant disbursement records will be updated.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/applicant-disbursement-details-batch-1.0.0_post_request"
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/applicant-disbursement-details-batch-1.0.0_post_response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      x-method-permissions: API_APLT_DISB_DETAIL
+  /api/applicant-disbursement-details/batches/{id}:
+    get:
+      tags:
+      - applicant-disbursement-details
+      summary: Returns the result of each item in the batch request.
+      description: >
+
+        Returns the list of IDs for those applicant disbursement details that were successfully created. For those that were not, it returns the list of error messages.
+      parameters:
+        - name: id
+          in: path
+          description: |
+            Unique identifier for the applicant disbursement detail.
+          required: true
+          schema:
+            type: string
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/applicant-disbursement-details-batch-1.0.0_get_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      x-method-permissions: API_APLT_DISB_DETAIL
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    applicant-disbursement-details-1.0.0_response:
+      title: applicant-disbursement-details-1.0.0_response
+      description: Retrieves disbursement details for an applicant.
+      type: object
+      properties:
+        pidm:
+          title: Student PIDM
+          description: The PIDM of the Student.
+          type: integer
+          x-lineageReferenceObject: KVRDISB_PIDM
+        aidyCode:
+          title: Aid Year Code
+          description: The aid year in which the award was disbursed.
+          type: string
+          maxLength: 4
+          x-lineageReferenceObject: KVRDISB_AIDY_CODE
+        aidpCode:
+          title: Aid Period Code
+          description: The aid period in which the award was disbursed.
+          type: string
+          maxLength: 8
+          x-lineageReferenceObject: KVRDISB_AIDP_CODE
+        fndcCode:
+          title: Aid Fund Code
+          description: The aid fund code of the award that is being processed.
+          type: string
+          maxLength: 10
+          x-lineageReferenceObject: KVRDISB_FNDC_CODE
+        fndcSequenceNumber:
+          title: Fund Sequence Number
+          description: A one-up number used to differentiate one award from another when the same Aid Fund Code is used in the same aid period for the applicant.
+          type: integer
+          x-lineageReferenceObject: KVRDISB_FNDC_SEQ_NO
+        drecSequenceNumber:
+          title: Disbursement Record Sequence Number
+          description: A one-up number used to sequence the disbursement records for a given award.
+          type: integer
+          x-lineageReferenceObject: KVRDISB_DREC_SEQ_NO
+        termCode:
+          title: Term Code
+          description: The term where the amount is being disbursed.
+          type: string
+          maxLength: 6
+          x-lineageReferenceObject: KVRDISB_TERM_CODE
+        origScheduledPaymentDate:
+          title: Original Scheduled Payment Date
+          description: Date when payment of this disbursement was originally scheduled to be paid.
+          type: string
+          format: date
+          x-lineageReferenceObject: KVRDISB_ORIG_SCHED_PAY_DATE
+        origScheduledPaymentAmount:
+          title: Original Scheduled Payment Amount
+          description: The original amount that was scheduled to be paid on the original schedule payment date.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVRDISB_ORIG_SCHED_PAY_AMT
+        scheduledPaymentDate:
+          title: Scheduled Payment Date
+          description: The date when this disbursement is scheduled to be posted on TBRACCD when disbursement was performed via A/R; or FABINVH when performed via A/P.
+          type: string
+          format: date
+          x-lineageReferenceObject: KVRDISB_SCHED_PAY_DATE
+        paymentDate:
+          title: Payment Date
+          description: The date when this disbursement was actually posted on AR or AP. This field is NULL when the transaction is memoed.
+          type: string
+          format: date
+          x-lineageReferenceObject: KVRDISB_PAY_DATE
+        paymentAmount:
+          title: Payment Amount
+          description: The current amount payable to the applicant for this disbursement record.
+          type: number
+          format: decimal
+          x-lineageReferenceObject: KVRDISB_PAY_AMT
+        postingMethodIndicator:
+          title: Posting Method Indicator
+          description: Indicates if this disbursement record will be posted to Accounts Receivable (A/R) or Accounts Payable (A/P). Valid values are R-Posted to A/R, P-Posted to A/P.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRDISB_POSTING_METHOD_IND
+        postingConditionIndicator:
+          title: Posting Condition Indicator
+          description: Indicates the condition in which the disbursement event finalized when posting the fund to A/R or A/P.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRDISB_POST_COND_IND
+        editCheckIndicator:
+          title: Edit Check Indicator
+          description: Indicates if the edits required for disbursing an amount have been passed for this disbursement record. Y-Applicant passed the edits. N-Applicant did not pass the edits.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRDISB_EDIT_CHECK_IND
+        arHoldOverrideIndicator:
+          title: AR Hold Override Indicator
+          description: Indicates if an existing Accounts Receivable (AR) hold was overridden when the disbursement record was generated for the applicant.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRDISB_AR_HOLD_OVR_IND
+        paymentOptionIndicator:
+          title: Payment Option Indicator
+          description: Indicates the mechanism to be used for paying the amount to the applicant when processing disbursements via Accounts Payable (A/P). D-Direct Deposit; C-Cheque.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRDISB_PAY_OPTION_IND
+        invoiceAtypCode:
+          title: Invoice Address Type Code
+          description: The address type associated with the address used on the A/P disbursement record which will be used as INVOICE ADDRESS.
+          type: string
+          maxLength: 2
+          x-lineageReferenceObject: KVRDISB_INV_ATYP_CODE
+        invAtypSequenceNumber:
+          title: Invoice Address Type Sequence Number
+          description: The address type sequence number from SPRADDR that is associated with the address type used on the A/P disbursement record.
+          type: integer
+          x-lineageReferenceObject: KVRDISB_INV_ATYP_SEQNO
+        systemPaymentIndicator:
+          title: System Payment Processing Indicator
+          description: Indicates the type of payment processing that is done in general in the system. C-Client Processing; F-Banner Finance.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRDISB_SYS_PAY_IND
+        disbursementAmountDecreaseIndicator:
+          title: Disbursement Amount Decrease Indicator
+          description: When using the Banner Finance option for A/P disbursements, this indicator is used to determine if decreases of amounts will be handled through A/R or not.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: KVRDISB_DISB_AMT_DECR_IND
+        vendorAtypCode:
+          title: Vendor Address Type Code
+          description: The address type associated with the address used on the A/P disbursement record which will be used as VENDOR INVOICE ADDRESS.
+          type: string
+          maxLength: 4
+          x-lineageReferenceObject: KVRDISB_VEND_ATYP_CODE
+        vendorAtypSequenceNumber:
+          title: Vendor Address Type Sequence Number
+          description: The address type sequence number from SPRADDR that is associated with the vendor address type used on the A/P disbursement record.
+          type: integer
+          x-lineageReferenceObject: KVRDISB_VEND_ATYP_SEQNO
+        dataOrigin:
+          title: Data Origin
+          description: The latest source for the data contained in this record.
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: KVRDISB_DATA_ORIGIN
+        createUserId:
+          title: Create User ID
+          description: The logon ID of the user who created this record.
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: KVRDISB_CREATE_USER_ID
+        createDate:
+          title: Create Date
+          description: The date this record was created.
+          type: string
+          format: date
+          x-lineageReferenceObject: KVRDISB_CREATE_DATE
+        userId:
+          title: User ID
+          description: The logon ID of the user who created or last updated this record.
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: KVRDISB_USER_ID
+        activityDate:
+          title: Activity Date
+          description: The most recent date this record was created or updated.
+          type: string
+          format: date
+          x-lineageReferenceObject: KVRDISB_ACTIVITY_DATE
+    applicant-disbursement-details-batch-1.0.0_post_request:
+      type: object
+      properties:
+        items:
+          title: Items
+          description: List of items to be processed.
+          type: array
+          items:
+            type: object
+            $ref: "#/components/schemas/applicant-disbursement-details-batch-1.0.0_post_items"
+      required:
+        - items
+    applicant-disbursement-details-batch-1.0.0_post_items:
+      $ref: '#/components/schemas/applicant-disbursement-details-1.0.0_post_request'
+    applicant-disbursement-details-batch-1.0.0_post_response:
+        description: 'Returns batch job details like status, job ID, request ID, resource details, etc. '
+        type: object
+        required:
+        - id
+        - jobId
+        - status
+        - link
+        - resource
+        - createdOn
+        - jobStartOn
+        - jobEndOn
+        properties:
+          id:
+            title: Request ID
+            description: A globally unique identifier of a batch API request to be used in all external references.
+            type: string
+            format: guid
+            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+            example: cf5ff489-e386-43a3-93cf-04d4b1f77216
+            x-lineageReferenceObject: GOBBREQ_GUID
+          jobId:
+            title: Job ID
+            description: Batch job execution ID.
+            type: number
+            x-lineageReferenceObject: GOBBREQ_JOB_ID
+            example: 123
+          status:
+            title: Status
+            description: Status of the batch.
+            type: string
+            enum:
+              - completed
+              - inProgress
+              - aborted
+            x-lineageReferenceObject: GOBBREQ_JOB_STATUS
+            example: inProgress
+          link:
+            title: Status URL
+            description: REST API URL to use to get the status of a specific batch job.
+            type: string
+            example: https://api.example.com/api/applicant-disbursement-details/batches/{id}
+          resource:
+            title: Resource
+            description: The affected resource.
+            type: object
+            properties:
+              name:
+                title: Resource Name
+                description: The pluralized name of the affected resource.
+                type: string
+                x-lineageReferenceObject: GOBBREQ_API_RESOURCE
+                example: applicant-disbursement-details
+              version:
+                title: Resource version
+                description: The version of the resource.
+                type: number
+                x-lineageReferenceObject: GOBBREQ_API_VERSION
+                example: application/vnd.hedtech.integration.v1.0.0+json
+            additionalProperties: false
+            required:
+              - name
+              - version
+          createdOn:
+            title: Create Date
+            description: Date on which the batch job was created.
+            type: string
+            format: date
+            x-lineageReferenceObject: GOBBREQ_CREATEDTIME
+            example: '2024-01-01'
+          jobStartOn:
+            title: Job Start Time
+            description: Time when the batch job started.
+            type: string
+            format: date-time
+            x-lineageReferenceObject: BATCH_JOB_EXECUTION.START_TIME
+            example: '2024-09-27 12:46:37.058'
+          jobEndOn:
+            title: Job End Time
+            description: Time when the batch job ended.
+            type: string
+            format: date-time
+            x-lineageReferenceObject: BATCH_JOB_EXECUTION.END_TIME
+            example: '2024-09-27 12:48:15.976'
+    applicant-disbursement-details-batch-1.0.0_get_response:
+        description: 'Returns the list of IDs for those applicant disbursement details that were successfully created. For those that were not, it returns the list of error messages.'
+        type: object
+        x-last-modified:
+        required:
+        - id
+        - jobId
+        - status
+        - link
+        - resource
+        - createdOn
+        - jobStartOn
+        - jobEndOn
+        - modifiedBy
+        - modifiedOn
+        - totalErrorsCount
+        - items
+        properties:
+          id:
+            title: Request ID
+            description: A globally unique identifier of a batch API request to be used in all external references.
+            type: string
+            format: guid
+            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+            example: cf5ff489-e386-43a3-93cf-04d4b1f77216
+            x-lineageReferenceObject: GOBBREQ_GUID
+          jobId:
+            title: Job ID
+            description: Batch job execution ID.
+            type: number
+            x-lineageReferenceObject: GOBBREQ_JOB_ID
+            example: 123
+          status:
+            title: Status
+            description: Status of the batch.
+            type: string
+            enum:
+              - completed
+              - inProgress
+              - aborted
+            x-lineageReferenceObject: GOBBREQ_JOB_STATUS
+            example: inProgress
+          link:
+            title: Status URL
+            description: REST API URL to use to get the status of a specific batch job.
+            type: string
+            example: https://api.example.com/api/applicant-disbursement-details/batches/{id}
+          createdOn:
+            title: Create Date
+            description: Date on which the batch job was created.
+            type: string
+            format: date
+            x-lineageReferenceObject: GOBBREQ_CREATEDTIME
+            example: '2024-01-01'
+          jobStartOn:
+            title: Job Start Time
+            description: Time when the batch job started.
+            type: string
+            format: date-time
+            x-lineageReferenceObject: BATCH_JOB_EXECUTION.START_TIME
+            example: '2024-09-27 12:46:37.058'
+          jobEndOn:
+            title: Job End Time
+            description: Time when the batch job ended.
+            type: string
+            format: date-time
+            x-lineageReferenceObject: BATCH_JOB_EXECUTION.END_TIME
+            example: '2024-09-27 12:48:15.976'
+          modifiedBy:
+             title: Modified By
+             description: The user ID of the person who inserted or last updated this record.
+             type: string
+             x-lineageReferenceObject: GOBBREQ_USER_ID
+             example: HRISUSR
+          modifiedOn:
+             title: Modified Date
+             description: Date of last activity of the record.
+             type: string
+             format: date
+             x-lineageReferenceObject: GOBBREQ_ACTIVITY_DATE
+             example: 01-JAN-2024
+          resource:
+            title: Resource
+            description: The affected resource.
+            type: object
+            properties:
+              name:
+                title: Resource Name
+                description: The pluralized name of the affected resource.
+                type: string
+                x-lineageReferenceObject: GOBBREQ_API_RESOURCE
+                example: applicant-disbursement-details
+              version:
+                title: Resource version
+                description: The version of the resource.
+                type: number
+                x-lineageReferenceObject: GOBBREQ_API_VERSION
+                example: application/vnd.hedtech.integration.v1.0.0+json
+            additionalProperties: false
+            required:
+              - name
+              - version
+          totalErrorsCount:
+             title: Error Count
+             description: Total number of errors that occurred, while processing the collection of items in the request.
+             type: number
+             x-lineageReferenceObject: derived
+             x-lineageDerivedLogic: Computed and saved in GOBBREQ_BATCH_RESPONSE_BODY.
+             example: 1
+          items:
+            type: array
+            items:
+              type: object
+              x-lineageReferenceObject: GOBBREQ_BATCH_RESPONSE_BODY
+              additionalProperties: true
+              oneOf:
+                - type: object
+                  title: Identifier
+                  required:
+                    - id
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier of the applicant disbursement detail.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageReferenceObject: KVRDISB_COMPOSITE_KEY
+                      example: 4feqfc84-3t37-4036-852c-34tzl9d5501a
+                      maxLength: 36
+                - type: object
+                  title: Error Message
+                  required:
+                    - errorMessage
+                  properties:
+                    errorMessage:
+                      title: errorMessage
+                      type: string
+                      description: Error message describing the error caused during create or update operation.
+    applicant-disbursement-details-1.0.0_post_request:
+      type: object
+      required:
+        - id
+        - paymentAmount
+        - paymentDate
+      properties:
+        id:
+          title: Applicant Disbursement Identifier
+          type: object
+          required:
+            - studentId
+            - fndcCode
+            - fndcSequenceNumber
+            - aidpCode
+            - aidyCode
+            - drecSequenceNumber
+          properties:
+            studentId:
+              type: string
+              maxLength: 9
+              example: STUDENT1
+            fndcCode:
+              type: string
+              maxLength: 10
+              example: FUNDCODE1
+            fndcSequenceNumber:
+              type: integer
+              example: 2
+            aidpCode:
+              type: string
+              maxLength: 10
+              example: AIDPERIOD1
+            aidyCode:
+              type: string
+              maxLength: 6
+              example: 2627
+            drecSequenceNumber:
+              type: integer
+              example: 1
+        paymentAmount:
+          title: Payment Amount
+          description: "Amount paid for the disbursement record."
+          type: number
+          multipleOf: 0.01
+          example: 202.00
+        paymentDate:
+          title: Payment Date
+          description: "Date on which the payment was made in DD-MM-YYYY format."
+          type: string
+          pattern: "^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])-\\d{4}$"
+          example: 30-10-2026
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary
+                  data entity used to create the resource. This is useful for
+                  referencing the source item through the applications
+                  administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.

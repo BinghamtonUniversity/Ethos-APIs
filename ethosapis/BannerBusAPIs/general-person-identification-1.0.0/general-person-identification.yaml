@@ -1,0 +1,1212 @@
+openapi: 3.0.0
+info:
+  title: general-person-identification
+  description: API for SPAIDEN administrative page
+  version: 1.0.0
+  x-audience: all
+  x-release-status: ga
+  x-source-name: SPAIDEN
+  x-source-domain: Student
+  x-source-title: General Person Identification
+  x-source-system: banner
+  x-api-type: bus-poc
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/general-person-identification:
+    get:
+      tags:
+        - general-person-identification
+      summary: Return resources from SPAIDEN
+      parameters:
+        - name: X-SDE-Expand
+          in: header
+          description: The comma seperated value list of block names
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: The maximum number of resources requesting for this result set.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          description: The filter criteria as a single URL query parameter. Use this
+            parameter or the individual parameters listed. Must be a JSON
+            representation of the property searching for. This can be any of the
+            properties listed on the URL or QAPI and must be a json
+            representation that can be validated against the GET schema. Limit
+            and Offset are the only supported additional parameters on the URL.
+          required: false
+          schema:
+            type: string
+        - name: id
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: spridenId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: fromDate
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: persSex
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: emalCode
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: adidCode
+          in: query
+          description: ID Type
+          required: false
+          schema:
+            type: string
+          x-lineageReferenceObject: GORADID_ADID_CODE
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/general-person-identification-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+  /qapi/general-person-identification:
+    post:
+      tags:
+        - general-person-identification QAPI (Query by POST)
+      summary: Return resources from SPAIDEN
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/general-person-identification-1.0.0_get_request"
+            example:
+              spridenId: N
+              id: A00030988
+              persSex: Y
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/general-person-identification-1.0.0_get_response"
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+        "401":
+          description: Failure. Unauthorized
+      security:
+        - BasicAuth: []
+          EllucianOAuthUserToken: []
+          EthosIntegrationBearer: []
+components:
+  schemas:
+    general-person-identification-1.0.0_qapi_post:
+      type: object
+      properties:
+        id:
+          type: string
+        spridenId:
+          type: string
+        fromDate:
+          type: string
+        persSex:
+          type: string
+        emalCode:
+          type: string
+        adidCode:
+          title: ID Type
+          maxLength: 4
+          type: string
+          description: "Lineage reference object : GORADID_ADID_CODE, Lookup lineage
+            reference object : gtvadid"
+          x-lineageReferenceObject: GORADID_ADID_CODE
+          x-lineageLookupReferenceObject: gtvadid
+    general-person-identification-1.0.0_get_response:
+      type: object
+      properties:
+        spriden_current:
+          type: array
+          items:
+            type: object
+            properties:
+              persPrefFname:
+                title: Preferred First Name
+                maxLength: 60
+                type: string
+              spridenActivityDate:
+                title: Activity Date
+                maxLength: 26
+                type: string
+                description: "Lineage reference object : SPRIDEN_ACTIVITY_DATE"
+                format: date-time
+                x-lineageReferenceObject: SPRIDEN_ACTIVITY_DATE
+              persPrefix:
+                title: Prefix
+                maxLength: 20
+                type: string
+              spridenCreateUser:
+                title: User
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPRIDEN_CREATE_USER"
+                x-lineageReferenceObject: SPRIDEN_CREATE_USER
+              greenDataBar2:
+                type: string
+              persLastName:
+                title: Last Name
+                maxLength: 60
+                type: string
+              greenDataBar3:
+                type: string
+              persLegalName:
+                title: Full Legal Name
+                maxLength: 500
+                type: string
+              currentNtypDesc:
+                type: string
+              spridenOrigin:
+                title: Origin
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPRIDEN_ORIGIN"
+                x-lineageReferenceObject: SPRIDEN_ORIGIN
+              greenDataBar1:
+                type: string
+              persMi:
+                title: Middle Name
+                maxLength: 60
+                type: string
+              persSuffix:
+                title: Suffix
+                maxLength: 20
+                type: string
+              spridenId:
+                title: ID
+                maxLength: 9
+                type: string
+                description: "Lineage reference object : SPRIDEN_ID"
+                x-lineageReferenceObject: SPRIDEN_ID
+              persSurnamePrefix:
+                title: Last Name Prefix
+                maxLength: 60
+                type: string
+              spridenUser:
+                title: User
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPRIDEN_USER"
+                x-lineageReferenceObject: SPRIDEN_USER
+              nonPersName:
+                title: Name
+                maxLength: 60
+                type: string
+              spridenNtypCode:
+                title: Name Type
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPRIDEN_NTYP_CODE, Lookup lineage
+                  reference object : gtvntyp"
+                x-lineageReferenceObject: SPRIDEN_NTYP_CODE
+                x-lineageLookupReferenceObject: gtvntyp
+              persFirstName:
+                title: First Name
+                maxLength: 60
+                type: string
+              spridenCreateDate:
+                title: Create Date
+                maxLength: 26
+                type: string
+                description: "Lineage reference object : SPRIDEN_CREATE_DATE"
+                format: date-time
+                x-lineageReferenceObject: SPRIDEN_CREATE_DATE
+            x-lineageReferenceObject: spriden_current
+        spriden_previous:
+          type: array
+          items:
+            type: object
+            properties:
+              spridenActivityDate:
+                title: Activity Date
+                maxLength: 26
+                type: string
+                description: "Lineage reference object : SPRIDEN_ACTIVITY_DATE"
+                format: date-time
+                x-lineageReferenceObject: SPRIDEN_ACTIVITY_DATE
+              spridenCreateUser:
+                title: Create User
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPRIDEN_CREATE_USER"
+                x-lineageReferenceObject: SPRIDEN_CREATE_USER
+              spridenOrigin:
+                title: Origin
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPRIDEN_ORIGIN"
+                x-lineageReferenceObject: SPRIDEN_ORIGIN
+              spridenMi:
+                title: Middle Name
+                maxLength: 60
+                type: string
+                description: "Lineage reference object : SPRIDEN_MI"
+                x-lineageReferenceObject: SPRIDEN_MI
+              previousNtypDesc:
+                type: string
+              spridenId:
+                title: ID
+                maxLength: 9
+                type: string
+                description: "Lineage reference object : SPRIDEN_ID"
+                x-lineageReferenceObject: SPRIDEN_ID
+              spridenFirstName:
+                title: First Name
+                maxLength: 60
+                type: string
+                description: "Lineage reference object : SPRIDEN_FIRST_NAME"
+                x-lineageReferenceObject: SPRIDEN_FIRST_NAME
+              spridenChangeInd:
+                title: Change Type
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : SPRIDEN_CHANGE_IND"
+                x-lineageReferenceObject: SPRIDEN_CHANGE_IND
+              spridenUser:
+                title: User
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPRIDEN_USER"
+                x-lineageReferenceObject: SPRIDEN_USER
+              spridenLastName:
+                title: Last Name
+                maxLength: 60
+                type: string
+                description: "Lineage reference object : SPRIDEN_LAST_NAME"
+                x-lineageReferenceObject: SPRIDEN_LAST_NAME
+              spridenNtypCode:
+                title: Name Type
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPRIDEN_NTYP_CODE, Lookup lineage
+                  reference object : gtvntyp"
+                x-lineageReferenceObject: SPRIDEN_NTYP_CODE
+                x-lineageLookupReferenceObject: gtvntyp
+              spridenSurnamePrefix:
+                title: Last Name Prefix
+                maxLength: 60
+                type: string
+                description: "Lineage reference object : SPRIDEN_SURNAME_PREFIX"
+                x-lineageReferenceObject: SPRIDEN_SURNAME_PREFIX
+              spridenCreateDate:
+                title: Create Date
+                maxLength: 26
+                type: string
+                description: "Lineage reference object : SPRIDEN_CREATE_DATE"
+                format: date-time
+                x-lineageReferenceObject: SPRIDEN_CREATE_DATE
+            x-lineageReferenceObject: spriden_previous
+        spraddr:
+          type: array
+          items:
+            required:
+              - atypCode
+            type: object
+            properties:
+              cntyCode:
+                title: County
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPRADDR_CNTY_CODE, Lookup lineage
+                  reference object : stvcnty"
+                x-lineageReferenceObject: SPRADDR_CNTY_CODE
+                x-lineageLookupReferenceObject: stvcnty
+              streetLine2:
+                title: Street Line 2
+                maxLength: 75
+                type: string
+                description: "Lineage reference object : SPRADDR_STREET_LINE2"
+                x-lineageReferenceObject: SPRADDR_STREET_LINE2
+              streetLine1:
+                title: Street Line 1
+                maxLength: 75
+                type: string
+                description: "Lineage reference object : SPRADDR_STREET_LINE1"
+                x-lineageReferenceObject: SPRADDR_STREET_LINE1
+              city:
+                title: City
+                maxLength: 50
+                type: string
+                description: "Lineage reference object : SPRADDR_CITY"
+                x-lineageReferenceObject: SPRADDR_CITY
+              streetLine4:
+                title: Street Line 4
+                maxLength: 75
+                type: string
+                description: "Lineage reference object : SPRADDR_STREET_LINE4"
+                x-lineageReferenceObject: SPRADDR_STREET_LINE4
+              streetLine3:
+                title: Street Line 3
+                maxLength: 75
+                type: string
+                description: "Lineage reference object : SPRADDR_STREET_LINE3"
+                x-lineageReferenceObject: SPRADDR_STREET_LINE3
+              carrierRoute:
+                title: Carrier Route
+                maxLength: 4
+                type: string
+                description: "Lineage reference object : SPRADDR_CARRIER_ROUTE"
+                x-lineageReferenceObject: SPRADDR_CARRIER_ROUTE
+              houseNumber:
+                title: House Number
+                maxLength: 10
+                type: string
+                description: "Lineage reference object : SPRADDR_HOUSE_NUMBER"
+                x-lineageReferenceObject: SPRADDR_HOUSE_NUMBER
+              activityDate:
+                title: Activity Date
+                maxLength: 26
+                type: string
+                description: "Lineage reference object : SPRADDR_ACTIVITY_DATE"
+                format: date-time
+                x-lineageReferenceObject: SPRADDR_ACTIVITY_DATE
+              statusInd:
+                title: Inactivate Address
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : SPRADDR_STATUS_IND"
+                x-lineageReferenceObject: SPRADDR_STATUS_IND
+              teleDescription:
+                type: string
+              statDescription:
+                type: string
+              correctionDigit:
+                title: Correction Digit
+                maxLength: 1
+                type: number
+                description: "Lineage reference object : SPRADDR_CORRECTION_DIGIT"
+                x-lineageReferenceObject: SPRADDR_CORRECTION_DIGIT
+              zip:
+                title: ZIP or Postal Code
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPRADDR_ZIP"
+                x-lineageReferenceObject: SPRADDR_ZIP
+              phoneExt:
+                title: Extension
+                maxLength: 10
+                type: string
+              deliveryPoint:
+                title: Delivery Point
+                maxLength: 2
+                type: number
+                description: "Lineage reference object : SPRADDR_DELIVERY_POINT"
+                x-lineageReferenceObject: SPRADDR_DELIVERY_POINT
+              statCode:
+                title: State or Province
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPRADDR_STAT_CODE, Lookup lineage
+                  reference object : stvstat"
+                x-lineageReferenceObject: SPRADDR_STAT_CODE
+                x-lineageLookupReferenceObject: stvstat
+              natnCode:
+                title: Nation
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPRADDR_NATN_CODE, Lookup lineage
+                  reference object : stvnatn"
+                x-lineageReferenceObject: SPRADDR_NATN_CODE
+                x-lineageLookupReferenceObject: stvnatn
+              seqno:
+                title: Sequence Number
+                maxLength: 2
+                type: number
+                description: "Lineage reference object : SPRADDR_SEQNO"
+                x-lineageReferenceObject: SPRADDR_SEQNO
+              phoneCtry:
+                title: Country Code
+                maxLength: 4
+                type: string
+              toDate:
+                title: To Date
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : SPRADDR_TO_DATE"
+                format: date-time
+                x-lineageReferenceObject: SPRADDR_TO_DATE
+              asrcCode:
+                title: Source
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPRADDR_ASRC_CODE, Lookup lineage
+                  reference object : stvasrc"
+                x-lineageReferenceObject: SPRADDR_ASRC_CODE
+                x-lineageLookupReferenceObject: stvasrc
+              natnDescription:
+                type: string
+              teleCode:
+                title: Telephone Type
+                maxLength: 30
+                type: string
+                description: "Lookup lineage reference object : stvtele"
+                x-lineageLookupReferenceObject: stvtele
+              cntyDescription:
+                type: string
+              fromDate:
+                title: From Date
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : SPRADDR_FROM_DATE"
+                format: date-time
+                x-lineageReferenceObject: SPRADDR_FROM_DATE
+              phoneNumber:
+                title: Phone Number
+                maxLength: 12
+                type: string
+              phoneArea:
+                title: Area Code
+                maxLength: 6
+                type: string
+              atypDescription:
+                type: string
+              user:
+                title: User
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPRADDR_USER"
+                x-lineageReferenceObject: SPRADDR_USER
+              atypCode:
+                title: Address Type
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPRADDR_ATYP_CODE, Lookup lineage
+                  reference object : stvatyp"
+                x-lineageReferenceObject: SPRADDR_ATYP_CODE
+                x-lineageLookupReferenceObject: stvatyp
+            x-lineageReferenceObject: spraddr
+        sprtele:
+          type: array
+          items:
+            required:
+              - teleCode
+            type: object
+            properties:
+              phoneExt:
+                title: Extension
+                maxLength: 10
+                type: string
+                description: "Lineage reference object : SPRTELE_PHONE_EXT"
+                x-lineageReferenceObject: SPRTELE_PHONE_EXT
+              unlistInd:
+                title: Unlisted
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : SPRTELE_UNLIST_IND"
+                x-lineageReferenceObject: SPRTELE_UNLIST_IND
+              ctryCodePhone:
+                title: Country Code
+                maxLength: 4
+                type: string
+                description: "Lineage reference object : SPRTELE_CTRY_CODE_PHONE"
+                x-lineageReferenceObject: SPRTELE_CTRY_CODE_PHONE
+              userId:
+                title: User
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPRTELE_USER_ID"
+                x-lineageReferenceObject: SPRTELE_USER_ID
+              teleCode:
+                title: Telephone Type
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPRTELE_TELE_CODE, Lookup lineage
+                  reference object : stvtele"
+                x-lineageReferenceObject: SPRTELE_TELE_CODE
+                x-lineageLookupReferenceObject: stvtele
+              activityDate:
+                title: Activity Date
+                maxLength: 26
+                type: string
+                description: "Lineage reference object : SPRTELE_ACTIVITY_DATE"
+                format: date-time
+                x-lineageReferenceObject: SPRTELE_ACTIVITY_DATE
+              addrSeqno:
+                title: Sequence
+                maxLength: 2
+                type: number
+                description: "Lineage reference object : SPRTELE_ADDR_SEQNO"
+                x-lineageReferenceObject: SPRTELE_ADDR_SEQNO
+              phoneNumber:
+                title: Phone Number
+                maxLength: 12
+                type: string
+                description: "Lineage reference object : SPRTELE_PHONE_NUMBER"
+                x-lineageReferenceObject: SPRTELE_PHONE_NUMBER
+              statusInd:
+                title: Inactivate
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : SPRTELE_STATUS_IND"
+                x-lineageReferenceObject: SPRTELE_STATUS_IND
+              phoneArea:
+                title: Area Code
+                maxLength: 6
+                type: string
+                description: "Lineage reference object : SPRTELE_PHONE_AREA"
+                x-lineageReferenceObject: SPRTELE_PHONE_AREA
+              atypDescription:
+                type: string
+              comment:
+                title: Comment
+                maxLength: 60
+                type: string
+                description: "Lineage reference object : SPRTELE_COMMENT"
+                x-lineageReferenceObject: SPRTELE_COMMENT
+              teleDescription:
+                type: string
+              intlAccess:
+                title: International Access
+                maxLength: 16
+                type: string
+                description: "Lineage reference object : SPRTELE_INTL_ACCESS"
+                x-lineageReferenceObject: SPRTELE_INTL_ACCESS
+              atypCode:
+                title: Address Type
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPRTELE_ATYP_CODE"
+                x-lineageReferenceObject: SPRTELE_ATYP_CODE
+              primaryInd:
+                title: Primary
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : SPRTELE_PRIMARY_IND"
+                x-lineageReferenceObject: SPRTELE_PRIMARY_IND
+            x-lineageReferenceObject: sprtele
+        spbpers:
+          type: array
+          items:
+            type: object
+            properties:
+              mrtlDescription:
+                type: string
+              deadDate:
+                title: Deceased Date
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : SPBPERS_DEAD_DATE"
+                format: date-time
+                x-lineageReferenceObject: SPBPERS_DEAD_DATE
+              mrtlCode:
+                title: Marital Status
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPBPERS_MRTL_CODE, Lookup lineage
+                  reference object : stvmrtl"
+                x-lineageReferenceObject: SPBPERS_MRTL_CODE
+                x-lineageLookupReferenceObject: stvmrtl
+              lgcyDescription:
+                type: string
+              relgCode:
+                title: Religion
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPBPERS_RELG_CODE, Lookup lineage
+                  reference object : stvrelg"
+                x-lineageReferenceObject: SPBPERS_RELG_CODE
+                x-lineageLookupReferenceObject: stvrelg
+              ethnCode:
+                title: Ethnicity
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPBPERS_ETHN_CODE, Lookup lineage
+                  reference object : stvethn"
+                x-lineageReferenceObject: SPBPERS_ETHN_CODE
+                x-lineageLookupReferenceObject: stvethn
+              veraInd:
+                title: Veteran Classification
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : SPBPERS_VERA_IND"
+                x-lineageReferenceObject: SPBPERS_VERA_IND
+              greenDataBar1:
+                type: string
+              ssn:
+                title: SSN ...
+                maxLength: 15
+                type: string
+                description: "Lineage reference object : SPBPERS_SSN"
+                x-lineageReferenceObject: SPBPERS_SSN
+              citzDesc:
+                type: string
+              activeDutySeprDate:
+                title: Date of Discharge
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : SPBPERS_ACTIVE_DUTY_SEPR_DATE"
+                format: date-time
+                x-lineageReferenceObject: SPBPERS_ACTIVE_DUTY_SEPR_DATE
+              activityDate:
+                title: Activity Date
+                maxLength: 26
+                type: string
+                description: "Lineage reference object : SPBPERS_ACTIVITY_DATE"
+                format: date-time
+                x-lineageReferenceObject: SPBPERS_ACTIVITY_DATE
+              gndrCode:
+                title: Gender Designation
+                maxLength: 4
+                type: string
+                description: "Lineage reference object : SPBPERS_GNDR_CODE, Lookup lineage
+                  reference object : gtvgndr"
+                x-lineageReferenceObject: SPBPERS_GNDR_CODE
+                x-lineageLookupReferenceObject: gtvgndr
+              deadInd:
+                title: Deceased
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : SPBPERS_DEAD_IND"
+                x-lineageReferenceObject: SPBPERS_DEAD_IND
+              ethnCde:
+                title: New Ethnicity
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : SPBPERS_ETHN_CDE"
+                x-lineageReferenceObject: SPBPERS_ETHN_CDE
+              persSex:
+                title: Legal Sex
+                maxLength: 1
+                type: string
+              confirmedReDate:
+                title: Ethnicity and Race Confirmed Date
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : SPBPERS_CONFIRMED_RE_DATE"
+                format: date-time
+                x-lineageReferenceObject: SPBPERS_CONFIRMED_RE_DATE
+              persAge:
+                title: Age
+                maxLength: 3
+                type: number
+              lgcyCode:
+                title: Legacy
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPBPERS_LGCY_CODE, Lookup lineage
+                  reference object : stvlgcy"
+                x-lineageReferenceObject: SPBPERS_LGCY_CODE
+                x-lineageLookupReferenceObject: stvlgcy
+              armedServMedVetInd:
+                title: Armed Forces Service Medal Indicator
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : SPBPERS_ARMED_SERV_MED_VET_IND"
+                x-lineageReferenceObject: SPBPERS_ARMED_SERV_MED_VET_IND
+              confidInd:
+                title: Confidential
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : SPBPERS_CONFID_IND"
+                x-lineageReferenceObject: SPBPERS_CONFID_IND
+              birthDate:
+                title: Birth Date
+                maxLength: 11
+                type: string
+                description: "Lineage reference object : SPBPERS_BIRTH_DATE"
+                format: date-time
+                x-lineageReferenceObject: SPBPERS_BIRTH_DATE
+              userId:
+                title: User
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPBPERS_USER_ID"
+                x-lineageReferenceObject: SPBPERS_USER_ID
+              pprnDescription:
+                type: string
+              citzCode:
+                title: Citizenship
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPBPERS_CITZ_CODE, Lookup lineage
+                  reference object : stvcitz"
+                x-lineageReferenceObject: SPBPERS_CITZ_CODE
+                x-lineageLookupReferenceObject: stvcitz
+              vetcFileNumber:
+                title: Veteran File Number
+                maxLength: 10
+                type: string
+                description: "Lineage reference object : SPBPERS_VETC_FILE_NUMBER"
+                x-lineageReferenceObject: SPBPERS_VETC_FILE_NUMBER
+              ethnDescription:
+                type: string
+              gndrDescription:
+                type: string
+              relgDescription:
+                type: string
+              confirmedReCde:
+                title: Ethnicity and Race Confirmed
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : SPBPERS_CONFIRMED_RE_CDE"
+                x-lineageReferenceObject: SPBPERS_CONFIRMED_RE_CDE
+              sdvetInd:
+                title: Disabled Veteran
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : SPBPERS_SDVET_IND"
+                x-lineageReferenceObject: SPBPERS_SDVET_IND
+              pprnCode:
+                title: Personal Pronoun
+                maxLength: 4
+                type: string
+                description: "Lineage reference object : SPBPERS_PPRN_CODE, Lookup lineage
+                  reference object : gtvpprn"
+                x-lineageReferenceObject: SPBPERS_PPRN_CODE
+                x-lineageLookupReferenceObject: gtvpprn
+            x-lineageReferenceObject: spbpers
+        gorprac:
+          type: array
+          items:
+            required:
+              - raceCde
+            type: object
+            properties:
+              activityDate:
+                title: Activity Date
+                maxLength: 26
+                type: string
+                description: "Lineage reference object : GORPRAC_ACTIVITY_DATE"
+                format: date-time
+                x-lineageReferenceObject: GORPRAC_ACTIVITY_DATE
+              raceDesc:
+                type: string
+              raceCde:
+                title: Race
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : GORPRAC_RACE_CDE, Lookup lineage
+                  reference object : gorrace"
+                x-lineageReferenceObject: GORPRAC_RACE_CDE
+                x-lineageLookupReferenceObject: gorrace
+              userId:
+                title: User
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : GORPRAC_USER_ID"
+                x-lineageReferenceObject: GORPRAC_USER_ID
+            x-lineageReferenceObject: gorprac
+        goremal:
+          type: array
+          items:
+            type: object
+            properties:
+              emailAddress:
+                title: E-mail Address
+                maxLength: 128
+                type: string
+                description: "Lineage reference object : GOREMAL_EMAIL_ADDRESS"
+                x-lineageReferenceObject: GOREMAL_EMAIL_ADDRESS
+              activityDate:
+                title: Activity Date
+                maxLength: 26
+                type: string
+                format: date-time
+              emailDesc:
+                type: string
+              emalCode:
+                title: E-mail Type
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : GOREMAL_EMAL_CODE, Lookup lineage
+                  reference object : gtvemal"
+                x-lineageReferenceObject: GOREMAL_EMAL_CODE
+                x-lineageLookupReferenceObject: gtvemal
+              statusInd:
+                title: Inactivate
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : GOREMAL_STATUS_IND"
+                x-lineageReferenceObject: GOREMAL_STATUS_IND
+              dispWebInd:
+                title: Display on Web
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : GOREMAL_DISP_WEB_IND"
+                x-lineageReferenceObject: GOREMAL_DISP_WEB_IND
+              comment:
+                title: Comment
+                maxLength: 60
+                type: string
+                description: "Lineage reference object : GOREMAL_COMMENT"
+                x-lineageReferenceObject: GOREMAL_COMMENT
+              userId:
+                title: User
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : GOREMAL_USER_ID"
+                x-lineageReferenceObject: GOREMAL_USER_ID
+              preferredInd:
+                title: Preferred
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : GOREMAL_PREFERRED_IND"
+                x-lineageReferenceObject: GOREMAL_PREFERRED_IND
+              urlInd:
+                title: URL
+                maxLength: 1
+                type: string
+            x-lineageReferenceObject: goremal
+        spremrg:
+          type: array
+          items:
+            required:
+              - firstName
+              - lastName
+              - priority
+            type: object
+            properties:
+              streetLine2:
+                title: Street Line 2
+                maxLength: 75
+                type: string
+                description: "Lineage reference object : SPREMRG_STREET_LINE2"
+                x-lineageReferenceObject: SPREMRG_STREET_LINE2
+              lastName:
+                title: Last Name
+                maxLength: 60
+                type: string
+                description: "Lineage reference object : SPREMRG_LAST_NAME"
+                x-lineageReferenceObject: SPREMRG_LAST_NAME
+              streetLine1:
+                title: Street Line 1
+                maxLength: 75
+                type: string
+                description: "Lineage reference object : SPREMRG_STREET_LINE1"
+                x-lineageReferenceObject: SPREMRG_STREET_LINE1
+              surnamePrefix:
+                title: Last Name Prefix
+                maxLength: 60
+                type: string
+                description: "Lineage reference object : SPREMRG_SURNAME_PREFIX"
+                x-lineageReferenceObject: SPREMRG_SURNAME_PREFIX
+              city:
+                title: City
+                maxLength: 50
+                type: string
+                description: "Lineage reference object : SPREMRG_CITY"
+                x-lineageReferenceObject: SPREMRG_CITY
+              streetLine4:
+                title: Street Line 4
+                maxLength: 75
+                type: string
+                description: "Lineage reference object : SPREMRG_STREET_LINE4"
+                x-lineageReferenceObject: SPREMRG_STREET_LINE4
+              streetLine3:
+                title: Street Line 3
+                maxLength: 75
+                type: string
+                description: "Lineage reference object : SPREMRG_STREET_LINE3"
+                x-lineageReferenceObject: SPREMRG_STREET_LINE3
+              houseNumber:
+                title: House Number
+                maxLength: 10
+                type: string
+                description: "Lineage reference object : SPREMRG_HOUSE_NUMBER"
+                x-lineageReferenceObject: SPREMRG_HOUSE_NUMBER
+              ctryCodePhone:
+                title: Country Code
+                maxLength: 4
+                type: string
+                description: "Lineage reference object : SPREMRG_CTRY_CODE_PHONE"
+                x-lineageReferenceObject: SPREMRG_CTRY_CODE_PHONE
+              activityDate:
+                title: Activity Date
+                maxLength: 26
+                type: string
+                description: "Lineage reference object : SPREMRG_ACTIVITY_DATE"
+                format: date-time
+                x-lineageReferenceObject: SPREMRG_ACTIVITY_DATE
+              reltDescription:
+                type: string
+              mi:
+                title: Middle Name
+                maxLength: 60
+                type: string
+                description: "Lineage reference object : SPREMRG_MI"
+                x-lineageReferenceObject: SPREMRG_MI
+              zip:
+                title: ZIP or Postal Code
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPREMRG_ZIP, Lookup lineage reference
+                  object : gtvzipc"
+                x-lineageReferenceObject: SPREMRG_ZIP
+                x-lineageLookupReferenceObject: gtvzipc
+              phoneExt:
+                title: Extension
+                maxLength: 10
+                type: string
+                description: "Lineage reference object : SPREMRG_PHONE_EXT"
+                x-lineageReferenceObject: SPREMRG_PHONE_EXT
+              reltCode:
+                title: Relationship
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPREMRG_RELT_CODE, Lookup lineage
+                  reference object : stvrelt"
+                x-lineageReferenceObject: SPREMRG_RELT_CODE
+                x-lineageLookupReferenceObject: stvrelt
+              statCode:
+                title: State or Province
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPREMRG_STAT_CODE, Lookup lineage
+                  reference object : stvstat"
+                x-lineageReferenceObject: SPREMRG_STAT_CODE
+                x-lineageLookupReferenceObject: stvstat
+              natnCode:
+                title: Nation
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPREMRG_NATN_CODE, Lookup lineage
+                  reference object : stvnatn"
+                x-lineageReferenceObject: SPREMRG_NATN_CODE
+                x-lineageLookupReferenceObject: stvnatn
+              natnDescription:
+                type: string
+              priority:
+                title: Priority
+                maxLength: 1
+                type: string
+                description: "Lineage reference object : SPREMRG_PRIORITY"
+                x-lineageReferenceObject: SPREMRG_PRIORITY
+              userId:
+                title: User
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPREMRG_USER_ID"
+                x-lineageReferenceObject: SPREMRG_USER_ID
+              firstName:
+                title: First Name
+                maxLength: 60
+                type: string
+                description: "Lineage reference object : SPREMRG_FIRST_NAME"
+                x-lineageReferenceObject: SPREMRG_FIRST_NAME
+              phoneNumber:
+                title: Phone Number
+                maxLength: 12
+                type: string
+                description: "Lineage reference object : SPREMRG_PHONE_NUMBER"
+                x-lineageReferenceObject: SPREMRG_PHONE_NUMBER
+              emailAddr:
+                title: E-mail Address
+                maxLength: 128
+                type: string
+                description: "Lineage reference object : SPREMRG_EMAIL_ADDR"
+                x-lineageReferenceObject: SPREMRG_EMAIL_ADDR
+              phoneArea:
+                title: Area Code
+                maxLength: 6
+                type: string
+                description: "Lineage reference object : SPREMRG_PHONE_AREA"
+                x-lineageReferenceObject: SPREMRG_PHONE_AREA
+              atypDescription:
+                type: string
+              stateDescription:
+                type: string
+              atypCode:
+                title: Address Type
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SPREMRG_ATYP_CODE, Lookup lineage
+                  reference object : stvatyp"
+                x-lineageReferenceObject: SPREMRG_ATYP_CODE
+                x-lineageLookupReferenceObject: stvatyp
+            x-lineageReferenceObject: spremrg
+        goradid:
+          type: array
+          items:
+            type: object
+            properties:
+              adidDesc:
+                title: Description
+                type: string
+              additionalId:
+                title: Additional Identification
+                maxLength: 50
+                type: string
+                description: "Lineage reference object : GORADID_ADDITIONAL_ID"
+                x-lineageReferenceObject: GORADID_ADDITIONAL_ID
+              activityDate:
+                title: |-
+                  Activity
+                  Date
+                maxLength: 26
+                type: string
+                description: "Lineage reference object : GORADID_ACTIVITY_DATE"
+                format: date-time
+                x-lineageReferenceObject: GORADID_ACTIVITY_DATE
+              adidCode:
+                title: ID Type
+                maxLength: 4
+                type: string
+                description: "Lineage reference object : GORADID_ADID_CODE, Lookup lineage
+                  reference object : gtvadid"
+                x-lineageReferenceObject: GORADID_ADID_CODE
+                x-lineageLookupReferenceObject: gtvadid
+              userId:
+                title: User
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : GORADID_USER_ID"
+                x-lineageReferenceObject: GORADID_USER_ID
+            x-lineageReferenceObject: goradid
+    errors-2.0.0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+              description:
+                type: string
+    general-person-identification-1.0.0_get_request:
+      type: object
+      properties:
+        fromDate:
+          title: From Date
+          maxLength: 11
+          type: string
+          description: "Lineage reference object : SPRADDR_FROM_DATE"
+          format: date-time
+          x-lineageReferenceObject: SPRADDR_FROM_DATE
+        spridenId:
+          title: ID
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : SPRIDEN_ID"
+          x-lineageReferenceObject: SPRIDEN_ID
+        adidCode:
+          title: ID Type
+          maxLength: 4
+          type: string
+          description: "Lineage reference object : GORADID_ADID_CODE, Lookup lineage
+            reference object : gtvadid"
+          x-lineageReferenceObject: GORADID_ADID_CODE
+          x-lineageLookupReferenceObject: gtvadid
+        emalCode:
+          title: E-mail Type
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : GOREMAL_EMAL_CODE, Lookup lineage
+            reference object : gtvemal"
+          x-lineageReferenceObject: GOREMAL_EMAL_CODE
+          x-lineageLookupReferenceObject: gtvemal
+        id:
+          title: ID
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : id"
+          x-lineageReferenceObject: id
+        persSex:
+          title: Legal Sex
+          maxLength: 1
+          type: string
+      x-lineageReferenceObject: GORADID
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EllucianOAuthUserToken:
+      type: http
+      scheme: bearer
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

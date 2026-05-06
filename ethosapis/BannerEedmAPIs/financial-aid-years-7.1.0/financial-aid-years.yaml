@@ -1,0 +1,275 @@
+openapi: 3.0.0
+info:
+  title: Financial Aid Years
+  description: >
+    The financial aid year represents the academic year for which financial aid
+    is being processed for an applicant. The applicant fills out a financial aid
+    form (e.g. Federal (FAFSA), Institutional (CSS PROFILE), both, etc) with
+    family income and asset information that will be used for the aid year to
+    determine the applicant's financial need and award eligibility. An aid year
+    can either be active or inactive.
+  version: 7.1.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Financial Aid
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/financial-aid-years:
+    get:
+      summary: Returns resources from ROBINST
+      description: >
+        Returns a paged listing of all the financial aid years from ROBINST table
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_FINANCIAL_AID_YEARS
+      tags:
+        - financial-aid-years
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v7+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: academicPeriod
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Academic Period  
+
+            Returns the financial aid year records for the academic period GUID sent in the request. The academic period of type terms, subterms and years are supported
+
+            ```
+
+            /financial-aid-years?academicPeriod={"academicPeriod":{"id":"0d6dc490-939c-43f7-b895-b6f6f2fa5420"}}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-financial-aid-years.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v7.1.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/financial-aid-years/{id}:
+    get:
+      summary: Return the requested resource from ROBINST
+      description: >
+        Returns a single financial aid year from ROBINST table with the
+        requested identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_FINANCIAL_AID_YEARS
+      tags:
+        - financial-aid-years
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v7+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v7.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v7.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-financial-aid-years.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-financial-aid-years.json:
+      title: Financial Aid Years
+      description: The designated years associated with Financial Aid Awards.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the financial aid year.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: ROBINST_GUID(ROBINST)
+        title:
+          title: Title
+          description: The full name of the financial aid year.
+          type: string
+          minLength: 1
+          x-lineageReferenceObject: ROBINST_AIDY_DESC(ROBINST)
+        description:
+          title: Description
+          description: The description of the financial aid year.
+          type: string
+          x-lineageReferenceObject: unsupported
+        code:
+          title: Code
+          description: The code that identifies the financial aid year.
+          type: string
+          x-lineageReferenceObject: ROBINST_AIDY_CODE(ROBINST)
+        startOn:
+          title: Start On
+          description: The start date of the financial aid year.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: ROBINST_AIDY_START_DATE(ROBINST)
+            - type: string
+              maxLength: 0
+        endOn:
+          title: End On
+          description: The end date of the financial aid year.
+          oneOf:
+            - type: string
+              format: date
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+              x-lineageReferenceObject: ROBINST_AIDY_END_DATE(ROBINST)
+            - type: string
+              maxLength: 0
+        status:
+          title: Status
+          description: The status of the financial aid year.
+          enum:
+            - active
+            - inactive
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: Display 'active' if ROBINST_STATUS_IND = 'A';else display 'inactive'
+          type: string
+      required:
+        - id
+        - title
+        - status
+      additionalProperties: false

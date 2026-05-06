@@ -1,0 +1,239 @@
+openapi: 3.0.1
+info:
+  title: student-trailed-courses
+  description: To get all the trailing courses and its details for each of the stages for a students admitted program.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Student
+  x-source-title: Trailing Courses
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: '{server_url}'
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost  
+paths:
+  /api/student-trailed-courses:
+    get:
+      tags:
+        - student-trailed-courses
+      summary: To get all the trailing courses and its details for each of the stages for a students admitted program.
+      x-method-permissions: API_STUDENT_TRAILED_COURSES
+      parameters:
+        - name: committeeCode
+          in: query
+          required: true
+          schema:
+            type: string
+          example: ARTCOMM
+        - name: studentId
+          in: query
+          required: true
+          schema:
+            type: number
+          example: 51908484 
+        - name: program
+          in: query
+          schema:
+            type: string
+          example: BA-ARTS
+        - name: level
+          in: query
+          required: true
+          schema:
+            type: string
+          example: UG  
+        - name: studyPathNumber
+          in: query
+          schema:
+            type: number 
+        - name: stageNumber
+          in: query
+          schema:
+            type: string
+          example: 1            
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/TrailingCoursesObj'
+              examples:
+                student-trailed-courses:
+                  $ref: '#/components/examples/TrailingCourses'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                       $ref: '#/components/schemas/ErrorsObj'
+              examples:
+                CommitteeCodeRequired:
+                  $ref: '#/components/examples/CommitteeCodeRequired' 
+                StudentIdRequired:
+                  $ref: '#/components/examples/StudentIdRequired'
+                LevelRequired:
+                  $ref: '#/components/examples/LevelRequired'    
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                unauthorizedNoParams:
+                  $ref: '#/components/examples/Unauthorized'
+                unauthorizedNoAuth:
+                  $ref: '#/components/examples/UnauthorizedNoAuth'               
+components:
+  schemas:
+    TrailingCoursesObj:
+      type: object
+      properties:
+        studentId:
+          type: string
+        program:
+          type: string
+        programDescription:
+          type: string
+        term:
+          type: string 
+        termDescription:
+          type: string 
+        level:
+          type: string
+        levelDescription:
+          type: string   
+        studyPathNumber:
+          type: number  
+        courses:
+          type: array
+          items:
+            type: object
+            properties:
+              crn:
+                type: string
+              subject:
+                type: string    
+              courseNumber:
+                type: string
+              courseTitle:
+                type: string 
+              stageNumber:
+                type: number
+              term:
+                type: string
+              termDescription:
+                type: string 
+              courseCreditsAttempted:
+                type: number
+              courseCreditsEarned:
+                type: number
+              trailedCredits:
+                type: number                
+    ErrorsObj:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        message:
+          type: string
+  examples:
+    Unauthorized:
+      description: If the request send blank params for auth
+      value: "401 - Unauthorized"
+    UnauthorizedNoAuth:
+      description: If the request does not authenticate
+      value: "401 - Full authentication is required to access this resource"  
+    TrailingCourses:
+      value: |-
+          {
+            "studentId": "51908484",
+            "program": "BA-ARTS",
+            "programDescription": "Bachelors in Fine Arts",
+            "term": "Spring 2022",
+            "termDescription": "Spring 2022",
+            "level": "UG",
+            "levelDescription": "Undergraduate",
+            "studyPathNumber": 1,
+            "courses": [
+                {
+                "crn": "10010",
+                "subject": "HOUS",
+                "courseNumber": "100",
+                "courseTitle": "Housing Design",
+                "stageNumber": 1,
+                "term": "202001",
+                "termDescription": "Summer Term",
+                "courseCreditsAttempted": 20,
+                "courseCreditsEarned": 0,
+                "trailedCredits": 20,
+                },
+                {
+                "crn": "20010",
+                "subject": "CIVI",
+                "courseNumber": "100",
+                "courseTitle": "Civil Structures",
+                "stageNumber": 2,
+                "term": "202102",
+                "termDescription": "Winter Term 202102",
+                "courseCreditsAttempted": 15,
+                "courseCreditsEarned": 0,
+                "trailedCredits": 15
+                }
+            ]
+          }
+    CommitteeCodeRequired:
+      value: |-
+          {
+              "errors": [
+                  {
+                      "code": "Global.SchemaValidation.Error",
+                      "description": "Errors parsing input JSON.",
+                      "message": "Mandatory Field: committeeCode is missing from payload"
+                  }
+              ]
+          }    
+    StudentIdRequired:
+      value: |-
+          {
+              "errors": [
+                  {
+                      "code": "Global.SchemaValidation.Error",
+                      "description": "Errors parsing input JSON.",
+                      "message": "Mandatory Field: studentId is missing from payload"
+                  }
+              ]
+          }
+    LevelRequired:
+      value: |-
+          {
+              "errors": [
+                  {
+                      "code": "Global.SchemaValidation.Error",
+                      "description": "Errors parsing input JSON.",
+                      "message": "Mandatory Field: level is missing from payload"
+                  }
+              ]
+          }      

@@ -1,0 +1,723 @@
+openapi: 3.0.0
+info:
+  title: Person Course Attributes
+  description: "This API can be used to retrieve, post, or delete the attributes associated with a student's course academic history. This information is displayed in the Banner administrative page SHATCKN. Additionally, the API supports the option to post course history attributes in batches."
+  version: 1.0.0
+  x-source-name: SHATCKN
+  x-source-system: banner
+  x-source-domain: Student
+  x-api-type: erp
+  x-release-status: ga
+  x-audience: all
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /api/person-course-attributes:
+    get:
+      tags:
+      - person-course-attributes
+      summary: Return person course history attributes for a given term and course.
+      description: Return person course history attributes for a given term and course. Data is extracted from SHRTCKN and SHRATTR.
+      parameters:
+        - name: limit
+          in: query
+          description:  |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Banner Id
+
+            Returns all records for the Banner ID passed.
+
+            ```
+
+            /person-course-attributes?criteria={"bannerId":"331314209"}
+
+            ```
+
+            ### Term
+
+            Returns all records for the Term code passed.
+
+            ```
+
+            /person-course-attributes?criteria={"term":"202210"}
+
+            ```
+
+            ### Course Reference Number
+
+            Returns all records for the Course Reference Number passed.
+
+            ```
+
+            /person-course-attributes?criteria={"courseReferenceNumber":"10123"}
+
+            ```
+
+            ### Person Course Attribute
+
+            Returns all records for the Course Attribute passed.
+
+            ```
+
+            /person-course-attributes?criteria={"personCourseAttribute":"HUMA"}
+
+            ```
+
+            ### Course Sequence Number
+
+            Returns all records for the Course Sequence Number passed.
+
+            ```
+
+            /person-course-attributes?criteria={"courseSequenceNumber":6}
+
+            ```
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/person-course-attributes-1.0.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_PERSON_COURSE_ATTRIBUTES
+    post:
+      tags:
+        - person-course-attributes
+      summary: An insert of person course history attribute with respect to Term Code, Student ID, and Course Identifier.
+      description: An insert of student person course history attribute with respect to Term Code, Student ID, and Course Reference Number.
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.1.0.0+json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/person-course-attributes-1.0.0_post_request'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/person-course-attributes-1.0.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permissions: API_PERSON_COURSE_ATTRIBUTES
+  /api/person-course-attributes/{id}:
+    get:
+      summary: Return the requested resource from SHRATTR
+      description: |
+        Returns a single person course attribute record with the requested identifier.
+      tags:
+        - person-course-attributes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+      responses:
+       '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.person-course-attribute-1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/person-course-attributes-1.0.0_response"
+       '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '401':
+          description: Failure. Unauthorized.
+       '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+       '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permissions: API_PERSON_COURSE_ATTRIBUTES
+    delete:
+      summary: Removes a person course attribute resource from SHRATTR.
+      description: Removes a person course attribute from a course in academic history.
+      tags:
+        - person-course-attributes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID for the person course attribute.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: No Content
+        '204':
+          description: No Content
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Resource not found
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+    x-method-permissions: API_PERSON_COURSE_ATTRIBUTES
+  /api/person-course-attributes/batches:
+    post:
+      tags:
+        - person-course-attributes
+      summary: "Submit a batch of person course history attributes to be created."
+      requestBody:
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: "object"
+                $ref: "#/components/schemas/person-course-attributes-batch-1.0.0_post_request"
+      responses:
+          "200":
+            "description": "OK"
+            "headers":
+              "X-Media-Type":
+                "description": "The full semantic version with the media type of the response."
+                "required": true
+                "schema":
+                  "type": "string"
+              "X-Content-Restricted":
+                "description": "If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included."
+                "schema":
+                  "type": "string"
+            "content":
+              "application/vnd.hedtech.integration.v1+json":
+                "schema":
+                  "type": "object"
+                  "$ref": "#/components/schemas/person-course-attributes-batch-1.0.0_post_response"
+          "400":
+            "description": "Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error."
+            "content":
+              "application/vnd.hedtech.integration.errors.v2+json":
+                "schema":
+                  "type": "array"
+                  "items":
+                    "$ref": "#/components/schemas/errors_2_0_0"
+          "401":
+            "description": "Failure. Unauthorized."
+          "403":
+            "description": "Failure. Forbidden. The user does not have the required permissions for the resource."
+            "content":
+              "application/vnd.hedtech.integration.errors.v2+json":
+                "schema":
+                  "type": "array"
+                  "items":
+                    "$ref": "#/components/schemas/errors_2_0_0"
+          "404":
+            "description": "Failure. Not Found. Cannot map the URI to a resource."
+          "405":
+            "description": "Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow."
+            "content":
+              "application/vnd.hedtech.integration.errors.v2+json":
+                "schema":
+                  "type": "array"
+                  "items":
+                    "$ref": "#/components/schemas/errors_2_0_0"
+          "406":
+            "description": "Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header."
+            "content":
+              "application/vnd.hedtech.integration.errors.v2+json":
+                "schema":
+                  "type": "array"
+                  "items":
+                    "$ref": "#/components/schemas/errors_2_0_0"
+          "500":
+            "description": "Server error. Unexpected configuration or data."
+            "content":
+              "application/vnd.hedtech.integration.errors.v2+json":
+                "schema":
+                  "type": "array"
+                  "items":
+                    "$ref": "#/components/schemas/errors_2_0_0"
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_PERSON_COURSE_ATTRIBUTES
+components:
+  schemas:
+    person-course-attributes-1.0.0_response:
+      properties:
+        id:
+          title: Id
+          type: string
+          maxLength: 19
+          description: "The global identifier of the person course attribute."
+          x-lineageReferenceObject: SHRATTR_SURROGATE_ID
+          example: 8292
+        bannerId:
+          title: Banner ID
+          maxLength: 9
+          type: string
+          description: "Identification Number of Student."
+          x-lineageReferenceObject: SPRIDEN_ID
+          example: A00444500
+        term:
+          title: Term Code
+          maxLength: 6
+          type: string
+          description: "Term for students academic history course records."
+          x-lineageReferenceObject: SHRATTR_TERM_CODE
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202410
+        courseSequenceNumber:
+          title: Course Sequence Number
+          maxLength: 3
+          type: integer
+          description: "Course Sequence Number from the students academic history for the term."
+          x-lineageReferenceObject: SHRATTR_TCKN_SEQ_NO
+          example: 3
+        personCourseAttribute:
+          title: Assigned Person Course Attribute
+          maxLength: 4
+          type: string
+          description: "Course attribute assigned to the person for the specified course."
+          x-lineageReferenceObject: SHRATTR_ATTR_CODE
+          x-lineageLookupReferenceObject: STVATTR
+          example: SSCI
+        subject:
+          title: Subject
+          maxLength: 4
+          type: string
+          description: "Subject Area Code.  Subject area associated with the students course."
+          x-lineageReferenceObject: SHRTCKN_SUBJ_CODE
+          x-lineageLookupReferenceObject: STVSUBJ
+          example: POLS
+        courseNumber:
+          title: Course Number
+          maxLength: 5
+          type: string
+          description: "Course Number.  Course Number associated with the students course."
+          x-lineageReferenceObject: SHRTCKN_CRSE_NUMB
+          example: 247
+        courseTitle:
+          title: Course Title
+          maxLength: 30
+          type: string
+          description: "Title of the course taken by the student."
+          x-lineageReferenceObject: SHRTCKN_CRSE_TITLE
+          example: International Relations
+        courseReferenceNumber:
+          title: Course Reference Number
+          maxLength: 5
+          type: string
+          description: "Course Reference Number from the students academic history for the term."
+          x-lineageReferenceObject: SHRTCKN_CRN
+          example: 34826
+        courseAlias:
+          title: Course Alias
+          type: string
+        courseIdentifierDisplay:
+          title: Course Identifier Display
+          type: string
+      required:
+        - id
+        - bannerId
+        - term
+        - personCourseAttribute
+        - courseSequenceNumber
+        - subject
+        - courseNumber
+        - courseTitle
+        - courseReferenceNumber
+    person-course-attributes-1.0.0_post_request:
+      type: object
+      properties:
+        bannerId:
+          title: Banner ID
+          maxLength: 9
+          type: string
+          description: "Internal Identification Number of Student."
+          example: A00444500
+        term:
+          title: Term Code
+          maxLength: 6
+          type: string
+          description: "Term for students academic history course records."
+          example: 202410
+        courseReferenceNumber:
+          title: "Course Reference Number"
+          description: "Course Reference Number.  CRN of the students course."
+          maxLength: 5
+          type: string
+          example: 34826
+        personCourseAttribute:
+          title: Course Attribute Code
+          maxLength: 4
+          type: string
+          description: "Course attribute code."
+          example: SSCI
+      required:
+        - bannerId
+        - term
+        - courseReferenceNumber
+        - personCourseAttribute
+    person-course-attributes-batch-1.0.0_post_request:
+      type: object
+      properties:
+        items:
+          title: items
+          description: List of items to be processed.
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/person-course-attributes-batch-1.0.0_post_items'
+      required:
+        - items
+    person-course-attributes-batch-1.0.0_post_items:
+      type: object
+      properties:
+        bannerId:
+          title: Banner ID
+          maxLength: 9
+          type: string
+          description: "Internal Identification Number of Student."
+          example: A00444500
+        term:
+          title: Term Code
+          maxLength: 6
+          type: string
+          description: "Term for students academic history course records."
+          example: 202410
+        courseReferenceNumber:
+          title: "Course Reference Number"
+          description: "Course Reference Number.  CRN of the students course."
+          maxLength: 5
+          type: string
+          example: 34826
+        personCourseAttribute:
+          title: Course Attribute Code
+          maxLength: 4
+          type: string
+          description: "Course attribute code."
+          example: SSCI
+      required:
+        - bannerId
+        - term
+        - courseReferenceNumber
+        - personCourseAttribute
+    person-course-attributes-batch-1.0.0_post_response:
+        description: 'Returns the list of Ids for those person course history attributes that were successfully created. For those that did not, it returns the list of error messages. '
+        type: object
+        x-last-modified:
+        properties:
+          id:
+            title: ID
+            description: A globally unique identifier of a batch to be used in all external references.
+            type: string
+            example: 8292
+          status:
+            title: status
+            description: status of the batch.
+            type: string
+            enum:
+              - completed
+              - inProgress
+              - aborted
+            example: completed
+          resource:
+            title: Resource
+            description: The affected resource.
+            type: object
+            properties:
+              name:
+                title: Resource Name
+                description: The pluralized name of the affected resource
+                type: string
+                example: person-course-attributes
+              version:
+                title: Resource version
+                description: The version of the resource
+                type: string
+                example: 1.0.0
+            additionalProperties: false
+            required:
+              - name
+              - version
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+            oneOf:
+              - type: object
+                $ref: '#/components/schemas/person-course-attributes-1.0.0_response'
+              - type: object
+                $ref: '#/components/schemas/errors_2_0_0'
+          required:
+            - items
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

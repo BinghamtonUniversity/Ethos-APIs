@@ -1,0 +1,161 @@
+openapi: 3.0.0
+info:
+  title: Application Page Favorites
+  description: >
+    This API creates, retrieves and deletes favorite application pages for a user.
+  version: "1.0.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Foundation
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: application-page-favorites
+paths:
+  /api/application-page-favorites:
+    get:
+      description: >
+       Retrieves the list of all favorite application pages for a logged in user.
+      security:
+        - EthosIntegrationBearer: []
+      tags:
+        - application-page-favorites
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/application-page-favorites-get"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      description: >
+       Creates an entry for the selected page into Favorites table.
+      security:
+        - EthosIntegrationBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/application-page-favorites-post"
+      tags:
+        - application-page-favorites
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/application-page-favorites-post"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/application-page-favorites/{favoriteId}:
+    parameters:
+      - name: favoriteId
+        in: path
+        description: The ID of the favorite application page to delete.
+        required: true
+        schema:
+          type: integer
+    delete:
+      description: >
+       Deletes entry for the selected page from Favorites table.
+      security:
+        - EthosIntegrationBearer: []
+      tags:
+        - application-page-favorites
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas :
+    application-page-favorites-get:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Surrogate ID that is created for the record in the database.
+        url:
+          type: string
+          description: URL to navigate to the favorite application page along with its caption, description and page type.
+    application-page-favorites-post:
+      type: object
+      properties:
+        favorites:
+          type: object
+          properties:
+            url:
+              type: string
+              description: URL of the favorite application page.
+            name:
+              type: string
+              description: Name of the favorite application page.
+            type:
+              type: string
+              description: Type of the favorite application page.
+            menuName:
+              type: string
+              description: Menu name associated with the favorite application page.
+            caption:
+              type: string
+              description: Caption or description of the favorite application page.

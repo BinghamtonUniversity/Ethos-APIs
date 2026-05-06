@@ -1,0 +1,774 @@
+openapi: 3.0.0
+
+info:
+  title: Grade Configurations
+  description: 
+   The Grade Configurations API returns the grade codes and grade mode details as seen on the SHAGRDE administrative page. 
+   In addition, the API also returns substitute grade details from SHRGRDE, SHRGRDC, SHRGRDO and SHRGRDS. 
+
+
+  version: 1.0.0-beta
+  x-api-type: erp
+  x-release-status: beta
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Student
+  x-source-name: SHAGRDE, SHAGRDS
+  
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /api/grade-configurations:
+    get:
+      tags:
+      - grade-configurations
+      summary: Returns resources from SHRGRDE, SHRGRDC, SHRGRDO and SHRGRDS.
+      description: "Returns grade code details from SHRGRDE. Any SHRGRDC, SHRGRDO and SHRGRDS records associated with the grade code are also returned in the response.
+
+
+       Query by POST request returns the same records as GET request." 
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description:  |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: string
+            $ref: '#/components/schemas/grade-configurations-1.0.0_response'
+          description: >
+            ### Grade             
+       
+            Returns all records for the grade code passed.
+
+            ```
+
+            /grade-configurations?criteria={"grade":"A"}
+
+            ```
+
+            ### Level
+
+            Returns all records for the course level passed.
+
+            ```
+
+            /grade-configurations?criteria={"level":"J"}
+
+            ```
+
+            ### Status 
+
+            Returns all records for the grade status indicator passed.
+
+            ```
+
+            /grade-configurations?criteria={"status":"A"}
+
+            ```               
+
+            ### Grading Mode
+
+            Returns all records for the grade mode passed.
+
+            ```
+
+            /grade-configurations?criteria={"mode":"P"}
+
+            ```
+
+            ### Query Term
+       
+            Returns all records for the query term passed.
+
+            ```
+
+            /grade-configurations?criteria={"queryTerm":"201010"}
+
+            ```            
+
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/grade-configurations-1.0.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_GRADE_CONFIGURATIONS  
+  "/api/grade-configurations/{id}":
+    get:
+      summary:  "Returns the requested resource from SHRGRDE."
+      description: "Returns a record from SHRGRDE with the passed in identifier along with any SHRGRDC, SHRGRDO and SHRGRDS records associated with the grade code."
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permissions: API_GRADE_CONFIGURATIONS
+      tags:
+        - grade-configurations
+      parameters:
+        - name: id
+          in: path
+          required: true                       
+          description: "A global identifier of a grades resource for use in all external references to the grade."
+          schema:
+            type: string
+            format: guid
+            minimum: 1
+      responses:
+       '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/grade-configurations-1.0.0_response"
+       '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '401':
+          description: Failure. Unauthorized.
+       '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+       '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      
+  /qapi/grade-configurations:
+     post:
+      tags:
+        - grade-configurations QAPI
+      summary: Returns resources from SHRGRDE, SHRGRDC, SHRGRDO and SHRGRDS.
+      description: Queries for the requested resource using a set of attributes provided in the post
+        request body.  Please note the path to the server is overridden to use /qapi/{resource} 
+        in the URL and not /api/{resource}.
+        
+        
+       Returns grade code details from SHRGRDE. Any SHRGRDC, SHRGRDO and SHRGRDS records associated with the grade code are also returned in the response. 
+
+
+       Query by POST request returns the same records as GET request. 
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ``` 
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: integer            
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.1.0.0+json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/grade-configurations-1.0.0_qapi_post_request' 
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/grade-configurations-1.0.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permissions: API_GRADE_CONFIGURATION
+components:
+  schemas:               
+    grade-configurations-1.0.0_qapi_post_request:
+      type: object
+      properties:
+        grade:
+          title: Grade Code
+          maxLength: 6
+          type: string
+          description: "Grade code for the rule."
+          x-lineageReferenceObject: SHRGRDE_CODE
+          example: A                
+        level: 
+          title: Level Code
+          description: "Course level code for which each grade code is valid. "
+          maxLength: 1
+          type: string
+          x-lineageReferenceObject: SHRGRDE_LEVL_CODE
+          x-lineageLookupReferenceObject: STVLEVL
+          example: 01            
+        status: 
+          title: Grade Status 
+          description: "Indicates whether the grade is active (A) or inactive (I)."
+          maxLength: 1
+          type: string
+          x-lineageReferenceObject: SHRGRDE_GRDE_STATUS_IND
+          example: 'A'           
+        mode:
+          title: Grading Mode 
+          maxLength: 1
+          type: string
+          description: "Valid grading mode for the grade."
+          x-lineageReferenceObject: SHRGRDO_GMOD_CODE
+          x-lineageLookupReferenceObject: STVGMOD
+          example: 'P'     
+        queryTerm:
+          title: Query Term
+          maxLength: 6
+          type: string
+          description: "A user provided value. The query term code is used to retrieve the effective term grade configurations."
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202201               
+    grade-configurations-1.0.0_response:
+      type: object
+      required:
+        - grade
+        - id
+        - level
+        - abbreviation
+        - fromTerm
+        - status 
+        - qualityPoints
+        - isIncludedInAttempted
+        - isIncludedInPassed
+        - isCompletedHours 
+        - isIncludedInGpa   
+        - isTraditionalGrade      
+        - isIncompleteGrade
+        - isAvailableForWebEntry
+        - isIncludedInRepeat
+        - requiresLastAttendanceDate
+        - requiresGradeComment    
+        - gradingModes
+      properties:
+        id:
+          title: ID
+          description: "The global identifier of a grade to be used in all external references to the grade." 
+          type: string
+          format: guid
+          x-lineageReferenceObject: SHRGRDE_GUID
+          example: ee711196-0211-483e-b73c-511af692e532
+        grade:
+          title: Grade Code
+          maxLength: 6
+          type: string
+          description: "Grade code."
+          x-lineageReferenceObject: SHRGRDE_CODE
+          example: A                
+        level: 
+          title: Level Code
+          description: "Course level code for which each grade code is valid."
+          maxLength: 2
+          type: string
+          x-lineageReferenceObject: SHRGRDE_LEVL_CODE
+          x-lineageLookupReferenceObject: STVLEVL
+          example: 01   
+        levelDescription: 
+          title: Level Code Description
+          description: "Description of the course level code of the grade."
+          maxLength: 30
+          type: string
+          x-lineageReferenceObject: STVLEVL_DESC          
+          example: Undergraduate - 01
+        abbreviation: 
+          title: Grade Abbreviation
+          description: "Grade code abbreviation."
+          maxLength: 7
+          type: string
+          x-lineageReferenceObject: SHRGRDE_ABBREV
+          example: 'A'
+        fromTerm:
+          title: Effective Term
+          maxLength: 6
+          type: string
+          description: "The starting term code for the grade details."
+          x-lineageReferenceObject: SHRGRDE_TERM_CODE_EFFECTIVE
+          x-lineageLookupReferenceObject: STVTERM
+          example: 202510
+        toTerm:
+          title: Ending Term
+          maxLength: 6
+          type: string
+          description: "The ending term code for the grade details."
+          x-lineageReferenceObject: derived
+          x-lineageDerivedLogic: "The to term is derived by querying the system to locate the next effective term that is greater than the from term. On the highest effective term record the system default term of 999999 is displayed as the to term."              
+        status: 
+          title: Grade Status 
+          description: "Indicates whether the grade is active (A) or inactive (I)."
+          maxLength: 1
+          type: string
+          x-lineageReferenceObject: SHRGRDE_GRDE_STATUS_IND
+          example: 'A'
+        qualityPoints:
+          title: Quality Points
+          maxLength: 6
+          type: number
+          multipleOf: 0.001 
+          description: "Quality points associated with the grade. Used in GPA calculation."
+          x-lineageReferenceObject: SHRGRDE_QUALITY_POINTS         
+          example: 4.234                
+        isIncludedInAttempted: 
+          title: Attempted Credits/Hours Indicator
+          description: "Indicates whether the grade should be counted in attempted credits/hours."
+          type: boolean
+          x-lineageReferenceObject: SHRGRDE_ATTEMPTED_IND
+          example: true
+        isIncludedInPassed: 
+          title: Passed Credits/Hours Indicator
+          description: "Indicates whether the grade is included in passed credits/hours calculation."
+          type: boolean
+          x-lineageReferenceObject: SHRGRDE_PASSED_IND
+          example: true   
+        isCompletedHours: 
+          title: Completed Hours Indicator
+          description: "Indicates whether the grade is included in completed hours."
+          type: boolean
+          x-lineageReferenceObject: SHRGRDE_COMPLETED_IND
+          example: true   
+        isIncludedInGpa: 
+          title: Included in GPA Indicator
+          description: "Indicates whether the grade is included in the GPA calculation."
+          type: boolean
+          x-lineageReferenceObject: SHRGRDE_GPA_IND
+          example: true    
+        isTraditionalGrade: 
+          title: Traditional Grade Indicator
+          description: "Indicates whether the grade is traditional or non-traditional for degree compliance."
+          type: boolean
+          x-lineageReferenceObject: SHRGRDE_TRADITIONAL_IND
+          example: true
+        isIncompleteGrade: 
+          title: Incomplete Grade Indicator
+          description: "Indicates whether the grade code is an incomplete grade."
+          type: boolean
+          x-lineageReferenceObject: SHRGRDE_IMPCMP_IND
+          example: true    
+        incompleteFinalGrade: 
+          title: Incomplete Final Grade
+          description: "Indicates whether the Grade code will default if coursework is not completed."
+          maxLength: 6
+          type: string
+          x-lineageReferenceObject: SHRGRDE_GRDE_CODE_INCMP_FINAL
+          example: true
+        isAvailableForWebEntry: 
+          title: Web Entry Indicator
+          description: "Indicates whether the grade is allowed to be entered or modified via the web interface."
+          type: boolean
+          x-lineageReferenceObject: SHRGRDE_WEB_ENTRY_IND
+          example: true  
+        gradeNumericValue: 
+          title: Grade Numeric Value
+          description: "The grade numeric value is used to create a grade hierarchy."
+          maxLength: 1
+          type: string
+          x-lineageReferenceObject: SHRGRDE_NUMERIC_VALUE
+          example: 'Y' 
+        isIncludedInRepeat: 
+          title: Repeat Include Indicator
+          description: "Indicates whether or not the grade is included in the repeat evaluation process."
+          type: boolean
+          x-lineageReferenceObject: SHRGRDE_REPEAT_INCLUDE_IND
+          example: true
+        repeatType: 
+          title: Repeat Type
+          description: "Type of grade identifier for repeat processing. Valid values are S - Satisfactory, U - Substandard, W - Withdrawal, and null."
+          maxLength: 2
+          type: string
+          x-lineageReferenceObject: SHRGRDE_REPEAT_TYPE
+          x-product-region: CalB-Stu
+          example: 'W'
+        requiresLastAttendanceDate: 
+          title: Requires Last Attendance Date Indicator
+          description: "Indicates whether the grade code requires the entry of the student's last attendance date for the class."
+          type: boolean
+          x-lineageReferenceObject: SHRGRDE_LAST_DATE_ATTEND_IND
+          example: true
+        requiresGradeComment: 
+          title: Requires Grade Comments 
+          description: "Indicates whether narrative comments are required when assigning this grade."
+          type: boolean
+          x-lineageReferenceObject: SHRGRDC_GRADE_CMNT_IND
+          example: true       
+        modifiedOn:
+          title: Modified On
+          maxLength: 11
+          type: string
+          format: date-time
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+          description: "Most current date the record was created or changed."
+          x-lineageReferenceObject: SHRGRDE_ACTIVITY_DATE
+          example: 2025-02-14 20:01:24.000   
+        modifiedBy:
+          title: Modified By User ID
+          maxLength: 30
+          type: string
+          description: "User who inserted or last updated the data."
+          x-lineageReferenceObject: SHRGRDE_USER_ID
+          example: SAISUSR 
+        gradingModes:
+          title: Grading Modes
+          type: array
+          items:
+            type: object                 
+            required:
+            - mode
+            properties:                 
+              mode:
+                title: Grading Mode 
+                maxLength: 1
+                type: string
+                description: "Valid grading mode for the grade."
+                x-lineageReferenceObject: SHRGRDO_GMOD_CODE
+                x-lineageLookupReferenceObject: STVGMOD
+                example: 'P'
+              modeDescription:
+                title: Grading Mode Description
+                maxLength: 30
+                type: string
+                description: "Description of the grading mode code for the grade."
+                x-lineageReferenceObject: STVGMOD_DESC
+                example: 'Pass/Fail'
+              modifiedOn:
+                title: Modified On
+                maxLength: 11
+                type: string
+                format: date-time
+                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                description: "Most current date the record was created or changed."
+                x-lineageReferenceObject: SHRGRDO_ACTIVITY_DATE
+                example: 2025-02-14 20:01:24.000
+              modifiedBy:
+                title: Modified By User ID
+                maxLength: 30
+                type: string
+                description: "User who inserted or last updated the data."
+                x-lineageReferenceObject: SHRGRDO_USER_ID
+                example: SAISUSR
+        substituteGrades:
+          title: Substitute Grades
+          type: array
+          items:
+            type: object
+            required: 
+              - mode
+              - grade                      
+            properties: 
+              mode:
+                title: Grading Mode
+                maxLength: 1
+                type: string
+                description: "Grading mode code. Grading mode student has taken course for."
+                x-lineageReferenceObject: SHRGRDS_GMOD_CODE_STUDENT
+                x-lineageLookupReferenceObject: STVGMOD
+                example: 'P'
+              modeCodeDescription:
+                title: Grading Mode Description
+                maxLength: 30
+                type: string
+                description: "Description of grading mode code of the grade."
+                x-lineageReferenceObject: STVGMOD_DESC
+                example: 'Pass/Fail'
+              grade:
+                title: Substitute Grade Code
+                maxLength: 6
+                type: string
+                description: "Grade that will be substituted for original grade if student is taking course for specified grading mode."
+                x-lineageReferenceObject: SHRGRDS_GRDE_CODE_SUBSTITUTE              
+                example: 'A'
+              abbreviation: 
+                title: Grade Abbreviation
+                description: "Grade code abbreviation."
+                maxLength: 7
+                type: string
+                x-lineageReferenceObject: SHRGRDE_ABBREV
+                example: 'A'
+              modifiedOn:
+                title: Modified On
+                maxLength: 11
+                type: string
+                format: date-time
+                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                description: "Most current date the record was created or changed."
+                x-lineageReferenceObject: SHRGRDS_ACTIVITY_DATE
+                example: 2025-02-14 20:01:24.000   
+              modifiedBy:
+                title: Modified By User ID
+                maxLength: 30
+                type: string
+                description: "User who inserted or last updated the data."
+                x-lineageReferenceObject: SHRGRDS_USER_ID
+                example: SAISUSR                         
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.  
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic
+

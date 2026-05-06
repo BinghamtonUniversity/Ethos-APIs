@@ -1,0 +1,847 @@
+openapi: 3.0.0
+info:
+  title: Meal Plan Assignments
+  description: >
+    The meal plan assignment entity records an applicant's meal assignments for
+    a specified range of terms. The API supports meal plan code with multiple
+    values for a term. Each meal-plan-rate may have a daily, monthly, or term
+    type and have different charges accordingly.
+
+
+    Please refer to the section "API Integration Configuration Settings" in Banner Ethos API Handbook for all the configuration settings needed for this API.
+  version: 16.0.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Foundation
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: meal-plan-assignments
+paths:
+  /api/meal-plan-assignments:
+    get:
+      summary: Returns resources from SLRMASG
+      description: |
+        Returns all the records from SLRMASG.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_MEAL_PLAN_ASSIGNMENTS
+      tags:
+        - meal-plan-assignments
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Person  
+
+            The person to whom a meal plan is assigned.
+
+            ```
+
+            /meal-plan-assignments?criteria={"person":{"id":"d884b6e3-8547-4067-bacc-fde82e3db5b5"}}
+
+            ```
+
+            ### Meal Plan  
+
+            The meal plan assigned to the person.
+
+            ```
+
+            /meal-plan-assignments?criteria={"mealPlan":{"id":"d5fa4384-f39a-4afd-872c-269dc1f775d6"}}
+
+            ```
+
+            ### Academic Period  
+
+            The academic period for the meal plan assignment.
+
+            ```
+
+            /meal-plan-assignments?criteria={"academicPeriod":{"id":"060d0dd1-75aa-4c43-989c-0015b6f01d6e"}}
+
+            ```
+
+            ### Start On  
+
+            The start date when the meal plan assignments become effective.
+
+            ```
+
+            /meal-plan-assignments?criteria={"startOn":"2014-01-12T00:00:00+00:00"}
+
+            ```
+
+            ### Status  
+
+            The status of the meal plan assignment.
+
+            ```
+
+            /meal-plan-assignments?criteria={"status":"cancelled"}
+
+            ```
+
+            ### End On  
+
+            The end date of the meal plan assignment.
+
+            ```
+
+            /meal-plan-assignments?criteria={"endOn":"2014-04-11T15:37:18+00:00"}
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-meal-plan-assignments.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new resource in SLRMASG
+      description: >
+        POST requests must include a nil GUID value
+        ("00000000-0000-0000-0000-000000000000") for the root id property.
+
+
+        A meal plan assignment will be created with a POST request in SLRMASG.
+
+
+        Note:
+
+
+        • When academicPeriod is not sent in the request, depending on the 'MIN' and 'MAX' values defined in the DERIVE.TERM_RULE integration configuration setting, the API uses either the DERIVE_MIN_TERM or DERIVE_MAX_TERM delivered in GORRSQL to derive the effective term of the meal plan request application. Please refer to 'Housing and meal plan APIs' section in Banner Ethos API handbook for more details.
+
+        • An active meal plan request must exist for the person and term for a create request to be processed.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_MEAL_PLAN_ASSIGNMENTS
+      tags:
+        - meal-plan-assignments
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-meal-plan-assignments.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v16+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-meal-plan-assignments.json"
+  /api/meal-plan-assignments/{id}:
+    get:
+      summary: Return the requested resource from SLRMASG
+      description: |
+        Returns a record from SLRMASG with the passed in identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_MEAL_PLAN_ASSIGNMENTS
+      tags:
+        - meal-plan-assignments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-meal-plan-assignments.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    put:
+      summary: Update the requested resource from SLRMASG
+      description: |
+        Updates an existing meal plan assignment record in SLRMASG.
+
+        Properties that are not updatable: id, person.id, academicPeriod.id
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_MEAL_PLAN_ASSIGNMENTS
+      tags:
+        - meal-plan-assignments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Meal Plan Assignments for use in all
+            external references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v16+json 
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v16.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v16.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-meal-plan-assignments.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v16+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-meal-plan-assignments.json"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-meal-plan-assignments.json:
+      title: Meal Plan Assignments
+      description: Assignments of meal plans to a person.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the meal plan assignment.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: SLRMASG_GUID(SLRMASG)
+        person:
+          title: Person
+          description: The person to whom a meal plan is assigned.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Person.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+              x-lineageDerivedLogic: A record in  GORGUID where GORGUID_LDM_NAME = 'persons' and GORGUID_DOMAIN_KEY = SLRMASG_PIDM.
+          additionalProperties: false
+          required:
+            - id
+        mealPlan:
+          title: Meal Plan
+          description: The meal plan assigned to the person.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Meal Plan.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: meal-plans 
+              x-lineageReferenceObject: SLRMASG_MRCD_CODE(SLRMASG)
+          additionalProperties: false
+          required:
+            - id
+        academicPeriod:
+          title: Academic Period
+          description: The academic period for the meal plan assignment.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Academic Period.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: academic-periods 
+                  x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = term) 
+                  x-lineageDerivedLogic: A record in GORGUID where GORGUID_LDM_NAME = 'term' and GORGUID_DOMAIN_KEY = SLRMASG_TERM_CODE
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        startOn:
+          title: Start On
+          description: The start date when the meal plan assignments become effective.
+          type: string
+          format: date-time
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+          x-lineageReferenceObject: SLRMASG_BEGIN_DATE(SLRMASG)
+        endOn:
+          title: End On
+          description: The end date of the meal plan assignment.
+          oneOf:
+            - type: string
+              format: date-time
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+              x-lineageReferenceObject: SLRMASG_END_DATE(SLRMASG)
+            - type: string
+              maxLength: 0
+        status:
+          title: Status
+          description: The status of the meal plan assignment.
+          enum:
+            - assigned
+            - cancelled
+            - terminated
+            - prorated
+          type: string
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: The GORICCR_TRANSLATION_VALUE for setting MEALS.ACTIVE.APPLICATN.STATUS where GORICCR_VALUE = SLRMASG_MSCD_CODE in GORICCR table.
+        statusDate:
+          title: Status Date
+          description: The date when the meal plan assignment status was set or modified.
+          type: string
+          format: date-time
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+          x-lineageReferenceObject: SLRMASG_MSCD_DATE(SLRMASG)
+        assignedRates:
+          title: Assigned Rates
+          description: The effective regular rate(s) for the meal plan assignment.
+          type: array
+          items:
+            title: Assigned Rates
+            description: The effective regular rate(s) for the meal plan assignment.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Assigned Rates.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: meal-plan-rates 
+                x-lineageReferenceObject: SLRLMFE_GUID(SLRLMFE)
+            additionalProperties: false
+            required:
+              - id
+        rateOverride:
+          title: Rate Override
+          description: The override rate for the meal plan assignment.
+          oneOf:
+            - type: object
+              properties:
+                rate:
+                  title: Rate
+                  description: The override rate for the meal plan assignment.
+                  format: currency
+                  type: object
+                  properties:
+                    value:
+                      title: Value
+                      description: The monetary value
+                      type: number
+                      x-lineageReferenceObject: unsupported
+                    currency:
+                      title: Currency
+                      description: The ISO 4217 currency code
+                      enum:
+                        - AED
+                        - AFN
+                        - ALL
+                        - AMD
+                        - ANG
+                        - AOA
+                        - ARS
+                        - AUD
+                        - AWG
+                        - AZN
+                        - BAM
+                        - BBD
+                        - BDT
+                        - BGN
+                        - BHD
+                        - BIF
+                        - BMD
+                        - BND
+                        - BOB
+                        - BRL
+                        - BSD
+                        - BTN
+                        - BWP
+                        - BYR
+                        - BZD
+                        - CAD
+                        - CDF
+                        - CHF
+                        - CLP
+                        - CNY
+                        - COP
+                        - CRC
+                        - CUC
+                        - CUP
+                        - CVE
+                        - CZK
+                        - DJF
+                        - DKK
+                        - DOP
+                        - DZD
+                        - EGP
+                        - ERN
+                        - ETB
+                        - EUR
+                        - FJD
+                        - FKP
+                        - GBP
+                        - GEL
+                        - GHS
+                        - GIP
+                        - GMD
+                        - GNF
+                        - GTQ
+                        - GYD
+                        - HKD
+                        - HNL
+                        - HRK
+                        - HTG
+                        - HUF
+                        - IDR
+                        - ILS
+                        - INR
+                        - IQD
+                        - IRR
+                        - ISK
+                        - JMD
+                        - JOD
+                        - JPY
+                        - KES
+                        - KGS
+                        - KHR
+                        - KMF
+                        - KPW
+                        - KRW
+                        - KWD
+                        - KYD
+                        - KZT
+                        - LAK
+                        - LBP
+                        - LKR
+                        - LRD
+                        - LSL
+                        - LYD
+                        - MAD
+                        - MDL
+                        - MGA
+                        - MKD
+                        - MMK
+                        - MNT
+                        - MOP
+                        - MRO
+                        - MUR
+                        - MVR
+                        - MWK
+                        - MXN
+                        - MYR
+                        - MZN
+                        - NAD
+                        - NGN
+                        - NIO
+                        - NOK
+                        - NPR
+                        - NZD
+                        - OMR
+                        - PAB
+                        - PEN
+                        - PGK
+                        - PHP
+                        - PKR
+                        - PLN
+                        - PYG
+                        - QAR
+                        - RON
+                        - RSD
+                        - RUB
+                        - RWF
+                        - SAR
+                        - SBD
+                        - SCR
+                        - SDG
+                        - SEK
+                        - SGD
+                        - SHP
+                        - SLL
+                        - SOS
+                        - SRD
+                        - SSP
+                        - STD
+                        - SVC
+                        - SYP
+                        - SZL
+                        - THB
+                        - TJS
+                        - TMT
+                        - TND
+                        - TOP
+                        - TRY
+                        - TTD
+                        - TWD
+                        - TZS
+                        - UAH
+                        - UGX
+                        - USD
+                        - UYU
+                        - UZS
+                        - VEF
+                        - VND
+                        - VUV
+                        - WST
+                        - XAF
+                        - XCD
+                        - XOF
+                        - XPF
+                        - YER
+                        - ZAR
+                        - ZMW
+                        - ZWL
+                      type: string
+                      x-lineageReferenceObject: unsupported
+                  additionalProperties: false
+                  required:
+                    - value
+                    - currency
+                ratePeriod:
+                  title: Rate Period
+                  description: The period for which the rate is set.
+                  enum:
+                    - day
+                    - week
+                    - term
+                    - meal
+                    - month
+                    - year
+                  type: string
+                  x-lineageReferenceObject: unsupported
+                overrideReason:
+                  title: Override Reason
+                  description: The reason for the rate override.
+                  oneOf:
+                    - type: object
+                      properties:
+                        id:
+                          title: ID
+                          description: The global identifier for the Override Reason.
+                          type: string
+                          format: guid
+                          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                          x-lineageLookupReferenceObject: billing-override-reasons 
+                          x-lineageReferenceObject: unsupported
+                      additionalProperties: false
+                      required:
+                        - id
+                    - type: object
+                      maxProperties: 0
+                accountingCode:
+                  title: Accounting Code
+                  description: The accounting code associated with the override rate.
+                  oneOf:
+                    - type: object
+                      properties:
+                        id:
+                          title: ID
+                          description: The global identifier for the Accounting Code.
+                          type: string
+                          format: guid
+                          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                          x-lineageLookupReferenceObject: accounting-codes 
+                          x-lineageReferenceObject: unsupported
+                      additionalProperties: false
+                      required:
+                        - id
+                    - type: object
+                      maxProperties: 0
+              additionalProperties: false
+              required:
+                - rate
+                - ratePeriod
+            - type: object
+              maxProperties: 0
+        numberOfPeriods:
+          title: Number Of Periods
+          description: The number of time periods in the meal plan assignment.
+          oneOf:
+            - type: number
+              minimum: 0
+              format: positiveInteger
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: if SLRLMFE_M_D_T = 'M' then display the value of SLRMASG_TOTAL_MONTHS and if SLRLMFE_M_D_T = 'D' then display the value of SLRMASG_TOTAL_DAYS and if SLRLMFE_M_D_T = 'T' then display the value of SLRMASG_TOTAL_TERMS
+            - type: string
+              nullable: true
+        mealCard:
+          title: Meal Card
+          description: The meal card associated with the meal plan assignment.
+          type: string
+          x-lineageReferenceObject: SLRMASGS_MEAL_CARD(SLRMASGS)
+        consumption:
+          title: Consumption
+          description: The number or percentage of units consumed by the person on the plan.
+          oneOf:
+            - title: units
+              description: The number of units consumed on the plan.
+              type: object
+              properties:
+                units:
+                  title: Units
+                  description: The number of units consumed on the plan.
+                  minimum: 0
+                  type: number
+                  format: positiveNumber
+                  x-lineageReferenceObject: SLRMASGS_CONSUMPTION_UNITS(SLRMASGS)
+              additionalProperties: false
+              required:
+                - units
+            - title: percent
+              description: The percent of units consumed on the meal plan.
+              type: object
+              properties:
+                percent:
+                  title: Percent
+                  description: The percent of units consumed on the meal plan.
+                  type: number
+                  x-lineageReferenceObject: SLRMASGS_CONSUMPTION_PERCENT(SLRMASGS)
+              additionalProperties: false
+              required:
+                - percent
+            - type: object
+              maxProperties: 0
+        comment:
+          title: Comment
+          description: Any comment that may have been generated for the meal plan.
+          type: string
+          x-lineageReferenceObject: SLRMASGS_COMMENT(SLRMASGS)
+      required:
+        - id
+        - person
+        - mealPlan
+        - startOn
+        - status
+        - statusDate
+      additionalProperties: false

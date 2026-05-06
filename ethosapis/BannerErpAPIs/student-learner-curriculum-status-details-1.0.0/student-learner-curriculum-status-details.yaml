@@ -1,0 +1,528 @@
+openapi: 3.0.0
+info:
+  title: Student Learner Curriculum Status Details
+  description: >
+    The API returns the current and active learner curriculum (SORLCUR) records
+    for a student including selected curriculum status details such expected
+    graduation. The API respects non-destructive update of curriculum records by
+    supporting edit of status details via the POST method.<br><br> Curriculum
+    record updates to terms with registration require the flags *Allow learner
+    curricula changes in registration term* and *Allow changes to learner status
+    fields that do not impact registration in registration term* enabled in
+    SOACTRL
+  version: 1.0.0
+  x-source-domain: Student
+  x-source-name: SORLCUR
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-audience: all
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/student-learner-curriculum-status-details:
+    get:
+      tags:
+        - student-learner-curriculum-status-details
+      summary: Returns current and active learner curriculum records from SORLCUR
+      description: Returns all current and active SORLCUR records for the learner
+        module (SORLCUR_LMOD_CODE = 'LEARNER') and selected curriculum status
+        details.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: |
+            The maximum number of resources requesting for this result set.\
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Banner Id (required)
+
+            Returns all learner curriculum records for the Banner ID passed.
+
+            ```
+
+            /student-learner-curriculum-status-details?criteria={"bannerId":"331314209"}
+
+            ```
+
+            ### Effective Term (required)
+
+            Returns all learner curriculum records in effect for the term
+            passed.
+
+            ```
+
+            /student-learner-curriculum-status-details?criteria={"effectiveTerm":"201010"}
+
+            ```
+
+            ### Graduation Application Number
+
+            Returns all learner curriculum records tagged with the graduation
+            application number passed.
+
+            ```
+
+            /student-learner-curriculum-status-details?criteria={"graduationApplicationNumber":3}
+
+            ```
+
+            ### Priority Number
+
+            Returns the learner curriculum record for the priority number
+            passed.
+
+            ```
+
+            /student-learner-curriculum-status-details?criteria={"priorityNumber":1}
+
+            ```
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/student-learner-curriculum-status-details-1.0.0_get\
+                    _response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - BasicAuth: []
+          EthosIntegrationBearer: []
+      x-method-permissions: API_STU_LEARNER_CURR_STAT_DTLS
+    post:
+      tags:
+        - student-learner-curriculum-status-details
+      summary: Edit of status details
+      description: Permits editing of selected status details by duplicating a current
+        and active source curriculum (SORLCUR) record.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.1.0.0+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/student-learner-curriculum-status-details-1.0.0_pos\
+                t_request"
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/student-learner-curriculum-status-details-1.0.0_get\
+                  _response"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - BasicAuth: []
+          EthosIntegrationBearer: []
+      x-method-permissions: API_STU_LEARNER_CURR_STAT_DTLS
+components:
+  schemas:
+    student-learner-curriculum-status-details-1.0.0_post_request:
+      type: object
+      properties:
+        referenceId:
+          title: ID of the learner curriculum record to be duplicated
+          description: Identifier of the active and current learner curriculum record to
+            be duplicated
+          type: object
+          properties:
+            bannerId:
+              title: Banner ID
+              maxLength: 9
+              type: string
+              description: Student Banner ID
+              format: string
+              x-lineageReferenceObject: SPRIDEN_ID
+            effectiveTerm:
+              title: Effective Term
+              maxLength: 6
+              type: string
+              x-lineageLookupReferenceObject: STVTERM
+            priorityNumber:
+              title: Curriculum Priority Number
+              description: The priority number of the current and active curriculum to be
+                updated.
+              maxLength: 4
+              type: number
+              x-lineageReferenceObject: SORLCUR_PRIORITY_NO
+          required:
+            - bannerId
+            - effectiveTerm
+            - priorityNumber
+        graduationDetails:
+          type: object
+          properties:
+            expectedGraduationOn:
+              title: Date
+              type: string
+              format: date
+              x-lineageReferenceObject: SORLCUR_EXP_GRAD_DATE
+            term:
+              title: Term
+              maxLength: 6
+              type: string
+              x-lineageReferenceObject: SORLCUR_TERM_CODE_GRAD
+              x-lineageLookupReferenceObject: STVTERM
+            academicYear:
+              title: Academic Year
+              maxLength: 4
+              type: string
+              x-lineageReferenceObject: SORLCUR_ACYR_CODE
+              x-lineageLookupReferenceObject: STVACYR
+      required:
+        - referenceId
+    student-learner-curriculum-status-details-1.0.0_get_response:
+      type: object
+      properties:
+        id:
+          title: Identifier for current and active learner curriculum record
+          type: object
+          properties:
+            bannerId:
+              title: Banner ID
+              maxLength: 9
+              type: string
+              description: Student Banner ID
+              format: string
+              x-lineageReferenceObject: SPRIDEN_ID
+            effectiveTerm:
+              title: Effective Term for the Curriculum
+              maxLength: 6
+              type: string
+              x-lineageLookupReferenceObject: STVTERM
+            priorityNumber:
+              title: Curriculum Priority Number
+              maxLength: 4
+              type: number
+              x-lineageReferenceObject: SORLCUR_PRIORITY_NO
+          required:
+            - bannerId
+            - effectiveTerm
+            - priorityNumber
+        curriculum:
+          title: Learner Curriculum
+          type: object
+          properties:
+            curriculumTerm:
+              title: Curriculum Term
+              maxLength: 6
+              type: string
+              x-lineageReferenceObject: SORLCUR_TERM_CODE
+              x-lineageLookupReferenceObject: STVTERM
+            termEnd:
+              title: Ending Term
+              maxLength: 6
+              type: string
+              x-lineageReferenceObject: SORLCUR_TERM_CODE_END
+              x-lineageLookupReferenceObject: STVTERM
+            program:
+              title: Program
+              maxLength: 12
+              type: string
+              x-lineageReferenceObject: SORLCUR_PROGRAM
+              x-lineageLookupReferenceObject: SMRPRLE
+            level:
+              title: Level
+              maxLength: 2
+              type: string
+              x-lineageReferenceObject: SORLCUR_LEVL_CODE
+              x-lineageLookupReferenceObject: STVLEVL
+            college:
+              title: College
+              maxLength: 2
+              type: string
+              x-lineageReferenceObject: SORLCUR_COLL_CODE
+              x-lineageLookupReferenceObject: STVCOLL
+            degree:
+              title: Degree
+              maxLength: 6
+              type: string
+              x-lineageReferenceObject: SORLCUR_DEGC_CODE
+              x-lineageLookupReferenceObject: STVDEGC
+            campus:
+              title: Campus
+              maxLength: 3
+              type: string
+              x-lineageReferenceObject: SORLCUR_CAMP_CODE
+              x-lineageLookupReferenceObject: STVCAMP
+            graduationApplicationNumber:
+              title: Graduation Application Number
+              maxLength: 4
+              type: number
+              x-lineageReferenceObject: SORLCUR_GAPP_SEQNO
+          required:
+            - curriculumTerm
+            - priorityNumber
+            - level
+            - college
+            - degree
+        graduationDetails:
+          title: Learner Record Graduation Details
+          type: object
+          properties:
+            expectedGraduationOn:
+              title: Expected Graduation Date
+              type: string
+              format: date
+              x-lineageReferenceObject: SORLCUR_EXP_GRAD_DATE
+            term:
+              title: Expected Grauation Term
+              maxLength: 6
+              type: string
+              x-lineageReferenceObject: SORLCUR_TERM_CODE_GRAD
+              x-lineageLookupReferenceObject: STVTERM
+            academicYear:
+              title: Graduation Academic Year
+              maxLength: 4
+              type: string
+              x-lineageReferenceObject: SORLCUR_ACYR_CODE
+              x-lineageLookupReferenceObject: STVACYR
+      required:
+        - id
+        - curriculum
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary
+                  data entity used to create the resource. This is useful for
+                  referencing the source item through the applications
+                  administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

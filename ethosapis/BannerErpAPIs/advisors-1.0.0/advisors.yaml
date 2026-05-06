@@ -1,0 +1,338 @@
+openapi: 3.0.0
+info:
+  title: Advisors
+  description: |
+    This API retrieves the list of all active advisors 
+  version: "1.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Student
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: advisors
+paths:
+  /api/advisors:
+    get:
+      summary: List of all active advisors
+      description: >
+        This API retrieves the list of all active advisors from an institution
+        along with the advisor names for a specific term mentioned
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_ADVISORS
+      tags:
+        - advisors
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          schema:
+            type: string
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+        - name: term
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "202014"
+          description: |
+            
+            ```
+            /api/advisors?term=202014
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/advisors"
+            application/vnd.hedtech.integration.v1.0.0+xml:
+              schema:
+                type: object
+                $ref: "#/components/schemas/advisors"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/advisors/{id}:
+    get:
+      summary: Details of advisor
+      description: >
+        Retrieves the contact card information of an active advisor from an
+        institution for a specific term.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_ADVISORS
+      tags:
+        - advisors
+      parameters:
+        - name: term
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "202014"
+        - name: id
+          in: path
+          required: true
+          description: |
+            
+            ```
+            /api/advisors/710000028?term=202014
+            ```
+          schema:
+            type: string
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/advisorObject"
+            application/vnd.hedtech.integration.v1.0.0+xml:
+              schema:
+                type: object
+                $ref: "#/components/schemas/advisorObject"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    advisors:
+      type: array
+      items:
+        type: object
+        properties:
+          bannerId:
+            type: string
+          confidential:
+            type: string
+          firstName:
+            type: string
+          fullName:
+            type: string
+          lastName:
+            type: string
+          surnamePrefix:
+            type: string
+          middleInitial:
+            type: string
+    advisorObject:
+      type: object
+      properties:
+        bannerId:
+          type: string
+        firstName:
+          type: string
+        fullName:
+          type: string
+        lastName:
+          type: string
+        address:
+          type: object
+          properties:
+            addressType:
+              type: object
+              properties:
+                version:
+                  type: integer
+                code:
+                  type: string
+                description:
+                  type: string
+            country:
+              type: object
+              properties:
+                version:
+                  type: integer
+                code:
+                  type: string
+                description:
+                  type: string
+            nation:
+              type: object
+              properties:
+                version:
+                  type: integer
+                code:
+                  type: string
+                description:
+                  type: string
+            state:
+              type: object
+              properties:
+                version:
+                  type: integer
+                code:
+                  type: string
+                description:
+                  type: string
+        city:
+          type: string
+        houseNumber:
+          type: string
+        id:
+          type: string
+        streetLine1:
+          type: string
+        streetLine2:
+          type: string
+        streetLine3:
+          type: string
+        streetLine4:
+          type: string
+        version:
+          type: integer
+        zip:
+          type: string
+        email:
+          type: string
+        namePrefix:
+          type: string
+        nameSuffix:
+          type: string
+        preferenceFirstName:
+          type: string
+        telephone:
+          type: object
+          properties:
+            commentData:
+              type: string
+            countryPhone:
+              type: string
+            internationalAccess:
+              type: string
+            phoneArea:
+              type: string
+            phoneExtension:
+              type: string
+            phoneNumber:
+              type: string
+            primaryIndicator:
+              type: string
+            statusIndicator:
+              type: string
+            unlistIndicator:
+              type: string
+            telephoneType:
+              type: object
+              properties:
+                version:
+                  type: integer
+                code:
+                  type: string
+                description:
+                  type: string
+        deptAndCollegeInformation:
+          type: object
+          properties:
+            homeIndicator:
+              type: boolean
+            id:
+              type: string
+            percentage:
+              type: integer
+            version:
+              type: integer
+            college:
+              type: object
+              properties:
+                version:
+                  type: integer
+                code:
+                  type: string
+                description:
+                  type: string
+            department:
+              type: object
+              properties:
+                version:
+                  type: integer
+                code:
+                  type: string
+                description:
+                  type: string
+            termEffective:
+              type: object
+              properties:
+                version:
+                  type: integer
+                code:
+                  type: string
+                description:
+                  type: string

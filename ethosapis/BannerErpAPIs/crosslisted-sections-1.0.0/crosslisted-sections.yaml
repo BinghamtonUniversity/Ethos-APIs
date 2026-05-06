@@ -1,0 +1,261 @@
+openapi: 3.0.1
+info:
+  title: crosslisted-sections
+  description: >
+    This API returns a list of cross-listed sections by cross-list group. You
+    can optionally filter on term(s), or section status(es) and/or integration
+    partner(s).
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Student
+  x-source-title: Crosslisted Sections
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: crosslisted-sections
+paths:
+  /qapi/crosslisted-sections:
+    post:
+      description: "__QAPI POST Request__
+
+
+        \  In case of QAPI POST method, send a JSON-formatted string of data
+        that contains optional filter fields.
+
+        \ \ 
+
+        \  Returns list of cross-listed sections for the terms “200310” and
+        “200340”, section status “Open”, and integration partner code “WEB”.
+
+        \  "
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_CROSSLISTED_SECTIONS
+      tags:
+        - crosslisted-sections
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/json (for QAPI POST method only) 
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/crosslisted-sections-response"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/crosslisted-sections"
+            examples:
+              crosslisted-sections:
+                $ref: "#/components/examples/crosslisted-sections"
+  /api/crosslisted-sections:
+    get:
+      description: >-
+        __Paging__ : Pagination is supported using parameters max and offset.
+        Default value for max is 500 and upper limit is 1000.
+
+
+        __Sorting__ : Sorting is not supported. The resultset is sorted by term
+        and cross-list group by default.
+          
+        __Filtering__ : Filtering is supported using url parameters
+        [‘term’,‘sectionStatus’, ‘integrationPartner’]
+      security:
+        - EthosIntegrationBearer: []
+      tags:
+        - crosslisted-sections
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: term
+          in: query
+          required: false
+          description: |
+            Code value to identify the term
+
+              ```
+              /api/crosslisted-sections?term=200310
+              ```
+          example: 202014
+          schema:
+            type: string
+        - name: sectionStatus
+          in: query
+          required: false
+          description: |
+            The status of the Section
+             ```
+            /api/crosslisted-sections?sectionStatus=Open
+            ```
+          example: “Open” or “Closed”
+          schema:
+            type: integer
+        - name: integrationPartner
+          in: query
+          required: false
+          example: WEB
+          schema:
+            type: string
+          description: |
+            Instructional platform code 
+              The status of the Section
+             ```
+              /api/crosslisted-sections?integrationPartner=WEB
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/crosslisted-sections-response"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    crosslisted-sections:
+      type: object
+      properties:
+        term:
+          type: array
+          items:
+            type: string
+        sectionStatus:
+          type: array
+          items:
+            type: string
+        integrationPartner:
+          type: array
+          items:
+            type: string
+    crosslisted-sections-response:
+      type: array
+      items:
+        type: object
+        properties:
+          term:
+            type: string
+          xlstGroup:
+            type: string
+          sections:
+            type: array
+            items:
+              type: object
+              properties:
+                courseReferenceNumber:
+                  type: string
+                sectionStatus:
+                  type: string
+                integrationPartner:
+                  type: string
+  examples:
+    crosslisted-sections:
+      value:
+        term:
+          - "200310"
+          - "200340"
+        sectionStatus:
+          - Open
+        integrationPartner:
+          - WEB

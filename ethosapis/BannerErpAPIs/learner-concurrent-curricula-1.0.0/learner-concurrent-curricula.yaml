@@ -1,0 +1,610 @@
+openapi: 3.0.0
+info:
+  title: Learner Concurrent Curricula
+  description: >
+    Returns current and active learner curriculum records from SORLCUR and
+    attached current and active fields of study records from SORLFOS.
+  version: 1.0.0
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-audience: all
+  x-source-domain: Student
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/learner-concurrent-curricula:
+    get:
+      tags:
+        - learner-concurrent-curricula
+      summary: Returns current and active learner curriculum records from SORLCUR and
+        attached current and active fields of study records from SORLFOS.
+      description: Returns all current and active SORLCUR records for the learner
+        module (SORLCUR_LMOD_CODE = 'LEARNER') and attached current and active
+        SORLFOS records.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          schema:
+            type: string
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+              application/vnd.hedtech.integration.v1+json
+            ```
+        - name: criteria
+          in: query
+          required: true
+          description: |
+            A JSON object with the student bannerId and an optional a term code.
+            ``` { "bannerId": "BANNER_ID", "term": "CODE" } ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response.
+              required: true
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/curriculumProfile"
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to
+            something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "401":
+          description: Failure. Unauthorized.
+        "403":
+          description: Failure. Forbidden. The user does not have the required permissions
+            for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "404":
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        "405":
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method
+            that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "406":
+          description: Failure. Not Acceptable. Unable to generate any of the client’s
+            preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+        "500":
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/errors_2_0_0"
+      security:
+        - BasicAuth: []
+          EthosIntegrationBearer: []
+      x-method-permissions: API_LEARNER_CONC_CURR
+components:
+  schemas:
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary
+                  data entity used to create the resource. This is useful for
+                  referencing the source item through the applications
+                  administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.
+    curriculumProfile:
+      title: CurriculumProfile
+      type: array
+      items:
+        type: object
+        properties:
+          classCode:
+            type: string
+          classDescription:
+            type: string
+          keySequenceNumber:
+            type: integer
+          learnerModuleDescription:
+            type: string
+          learnerModuleType:
+            type: string
+          primaryCurriculum:
+            type: object
+            properties:
+              admitType:
+                type: string
+              admitTypeCode:
+                type: string
+              campus:
+                type: string
+              campusCode:
+                type: string
+              concentrationFieldsOfStudy:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    department:
+                      type: string
+                    departmentCode:
+                      type: string
+                    learnerFieldStudy:
+                      type: string
+                    learnerFieldStudyCode:
+                      type: string
+                    major:
+                      type: string
+                    majorAttach:
+                      type: string
+                    majorAttachCode:
+                      type: string
+                    majorCode:
+                      type: string
+                    majorConcentrations:
+                      type: array
+                      items:
+                        type: object
+              college:
+                type: string
+              collegeCode:
+                type: string
+              degree:
+                type: string
+              degreeCode:
+                type: string
+              keySequenceNumber:
+                type: number
+              level:
+                type: string
+              levelCode:
+                type: string
+              majorFieldsOfStudy:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    department:
+                      type: string
+                    departmentCode:
+                      type: string
+                    learnerFieldStudy:
+                      type: string
+                    learnerFieldStudyCode:
+                      type: string
+                    major:
+                      type: string
+                    majorAttach:
+                      type: string
+                    majorAttachCode:
+                      type: string
+                    majorCode:
+                      type: string
+                    priorityNumber:
+                      type: integer
+                    sequenceNumber:
+                      type: integer
+                    majorConcentrations:
+                      type: array
+                      items:
+                        type: object
+              minorFieldsOfStudy:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    department:
+                      type: string
+                    departmentCode:
+                      type: string
+                    learnerFieldStudy:
+                      type: string
+                    learnerFieldStudyCode:
+                      type: string
+                    major:
+                      type: string
+                    majorAttach:
+                      type: string
+                    majorAttachCode:
+                      type: string
+                    majorCode:
+                      type: string
+                    priorityNumber:
+                      type: integer
+                    sequenceNumber:
+                      type: integer
+                    majorConcentrations:
+                      items:
+                        type: object
+              otherFieldsOfStudy:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    department:
+                      type: string
+                    departmentCode:
+                      type: string
+                    learnerFieldStudy:
+                      type: string
+                    learnerFieldStudyCode:
+                      type: string
+                    major:
+                      type: string
+                    majorAttach:
+                      type: string
+                    majorAttachCode:
+                      type: string
+                    majorCode:
+                      type: string
+                    priorityNumber:
+                      type: integer
+                    sequenceNumber:
+                      type: integer
+                    majorConcentrations:
+                      items:
+                        type: object
+              program:
+                type: string
+              programCode:
+                type: string
+              studyPathDescription:
+                type: string
+              termAdmit:
+                type: string
+              termAdmitCode:
+                type: string
+              termCatalog:
+                type: string
+              termCatalogCode:
+                type: string
+              termMatriculate:
+                type: string
+              termMatriculateCode:
+                type: string
+              endDate:
+                type: string
+              startDate:
+                type: string
+              priorityNumber:
+                type: integer
+              sequenceNumber:
+                type: integer
+          secondaryCurricula:
+            type: object
+            properties:
+              admitType:
+                type: string
+              admitTypeCode:
+                type: string
+              campus:
+                type: string
+              campusCode:
+                type: string
+              concentrationFieldsOfStudy:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    department:
+                      type: string
+                    departmentCode:
+                      type: string
+                    learnerFieldStudy:
+                      type: string
+                    learnerFieldStudyCode:
+                      type: string
+                    major:
+                      type: string
+                    majorAttach:
+                      type: string
+                    majorAttachCode:
+                      type: string
+                    majorCode:
+                      type: string
+                    majorConcentrations:
+                      items:
+                        type: object
+              college:
+                type: string
+              collegeCode:
+                type: string
+              degree:
+                type: string
+              degreeCode:
+                type: string
+              keySequenceNumber:
+                type: number
+              level:
+                type: string
+              levelCode:
+                type: string
+              majorFieldsOfStudy:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    department:
+                      type: string
+                    departmentCode:
+                      type: string
+                    learnerFieldStudy:
+                      type: string
+                    learnerFieldStudyCode:
+                      type: string
+                    major:
+                      type: string
+                    majorAttach:
+                      type: string
+                    majorAttachCode:
+                      type: string
+                    majorCode:
+                      type: string
+                    majorConcentrations:
+                      items:
+                        type: object
+              minorFieldsOfStudy:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    department:
+                      type: string
+                    departmentCode:
+                      type: string
+                    learnerFieldStudy:
+                      type: string
+                    learnerFieldStudyCode:
+                      type: string
+                    major:
+                      type: string
+                    majorAttach:
+                      type: string
+                    majorAttachCode:
+                      type: string
+                    majorCode:
+                      type: string
+                    majorConcentrations:
+                      type: array
+                      items:
+                        type: string
+              otherFieldsOfStudy:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    department:
+                      type: string
+                    departmentCode:
+                      type: string
+                    learnerFieldStudy:
+                      type: string
+                    learnerFieldStudyCode:
+                      type: string
+                    major:
+                      type: string
+                    majorAttach:
+                      type: string
+                    majorAttachCode:
+                      type: string
+                    majorCode:
+                      type: string
+                    majorConcentrations:
+                      items:
+                        type: object
+              program:
+                type: string
+              programCode:
+                type: string
+              studyPathDescription:
+                type: string
+              termAdmit:
+                type: string
+              termAdmitCode:
+                type: string
+              termCatalog:
+                type: string
+              termCatalogCode:
+                type: string
+              termMatriculate:
+                type: string
+              termMatriculateCode:
+                type: string
+              endDate:
+                type: string
+              startDate:
+                type: string
+              priorityNumber:
+                type: integer
+              sequenceNumber:
+                type: integer
+          status:
+            type: string
+          statusObject:
+            type: object
+            properties:
+              systemRequiredIndicator:
+                type: boolean
+              code:
+                type: string
+              curriculumStatus:
+                type: object
+                properties:
+                  _link:
+                    type: string
+              version:
+                type: number
+              registrationIndicator:
+                type: boolean
+              description:
+                type: string
+          studentObject:
+            type: object
+            properties:
+              castPreventReg:
+                type: string
+              id:
+                type: string
+              academicStanding:
+                type: string
+              apprenticeship:
+                type: string
+              basicSkill:
+                type: string
+              block:
+                type: string
+              careerPlanning:
+                type: string
+              collegeDual:
+                type: string
+              combinedAcademicStanding:
+                type: string
+              degreeDual:
+                type: string
+              departmentDual:
+                type: string
+              educationGoal:
+                type: string
+              educationLevel:
+                type: string
+              employmentExpectation:
+                type: string
+              expectedGradDate:
+                type: string
+                format: date
+              feeAssessmentRate:
+                type: string
+              fullPartIndicator:
+                type: string
+              gainStatus:
+                type: string
+              gradCreditApprIndicator:
+                type: string
+              incomeRange:
+                type: string
+              leaveFromDate:
+                type: string
+                format: date
+              leaveOfAbsence:
+                type: string
+              leaveToDate:
+                type: string
+                format: date
+              levelDual:
+                type: string
+              majorMinorConcentrationDual:
+                type: string
+              orientationSession:
+                type: string
+              practicalTraining:
+                type: string
+              progressEvaluation:
+                type: string
+              session:
+                type: string
+              site:
+                type: string
+              studentCentricPeriodCycleValidation:
+                type: string
+              termAcademicStanding:
+                type: string
+              termCast:
+                type: string
+              termProgressEvaluation:
+                type: string
+              transferCenter:
+                type: string
+              vocationalEducation:
+                type: string
+              studentStatus:
+                type: string
+              astdPreventReg:
+                type: string
+              residency:
+                type: string
+              version:
+                type: number
+              termGraduation:
+                type: string
+              termEffective:
+                type: string
+              studentType:
+                type: string
+              academicYear:
+                type: string
+              statusAllowReg:
+                type: string
+          term:
+            type: string
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer

@@ -1,0 +1,336 @@
+openapi: 3.0.0
+info:
+  title: aid-fund-details
+  description: >
+    <p>
+      Retrieves the Aid Fund Code Aid Year Details. The details are based on the KVAFNDC page.
+    </p>
+    
+    <p>
+      <strong>GET API</strong> – Retrieves the Aid Fund Code Aid Year Details based on the input parameters provided by the user.  
+       Data is sourced from the <strong>KVRFNDC</strong>  and <strong>KVRFNLM</strong>  tables.
+    </p>
+  version: 1.0.0
+  x-api-type: erp
+  x-source-title: Aid Fund Details (Student Aid)
+  x-source-name: KVRFNDC,KVRFNLM
+  x-release-status: ga
+  x-source-system: banner
+  x-source-domain: Financial Aid
+  x-audience: all
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/aid-fund-details:
+    get:
+      summary: Returns all the Aid Fund Code Aid Year Details. The details are based on the KVAFNDC page.
+      description: |
+        <p>Returns all the Aid Fund Code Aid Year Details.</p>
+      security:
+        - BasicAuth: []
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_AID_FUND_DETAIL
+      tags:
+        - aid-fund-details
+      parameters:
+        - name: Accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: If STP (MEP) is enabled, returns the MEP code the response body is
+                associated to
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a
+                partial representation is returned. Otherwise, this header is
+                not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                $ref: "#/components/schemas/aid-fund-details-1.0.0_response"
+        "400":
+          description: Bad Request
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+        "401":
+          description: Unauthorized
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+        "403":
+          description: Forbidden
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+        "404":
+          description: Resource not found
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+        "405":
+          description: Method Not Allowed
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+        "406":
+          description: Not Acceptable
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+        "500":
+          description: Server error, unexpected configuration or data
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/errors-2.0.0_response'
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    aid-fund-details-1.0.0_response:
+      title: GET Response
+      type: object
+      properties:
+        activityDate:
+          title: Activity Date
+          description: The most recent date this record was created or updated.
+          type: string
+          format: date
+          x-lineageReferenceObject: KVRFNDC_ACTIVITY_DATE
+        aidyCode:
+          title: Aid Year
+          description: The year in which the aid fund code specific data is being defined.
+          type: string
+          x-lineageReferenceObject: KVRFNDC_AIDY_CODE
+        fndcCode:
+          title: Aid Fund Code
+          description: The code that identifies the aid fund code for the aid year.
+          type: string
+          x-lineageReferenceObject: KVRFNDC_FNDC_CODE
+        description:
+          title: Description
+          description: Short description of the aid fund code in the aid year.
+          type: string
+          x-lineageReferenceObject: KVRFNDC_DESC
+        longDescription:
+          title: Long Description
+          description: Long description of the aid fund code for the aid year.
+          type: string
+          x-lineageReferenceObject: KVRFNDC_LONG_DESC
+        availableToOfferFactor:
+          title: Available To Offer Factor
+          description: It represents the percentage of the total allocated amount of money that will be used for generating offers.
+          type: number
+          format: double
+          x-lineageReferenceObject: KVRFNDC_AVAIL_OFFR_FACTOR
+        availableToOfferAmount:
+          title: Available To Offer Amount
+          description: This is the result of multiplying the available to offer factor.
+          type: number
+          format: double
+          x-lineageReferenceObject: KVRFNDC_AVAIL_OFFR_AMT
+        chartOfAccountsCode:
+          title: Chart Of Accounts Code
+          description: Finance Chart of Accounts Code where Fund amount is recorded.
+          type: string
+          x-lineageReferenceObject: KVRFNDC_COAS_CODE
+        fiscalYearCode:
+          title: Fiscal Year
+          description: TThe fiscal year to which the accounting transactions will be posted.
+          type: string
+          x-lineageReferenceObject: KVRFNDC_FSYR_CODE
+        financeFundCode:
+          title: Finance Fund Code
+          description: Finance Fund Code where Fund amount is recorded.
+          type: string
+          x-lineageReferenceObject: KVRFNDC_FUND_CODE
+        financeAccountCode:
+          title: Finance Account Code
+          description: Finance Account Code where Fund amount is recorded.
+          type: string
+          x-lineageReferenceObject: KVRFNDC_ACCT_CODE
+        financeOrganizationCode:
+          title: Finance Organization Code
+          description: The Finance Organization Code where Fund amount is recorded.
+          type: string
+          x-lineageReferenceObject: KVRFNDC_ORGN_CODE
+        financeProgramCode:
+          title: Finance Program Code
+          description: Finance Program Code where Fund amount is recorded.
+          type: string
+          x-lineageReferenceObject: KVRFNDC_PROG_CODE
+        financeActivityCode:
+          title: Finance Activity Code
+          description: Finance Activity Code where Fund amount is recorded.
+          type: string
+          x-lineageReferenceObject: KVRFNDC_ACTV_CODE
+        financeLocationCode:
+          title: Finance Location Code
+          description: Finance Location Code where Fund amount is recorded
+          type: string
+          x-lineageReferenceObject: KVRFNDC_LOCN_CODE
+        account:
+          title: Account
+          description: Finance Location Code where Fund amount is recorded.
+          type: string
+          x-lineageReferenceObject: KVRFNDC_ACCOUNT
+        spendingCapAmount:
+          title: Spending Cap Amount
+          description: The maximum amount that can be spent from this aid fund code.
+          type: number
+          format: double
+          x-lineageReferenceObject: KVRFNDC_SPENDING_CAP_AMT
+        contractPidm:
+          title: Contract Pidm
+          description: The person or non-person that is liable for the contract to which this aid fund code will be attached by default to this aid year.
+          type: integer
+          x-lineageReferenceObject: KVRFNDC_CONTRACT_PIDM
+        contractNumber:
+          title: Contract Number
+          description: The default contract number associated with the third party for all the terms of this aid year.
+          type: integer
+          x-lineageReferenceObject: KVRFNDC_CONTRACT_NUMBER
+        dataOrigin:
+          title: Data Origin
+          description: The latest source for the data contained in this record.
+          type: string
+          x-lineageReferenceObject: KVRFNDC_DATA_ORIGIN
+        createdUserId:
+          title: Created User Id
+          description: The logon ID of the user who created this record.
+          type: string
+          x-lineageReferenceObject: KVRFNDC_CREATE_USER_ID
+        createdDate:
+          title: Created Date
+          description: The date this record was created.
+          type: string
+          format: date
+          x-lineageReferenceObject: KVRFNDC_CREATE_DATE
+        userId:
+          title: User Id
+          description: The logon ID of the user who created or last updated this record.
+          type: string
+          x-lineageReferenceObject: KVRFNDC_USER_ID
+        awardAmount:
+          title: Award Amount
+          description: The denomination of the Award.
+          type: number
+          format: double
+          x-lineageReferenceObject: KVRFNLM_AWARD_AMT
+        maximumNumber:
+          title: Maximum Number
+          description: The maximum number of awards allowed for the amount.
+          type: integer
+          x-lineageReferenceObject: KVRFNLM_MAX_NUM
+    errors-2.0.0_response:
+      title: Error Response
+      description: Object containing errors list.
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            required:
+              - message
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for the primary
+                  data entity used to create the resource. This is useful for
+                  referencing the source item through the applications
+                  administrative user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: The detailed actionable error message.

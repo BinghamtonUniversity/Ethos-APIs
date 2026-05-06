@@ -1,0 +1,1016 @@
+openapi: 3.0.0
+info:
+  title: Student Work Study Pay Adjustments
+  description:  >
+  
+    The Student Work Study Pay Adjustments API is used to retrieve and maintain non-disburseable 
+    student work pay adjustments as seen on the Banner administrative page RJASEME.  The API inserts records into the Student Employment 
+    Work History Table (RJRSEWH) and triggers updates to: RPRAWRD, RPRATRM and RFRASPC.
+
+
+    The API can only be used for non-disbursable funds (RFRASPC_DISBURSE_IND = N) 
+    and WORK type funds (RFRBASE Fund Types where RTVFTYP_ATYP_IND = W).
+
+
+    This API differs from federal-award-paid-totals as it does not allow the total of all funds
+    throughout the year to be updated.  Instead, this API supports single pay period adjustments.
+
+  version: 1.0.0-beta
+  x-api-type: erp
+  x-release-status: beta
+  x-source-system: banner
+  x-audience: all
+  x-source-domain: Financial Aid 
+  x-source-name: RJRSEWH, RJRSEAR, RFRBASE, RFRASPC, RPRAWRD, RPRATRM
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: '{server_url}'
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/student-work-study-pay-adjustments:
+    get:
+      tags:
+        - student-work-study-pay-adjustments
+      summary: Returns resources from RJRSEWH.
+      description: Returns student work study pay adjustments from RJRSEWH for a specified Aid Year.  
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ``` 
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: |
+            The maximum number of resources requesting for this result set.
+            The default limit is 500 and the maximum limit is 1000.
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: The 0 based index for a collection of resources for the page requested.
+          required: false
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Aid Year (minimum criteria)
+
+            Returns all records for the Aid Year passed.
+
+            ```
+
+            /student-work-study-pay-adjustments?criteria={"aidYear":"2224"}
+
+            ```
+
+            ### Aid Year and Banner Id
+
+            Returns all records for the Aid Year and Banner ID passed.
+
+            ```
+
+            /student-work-study-pay-adjustments?criteria={"aidYear":"2224","bannerId":"231387509"}
+
+            ```
+
+            ### Aid Year and Pay Period End Date
+
+            Returns all records for the Aid Year and Pay Period End Date passed.
+
+            ```
+
+            /student-work-study-pay-adjustments?criteria={"aidYear":"2224","payEndOn":"2024-09-01"}
+
+            ```
+
+            ### Aid Year and Award Period
+
+            Returns all records for the Aid Year and Award Period passed.
+
+            ```
+
+            /student-work-study-pay-adjustments?criteria={"aidYear":"2224","awardPeriod":"202410"}
+
+            ```
+            
+
+
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/student-work-study-pay-adjustments-1.0.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+          BasicAuth: []
+      x-method-permissions: API_STUD_WORK_STUDY_PAY_ADJ
+    post:
+      tags:
+        - student-work-study-pay-adjustments
+      summary: Creates a new resource on RJRSEWH. 
+      description: >
+        Creates a new student pay record on RJRSEWH using one of two pay adjustment types. 
+      
+
+        The first pay adjustment option will use the hours worked and pay rate to calculate the total amount. 
+        The second option will use the total amount divided by the pay rate to calculate the hours worked.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: '#/components/schemas/student-work-study-pay-adjustments-1.0.0_post_request'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/student-work-study-pay-adjustments-1.0.0_response'
+        '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '401':
+          description: Failure. Unauthorized.
+        '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+        '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '406':
+          description: Failure. Not Acceptable. Unable to generate any of the client’s preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+        '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+          BasicAuth: []          
+      x-method-permissions: API_STUD_WORK_STUDY_PAY_ADJ     
+  /api/student-work-study-pay-adjustments/{id}:
+    get:
+      summary: Returns the requested resource from RJRSEWH.
+      description: |
+        Returns a single student employment pay transaction with the requested identifier from RJRSEWH.
+      tags:
+        - student-work-study-pay-adjustments
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: guid
+            minimum: 1
+      responses:
+       '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/student-work-study-pay-adjustments-1.0.0_response"
+       '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '401':
+          description: Failure. Unauthorized.
+       '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+       '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '406':
+          description: Failure. Not Acceptable. Unable to generate any of the clients preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+      - EthosIntegrationBearer: []
+      - BasicAuth: []
+      x-method-permissions: API_STUD_WORK_STUDY_PAY_ADJ
+  /api/student-work-study-pay-adjustments/batches:
+    post:
+      summary: Posts a batch of resources to RJRSEWH.
+      description: >-
+        Submits a batch of student work study pay adjustment details to be posted to RJRSEWH.
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/student-work-study-pay-adjustments-batch-1.0.0_post_request'
+      tags:
+        - student-work-study-pay-adjustments
+      parameters:
+        - deprecated: false
+          name: accept
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+          in: header
+          required: true
+        - deprecated: false
+          name: content type
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+          in: header
+          required: true
+      responses:
+       '200':
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/student-work-study-pay-adjustments-1.0.0_response"
+       '400':
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '401':
+          description: Failure. Unauthorized.
+       '403':
+          description: Failure. Forbidden. The user does not have the required permissions for the resource.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '404':
+          description: Failure. Not Found. Cannot map the URI to a resource.
+       '405':
+          description: Failure. Method Not Allowed. The client tried to use an HTTP method that the resource does not allow.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '406':
+          description: Failure. Not Acceptable. Unable to generate any of the clients preferred media types, as indicated by the Accept request header.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+       '500':
+          description: Server error. Unexpected configuration or data.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_2_0_0'
+      security:
+        - EthosIntegrationBearer: []
+        - BasicAuth: []
+      x-method-permissions: API_STUD_WORK_STUDY_PAY_ADJ                
+components:
+  schemas:
+    student-work-study-pay-adjustments-1.0.0_post_request:
+      properties:
+        aidYear:
+          title: Aid Year
+          maxLength: 4
+          type:  string
+          example: 2324
+          description: The Aid Year associated with the pay record.
+          x-lineageReferenceObject:  RJRSEWH_AIDY_CODE
+          x-lineageLookupReferenceObject: ROIAIDY   
+        payEndOn:
+          title: Pay Period End Date
+          maxLength: 10
+          type: string
+          format: date
+          pattern: "^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$"
+          example: "2024-05-01"
+          description: The date the pay period ended.
+        awardPeriod:
+          title: Award Period
+          maxLength: 15
+          type: string
+          example: 202410
+          description: The period associated with the student employment work history.
+          x-lineageReferenceObject: RJRSEWH_PERIOD 
+          x-lineageLookupReferenceObject: ROIPRDS    
+        placement:
+          title: Placement Code
+          maxLength: 6
+          type: string
+          example: FINAID
+          description: The placement location or department associated with the student work assignment. 
+            Will default from the student employment authorization if not specified.
+          x-lineageReferenceObject: RJRSEAR_PLACE_CDE 
+          x-lineageLookupReferenceObject: RJBPLBD            
+        bannerId:
+          title:  Banner ID
+          maxLength: 9
+          type:  string
+          description:  The Banner ID of the student employee.
+          x-lineageReferenceObject:  SPRIDEN_ID
+          example: A02444709 
+        jobPosition:
+          title:  Job Position
+          maxLength:  6
+          type:  string
+          example: 000492
+          description: The position associated with the earnings for the student work assignment.
+          x-lineageReferenceObject:  RJRSEWH_POSN
+          x-lineageLookupReferenceObject: RJRSEAR_POSN
+        jobSuffix:
+          title:  Job Suffix
+          maxLength: 2
+          type:  string
+          example: 01
+          description: The suffix associated with the position. Will default from the student employment authorization if not specified.
+          x-lineageReferenceObject:  RJRSEWH_SUFF
+          x-lineageLookupReferenceObject: RJRSEAR_SUFF          
+        adjustment:
+          title: Pay Adjustment
+          description: Pay Adjustment for a student employee.
+          oneOf:
+            - title: Hourly Pay Adjustment
+              description:  For students whose Job Title is Hourly (RJBJOBT_HRLY_PAY_IND = Y), provide Hours Worked or 
+                Transaction Amount. Hours Worked will be multiplied by the Pay Rate to calculate the Transaction 
+                Amount. Transaction Amount will be divide by the Pay Rate to calculate the Hours Worked. Pay rate 
+                defined on the student employment authorization is used for this calculation.
+              type: object
+              required: 
+              - transactionAmount
+              properties:
+                transactionAmount:
+                  title:  Transaction Amount
+                  maxLength:  11
+                  type:  number
+                  multipleOf: 0.01
+                  example: 2000.42
+                  description:  Amount of the earnings.
+                  x-lineageReferenceObject:  RJRSEWH_AMT  
+            - title: Hourly Pay Adjustment
+              description:  For students whose Job Title is Hourly (RJBJOBT_HRLY_PAY_IND = Y), provide Hours Worked or 
+                Transaction Amount. Hours Worked will be multiplied by the Pay Rate to calculate the Transaction 
+                Amount. Transaction Amount will be divide by the Pay Rate to calculate the Hours Worked. Pay rate 
+                defined on the student employment authorization is used for this calculation.
+              type: object
+              required: 
+              - hoursWorked
+              properties:
+                hoursWorked:
+                  title:  Hours Worked
+                  maxLength:  6
+                  type:  number
+                  example: 40
+                  description:  Hours the student worked.
+                  x-lineageReferenceObject:  RJRSWH_HRS
+            - title: Non-Hourly Pay Adjustment
+              description:  For students whose Job Title is Non-Hourly (RJBJOBT_HRLY_PAY_IND = N), provide
+                the Transaction Amount. 
+              type: object
+              required:
+              - transactionAmount
+              properties:     
+                transactionAmount:
+                  title:  Transaction Amount
+                  maxLength:  11
+                  type:  number
+                  multipleOf: 0.01
+                  example: 100
+                  description:  Amount of the earnings.
+                  x-lineageReferenceObject:  RJRSEWH_AMT     
+                hoursWorked:
+                  title:  Hours Worked
+                  maxLength:  6
+                  type:  number
+                  example: 40
+                  description:  Hours the student worked.
+                  x-lineageReferenceObject:  RJRSWH_HRS                  
+      required:
+        - aidYear
+        - awardPeriod
+        - payEndOn
+        - adjustment   
+        - bannerId     
+        - jobPosition  
+    student-work-study-pay-adjustments-1.0.0_response:
+      type: object
+      required: 
+        - id
+        - aidYear
+        - awardPeriod
+        - payEndOn   
+        - bannerId     
+        - jobPosition 
+        - transactionAmount
+      properties:
+        id:
+          title: Id
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$          
+          maxLength: 36
+          description: "The global identifier of the work study pay adjustment."
+          x-lineageReferenceObject: RJRSEWH_GUID
+          example: 49eqfc68-3t89-4036-852c-341aa9d8501a      
+        aidYear:
+          title: Aid Year
+          maxLength: 4
+          type:  string
+          example: 2324
+          description: The Aid Year associated with the pay record.
+          x-lineageReferenceObject:  RJRSEWH_AIDY_CODE
+          x-lineageLookupReferenceObject: ROIAIDY   
+        bannerId:
+          title:  Banner ID
+          maxLength: 9
+          type:  string
+          description:  The Banner ID of the student employee.
+          x-lineageReferenceObject:  SPRIDEN_ID
+          example: A02444709 
+        jobPosition:
+          title:  Job Position
+          maxLength:  6
+          type:  string
+          example: 000492
+          description: The position associated with the earnings for the student work assignment.
+          x-lineageReferenceObject:  RJRSEWH_POSN
+          x-lineageLookupReferenceObject: RJRSEAR_POSN
+        jobSuffix:
+          title:  Job Suffix
+          maxLength: 2
+          type:  string
+          example: 01
+          description: The suffix associated with the position. 
+          x-lineageReferenceObject:  RJRSEWH_SUFF
+          x-lineageLookupReferenceObject: RJRSEAR_SUFF
+        placement:
+          title: Placement Code
+          maxLength: 6
+          type: string
+          example: FINAID
+          description: The placement location or department associated with the student work assignment.
+          x-lineageReferenceObject: RJRSEAR_PLACE_CDE 
+          x-lineageLookupReferenceObject: RJBPLBD      
+        placementDescription:
+          title: Placement Code Description
+          maxLength: 30
+          type: string
+          example: Financial Aid Office
+          description: Description of the placement code. 
+          x-lineageReferenceObject: RJBPLBD_PLACE_DESC               
+        payEndOn:
+          title: Pay Period End Date
+          maxLength: 10
+          type: string
+          format: date
+          pattern: "^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$"
+          example: "2024-05-01"
+          description: The date the pay period ended.
+        awardPeriod:
+          title: Award Period
+          maxLength: 15
+          type: string
+          example: 202410
+          description: The period associated with the student employment work history.
+          x-lineageReferenceObject: RJRSEWH_PERIOD 
+          x-lineageLookupReferenceObject: ROIPRDS          
+        hoursWorked:
+          title:  Hours Worked
+          maxLength:  6
+          type:  number
+          example: 40
+          description:  Hours the student worked.
+          x-lineageReferenceObject:  RJRSWH_HRS
+        payRate:
+          title:  Pay Rate
+          maxLength:  11
+          type:  number
+          multipleOf: 0.000001          
+          example: 11.06
+          description:  Rate of pay associated with the earnings.
+          x-lineageReferenceObject:  RJRSEWH_RATE
+          x-lineageLookupReferenceObject: RJRSEAR_PAY_RATE
+        transactionAmount:
+          title:  Transaction Amount
+          maxLength:  11
+          type:  number
+          multipleOf: 0.01          
+          example: 2000.42
+          description:  Amount of the earnings.
+          x-lineageReferenceObject:  RJRSEWH_AMT      
+    student-work-study-pay-adjustments-batch-1.0.0_post_request:
+      type: object
+      properties:
+        items:
+          title: items
+          description: List of items to be processed.
+          type: array
+          items:
+            type: object
+            $ref: "#/components/schemas/student-work-study-pay-adjustments-batch-1.0.0_post_items"
+      required:
+        - items    
+    student-work-study-pay-adjustments-batch-1.0.0_post_items:
+      type: object
+      properties:
+        aidYear:
+          title: Aid Year
+          maxLength: 4
+          type:  string
+          example: 2324
+          description: The Aid Year associated with the pay record.
+          x-lineageReferenceObject:  RJRSEWH_AIDY_CODE
+          x-lineageLookupReferenceObject: ROIAIDY   
+        payEndOn:
+          title: Pay Period End Date
+          maxLength: 10
+          type: string
+          format: date
+          pattern: "^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$"
+          example: "2024-05-01"
+          description: The date the pay period ended.
+        awardPeriod:
+          title: Award Period
+          maxLength: 15
+          type: string
+          example: 202410
+          description: The period associated with the student employment work history.
+          x-lineageReferenceObject: RJRSEWH_PERIOD 
+          x-lineageLookupReferenceObject: ROIPRDS     
+        placement:
+          title: Placement Code
+          maxLength: 6
+          type: string
+          example: FINAID
+          description: The placement location or department associated with the student work assignment. Will default from the student employment authorization if not specified.
+          x-lineageReferenceObject: RJRSEAR_PLACE_CDE 
+          x-lineageLookupReferenceObject: RJBPLBD                
+        bannerId:
+          title:  Banner ID
+          maxLength: 9
+          type:  string
+          description:  The Banner ID of the student employee.
+          x-lineageReferenceObject:  SPRIDEN_ID
+          example: A02444709 
+        jobPosition:
+          title:  Job Position
+          maxLength:  6
+          type:  string
+          example: 000492
+          description: The position associated with the earnings for the student work assignment.
+          x-lineageReferenceObject:  RJRSEWH_POSN
+          x-lineageLookupReferenceObject: RJRSEAR_POSN
+        jobSuffix:
+          title:  Job Suffix
+          maxLength: 2
+          type:  string
+          example: 01
+          description: The suffix associated with the position. Will default from the student employment authorization if not specified.
+          x-lineageReferenceObject:  RJRSEWH_SUFF
+          x-lineageLookupReferenceObject: RJRSEAR_SUFF              
+        adjustment:
+          title: Pay Adjustment
+          description: Pay Adjustment for a student employee.
+          oneOf:
+            - title: Hourly Pay Adjustment
+              description:  For students whose Job Title is Hourly (RJBJOBT_HRLY_PAY_IND = Y), provide Hours Worked or 
+                Transaction Amount. Hours Worked will be multiplied by the Pay Rate to calculate the Transaction 
+                Amount. Transaction Amount will be divide by the Pay Rate to calculate the Hours Worked. Pay rate 
+                defined on the student employment authorization is used for this calculation.
+              type: object
+              required: 
+              - transactionAmount
+              properties:
+                transactionAmount:
+                  title:  Transaction Amount
+                  maxLength:  11
+                  type:  number
+                  multipleOf: 0.01
+                  example: 2000.42
+                  description:  Amount of the earnings.
+                  x-lineageReferenceObject:  RJRSEWH_AMT  
+            - title: Hourly Pay Adjustment
+              description:  For students whose Job Title is Hourly (RJBJOBT_HRLY_PAY_IND = Y), provide Hours Worked or 
+                Transaction Amount. Hours Worked will be multiplied by the Pay Rate to calculate the Transaction 
+                Amount. Transaction Amount will be divide by the Pay Rate to calculate the Hours Worked. Pay rate 
+                defined on the student employment authorization is used for this calculation.
+              type: object
+              required: 
+              - hoursWorked
+              properties:
+                hoursWorked:
+                  title:  Hours Worked
+                  maxLength:  6
+                  type:  number
+                  example: 40
+                  description:  Hours the student worked.
+                  x-lineageReferenceObject:  RJRSWH_HRS
+            - title: Non-Hourly Pay Adjustment
+              description:  For students whose Job Title is Non-Hourly (RJBJOBT_HRLY_PAY_IND = N), provide
+                the Transaction Amount. 
+              type: object
+              required:
+              - transactionAmount
+              properties:     
+                transactionAmount:
+                  title:  Transaction Amount
+                  maxLength:  11
+                  type:  number
+                  multipleOf: 0.01
+                  example: 100
+                  description:  Amount of the earnings.
+                  x-lineageReferenceObject:  RJRSEWH_AMT     
+                hoursWorked:
+                  title:  Hours Worked
+                  maxLength:  6
+                  type:  number
+                  example: 40
+                  description:  Hours the student worked.
+                  x-lineageReferenceObject:  RJRSWH_HRS 
+      required:
+        - aidYear
+        - awardPeriod
+        - payEndOn
+        - adjustment   
+        - bannerId     
+        - jobPosition  
+    student-work-study-pay-adjustments-batch-1.0.0_post_response:
+      description: >-
+        Returns the list of Ids for those sections successfully created. For those that did not, 
+        it returns the list of error messages. 
+      type: object
+      properties:
+        id:
+          title: ID
+          description: A globally unique identifier of a batch to be used in all external
+            references.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+        status:
+          title: status
+          description: status of the batch.
+          type: string
+          enum:
+            - completed
+            - inProgress
+            - aborted
+        resource:
+          title: Resource
+          description: The affected resource.
+          type: object
+          properties:
+            name:
+              title: Resource Name
+              description: The pluralized name of the affected resource
+              type: string
+            version:
+              title: Resource version
+              description: The version of the resource
+              type: string
+          additionalProperties: false
+          required:
+            - name
+            - version
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+            oneOf:
+              - type: object
+                $ref: "#/components/schemas/student-work-study-pay-adjustments-1.0.0_response"
+              - type: object
+                $ref: "#/components/schemas/errors_2_0_0"
+          required:
+            - items
+    errors_2_0_0:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The global identifier of the resource in error.
+                sourceId:
+                  type: string
+                  description: The source applications data reference identifier for the primary data entity used to create the resource. This is useful for referencing the source item through the applications administrative user interface.
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  securitySchemes:
+      EthosIntegrationBearer:
+        type: http
+        scheme: bearer
+      BasicAuth:
+        type: http
+        scheme: basic

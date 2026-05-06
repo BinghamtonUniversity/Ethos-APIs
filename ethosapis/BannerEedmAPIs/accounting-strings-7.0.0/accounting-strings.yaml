@@ -1,0 +1,181 @@
+openapi: 3.0.0
+info:
+  title: Accounting Strings
+  description: Accounting strings that are valid for use with the finance system.
+    This API validates an accounting string for a given date.
+  version: "7.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Finance
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/accounting-strings:
+    get:
+      summary: Validates an accounting string for a given date.
+      description: >
+        This version of the resource uses a legacy filter format and cannot be
+        displayed as a parameter.  Please refer to the API source documentation
+        for more information.
+
+
+        ### accountingString filter is required in the URL for the GET request to work
+
+        ```
+          /api/account-funds-available?accountingString={accountingString}
+        ```
+
+
+        NOTE 
+
+          - If validOn date is sent in filter criteria, the API validates accounting string components according to the date sent in request.  
+          - If validOn date is not sent in filter criteria, the API validates accounting string components according to current system date.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_ACCOUNTING_STRINGS
+      tags:
+        - accounting-strings
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v7+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: accountSpecification
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### accountingString  
+
+            Filter on accountingString is mandatory for the API to return a response.
+
+            ```
+              /api/accounting-strings?accountingString=^|B^|LRACC2^|^|126^|5900^|23^|100^|01^|AMRTEST1^|DAXC^|01^|
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-accounting-strings.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v7+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-accounting-strings.json:
+      title: Accounting Strings
+      description: Accounting strings that are valid for use with the finance system.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        accountingString:
+          title: Accounting String
+          description: The full representation of the accounting string in the format
+            specified by the authoritative system.
+          type: string
+          minLength: 1
+          x-lineageReferenceObject: derived
+          x-lineageDerivedLogic: This API validates an accounting string for a given date. If date is not sent in the GET URL, system date is considered. 
+            An accounting string is a delimited combination of components such as Chart, Index, Fund, Organization, Account, Program, Activity, Location, Rule class, Bank code. 
+            The GET URL expects an accountingString to be sent for the API to return a response. If the accounting string sent is valid, then API returns back the accounting-string JSON in the response. 
+            If the accounting string validation fails, the API returns appropriate error message.
+        description:
+          title: Description
+          description: The description of the accounting-string.
+          type: string
+          x-lineageReferenceObject: unsupported
+      required:
+        - accountingString
+      additionalProperties: false

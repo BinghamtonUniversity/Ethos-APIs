@@ -1,0 +1,260 @@
+openapi: 3.0.0
+info:
+  title: class-schedules
+  description: |
+    Retrieves the list of the class schedules information of the student.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Student
+  x-source-title: Class Schedules
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: class-schedules
+paths:
+  /api/students/{bannerId}/class-schedules:
+    get:
+      description: >
+        Exception will be thrown for deceased student.
+
+          In the response header, X-hedtech-totalCount will show total number of student’s active courses registered.
+
+        If term is not passed from the URL parameter, response body will return
+        active registrations for all terms.
+
+          If term is passed, the fields “totalCue”, totalCredit” and “totalBill” retrieves appropriate values else they always return “0”.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_CLASS_SCHEDULES, API_STUDENTS
+      tags:
+        - class-schedules
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          schema:
+            type: string
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+              application/vnd.hedtech.integration.v1.0.0+json
+            ```
+        - name: bannerId
+          in: path
+          required: true
+          schema:
+            type: string
+          example: HOSH293
+          description: The identification number used to access a person
+        - name: term
+          in: query
+          required: false
+          schema:
+            type: string
+          example: "102896"
+          description: Code value to identify the term
+      responses:
+        "200":
+          description: Success
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/class-schedules"
+            application/vnd.hedtech.integration.v1.0.0+xml:
+              schema:
+                type: object
+                $ref: "#/components/schemas/class-schedules"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    class-schedules:
+      type: array
+      items:
+        type: object
+        properties:
+          studentCourseRegistrations:
+            type: array
+            items:
+              type: object
+              properties:
+                academicYear:
+                  type: string
+                academicYearDescription:
+                  type: string
+                completionDate:
+                  type: string
+                  format: date
+                courseNumber:
+                  type: string
+                courseReferenceNumber:
+                  type: string
+                courseRegistrationStatus:
+                  type: object
+                  properties:
+                    code:
+                      type: string
+                    description:
+                      type: string
+                courseTitle:
+                  type: string
+                creditHour:
+                  type: number
+                gradingMode:
+                  type: string
+                gradingModeDescription:
+                  type: string
+                instructionalMethod:
+                  type: string
+                instructionalMethodDescription:
+                  type: string
+                level:
+                  type: object
+                  properties:
+                    ceuInd:
+                      type: boolean
+                partOfTerm:
+                  type: string
+                partOfTermDescription:
+                  type: string
+                scheduleDescription:
+                  type: string
+                scheduleType:
+                  type: string
+                sequenceNumber:
+                  type: string
+                startDate:
+                  type: string
+                  format: date
+                subject:
+                  type: string
+                subjectDescription:
+                  type: string
+                term:
+                  type: string
+                termDescription:
+                  type: string
+                faculty:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      bannerId:
+                        type: string
+                      category:
+                        type: string
+                      courseReferenceNumber:
+                        type: string
+                      displayName:
+                        type: string
+                      emailAddress:
+                        type: string
+                      primaryIndicator:
+                        type: boolean
+                      term:
+                        type: string
+                meetingTimes:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      beginTime:
+                        type: string
+                      building:
+                        type: string
+                      buildingDescription:
+                        type: string
+                      campus:
+                        type: string
+                      campusDescription:
+                        type: string
+                      category:
+                        type: string
+                      courseReferenceNumber:
+                        type: string
+                      creditHourSession:
+                        type: number
+                        format: double
+                      endDate:
+                        type: string
+                        format: date
+                      endTime:
+                        type: string
+                        format: date
+                      hoursWeek:
+                        type: number
+                        format: double
+                      meetingScheduleType:
+                        type: string
+                      meetingType:
+                        type: string
+                      meetingTypeDescription:
+                        type: string
+                      room:
+                        type: string
+                      startDate:
+                        type: string
+                        format: date
+                      monday:
+                        type: boolean
+                      tuesday:
+                        type: boolean
+                      wednesday:
+                        type: boolean
+                      thursday:
+                        type: boolean
+                      friday:
+                        type: boolean
+                      saturday:
+                        type: boolean
+                      sunday:
+                        type: boolean
+          totalBill:
+            type: number
+            format: int64
+          totalCeu:
+            type: number
+            format: int64
+          totalCredit:
+            type: number
+            format: int64

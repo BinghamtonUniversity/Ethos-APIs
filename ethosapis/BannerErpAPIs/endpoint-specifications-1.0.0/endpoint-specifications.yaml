@@ -1,0 +1,208 @@
+openapi: 3.0.1
+
+info:
+  title: Endpoint Specifications
+  description: >
+    The endpoint-specification API is an alternate representation of the api-specifications v1.0.0 API.
+    The endpoint specification defines the HTTP URL structure, paths, supported HTTP methods, and 
+    versioning details for a custom API. It uses the OpenAPI (Swagger) format as the interchange 
+    format, which drives both API endpoint definition and documentation.
+    
+    A successful PUT updates the GURASPC_ENDPOINT_SPEC column in the Banner GURASPC table.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Foundation
+
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+
+paths:
+  /IntegrationApi/api/api-specifications/{id}:
+    put:
+      summary: Update Endpoint Specification for Custom API
+      x-method-permissions: API_SPECIFICATIONS
+      tags:
+        - api-specifications
+      description: >
+        Upload or update the Endpoint Specification for a custom API.
+
+        The endpoint specification:
+        - Defines the URL path of the API  
+        - Describes supported HTTP methods (GET, POST, etc.)  
+        - Specifies parameters, responses, and headers  
+        - Is stored in GURASPC_ENDPOINT_SPEC  
+
+        Media types for request and response:
+        - Accept: application/vnd.hedtech.integration.endpoint-specifications.v1+json
+        - Content-Type: application/vnd.hedtech.integration.endpoint-specifications.v1+json
+
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: UUID of the API specification record in GURASPC.
+          schema:
+            type: string
+            format: uuid
+
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.endpoint-specifications.v1+json:
+            schema:
+              $ref: "#/components/schemas/endpointSpecification"
+            example:
+              openapi: "3.0.1"
+              info:
+                title: "x-cipc-codes"
+                version: "1.0.0"
+                x-api-type: "other"
+                x-release-status: "ga"
+                x-source-domain: "Foundation"
+                x-source-system: "banner"
+                description: "A specification driven version of x-cipc-codes"
+                x-hedtech-integration-resource: "x-cipc-codes"
+              servers:
+                - url: "https://integrate.elluciancloud.com/api"
+                  description: "Ellucian Ethos Integration API"
+              paths:
+                /x-cipc-codes:
+                  get:
+                    summary: "Returns resources from STVCIPC"
+                    description: "Returns a paged listing of all CIP codes from STVCIPC"
+                    parameters:
+                      - name: limit
+                        in: query
+                        required: false
+                        description: "Max number of resources; default 500; max 1000."
+                        schema:
+                          type: integer
+                      - name: offset
+                        in: query
+                        required: false
+                        description: "Zero-based index for paging."
+                        schema:
+                          type: integer
+                      - name: criteria
+                        in: query
+                        required: false
+                        description: |
+                          ### Title Filter  
+                          Returns CIP codes for the title sent in request.
+                          ```
+                          /x-cipc-codes?criteria={"title":"$value"}
+                          ```
+                        schema:
+                          type: object
+                    responses:
+                      "200":
+                        description: "Return all resources"
+                        headers:
+                          X-Media-Type:
+                            description: "The Ethos Media Type"
+                            schema:
+                              type: string
+                          X-Total-Count:
+                            description: "Total number of resources matching the query."
+                            schema:
+                              type: integer
+
+                /x-cipc-codes/{id}:
+                  get:
+                    parameters:
+                      - name: id
+                        in: path
+                        required: true
+                        description: "The GUID"
+                        schema:
+                          type: string
+                          format: GUID
+                          minimum: 1
+                    responses:
+                      "200":
+                        description: "Return one resource"
+                        headers:
+                          X-Media-Type:
+                            description: "The Ethos Media Type"
+                            schema:
+                              type: string
+
+      responses:
+        "200":
+          description: Endpoint specification updated successfully.
+          content:
+            application/vnd.hedtech.integration.endpoint-specifications.v1+json:
+              schema:
+                $ref: "#/components/schemas/endpointSpecification"
+              example:
+                openapi: "3.0.1"
+                info:
+                  title: "x-cipc-codes"
+                  version: "1.0.0"
+                  x-api-type: "other"
+                  x-release-status: "ga"
+                  x-source-domain: "Foundation"
+                  x-source-system: "banner"
+                  description: "A specification driven version of x-cipc-codes"
+                  x-hedtech-integration-resource: "x-cipc-codes"
+                servers:
+                  - url: "https://integrate.elluciancloud.com/api"
+                paths:
+                  /x-cipc-codes:
+                    get:
+                      summary: "Returns resources from STVCIPC"
+                      responses:
+                        "200":
+                          description: "Return all resources"
+
+        "400":
+          description: Invalid endpoint specification format.
+
+        "404":
+          description: api-specification ID not found.
+
+        "500":
+          description: Server error during endpoint spec processing.
+
+components:
+  schemas:
+
+    endpointSpecification:
+      type: object
+      description: >
+        The endpoint specification defines the API paths, HTTP methods, parameters,
+        and responses using the standard OpenAPI 3.0.1 structure.
+        Stored in GURASPC_ENDPOINT_SPEC.
+      properties:
+        openapi:
+          type: string
+          description: OpenAPI version (always "3.0.1").
+        info:
+          type: object
+          description: Metadata describing the custom API.
+          additionalProperties: true
+        servers:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        paths:
+          type: object
+          description: >
+            Map of URL paths to operations; includes GET ALL and GET by ID for custom APIs.
+          additionalProperties: true

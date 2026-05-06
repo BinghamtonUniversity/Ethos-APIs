@@ -1,0 +1,275 @@
+openapi: 3.0.0
+info:
+  title: advisee-grades
+  description: >
+    Retrieves the list of all the advisees for an advisor and their grade
+    information for the courses registered for the term passed.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Student
+  x-source-title: Advisee Grades
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/advisors/{id}/advisee-grades:
+    get:
+      description: >
+        Retrieves the list of all the advisees for an advisor and their grade
+        information for the courses registered for the term passed.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_ADVISEE_GRADES
+      tags:
+        - advisee-grades
+      parameters:
+        - name: term
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "202014"
+        - name: id
+          in: path
+          required: true
+          description: |
+            
+            ```
+            /api/advisors/219382716/advisee-grades?term=202014
+            ```
+          schema:
+            type: string
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+
+            ``` application/vnd.hedtech.integration.v1.0.0+json
+             ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/advisee-grades"
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/advisee-grades"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/advisors/{advisor_id}/advisees-grades/{advisee_id}:
+    get:
+      description: >
+        Retrieves the grade information of a specified advisee of an advisor for
+        the term passed.
+      security:
+        - EthosIntegrationBearer: []
+      tags:
+        - advisee-grades
+      parameters:
+        - name: term
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "202014"
+        - name: advisor_id
+          in: path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+        - name: advisee_id
+          in: path
+          required: true
+          description: |
+            
+            ```
+            /api/advisors/710000028/advisees?term=202014
+            ```
+          schema:
+            type: string
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version.  ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/gradeObject"
+            application/xml:
+              schema:
+                type: object
+                $ref: "#/components/schemas/gradeObject"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    advisee-grades:
+      type: array
+      items:
+        type: object
+        properties:
+          advisorType:
+            type: string
+          primaryIndicator:
+            type: string
+          bannerId:
+            type: string
+          confidential:
+            type: string
+          firstName:
+            type: string
+          lastName:
+            type: string
+          surnamePrefix:
+            type: string
+          middleInitial:
+            type: string
+          deceased:
+            type: string
+          courseGradeList:
+            type: array
+            items:
+              type: object
+              properties:
+                courseNumber:
+                  type: string
+                creditHour:
+                  type: integer
+                crn:
+                  type: string
+                gradeFinal:
+                  type: string
+                gradeInAcadHistory:
+                  type: string
+                gradeMidterm:
+                  type: string
+                gradeRolled:
+                  type: string
+                level:
+                  type: string
+                registrationStatus:
+                  type: string
+                subject:
+                  type: string
+    gradeObject:
+      type: object
+      properties:
+        advisorType:
+          type: string
+        primaryIndicator:
+          type: string
+        bannerId:
+          type: string
+        confidential:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        surnamePrefix:
+          type: string
+        middleInitial:
+          type: string
+        deceased:
+          type: string
+        courseGradeList:
+          type: array
+          items:
+            type: object
+            properties:
+              courseNumber:
+                type: string
+              creditHour:
+                type: integer
+              crn:
+                type: string
+              gradeFinal:
+                type: string
+              gradeInAcadHistory:
+                type: string
+              gradeMidterm:
+                type: string
+              gradeRolled:
+                type: string
+              level:
+                type: string
+              registrationStatus:
+                type: string
+              subject:
+                type: string

@@ -1,0 +1,493 @@
+openapi: 3.0.0
+info:
+  title: registration-register
+  description: >
+    The register for class with add  and drop-actions is the final step of the
+    registration flow and completes a student's registration.
+
+      The process will initialize the student's registration and check the student and term eligibility for registration. If the student and term are eligible the process adds the requested classes to the student's summary and updates any drop or update actions to the selected value fields. The process next executes the full Banner Student Registration process. A payload without both courseRefererenceNumbers and actionAndOptions will produce an SFBETRM record.
+    The response will include:
+
+
+    1. Completed registrations or requested registration actions and failure
+    messages
+
+    2. Failed registration from add process or update actions
+
+    3. Summary of registration with total credit and bill hours
+
+    4. Exception messages including those from the administrative drop, auto
+    drop process or drop last class
+
+    5. List of all registration messages
+  version: 1.1.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Student
+  x-source-title: Registration Register
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: registration-register
+paths:
+  /api/registration-register:
+    post:
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_REGISTRATION
+      tags:
+        - registration-register
+      description: >-
+        Running the API as an administrator persona has similar privileges as
+        submitting the registration on SFAREGS.  The administrator is allowed to
+        override the hold eligibility by submitting with the hold password.  The
+        administrator is allowed to override the initial course registration
+        status The default course registration status for an administrator is
+        RE.  Submitting as an administrator requires adding the parameter for
+        systemIn with a value of SB. 
+
+
+        The fields with the final registration status are in the
+        __statusDescription__ and __statusIndicator__
+
+          Status indicator of R means successful registration.
+
+        Status indicator of D means the class is dropped.
+
+
+        Status indicator of F means the failure, with failure message in
+        statusDescription.
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          schema:
+            type: string
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+              application/vnd.hedtech.integration.v1.0.0+json
+            ```
+        - name: content-type
+          in: header
+          required: true
+          schema:
+            type: string
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+              application/vnd.hedtech.integration.v1.0.0+json
+            ```
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1.1.0+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/registration-register-request"
+          application/vnd.hedtech.integration.v1.1.0+xml:
+            schema:
+              type: object
+              $ref: "#/components/schemas/registration-register-request"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/vnd.hedtech.integration.v1.1.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/registration-register-response"
+            application/vnd.hedtech.integration.v1.1.0+xml:
+              schema:
+                type: object
+                $ref: "#/components/schemas/registration-register-response"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.1.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    registration-register-request:
+      type: array
+      items:
+        type: object
+        properties:
+          bannerId:
+            type: string
+            description: Identification number used to access a person
+          term:
+            type: string
+            description: Code value to identify the term
+          systemIn:
+            type: string
+            description: Registration persona value, SB is administrator, WA is the default
+              for student.
+          altPin:
+            type: string
+            description: Students alternate Personal Identification Number
+          keySequenceNumber:
+            type: string
+            description: |
+              The study path key sequence number
+          conditionalAddDrop:
+            type: string
+            description: >
+              Indicator (Y/N) to conditionally process registration add and
+              drops if errors exists. Default is N and will process successes
+              but not errors. Value of Y will conditionally process successes if
+              there are no errors
+          registrationDate:
+            type: string
+            format: date
+          courseRefererenceNumbers:
+            description: Course Reference Numbers to add new classes to existing
+              registration. This parameter includes the list of CRN that needs
+              to be added to existing registrations. Any invalid CRN will be
+              returned back in the failedRegistration object. This is a required
+              parameter if a course registration is needed but can be ommited if
+              actionsAndOptions is present.
+            type: array
+            items:
+              type: object
+              properties:
+                courseRefererenceNumber:
+                  type: string
+          actionsAndOptions:
+            description: List by course reference number for action changes and updates.
+              This parameter list includes selected inputs including drop
+              actions. The selectedAction is the field within the map for status
+              actions and must be set to the valid drop code within the
+              registrationActions for dropping the registration.
+            type: array
+            items:
+              type: object
+              properties:
+                courseReferenceNumber:
+                  type: string
+                selectedAction:
+                  type: string
+                selectedLevel:
+                  type: string
+                selectedGradingMode:
+                  type: string
+                selectedStudyPath:
+                  type: string
+                selectedCreditHour:
+                  type: string
+        required:
+          - bannerId
+          - term
+    registration-register-response:
+      type: array
+      items:
+        type: object
+        properties:
+          adminDropMessages:
+            type: array
+            items:
+              type: string
+          adminErrorMessages:
+            type: array
+            items:
+              type: string
+          autoDropNotificationConfirmPrompt:
+            type: string
+          autoDropNotificationMessage:
+            type: string
+          autoDropNotificationPrompt:
+            type: string
+          failedRegistrations:
+            type: array
+            items:
+              type: object
+              properties:
+                failedCRN:
+                  type: string
+                failure:
+                  type: string
+                registration:
+                  type: object
+          failureReasons:
+            type: array
+            items:
+              type: string
+          linkErrors:
+            type: array
+            items:
+              type: string
+          maxHours:
+            type: number
+            format: int64
+          minHours:
+            type: number
+            format: int64
+          registrationException:
+            type: string
+          registrationMessages:
+            type: array
+            items:
+              type: string
+          registrations:
+            type: array
+            items:
+              type: object
+              properties:
+                addDate:
+                  type: string
+                  format: date
+                approvalReceivedIndicator:
+                  type: string
+                attemptedHours:
+                  type: number
+                  format: int64
+                billHour:
+                  type: number
+                  format: int64
+                billHours:
+                  type: object
+                  properties:
+                    creditHourHigh:
+                      type: number
+                      format: int64
+                    creditHourIndicator:
+                      type: number
+                      format: int64
+                    creditHourList:
+                      type: string
+                    creditHourLow:
+                      type: string
+                block:
+                  type: string
+                blockRuleSequenceNumber:
+                  type: integer
+                campus:
+                  type: string
+                class:
+                  type: string
+                completionDate:
+                  type: string
+                  format: date
+                courseContinuingEducationIndicator:
+                  type: string
+                courseNumber:
+                  type: string
+                courseReferenceNumber:
+                  type: string
+                courseRegistrationStatus:
+                  type: string
+                courseRegistrationStatusDescription:
+                  type: string
+                courseTitle:
+                  type: string
+                creditHour:
+                  type: number
+                  format: int64
+                creditHours:
+                  type: object
+                  properties:
+                    creditHourHigh:
+                      type: number
+                      format: int64
+                    creditHourIndicator:
+                      type: string
+                    creditHourList:
+                      type: array
+                      items:
+                        type: string
+                    creditHourLow:
+                      type: number
+                      format: int64
+                crnErrors:
+                  type: array
+                  items:
+                    type: string
+                dataOrigin:
+                  type: string
+                durationUnit:
+                  type: string
+                errorFlag:
+                  type: string
+                grade:
+                  type: string
+                gradeDate:
+                  type: string
+                  format: date
+                gradeMid:
+                  type: string
+                gradingMode:
+                  type: string
+                gradingModeDescription:
+                  type: string
+                id:
+                  type: number
+                instructionalMethodDescription:
+                  type: string
+                lastModified:
+                  type: string
+                  format: date
+                lastModifiedBy:
+                  type: string
+                level:
+                  type: string
+                levelDescription:
+                  type: string
+                message:
+                  type: string
+                messageType:
+                  type: string
+                newBlock:
+                  type: string
+                newBlockRuleSequenceNumber:
+                  type: integer
+                numberOfUnits:
+                  type: number
+                partOfTerm:
+                  type: string
+                partOfTermDescription:
+                  type: string
+                recordStatus:
+                  type: string
+                registrationActions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      courseRegistrationStatus:
+                        type: string
+                      description:
+                        type: string
+                      remove:
+                        type: boolean
+                      voiceType:
+                        type: string
+                registrationFromDate:
+                  type: string
+                registrationGradingModes:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      description:
+                        type: string
+                      gradingMode:
+                        type: string
+                registrationLevels:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      description:
+                        type: string
+                      level:
+                        type: string
+                registrationOverrides:
+                  type: array
+                  items:
+                    type: string
+                registrationStatusDate:
+                  type: string
+                  format: date
+                registrationStudyPaths:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      description:
+                        type: string
+                      keySequenceNumber:
+                        type: integer
+                registrationToDate:
+                  type: string
+                  format: date
+                scheduleDescription:
+                  type: string
+                scheduleType:
+                  type: string
+                sequenceNumber:
+                  type: string
+                specialApproval:
+                  type: string
+                startDate:
+                  type: string
+                  format: date
+                statusDescription:
+                  type: string
+                statusIndicator:
+                  type: string
+                studyPathKeySequence:
+                  type: integer
+                studyPathName:
+                  type: string
+                subject:
+                  type: string
+                subjectDescription:
+                  type: string
+                submitResultIndicator:
+                  type: string
+                term:
+                  type: string
+                timeStatusHours:
+                  type: number
+                voiceResponseStatusType:
+                  type: string
+                waivHour:
+                  type: number
+                courseAlias:
+                  type: string
+                  description: Additional identifier value associated with the course, example (Course Alias or Common Course Number).
+                courseIdentifierDisplay:
+                  type: string
+                  description: System-managed course identifier that should be displayed for the course (e.g., Course Number, Course Alias, or Common Course Number).
+          studyPaths:
+            type: array
+            items:
+              type: string
+          timeTickets:
+            type: object
+          totalBill:
+            type: string
+          totalCeu:
+            type: string
+          totalCredit:
+            type: string
+          validStudent:
+            type: boolean

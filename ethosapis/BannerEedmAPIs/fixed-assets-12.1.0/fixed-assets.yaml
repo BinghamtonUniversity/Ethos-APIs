@@ -1,0 +1,1859 @@
+openapi: 3.0.0
+info:
+  title: Fixed Assets
+  description: >-
+    Details about assets for long-term use that are not likely to be converted
+    quickly into cash (for example land, buildings, or equipment).
+
+
+    Please refer to "API Integration Configuration Settings" section in the
+    Banner Ethos API Handbook for details on API configuration settings that
+    needs to be configured for this API.
+  version: 12.1.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Finance
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: '{server_url}'
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/fixed-assets:
+    get:
+      summary: Return all or selected resources from FFBMAST
+      description: >-
+        Returns a paged listing of all the fixed asset records from the FFBMAST
+        table, or using one of five parameter options returns a paged listing for the selected fixed asset record(s).
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_FIXED_ASSETS
+      tags:
+        - fixed-assets
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v12.1.0+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: >-
+            The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: >-
+            The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: |
+            ### Description  
+
+
+            Returns all fixed asset records for a given "description". The value for a "description" is case insensitive, and criteria values with wildcard(s) are supported.
+
+            ```
+            /fixed-assets?criteria={"description": "%Minolta%"}
+            ```
+
+            ### Last Inventory Date  
+             The property "lastInventoryOn" corresponds to the data element FFBMAST_LAST_INVENTORY_DATE in the Asset Master record.
+             
+             Supported operators are Greater Than or Equal, Less Than or Equal, or a given date value.
+             
+             <br><br>
+             The following returns all fixed asset records with last inventoried date equal to the given date:
+
+
+            ```
+            /fixed-assets?criteria={"lastInventoryOn": "2025-09-20"}
+            ```
+            
+             The following returns all fixed asset records with last inventoried date greater than or equal to the given date:
+
+
+            ```
+            /fixed-assets?criteria={"lastInventoryOn":{"$gte": "2020-01-01"}}
+            ```
+            
+             The following returns all fixed asset records with last inventoried date less than or equal to the given date:
+
+
+            ```
+            /fixed-assets?criteria={"lastInventoryOn":{"$lte": "2019-12-31"}}
+            ```
+            
+            ### Permanent Tag or Origination Tag
+             Returns a fixed asset record for a given Ptag value if a matching Ptag exists, or can return the fixed asset record for a given Otag value (if there is no Ptag in the Asset Master FFBMAST using the same Ptag number as the given Otag number).
+             <br><br>
+             When the given "tag" value is an Otag number, the "tag" property value returned is the related Ptag number if a Ptag exists for the given Otag, otherwise the given Otag value is returned.
+
+
+            ```
+            /fixed-assets?criteria={"tag": "N00009901"}
+            ```
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/schema-fixed-assets.json'
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v12.1.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        '401':
+          description: Unauthorized
+        '404':
+          description: Resource not found
+        '500':
+          description: Server error, unexpected configuration or data
+  /api/fixed-assets/{id}:
+    get:
+      summary: Return the requested resource from FFBMAST
+      description: Return the resource with the given identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_FIXED_ASSETS
+      tags:
+        - fixed-assets
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: >-
+            A global identifier of Fixed Assets for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v12.1.0+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v12.1.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v12.1.0+json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/schema-fixed-assets.json'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Resource not found
+        '500':
+          description: Server error, unexpected configuration or data
+    put:
+      summary: Update the last inventoried date for a fixed asset record
+      description: >
+        The last inventoried date of a fixed asset record can be updated. When an update request is sent with the "lastInventoryOn" property value in the payload, the API updates the record accordingly.*
+        <br><br>
+        **Note: Only the "lastInventoryOn" property can be updated, which corresponds to the data element FFBMAST_LAST_INVENTORY_DATE in the Asset Master record.**
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_FIXED-ASSETS
+      tags:
+        - fixed-assets
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: >-
+            The global identifier of the fixed asset record from FFBMAST.
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v12.1.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v12.1.0+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/schema-fixed-assets.json'
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v12.1.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        '401':
+          description: Unauthorized
+        '404':
+          description: Resource not found
+        '500':
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration+json:
+            schema:
+              type: object
+              properties:
+                lastInventoryOn:
+                  title: Last Inventory On
+                  description: User supplied date on which this asset was last inventoried.
+                  type: string
+                  format: date
+                  pattern: >-
+                    ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                  x-lineageReferenceObject: FFBMAST_LAST_INVENTORY_DATE(FFBMAST)
+              required:
+                - id
+                - lastInventoryOn
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-fixed-assets.json:
+      title: Fixed Assets
+      description: >-
+        Details about assets for long-term use that are not likely to be
+        converted quickly into cash (for example land, buildings, or equipment).
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: >-
+                The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: >-
+                    ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: >-
+                The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: >-
+                    ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the fixed asset.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: FFBMAST_GUID(FFBMAST)
+        lastInventoryOn:
+          title: Last Inventory On
+          description: Date the asset was last inventoried.
+          type: string
+          format: date
+          pattern: >-
+            ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+          x-lineageReferenceObject: FFBMAST_LAST_INVENTORY_DATE(FFBMAST)
+        description:
+          title: Description
+          description: The description of the fixed asset.
+          type: string
+          minLength: 1
+          x-lineageReferenceObject: FFBMAST_ASSET_DESC(FFBMAST)
+        tag:
+          title: Tag
+          description: >-
+            A unique user defined or system generated number, usually visible on
+            the tag of the asset.
+          type: string
+          minLength: 1
+          x-lineageReferenceObject: derived
+          x-lineageDerivedLogic: >-
+            Display FFBMAST_PTAG_CODE. If FFBMAST_PTAG_CODE is null, display
+            FFBMAST_OTAG_CODE.
+        type:
+          title: Type
+          description: >-
+            A code which describes an asset type for depreciation purposes (e.g.
+            office equipment, athletic equipment, classroom furniture).
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Type.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: fixed-asset-types
+                  x-lineageReferenceObject: FFBMAST_ASTY_CODE(FFBMAST)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        category:
+          title: Category
+          description: The category associated with the fixed asset (e.g. equipment).
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Category.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: fixed-asset-categories
+                  x-lineageReferenceObject: unsupported
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        capitalizationStatus:
+          title: Capitalization Status
+          description: The capitalization status of the fixed asset.
+          enum:
+            - capitalized
+            - uncapitalized
+            - nonCapital
+          type: string
+          x-lineageReferenceObject: derived
+          x-lineageDerivedLogic: >-
+            If a date is present in FFBMAST_CAP_DATE, capitalizationStatus =
+            capitalized is displayed. If FFBMAST_CAP_DATE is null,
+            capitalizationStatus = uncapitalized is displayed. nonCapital is not
+            supported
+        acquisitionMethod:
+          title: Acquisition Method
+          description: The acquisition method associated with the fixed asset.
+          enum:
+            - purchased
+            - leased
+            - donation
+          type: string
+          x-lineageReferenceObject: derived
+          x-lineageDerivedLogic: >-
+            If FFBMAST_GIFT_IND = Y,  donation is displayed. If FFBMAST_GIFT_IND
+            = N,  purchased is displayed. If FFBMAST_GIFT_IND is null =
+            purchased is not supported
+        status:
+          title: Status
+          description: >-
+            A status indicating whether the asset has been disposed of or
+            written off.
+          oneOf:
+            - type: string
+              enum:
+                - disposed
+                - writtenOff
+              x-lineageReferenceObject: FFBMAST_SYSTEM_STATUS_CODE(FFBMAST)
+            - type: string
+              maxLength: 0
+        condition:
+          title: Condition
+          description: The condition of the fixed asset.
+          type: string
+          x-lineageReferenceObject: FFVACON_DESC(FFVACON)
+        location:
+          title: Location
+          description: The location associated with the fixed asset.
+          type: string
+          x-lineageReferenceObject: FTVLOCN_TITLE(FTVLOCN)
+        building:
+          title: Building
+          description: The building with which the fixed asset is associated.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Building.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: buildings
+                  x-lineageReferenceObject: unsupported
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        room:
+          title: Room
+          description: The room with which the fixed asset is associated.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Room.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: rooms
+                  x-lineageReferenceObject: unsupported
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        insuredValue:
+          title: Insured Value
+          description: The insured value of the fixed asset.
+          oneOf:
+            - type: object
+              format: currency
+              properties:
+                value:
+                  title: Value
+                  description: The monetary value
+                  type: number
+                  x-lineageReferenceObject: FFBMAST_INS_AMT(FFBMAST)
+                currency:
+                  title: Currency
+                  description: The ISO 4217 currency code
+                  enum:
+                    - AED
+                    - AFN
+                    - ALL
+                    - AMD
+                    - ANG
+                    - AOA
+                    - ARS
+                    - AUD
+                    - AWG
+                    - AZN
+                    - BAM
+                    - BBD
+                    - BDT
+                    - BGN
+                    - BHD
+                    - BIF
+                    - BMD
+                    - BND
+                    - BOB
+                    - BRL
+                    - BSD
+                    - BTN
+                    - BWP
+                    - BYR
+                    - BZD
+                    - CAD
+                    - CDF
+                    - CHF
+                    - CLP
+                    - CNY
+                    - COP
+                    - CRC
+                    - CUC
+                    - CUP
+                    - CVE
+                    - CZK
+                    - DJF
+                    - DKK
+                    - DOP
+                    - DZD
+                    - EGP
+                    - ERN
+                    - ETB
+                    - EUR
+                    - FJD
+                    - FKP
+                    - GBP
+                    - GEL
+                    - GHS
+                    - GIP
+                    - GMD
+                    - GNF
+                    - GTQ
+                    - GYD
+                    - HKD
+                    - HNL
+                    - HRK
+                    - HTG
+                    - HUF
+                    - IDR
+                    - ILS
+                    - INR
+                    - IQD
+                    - IRR
+                    - ISK
+                    - JMD
+                    - JOD
+                    - JPY
+                    - KES
+                    - KGS
+                    - KHR
+                    - KMF
+                    - KPW
+                    - KRW
+                    - KWD
+                    - KYD
+                    - KZT
+                    - LAK
+                    - LBP
+                    - LKR
+                    - LRD
+                    - LSL
+                    - LYD
+                    - MAD
+                    - MDL
+                    - MGA
+                    - MKD
+                    - MMK
+                    - MNT
+                    - MOP
+                    - MRO
+                    - MUR
+                    - MVR
+                    - MWK
+                    - MXN
+                    - MYR
+                    - MZN
+                    - NAD
+                    - NGN
+                    - NIO
+                    - NOK
+                    - NPR
+                    - NZD
+                    - OMR
+                    - PAB
+                    - PEN
+                    - PGK
+                    - PHP
+                    - PKR
+                    - PLN
+                    - PYG
+                    - QAR
+                    - RON
+                    - RSD
+                    - RUB
+                    - RWF
+                    - SAR
+                    - SBD
+                    - SCR
+                    - SDG
+                    - SEK
+                    - SGD
+                    - SHP
+                    - SLL
+                    - SOS
+                    - SRD
+                    - SSP
+                    - STD
+                    - SVC
+                    - SYP
+                    - SZL
+                    - THB
+                    - TJS
+                    - TMT
+                    - TND
+                    - TOP
+                    - TRY
+                    - TTD
+                    - TWD
+                    - TZS
+                    - UAH
+                    - UGX
+                    - USD
+                    - UYU
+                    - UZS
+                    - VEF
+                    - VND
+                    - VUV
+                    - WST
+                    - XAF
+                    - XCD
+                    - XOF
+                    - XPF
+                    - YER
+                    - ZAR
+                    - ZMW
+                    - ZWL
+                  type: string
+                  x-lineageReferenceObject: GUBINST_BASE_CURR(GUBINST)
+              additionalProperties: false
+              required:
+                - value
+                - currency
+            - type: object
+              maxProperties: 0
+        marketValue:
+          title: Market Value
+          description: The market value of the fixed asset.
+          oneOf:
+            - type: object
+              format: currency
+              properties:
+                value:
+                  title: Value
+                  description: The monetary value
+                  type: number
+                  x-lineageReferenceObject: FFBMAST_MARKET_AMT(FFBMAST)
+                currency:
+                  title: Currency
+                  description: The ISO 4217 currency code
+                  enum:
+                    - AED
+                    - AFN
+                    - ALL
+                    - AMD
+                    - ANG
+                    - AOA
+                    - ARS
+                    - AUD
+                    - AWG
+                    - AZN
+                    - BAM
+                    - BBD
+                    - BDT
+                    - BGN
+                    - BHD
+                    - BIF
+                    - BMD
+                    - BND
+                    - BOB
+                    - BRL
+                    - BSD
+                    - BTN
+                    - BWP
+                    - BYR
+                    - BZD
+                    - CAD
+                    - CDF
+                    - CHF
+                    - CLP
+                    - CNY
+                    - COP
+                    - CRC
+                    - CUC
+                    - CUP
+                    - CVE
+                    - CZK
+                    - DJF
+                    - DKK
+                    - DOP
+                    - DZD
+                    - EGP
+                    - ERN
+                    - ETB
+                    - EUR
+                    - FJD
+                    - FKP
+                    - GBP
+                    - GEL
+                    - GHS
+                    - GIP
+                    - GMD
+                    - GNF
+                    - GTQ
+                    - GYD
+                    - HKD
+                    - HNL
+                    - HRK
+                    - HTG
+                    - HUF
+                    - IDR
+                    - ILS
+                    - INR
+                    - IQD
+                    - IRR
+                    - ISK
+                    - JMD
+                    - JOD
+                    - JPY
+                    - KES
+                    - KGS
+                    - KHR
+                    - KMF
+                    - KPW
+                    - KRW
+                    - KWD
+                    - KYD
+                    - KZT
+                    - LAK
+                    - LBP
+                    - LKR
+                    - LRD
+                    - LSL
+                    - LYD
+                    - MAD
+                    - MDL
+                    - MGA
+                    - MKD
+                    - MMK
+                    - MNT
+                    - MOP
+                    - MRO
+                    - MUR
+                    - MVR
+                    - MWK
+                    - MXN
+                    - MYR
+                    - MZN
+                    - NAD
+                    - NGN
+                    - NIO
+                    - NOK
+                    - NPR
+                    - NZD
+                    - OMR
+                    - PAB
+                    - PEN
+                    - PGK
+                    - PHP
+                    - PKR
+                    - PLN
+                    - PYG
+                    - QAR
+                    - RON
+                    - RSD
+                    - RUB
+                    - RWF
+                    - SAR
+                    - SBD
+                    - SCR
+                    - SDG
+                    - SEK
+                    - SGD
+                    - SHP
+                    - SLL
+                    - SOS
+                    - SRD
+                    - SSP
+                    - STD
+                    - SVC
+                    - SYP
+                    - SZL
+                    - THB
+                    - TJS
+                    - TMT
+                    - TND
+                    - TOP
+                    - TRY
+                    - TTD
+                    - TWD
+                    - TZS
+                    - UAH
+                    - UGX
+                    - USD
+                    - UYU
+                    - UZS
+                    - VEF
+                    - VND
+                    - VUV
+                    - WST
+                    - XAF
+                    - XCD
+                    - XOF
+                    - XPF
+                    - YER
+                    - ZAR
+                    - ZMW
+                    - ZWL
+                  type: string
+                  x-lineageReferenceObject: GUBINST_BASE_CURR(GUBINST)
+              additionalProperties: false
+              required:
+                - value
+                - currency
+            - type: object
+              maxProperties: 0
+        replacementValue:
+          title: Replacement Value
+          description: The replacement value of the fixed asset.
+          oneOf:
+            - type: object
+              format: currency
+              properties:
+                value:
+                  title: Value
+                  description: The monetary value
+                  type: number
+                  x-lineageReferenceObject: FFBMAST_REPL_AMT(FFBMAST)
+                currency:
+                  title: Currency
+                  description: The ISO 4217 currency code
+                  enum:
+                    - AED
+                    - AFN
+                    - ALL
+                    - AMD
+                    - ANG
+                    - AOA
+                    - ARS
+                    - AUD
+                    - AWG
+                    - AZN
+                    - BAM
+                    - BBD
+                    - BDT
+                    - BGN
+                    - BHD
+                    - BIF
+                    - BMD
+                    - BND
+                    - BOB
+                    - BRL
+                    - BSD
+                    - BTN
+                    - BWP
+                    - BYR
+                    - BZD
+                    - CAD
+                    - CDF
+                    - CHF
+                    - CLP
+                    - CNY
+                    - COP
+                    - CRC
+                    - CUC
+                    - CUP
+                    - CVE
+                    - CZK
+                    - DJF
+                    - DKK
+                    - DOP
+                    - DZD
+                    - EGP
+                    - ERN
+                    - ETB
+                    - EUR
+                    - FJD
+                    - FKP
+                    - GBP
+                    - GEL
+                    - GHS
+                    - GIP
+                    - GMD
+                    - GNF
+                    - GTQ
+                    - GYD
+                    - HKD
+                    - HNL
+                    - HRK
+                    - HTG
+                    - HUF
+                    - IDR
+                    - ILS
+                    - INR
+                    - IQD
+                    - IRR
+                    - ISK
+                    - JMD
+                    - JOD
+                    - JPY
+                    - KES
+                    - KGS
+                    - KHR
+                    - KMF
+                    - KPW
+                    - KRW
+                    - KWD
+                    - KYD
+                    - KZT
+                    - LAK
+                    - LBP
+                    - LKR
+                    - LRD
+                    - LSL
+                    - LYD
+                    - MAD
+                    - MDL
+                    - MGA
+                    - MKD
+                    - MMK
+                    - MNT
+                    - MOP
+                    - MRO
+                    - MUR
+                    - MVR
+                    - MWK
+                    - MXN
+                    - MYR
+                    - MZN
+                    - NAD
+                    - NGN
+                    - NIO
+                    - NOK
+                    - NPR
+                    - NZD
+                    - OMR
+                    - PAB
+                    - PEN
+                    - PGK
+                    - PHP
+                    - PKR
+                    - PLN
+                    - PYG
+                    - QAR
+                    - RON
+                    - RSD
+                    - RUB
+                    - RWF
+                    - SAR
+                    - SBD
+                    - SCR
+                    - SDG
+                    - SEK
+                    - SGD
+                    - SHP
+                    - SLL
+                    - SOS
+                    - SRD
+                    - SSP
+                    - STD
+                    - SVC
+                    - SYP
+                    - SZL
+                    - THB
+                    - TJS
+                    - TMT
+                    - TND
+                    - TOP
+                    - TRY
+                    - TTD
+                    - TWD
+                    - TZS
+                    - UAH
+                    - UGX
+                    - USD
+                    - UYU
+                    - UZS
+                    - VEF
+                    - VND
+                    - VUV
+                    - WST
+                    - XAF
+                    - XCD
+                    - XOF
+                    - XPF
+                    - YER
+                    - ZAR
+                    - ZMW
+                    - ZWL
+                  type: string
+                  x-lineageReferenceObject: GUBINST_BASE_CURR(GUBINST)
+              additionalProperties: false
+              required:
+                - value
+                - currency
+            - type: object
+              maxProperties: 0
+        acquisitionCost:
+          title: Acquisition Cost
+          description: The acquisition cost of the fixed asset.
+          oneOf:
+            - type: object
+              format: currency
+              properties:
+                value:
+                  title: Value
+                  description: The monetary value
+                  type: number
+                  x-lineageReferenceObject: derived
+                  x-lineageDerivedLogic: >-
+                    If FFBMAST_CAP_DATE is null, display the FFRMASF_AMT from
+                    FFRMASF where FFRMASF_OTAG_CODE = FFBMAST_OTAG_CODE. If
+                    there are multiple sequences for one FFRMASF_OTAG_CODE, then
+                    the sum of the amounts for each sequence is calculated and
+                    displayed. If FFBMAST_CAP_DATE is not null, display the
+                    FFRMASA_AMT from FFRMASA where FFRMASA_OTAG_CODE =
+                    FFBMAST_OTAG_CODE. If there are multiple change sequences
+                    for this capitalized tag in FFRMASA, then the maximum change
+                    sequence number is considered and the sum of all amounts of
+                    the associated sequences of this max change sequence number
+                    is calculated and displayed as the total acquisition cost.
+                    If there are no records created in FFRMASA or FFRMASF, then
+                    the acquisition cost is not displayed.
+                currency:
+                  title: Currency
+                  description: The ISO 4217 currency code
+                  enum:
+                    - AED
+                    - AFN
+                    - ALL
+                    - AMD
+                    - ANG
+                    - AOA
+                    - ARS
+                    - AUD
+                    - AWG
+                    - AZN
+                    - BAM
+                    - BBD
+                    - BDT
+                    - BGN
+                    - BHD
+                    - BIF
+                    - BMD
+                    - BND
+                    - BOB
+                    - BRL
+                    - BSD
+                    - BTN
+                    - BWP
+                    - BYR
+                    - BZD
+                    - CAD
+                    - CDF
+                    - CHF
+                    - CLP
+                    - CNY
+                    - COP
+                    - CRC
+                    - CUC
+                    - CUP
+                    - CVE
+                    - CZK
+                    - DJF
+                    - DKK
+                    - DOP
+                    - DZD
+                    - EGP
+                    - ERN
+                    - ETB
+                    - EUR
+                    - FJD
+                    - FKP
+                    - GBP
+                    - GEL
+                    - GHS
+                    - GIP
+                    - GMD
+                    - GNF
+                    - GTQ
+                    - GYD
+                    - HKD
+                    - HNL
+                    - HRK
+                    - HTG
+                    - HUF
+                    - IDR
+                    - ILS
+                    - INR
+                    - IQD
+                    - IRR
+                    - ISK
+                    - JMD
+                    - JOD
+                    - JPY
+                    - KES
+                    - KGS
+                    - KHR
+                    - KMF
+                    - KPW
+                    - KRW
+                    - KWD
+                    - KYD
+                    - KZT
+                    - LAK
+                    - LBP
+                    - LKR
+                    - LRD
+                    - LSL
+                    - LYD
+                    - MAD
+                    - MDL
+                    - MGA
+                    - MKD
+                    - MMK
+                    - MNT
+                    - MOP
+                    - MRO
+                    - MUR
+                    - MVR
+                    - MWK
+                    - MXN
+                    - MYR
+                    - MZN
+                    - NAD
+                    - NGN
+                    - NIO
+                    - NOK
+                    - NPR
+                    - NZD
+                    - OMR
+                    - PAB
+                    - PEN
+                    - PGK
+                    - PHP
+                    - PKR
+                    - PLN
+                    - PYG
+                    - QAR
+                    - RON
+                    - RSD
+                    - RUB
+                    - RWF
+                    - SAR
+                    - SBD
+                    - SCR
+                    - SDG
+                    - SEK
+                    - SGD
+                    - SHP
+                    - SLL
+                    - SOS
+                    - SRD
+                    - SSP
+                    - STD
+                    - SVC
+                    - SYP
+                    - SZL
+                    - THB
+                    - TJS
+                    - TMT
+                    - TND
+                    - TOP
+                    - TRY
+                    - TTD
+                    - TWD
+                    - TZS
+                    - UAH
+                    - UGX
+                    - USD
+                    - UYU
+                    - UZS
+                    - VEF
+                    - VND
+                    - VUV
+                    - WST
+                    - XAF
+                    - XCD
+                    - XOF
+                    - XPF
+                    - YER
+                    - ZAR
+                    - ZMW
+                    - ZWL
+                  type: string
+                  x-lineageReferenceObject: GUBINST_BASE_CURR(GUBINST)
+              additionalProperties: false
+              required:
+                - value
+                - currency
+            - type: object
+              maxProperties: 0
+        accumulatedDepreciation:
+          title: Accumulated Depreciation
+          description: >-
+            The amount of accumulated depreciation associated with the fixed
+            asset.
+          oneOf:
+            - type: object
+              format: currency
+              properties:
+                value:
+                  title: Value
+                  description: The monetary value
+                  type: number
+                  x-lineageReferenceObject: derived
+                  x-lineageDerivedLogic: >-
+                    For FFRMASA_OTAG_CODE = FFBMAST_OTAG_CODE,display
+                    FFRMASA_DEPR_ACCUM_AMT. There may be multiple change
+                    sequences and sequences associated with a capitalized tag.
+                    If so, the max change sequence is considered and sum of the
+                    accumulated depreciation amounts of the associated sequences
+                    is displayed as the total accumulated depreciation for the
+                    tag.
+                currency:
+                  title: Currency
+                  description: The ISO 4217 currency code
+                  enum:
+                    - AED
+                    - AFN
+                    - ALL
+                    - AMD
+                    - ANG
+                    - AOA
+                    - ARS
+                    - AUD
+                    - AWG
+                    - AZN
+                    - BAM
+                    - BBD
+                    - BDT
+                    - BGN
+                    - BHD
+                    - BIF
+                    - BMD
+                    - BND
+                    - BOB
+                    - BRL
+                    - BSD
+                    - BTN
+                    - BWP
+                    - BYR
+                    - BZD
+                    - CAD
+                    - CDF
+                    - CHF
+                    - CLP
+                    - CNY
+                    - COP
+                    - CRC
+                    - CUC
+                    - CUP
+                    - CVE
+                    - CZK
+                    - DJF
+                    - DKK
+                    - DOP
+                    - DZD
+                    - EGP
+                    - ERN
+                    - ETB
+                    - EUR
+                    - FJD
+                    - FKP
+                    - GBP
+                    - GEL
+                    - GHS
+                    - GIP
+                    - GMD
+                    - GNF
+                    - GTQ
+                    - GYD
+                    - HKD
+                    - HNL
+                    - HRK
+                    - HTG
+                    - HUF
+                    - IDR
+                    - ILS
+                    - INR
+                    - IQD
+                    - IRR
+                    - ISK
+                    - JMD
+                    - JOD
+                    - JPY
+                    - KES
+                    - KGS
+                    - KHR
+                    - KMF
+                    - KPW
+                    - KRW
+                    - KWD
+                    - KYD
+                    - KZT
+                    - LAK
+                    - LBP
+                    - LKR
+                    - LRD
+                    - LSL
+                    - LYD
+                    - MAD
+                    - MDL
+                    - MGA
+                    - MKD
+                    - MMK
+                    - MNT
+                    - MOP
+                    - MRO
+                    - MUR
+                    - MVR
+                    - MWK
+                    - MXN
+                    - MYR
+                    - MZN
+                    - NAD
+                    - NGN
+                    - NIO
+                    - NOK
+                    - NPR
+                    - NZD
+                    - OMR
+                    - PAB
+                    - PEN
+                    - PGK
+                    - PHP
+                    - PKR
+                    - PLN
+                    - PYG
+                    - QAR
+                    - RON
+                    - RSD
+                    - RUB
+                    - RWF
+                    - SAR
+                    - SBD
+                    - SCR
+                    - SDG
+                    - SEK
+                    - SGD
+                    - SHP
+                    - SLL
+                    - SOS
+                    - SRD
+                    - SSP
+                    - STD
+                    - SVC
+                    - SYP
+                    - SZL
+                    - THB
+                    - TJS
+                    - TMT
+                    - TND
+                    - TOP
+                    - TRY
+                    - TTD
+                    - TWD
+                    - TZS
+                    - UAH
+                    - UGX
+                    - USD
+                    - UYU
+                    - UZS
+                    - VEF
+                    - VND
+                    - VUV
+                    - WST
+                    - XAF
+                    - XCD
+                    - XOF
+                    - XPF
+                    - YER
+                    - ZAR
+                    - ZMW
+                    - ZWL
+                  type: string
+                  x-lineageReferenceObject: GUBINST_BASE_CURR(GUBINST)
+              additionalProperties: false
+              required:
+                - value
+                - currency
+            - type: object
+              maxProperties: 0
+        depreciationMethod:
+          title: Depreciation Method
+          description: The depreciation method associated with the fixed asset.
+          type: string
+          x-lineageReferenceObject: FTVDEPR_TITLE(FTVDEPR)
+        salvageValue:
+          title: Salvage Value
+          description: The salvage value of the fixed asset.
+          oneOf:
+            - type: object
+              format: currency
+              properties:
+                value:
+                  title: Value
+                  description: The monetary value
+                  type: number
+                  x-lineageReferenceObject: FFBMAST_SALVAGE_AMT(FFBMAST)
+                currency:
+                  title: Currency
+                  description: The ISO 4217 currency code
+                  enum:
+                    - AED
+                    - AFN
+                    - ALL
+                    - AMD
+                    - ANG
+                    - AOA
+                    - ARS
+                    - AUD
+                    - AWG
+                    - AZN
+                    - BAM
+                    - BBD
+                    - BDT
+                    - BGN
+                    - BHD
+                    - BIF
+                    - BMD
+                    - BND
+                    - BOB
+                    - BRL
+                    - BSD
+                    - BTN
+                    - BWP
+                    - BYR
+                    - BZD
+                    - CAD
+                    - CDF
+                    - CHF
+                    - CLP
+                    - CNY
+                    - COP
+                    - CRC
+                    - CUC
+                    - CUP
+                    - CVE
+                    - CZK
+                    - DJF
+                    - DKK
+                    - DOP
+                    - DZD
+                    - EGP
+                    - ERN
+                    - ETB
+                    - EUR
+                    - FJD
+                    - FKP
+                    - GBP
+                    - GEL
+                    - GHS
+                    - GIP
+                    - GMD
+                    - GNF
+                    - GTQ
+                    - GYD
+                    - HKD
+                    - HNL
+                    - HRK
+                    - HTG
+                    - HUF
+                    - IDR
+                    - ILS
+                    - INR
+                    - IQD
+                    - IRR
+                    - ISK
+                    - JMD
+                    - JOD
+                    - JPY
+                    - KES
+                    - KGS
+                    - KHR
+                    - KMF
+                    - KPW
+                    - KRW
+                    - KWD
+                    - KYD
+                    - KZT
+                    - LAK
+                    - LBP
+                    - LKR
+                    - LRD
+                    - LSL
+                    - LYD
+                    - MAD
+                    - MDL
+                    - MGA
+                    - MKD
+                    - MMK
+                    - MNT
+                    - MOP
+                    - MRO
+                    - MUR
+                    - MVR
+                    - MWK
+                    - MXN
+                    - MYR
+                    - MZN
+                    - NAD
+                    - NGN
+                    - NIO
+                    - NOK
+                    - NPR
+                    - NZD
+                    - OMR
+                    - PAB
+                    - PEN
+                    - PGK
+                    - PHP
+                    - PKR
+                    - PLN
+                    - PYG
+                    - QAR
+                    - RON
+                    - RSD
+                    - RUB
+                    - RWF
+                    - SAR
+                    - SBD
+                    - SCR
+                    - SDG
+                    - SEK
+                    - SGD
+                    - SHP
+                    - SLL
+                    - SOS
+                    - SRD
+                    - SSP
+                    - STD
+                    - SVC
+                    - SYP
+                    - SZL
+                    - THB
+                    - TJS
+                    - TMT
+                    - TND
+                    - TOP
+                    - TRY
+                    - TTD
+                    - TWD
+                    - TZS
+                    - UAH
+                    - UGX
+                    - USD
+                    - UYU
+                    - UZS
+                    - VEF
+                    - VND
+                    - VUV
+                    - WST
+                    - XAF
+                    - XCD
+                    - XOF
+                    - XPF
+                    - YER
+                    - ZAR
+                    - ZMW
+                    - ZWL
+                  type: string
+                  x-lineageReferenceObject: GUBINST_BASE_CURR(GUBINST)
+              additionalProperties: false
+              required:
+                - value
+                - currency
+            - type: object
+              maxProperties: 0
+        usefulLife:
+          title: Useful Life
+          description: The fixed asset's useful life in years.
+          oneOf:
+            - type: integer
+              x-lineageReferenceObject: FFBMAST_EST_LIFE_YEARS(FFBMAST)
+            - type: string
+              nullable: true
+        depreciationExpenseAccount:
+          title: Depreciation Expense Account
+          description: The depreciation expense account associated with the fixed asset.
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  title: ID
+                  description: The global identifier for the Depreciation Expense Account.
+                  type: string
+                  format: guid
+                  pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                  x-lineageLookupReferenceObject: accounting-string-component-values
+                  x-lineageReferenceObject: FFBMAST_OTAG_CODE(FFBMAST)
+              additionalProperties: false
+              required:
+                - id
+            - type: object
+              maxProperties: 0
+        renewalCost:
+          title: Renewal Cost
+          description: The fixed asset's net renewal cost.
+          oneOf:
+            - type: object
+              format: currency
+              properties:
+                value:
+                  title: Value
+                  description: The monetary value
+                  type: number
+                  x-lineageReferenceObject: unsupported
+                currency:
+                  title: Currency
+                  description: The ISO 4217 currency code
+                  enum:
+                    - AED
+                    - AFN
+                    - ALL
+                    - AMD
+                    - ANG
+                    - AOA
+                    - ARS
+                    - AUD
+                    - AWG
+                    - AZN
+                    - BAM
+                    - BBD
+                    - BDT
+                    - BGN
+                    - BHD
+                    - BIF
+                    - BMD
+                    - BND
+                    - BOB
+                    - BRL
+                    - BSD
+                    - BTN
+                    - BWP
+                    - BYR
+                    - BZD
+                    - CAD
+                    - CDF
+                    - CHF
+                    - CLP
+                    - CNY
+                    - COP
+                    - CRC
+                    - CUC
+                    - CUP
+                    - CVE
+                    - CZK
+                    - DJF
+                    - DKK
+                    - DOP
+                    - DZD
+                    - EGP
+                    - ERN
+                    - ETB
+                    - EUR
+                    - FJD
+                    - FKP
+                    - GBP
+                    - GEL
+                    - GHS
+                    - GIP
+                    - GMD
+                    - GNF
+                    - GTQ
+                    - GYD
+                    - HKD
+                    - HNL
+                    - HRK
+                    - HTG
+                    - HUF
+                    - IDR
+                    - ILS
+                    - INR
+                    - IQD
+                    - IRR
+                    - ISK
+                    - JMD
+                    - JOD
+                    - JPY
+                    - KES
+                    - KGS
+                    - KHR
+                    - KMF
+                    - KPW
+                    - KRW
+                    - KWD
+                    - KYD
+                    - KZT
+                    - LAK
+                    - LBP
+                    - LKR
+                    - LRD
+                    - LSL
+                    - LYD
+                    - MAD
+                    - MDL
+                    - MGA
+                    - MKD
+                    - MMK
+                    - MNT
+                    - MOP
+                    - MRO
+                    - MUR
+                    - MVR
+                    - MWK
+                    - MXN
+                    - MYR
+                    - MZN
+                    - NAD
+                    - NGN
+                    - NIO
+                    - NOK
+                    - NPR
+                    - NZD
+                    - OMR
+                    - PAB
+                    - PEN
+                    - PGK
+                    - PHP
+                    - PKR
+                    - PLN
+                    - PYG
+                    - QAR
+                    - RON
+                    - RSD
+                    - RUB
+                    - RWF
+                    - SAR
+                    - SBD
+                    - SCR
+                    - SDG
+                    - SEK
+                    - SGD
+                    - SHP
+                    - SLL
+                    - SOS
+                    - SRD
+                    - SSP
+                    - STD
+                    - SVC
+                    - SYP
+                    - SZL
+                    - THB
+                    - TJS
+                    - TMT
+                    - TND
+                    - TOP
+                    - TRY
+                    - TTD
+                    - TWD
+                    - TZS
+                    - UAH
+                    - UGX
+                    - USD
+                    - UYU
+                    - UZS
+                    - VEF
+                    - VND
+                    - VUV
+                    - WST
+                    - XAF
+                    - XCD
+                    - XOF
+                    - XPF
+                    - YER
+                    - ZAR
+                    - ZMW
+                    - ZWL
+                  type: string
+                  x-lineageReferenceObject: GUBINST_BASE_CURR(GUBINST)
+              additionalProperties: false
+              required:
+                - value
+                - currency
+            - type: object
+              maxProperties: 0
+        responsiblePersons:
+          title: Responsible Persons
+          description: The responsible person(s) associated with the fixed asset.
+          type: array
+          items:
+            title: Responsible Persons
+            description: The responsible person(s) associated with the fixed asset.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Responsible Persons.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: persons
+                x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons)
+                x-lineageDerivedLogic: Persons GUID for the FFBMAST_PIDM is displayed
+            additionalProperties: false
+            required:
+              - id
+      required:
+        - id
+        - description
+        - tag
+        - capitalizationStatus
+        - acquisitionMethod
+      additionalProperties: false

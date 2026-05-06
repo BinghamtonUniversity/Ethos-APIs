@@ -1,0 +1,787 @@
+openapi: 3.0.0
+info:
+  title: Housing Requests
+  description: >
+    A student's request for housing including room and roommate preferences.
+    Housing requests/application can be very specific. The person may apply for
+    an assignment in a particular location (by campus, building, building
+    category or room). They also have the option to specify the characteristics
+    of the room - for example, non-smoking, handicapped accessible, etc.- and
+    the importance of that characteristic.
+
+
+    Please refer to the section "API Integration Configuration Settings" in Banner Ethos API Handbook for all the configuration settings needed for this API.
+  version: "10.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Foundation
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/housing-requests:
+    get:
+      summary: Returns resources from SLBRMAP
+      description: >
+        Returns all the records from SLBRMAP with application type with room
+        required indicator is set to Y.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_HOUSING_REQUESTS
+      tags:
+        - housing-requests
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-housing-requests.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v10+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    post:
+      summary: Create a new resource in SLBRMAP
+      description: >
+        A housing request application will be created with a POST request in
+        SLBRMAP.
+
+
+        Note:
+
+        When academicPeriod is not sent in the request, depending on the 'MIN' and 'MAX' values defined in the DERIVE.TERM_RULE integration configuration setting, the API uses either the DERIVE_MIN_TERM or DERIVE_MAX_TERM delivered in GORRSQL to derive the effective term of the housing request application. 
+
+
+        Please refer to 'Housing and meal plan APIs' section in Banner Ethos API handbook for more details.
+
+
+        POST requests must include a nil GUID value ("00000000-0000-0000-0000-000000000000") for the root id property.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_HOUSING_REQUESTS
+      tags:
+        - housing-requests
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v10+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v10+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-housing-requests.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-housing-requests.json"
+  /api/housing-requests/{id}:
+    get:
+      summary: Return the requested resource from SLBRMAP
+      description: >
+        Returns a record from SLBRMAP with the passed in identifier whose
+        application type with room required indicator is set to Y.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_HOUSING_REQUESTS
+      tags:
+        - housing-requests
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v10+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v10+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-housing-requests.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+    put:
+      summary: Update the requested resource from SLBRMAP
+      description: |
+        Updates an existing housing request record in SLBRMAP.
+
+        Properties that are not updatable: id, person.id, academicPeriod.id
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_HOUSING_REQUESTS
+      tags:
+        - housing-requests
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of Housing Requests for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json 
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v10+json 
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v10+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v10+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-housing-requests.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-housing-requests.json"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-housing-requests.json:
+      title: Housing Requests
+      description: A persons's request for housing including room and roommate preferences.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the Housing Request.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: SLBRMAP_HOUSING_GUID(SLBRMAP)
+        person:
+          title: Person
+          description: The person requesting housing.
+          type: object
+          properties:
+            id:
+              title: ID
+              description: The global identifier for the Person.
+              type: string
+              format: guid
+              pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+              x-lineageLookupReferenceObject: persons 
+              x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons) 
+              x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME as 'persons' and GORGUID_DOMAIN_KEY = SLBRMAP_PIDM
+          additionalProperties: false
+          required:
+            - id
+        academicPeriods:
+          title: Academic Periods
+          description: The academic periods for which a person is requesting housing.
+          type: array
+          items:
+            title: Academic Periods
+            description: The academic periods for which a person is requesting housing.
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Academic Periods.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageLookupReferenceObject: academic-periods 
+                x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = term) 
+                x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME = 'term' and GORGUID_DOMAIN_KEY = SLBRMAP_FROM_TERM
+            additionalProperties: false
+            required:
+              - id
+        startOn:
+          title: Start On
+          description: The first date for which housing is requested.
+          type: string
+          format: date-time
+          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+          x-lineageReferenceObject: derived  
+          x-lineageDerivedLogic: Display SLBRMAP_HOUSING_STARTON if column value is not NULL, else STVTERM_START_DATE from STVTERM where STVTERM_CODE = SLBRMAP_FROM_TERM.
+        endOn:
+          title: End On
+          description: The last date for which housing is requested.
+          oneOf:
+            - type: string
+              format: date-time
+              pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: Display SLBRMAP_HOUSING_ENDON if column value is not NULL, else STVTERM_END_DATE from STVTERM where STVTERM_CODE = SLBRMAP_TO_TERM.
+            - type: string
+              maxLength: 0
+        status:
+          title: Status
+          description: The status of the housing request.
+          enum:
+            - submitted
+            - approved
+            - rejected
+            - withdrawn
+          type: string
+          x-lineageReferenceObject: GORICCR_TRANSLATION_VALUE(GORICCR)
+          x-lineageDerivedLogic: A record in GORICCR where GORICCR_SQPR_CODE = 'HEDM' and GORICCR_ICSN_CODE = HOUSING.APPLICATION.STATUS and GORICCR_VALUE = SLBRMAP_HAPS_CODE
+        priorityNumber:
+          title: Priority Number
+          description: A number that indicates relative priority of housing requests.
+          oneOf:
+            - type: number
+              minimum: 0
+              format: positiveInteger
+              x-lineageReferenceObject: SLBRMAP_APPL_PRIORITY(SLBRMAP)
+            - type: string
+              nullable: true
+        preferences:
+          title: Preferences
+          description: The person's housing preferences.
+          type: array
+          items:
+            type: object
+            properties:
+              site:
+                title: Site
+                description: The person's preferred location or campus.
+                oneOf:
+                  - type: object
+                    properties:
+                      preferred:
+                        title: Preferred
+                        description: The person's preferred location or campus.
+                        type: object
+                        properties:
+                          id:
+                            title: ID
+                            description: The global identifier for the Preferred.
+                            type: string
+                            format: guid
+                            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                            x-lineageLookupReferenceObject: sites 
+                            x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = campuses) 
+                            x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME = 'campuses' and GORGUID_DOMAIN_KEY = SLBRMAP_PREFERED_CAMP_CODE
+                        additionalProperties: false
+                        required:
+                          - id
+                      required:
+                        title: Required
+                        description: An indication if the preference is required or optional.
+                        enum:
+                          - mandatory
+                          - optional
+                        type: string
+                        x-lineageReferenceObject: SLBRMAP_SITE_REQ(SLBRMAP)
+                    additionalProperties: false
+                    required:
+                      - preferred
+                      - required
+                  - type: object
+                    maxProperties: 0
+              building:
+                title: Building
+                description: The person's preferred building.
+                oneOf:
+                  - type: object
+                    properties:
+                      preferred:
+                        title: Preferred
+                        description: The person's preferred building.
+                        type: object
+                        properties:
+                          id:
+                            title: ID
+                            description: The global identifier for the Preferred.
+                            type: string
+                            format: guid
+                            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                            x-lineageLookupReferenceObject: buildings 
+                            x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = buildings) 
+                            x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME = 'buildings' and GORGUID_DOMAIN_KEY = SLBRMAP_PREFERED_BUILDING
+                        additionalProperties: false
+                        required:
+                          - id
+                      required:
+                        title: Required
+                        description: An indication if the preference is required or optional.
+                        enum:
+                          - mandatory
+                          - optional
+                        type: string
+                        x-lineageReferenceObject: SLBRMAP_BUILDING_REQ(SLBRMAP)
+                    additionalProperties: false
+                    required:
+                      - preferred
+                      - required
+                  - type: object
+                    maxProperties: 0
+              wing:
+                title: Wing
+                description: The person's preferred building wing.
+                oneOf:
+                  - type: object
+                    properties:
+                      preferred:
+                        title: Preferred
+                        description: The person's preferred building wing.
+                        type: object
+                        properties:
+                          id:
+                            title: ID
+                            description: The global identifier for the Preferred.
+                            type: string
+                            format: guid
+                            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                            x-lineageLookupReferenceObject: building-wings 
+                            x-lineageReferenceObject: SLBRMAP_WING_PREF_GUID(SLBRMAP)
+                        additionalProperties: false
+                        required:
+                          - id
+                      required:
+                        title: Required
+                        description: An indication if the preference is required or optional.
+                        enum:
+                          - mandatory
+                          - optional
+                        type: string
+                        x-lineageReferenceObject: SLBRMAP_WING_REQ(SLBRMAP)
+                    additionalProperties: false
+                    required:
+                      - preferred
+                      - required
+                  - type: object
+                    maxProperties: 0
+              floor:
+                title: Floor
+                description: A person's preferred floor.
+                oneOf:
+                  - type: object
+                    properties:
+                      preferred:
+                        title: Preferred
+                        description: A person's preferred floor.
+                        type: string
+                        x-lineageReferenceObject: SLBRMAP_FLOOR_PREF(SLBRMAP)
+                      required:
+                        title: Required
+                        description: An indication if the preference is required or optional.
+                        enum:
+                          - mandatory
+                          - optional
+                        type: string
+                        x-lineageReferenceObject: SLBRMAP_FLOOR_REQ(SLBRMAP)
+                    additionalProperties: false
+                    required:
+                      - preferred
+                      - required
+                  - type: object
+                    maxProperties: 0
+              room:
+                title: Room
+                description: A person's preferred room.
+                oneOf:
+                  - type: object
+                    properties:
+                      preferred:
+                        title: Preferred
+                        description: A person's preferred room.
+                        type: object
+                        properties:
+                          id:
+                            title: ID
+                            description: The global identifier for the Preferred.
+                            type: string
+                            format: guid
+                            pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                            x-lineageLookupReferenceObject: rooms 
+                            x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = rooms) 
+                            x-lineageDerivedLogic: A record in GORGUID with GORGUID_LDM_NAME = 'rooms' and GORGUID_DOMAIN_KEY = SLBRMAP_PREFERED_ROOM
+                        additionalProperties: false
+                        required:
+                          - id
+                      required:
+                        title: Required
+                        description: An indication if the preference is required or optional.
+                        enum:
+                          - mandatory
+                          - optional
+                        type: string
+                        x-lineageReferenceObject: SLBRMAP_ROOM_REQ(SLBRMAP)
+                    additionalProperties: false
+                    required:
+                      - preferred
+                      - required
+                  - type: object
+                    maxProperties: 0
+            additionalProperties: false
+        roomCharacteristics:
+          title: Room Characteristics
+          description: A person's preferred room characteristics.
+          type: array
+          items:
+            type: object
+            properties:
+              preferred:
+                title: Preferred
+                description: A person's preferred room characteristic.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Preferred.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: room-characteristics 
+                    x-lineageReferenceObject: SLRPREQ_RDEF_CODE(SLRPREQ)
+                additionalProperties: false
+                required:
+                  - id
+              required:
+                title: Required
+                description: An indication if the preference is required or optional.
+                enum:
+                  - mandatory
+                  - optional
+                type: string
+                x-lineageReferenceObject: derived  
+                x-lineageDerivedLogic: Displays mandatory if SLRPREQ_MUST_MATCH is not null and displays optional when SLRPREQ_MUST_MATCH is null.
+            additionalProperties: false
+            required:
+              - preferred
+              - required
+        floorCharacteristic:
+          title: Floor Characteristic
+          description: A person's preferred floor characteristic.
+          oneOf:
+            - type: object
+              properties:
+                preferred:
+                  title: Preferred
+                  description: A person's preferred floor characteristic.
+                  type: object
+                  properties:
+                    id:
+                      title: ID
+                      description: The global identifier for the Preferred.
+                      type: string
+                      format: guid
+                      pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                      x-lineageLookupReferenceObject: floor-characteristics 
+                      x-lineageReferenceObject: SLBRMAP_FLRCHAR_PREF_GUID(SLBRMAP)
+                  additionalProperties: false
+                  required:
+                    - id
+                required:
+                  title: Required
+                  description: An indication if the preference is required or optional.
+                  enum:
+                    - mandatory
+                    - optional
+                  type: string
+                  x-lineageReferenceObject: SLBRMAP_FLRCHAR_REQ(SLBRMAP)
+              additionalProperties: false
+              required:
+                - preferred
+                - required
+            - type: object
+              maxProperties: 0
+        roommatePreferences:
+          title: Roommate Preferences
+          description: A list of requested roommates or roommate attributes.
+          type: array
+          items:
+            type: object
+            properties:
+              roommate:
+                title: Roommate
+                description: The person's preferred roommate.
+                type: object
+                properties:
+                  preferred:
+                    title: Preferred
+                    description: The person's preferred roommate.
+                    type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the Preferred.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                        x-lineageLookupReferenceObject: persons 
+                        x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = persons)
+                        x-lineageDerivedLogic: A record in GORGUID where GORGUID_LDM_NAME = 'persons' and GORGUID_DOMAIN_KEY = SLRRMAT_PIDM.
+                    additionalProperties: false
+                    required:
+                      - id
+                  required:
+                    title: Required
+                    description: An indication if the preference is required or optional.
+                    enum:
+                      - mandatory
+                      - optional
+                    type: string
+                    x-lineageReferenceObject: SLRRMAT_ROOMMATE_PREF_REQ(SLRRMAT)
+                additionalProperties: false
+                required:
+                  - preferred
+                  - required
+              roommateCharacteristic:
+                title: Roommate Characteristic
+                description: The person's preferred roommate characteristic.
+                type: object
+                properties:
+                  preferred:
+                    title: Preferred
+                    description: The person's preferred roommate characteristic.
+                    type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The global identifier for the Preferred.
+                        type: string
+                        format: guid
+                        pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                        x-lineageLookupReferenceObject: roommate-characteristics 
+                        x-lineageReferenceObject: SLRRMAT_ROOMMATE_CHAR_GUID(SLRRMAT)
+                    additionalProperties: false
+                    required:
+                      - id
+                  required:
+                    title: Required
+                    description: An indication if the preference is required or optional.
+                    enum:
+                      - mandatory
+                      - optional
+                    type: string
+                    x-lineageReferenceObject: SLRRMAT_ROOMMATE_CHAR_REQ(SLRRMAT)
+                additionalProperties: false
+                required:
+                  - preferred
+                  - required
+            additionalProperties: false
+      required:
+        - id
+        - person
+        - startOn
+        - status
+      additionalProperties: false
+

@@ -1,0 +1,309 @@
+openapi: 3.0.0
+info:
+  title: Section Crosslists
+  description: >
+    Lists of sections of different courses that meet together, cover the same
+    course material, and have an instructor or set of instructors.
+  version: "6.0"
+  x-audience: all
+  x-source-system: banner
+  x-api-type: ethos
+  x-release-status: ga
+  x-source-domain: Student
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: section-crosslists
+paths:
+  /api/section-crosslists:
+    get:
+      summary: Returns resources from SSBXLST
+      description: >
+        Returns a paged listing of all the section cross-list records from
+        SSBXLST table.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_SECTION_CROSSLISTS
+      tags:
+        - section-crosslists
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v6+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: |
+            #### section
+            Returns all section crosslists for the section id passed.
+            ```
+            /section-crosslists?section=90a29229-3172-41d3-9035-4fe1d11db5cd
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-section-crosslists.json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v6+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/section-crosslists/{id}:
+    get:
+      summary: Return the requested resource from SSBXLST
+      description: >
+        Returns a single section cross-list record from SSBXLST table with the
+        requested identifier
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_SECTION_CROSSLISTS
+      tags:
+        - section-crosslists
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v6+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v6+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v6+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-section-crosslists.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-section-crosslists.json:
+      title: Section Crosslists
+      description: Lists of sections of different courses that meet together, cover
+        the same course material, and have an instructor or set of instructors.
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id:
+          title: ID
+          description: The global identifier of the Section Crosslists.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+          x-lineageReferenceObject: GORGUID_GUID(LDM_NAME= section-crosslists) 
+          x-lineageDerivedLogic: Display records from SSBXLST. The GUID is displayed from GORGUID where GORGUID_LDM_NAME is 'section-crosslists' and GORGUID_DOMAIN_KEY is a concatenated value of SSBXLST_XLST_GROUP and SSBXLST_TERM_CODE
+        code:
+          title: Code
+          description: The code that identifies the list of cross-listed sections.
+          type: string
+          x-lineageReferenceObject: SSBXLST_XLST_GROUP(SSBXLST)
+        sections:
+          title: Sections
+          description: The list of cross-listed sections.
+          type: array
+          minItems: 1
+          items:
+            type: object
+            properties:
+              section:
+                title: Section
+                description: A section that is cross-listed with other sections.
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: The global identifier for the Section.
+                    type: string
+                    format: guid
+                    pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                    x-lineageLookupReferenceObject: sections 
+                    x-lineageReferenceObject: SSBSGID_GUID(SSBSGID)
+                additionalProperties: false
+                required:
+                  - id
+              type:
+                title: Type
+                description: A indication of the type (primary, secondary) of the section within
+                  the group of cross-listed sections.
+                oneOf:
+                  - type: string
+                    enum:
+                      - primary
+                      - secondary
+                    x-lineageReferenceObject: derived  
+                    x-lineageDerivedLogic: Always displayed as 'primary'
+                  - type: string
+                    maxLength: 0
+            additionalProperties: false
+            required:
+              - section
+        waitlist:
+          title: Waitlist
+          description: An indicator specifying if all students are placed on the wait-list
+            when any of the cross-listed sections has reached its maximum
+            enrollment or only when the combined registration has reached the
+            specified maximum enrollment of the cross-list.
+          oneOf:
+            - type: string
+              enum:
+                - separate
+                - combined
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: Always displayed as 'combined'
+            - type: string
+              maxLength: 0
+        maxEnrollment:
+          title: Maximum Enrollment
+          description: The maximum enrollment of the cross-listed section over all
+            included sections.
+          oneOf:
+            - type: integer
+              minimum: 0
+              format: positiveInteger
+              x-lineageReferenceObject: SSBXLST_MAX_ENRL(SSBXLST)
+            - type: string
+              nullable: true
+        maxWaitlist:
+          title: Maximum Waitlist
+          description: The maximum number of students allowed in the combined wait-list
+            for the cross-listed section.
+          oneOf:
+            - type: integer
+              minimum: 0
+              format: positiveInteger
+              x-lineageReferenceObject: derived  
+              x-lineageDerivedLogic: For the SSBXLST_XLST_GROUP and SSBXLST_TERM_CODE, fetch the matching record from SSRXLST. From this matching record, fetch all the section GUIDs from SSBSGID table where SSBSGID_CRN = SSRXLST_CRN. Fetch the section records from SSBSECT for the SSBSGID records. Display the sum of SSBSECT_WAIT_CAPACITY value for all the sections fetched.
+            - type: string
+              nullable: true
+      required:
+        - id
+        - sections
+      additionalProperties: false

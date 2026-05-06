@@ -1,0 +1,305 @@
+openapi: 3.0.0
+info:
+  title: medical-details
+  description: |
+    This API version supports creation and update of multiple medical-details. 
+  version: 1.0.0
+  x-source-domain: Foundation
+  x-source-name: SPRMEDI
+  x-source-title: null
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-audience: all
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/medical-details/batches:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/batches-request"
+      tags:
+        - medical-details
+      parameters:
+        - deprecated: false
+          name: accept
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+          in: header
+          required: false
+        - deprecated: false
+          name: content type
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+          in: header
+          required: false
+      responses:
+        "200":
+          headers:
+            X-Media-Type:
+              schema:
+                type: string
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              deprecated: false
+              required: false
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/batches-response"
+          description: Success
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      security:
+        - EthosIntegrationBearer: []
+      summary: "Creates a new medical-details-batches request. "
+      description: "This request creates a new medical-details-batches request. It
+        would iterate through each of the medical-details in the request and
+        process then sequentially. "
+      x-method-permissions: API_MEDICAL_DETAILS
+components:
+  schemas:
+    batches-request:
+      description: "List of items to create or update. "
+      type: object
+      properties:
+        id:
+          title: ID
+          description: A globally unique identifier of a batch to be used in all external
+            references.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+        resource:
+          title: Resource
+          description: The affected resource.
+          type: object
+          properties:
+            name:
+              title: Resource Name
+              description: The pluralized name of the affected resource
+              type: string
+            version:
+              title: Resource version
+              description: The version of the resource
+              type: string
+          additionalProperties: false
+          required:
+            - name
+            - version
+        items:
+          title: items
+          description: List of items to be processed.
+          type: array
+          items:
+            type: object
+            properties:
+              bannerId:
+                title: Banner ID
+                description: The person's Banner ID
+                type: string
+                maxLength: 9
+                x-lineageReferenceObject: SPRIDEN_ID
+              medicalCondition:
+                title: Medical Condition
+                description: Medical condition or impairment
+                type: string
+                maxLength: 10
+                x-lineageReferenceObject: SPRMEDI_MEDI_CODE
+              medicalConditionInitiatedOn:
+                title: Medical Condition Initiated On
+                description: Date associated with the medical condition or impairment
+                type: string
+                format: date
+                pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                x-lineageReferenceObject: SPRMEDI_MEDI_CODE_DATE
+              disabilityType:
+                title: Disability
+                description: Disability type related to medical condition or impairment
+                type: string
+                maxLength: 2
+                x-lineageReferenceObject: SPRMEDI_DISA_CODE
+              disabilityService:
+                title: Disability Services
+                description: Disability services available for medical condition or impairment
+                type: string
+                maxLength: 2
+                x-lineageReferenceObject: SPRMEDI_SPSR_CODE
+              disabilityOnsetAge:
+                title: Disability Onset Age
+                description: Age at which the person developed the medical condition or
+                  impairment
+                type: number
+                x-lineageReferenceObject: SPRMEDI_ONSET_AGE
+              primaryDisability:
+                title: Primary Disability
+                description: Indicates of the medical condition or impairment is the person's
+                  primary disability
+                type: boolean
+                x-lineageReferenceObject: SPRMEDI_DISB_IND
+              medicalEquipment:
+                title: Medical Equipment
+                description: Medical equipment needed to respond to the medical condition or
+                  impairment
+                type: string
+                maxLength: 3
+                x-lineageReferenceObject: SPRMEDI_MDEQ_CODE
+              comment:
+                title: Comment
+                description: Comment related to medical condition or impairment
+                type: string
+                maxLength: 4000
+                x-lineageReferenceObject: SPRMEDI_COMMENT
+            required:
+              - bannerId
+              - medicalCondition
+              - primaryDisability
+            additionalProperties: false
+          required:
+            - items
+    batches-response:
+      description: "Returns the list of Ids for those items that were successfully
+        updated or created. For those that did not, it returns the list of error
+        messages. "
+      type: object
+      properties:
+        id:
+          title: ID
+          description: A globally unique identifier of a batch to be used in all external
+            references.
+          type: string
+          format: guid
+          pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+        status:
+          title: status
+          description: status of the batch.
+          type: string
+          enum:
+            - completed
+            - inProgress
+            - aborted
+        resource:
+          title: Resource
+          description: The affected resource.
+          type: object
+          properties:
+            name:
+              title: Resource Name
+              description: The pluralized name of the affected resource
+              type: string
+            version:
+              title: Resource version
+              description: The version of the resource
+              type: string
+          additionalProperties: false
+          required:
+            - name
+            - version
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+            oneOf:
+              - type: object
+                properties:
+                  id:
+                    title: Id
+                    description: id
+                    type: object
+                    properties:
+                      bannerId:
+                        title: Banner ID
+                        description: The person's Banner ID
+                        type: string
+                        maxLength: 9
+                        x-lineageReferenceObject: SPRIDEN_ID
+                      medicalCondition:
+                        title: Medical Condition
+                        description: Medical condition or impairment
+                        type: string
+                        maxLength: 10
+                        x-lineageReferenceObject: SPRMEDI_MEDI_CODE
+                required:
+                  - bannerId
+                  - medicalCondition
+              - type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          description: The global identifier of the resource in error.
+                        sourceId:
+                          type: string
+                          description: The source applications data reference identifier for the primary
+                            data entity used to create the resource. This is
+                            useful for referencing the source item through the
+                            applications administrative user interface.
+                        code:
+                          type: string
+                          description: The error message code used to describe the error details.
+                        description:
+                          type: string
+                          description: The error description used to describe the error details.
+                        message:
+                          type: string
+                          description: The detailed actionable error message.
+          required:
+            - items
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  headers: {}
+  responses: {}
+  parameters: {}
+security: []

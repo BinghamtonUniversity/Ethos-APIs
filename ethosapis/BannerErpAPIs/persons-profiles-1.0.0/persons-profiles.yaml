@@ -1,0 +1,638 @@
+openapi: 3.0.0
+info:
+  title: Persons Profiles
+  description: >
+    The persons-profiles API is an alternate representation of the persons v12.0.0 API.
+    Provide details such as credentials roles and names for individuals interacting with an institution(for example \student\ \constituent\ or \vendor\).
+      
+    This resource supports a query by POST operation. Using the Servers base URL with the QAPI path, a POST operation will perform a query based on the search criteria included in request body. The user can send up to 500 list of identifiers.
+  version: 1.0.0
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-source-domain: Foundation
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+tags:
+  - name: persons-profiles
+  - name: persons-profiles QAPI
+paths:
+  /api/persons:
+    get:
+      summary: Returns resources from SPRIDEN
+      description: >
+        Returns a paged listing of all the person records from SPRIDEN where
+        SPRIDEN_ENTITY_IND ='P'.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSONS
+      tags:
+        - persons-profiles
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information.
+
+            ```
+
+            application/vnd.hedtech.integration.persons-profiles.v1+json
+
+            ```
+          schema:
+            type: string
+          example: application/vnd.hedtech.integration.persons-profiles.v1+json
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 500.
+          schema:
+            type: integer
+          example: 500
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+          description: >
+            ### Title  
+
+            Returns all persons records with title equals the value passed. Filter is done only on the current name records (SPRIDEN_CHANGE_IND = null).
+          example: {"firstName": "John"}
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-persons-profiles.json"
+              example:
+                  metadata:
+                    createdBy: "system"
+                    createdOn: "2024-01-15T10:30:00Z"
+                    modifiedBy: "admin"
+                    modifiedOn: "2024-01-20T14:45:00Z"
+                  id: "11bf5b37-e0b8-42e0-8dcf-dc8c4aefc000"
+                  names:
+                    - type:
+                        category: "personal"
+                        detail:
+                          id: "22bf5b37-e0b8-42e0-8dcf-dc8c4aefc111"
+                      preference: "preferred"
+                      fullName: "Dr. John Michael Smith Jr."
+                      title: "Dr."
+                      firstName: "John"
+                      middleName: "Michael"
+                      lastName: "Smith"
+                      pedigree: "Jr."
+                      professionalAbbreviations: ["M.D.", "Ph.D."]
+                  roles:
+                    - role: "instructor"
+                      startOn: "2020-08-15T00:00:00Z"
+                      endOn: "2024-08-15T00:00:00Z"
+                  credentials:
+                    - type: "bannerId"
+                      value: "A00000718"
+                      startOn: "2020-08-15T00:00:00Z"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.persons-profiles.v1.0.0+json
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /api/persons/{id}:
+    get:
+      summary: Return the requested resource from SPRIDEN
+      description: |
+        Returns a single SPRIDEN resource with the requested identifier.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSONS
+      tags:
+        - persons-profiles
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: A global identifier of the resource for use in all external
+            references
+          schema:
+            type: string
+            format: GUID
+            minimum: 1
+          example: "12345678-1234-1234-1234-123456789012"
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.persons-profiles.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+          example: application/vnd.hedtech.integration.persons-profiles.v1.0.0+json
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.persons-profiles.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-persons-profiles.json"
+              example:
+                metadata:
+                  createdBy: "system"
+                  createdOn: "2023-01-15T10:30:00Z"
+                  modifiedBy: "admin"
+                  modifiedOn: "2024-03-20T14:45:00Z"
+                id: "11bf5b37-e0b8-42e0-8dcf-dc8c4aefc000"
+                names:
+                  - type:
+                      category: "personal"
+                      detail:
+                        id: "22bf5b37-e0b8-42e0-8dcf-dc8c4aefc111"
+                    preference: "preferred"
+                    fullName: "Dr. John Michael Smith Jr."
+                    title: "Dr."
+                    firstName: "John"
+                    middleName: "Michael"
+                    lastName: "Smith"
+                    pedigree: "Jr."
+                    professionalAbbreviations: ["M.D.", "Ph.D."]
+                roles:
+                  - role: "instructor"
+                    startOn: "2020-08-15T00:00:00Z"
+                    endOn: "2025-05-31T23:59:59Z"
+                credentials:
+                  - type: "bannerId"
+                    value: "A00000718"
+                    startOn: "2020-08-15T00:00:00Z"
+                    endOn: "2025-05-31T23:59:59Z"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+  /qapi/persons:
+    post:
+      summary: Returns resources from SPRIDEN
+      description: >
+        Queries for the requested resource using a set of attributes provided in
+        the POST request body. Please note the path to the server is overriden
+        to use /qapi/{resource} in the URL and not /api/{resource}.
+
+
+        This API allows to search for persons based on given search criteria. The search criteria can be specified in the request body.
+
+
+        - The V1 version of person search QAPI supports :
+
+        - Search based on identifiers
+
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_PERSONS
+      tags:
+        - persons-profiles QAPI
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.persons-profiles.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+          example: application/vnd.hedtech.integration.persons-profiles.v1.0.0+json
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.persons-profiles.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+          example: application/vnd.hedtech.integration.persons-profiles.v1.0.0+json
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.persons-profiles.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-persons-profiles.json"
+              example:
+                metadata:
+                  createdBy: "system"
+                  createdOn: "2023-01-15T10:30:00Z"
+                  modifiedBy: "admin"
+                  modifiedOn: "2024-03-20T14:45:00Z"
+                id: "33bf5b37-e0b8-42e0-8dcf-dc8c4aefc222"
+                names:
+                  - type:
+                      category: "legal"
+                      detail:
+                        id: "44bf5b37-e0b8-42e0-8dcf-dc8c4aefc333"
+                    preference: "preferred"
+                    fullName: "Sarah Elizabeth Johnson"
+                    firstName: "Sarah"
+                    middleName: "Elizabeth"
+                    lastName: "Johnson"
+                roles:
+                  - role: "student"
+                    startOn: "2022-08-20T00:00:00Z"
+                    endOn: "2026-05-15T23:59:59Z"
+                credentials:
+                  - type: "bannerId"
+                    value: "A00001234"
+                    startOn: "2022-08-20T00:00:00Z"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-persons-profiles-qapi.json"
+            example:
+              persons:
+                - id: "11bf5b37-e0b8-42e0-8dcf-dc8c4aefc000"
+                - id: "22bf5b37-e0b8-42e0-8dcf-dc8c4aefc111"
+                - id: "33bf5b37-e0b8-42e0-8dcf-dc8c4aefc222"
+components: 
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-persons-profiles.json:
+      title: Person Profiles
+      description: Provide details such as credentials roles and names for individuals interacting with an institution(for example \student\ \constituent\ or \vendor\).
+      type: object
+      properties: 
+        metadata: 
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties: 
+            createdBy: 
+                title: Created By
+                description: The name of the originator (user or system) of the data. This is informational only do not use in business logic!
+                type: string
+            createdOn: 
+                title: Created On
+                description: The date and time when the entity instance was created
+                oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy: 
+                title: Modified By
+                description: The name of the modifier (user or system) of the data. This is informational only do not use in business logic!
+                type: string
+            modifiedOn: 
+                title: Modified On
+                description: The date and time when the entity instance was last modified
+                oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        id: 
+            title: ID
+            description: A global identifier of a person.
+            type: string
+            format: guid
+            pattern: ^a-f0-98(?:-a-f0-94)3-a-f0-912$  
+            x-lineageReferenceObject: GORGUID_GUID(LDM_NAME= persons)
+        names:
+          title: Names
+          description: The names associated with a person, specified by type (for example,
+            "legal" or "birth").
+          type: array
+          minItems: 1
+          items:
+            type: object
+            properties:
+              type:
+                title: Name Type
+                description: The type of a person's name being defined. For example, a "Primary"
+                  name.
+                oneOf:
+                  - type: object
+                    properties:
+                      category:
+                        title: Name Type Category
+                        description: The global category of person name types.
+                        enum:
+                          - personal
+                          - birth
+                          - legal
+                          - favored
+                        type: string
+                        x-lineageReferenceObject: derived  
+                        x-lineageDerivedLogic: Name type record corresponding to the SPRIDEN_NTYP_CODE that is mapped to a valid name type enum in API configuration setting PERSON.NAMES.NAMETYPE
+                      detail:
+                        title: Detail
+                        description: The type of a person's name being defined.
+                        oneOf:
+                          - type: object
+                            properties:
+                              id:
+                                title: ID
+                                description: The global identifier for the Detail.
+                                type: string
+                                format: guid
+                                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                                x-lineageLookupReferenceObject: person-name-types 
+                                x-lineageReferenceObject: GORGUID_GUID(LDM_NAME = person-name-types) 
+                                x-lineageDerivedLogic: Display GUID from GORGUID with GORGUID_LDM_NAME as 'name-types' and refers to the SPRIDEN_NTYP_CODE in SPRIDEN
+                            additionalProperties: false
+                            required:
+                              - id
+                          - type: object
+                            maxProperties: 0
+                    additionalProperties: false
+                    required:
+                      - category
+                  - type: object
+                    maxProperties: 0
+              preference:
+                title: Name Preference
+                description: Indicates the preferred name for the person. Only one name should
+                  be set to preferred for a person.
+                oneOf:
+                  - type: string
+                    enum:
+                      - preferred
+                    x-lineageReferenceObject: derived  
+                    x-lineageDerivedLogic: If SPRIDEN_CHANGE_IND is null and SPRIDEN_ENTITY_TYPE ='P' then display 'preferred'
+                  - type: string
+                    maxLength: 0
+              fullName:
+                title: Full Name
+                description: The person's full name.
+                type: string
+                minLength: 1
+                x-lineageReferenceObject: derived  
+                x-lineageDerivedLogic: Display the concatenated string of first name (SPRIDEN_FIRST_NAME), middle name (SPRIDEN_MI), last name (SPRIDEN_LAST_NAME). If a Full Legal Name is populated in SPBPERS_LEGAL_NAME then this name will be published as fullName of the 'legal' name without a name type ID if there is no other name with the name type equivalent to 'legal'.
+              title:
+                title: Title
+                description: The person's title. For example, "Mr.", "Mrs.", or "Dr.".
+                type: string
+                x-lineageReferenceObject: SPRIDENS_NAME_PREFIX(SPRIDENS)
+              firstName:
+                title: First Name
+                description: The person's first, or given, name.
+                type: string
+                x-lineageReferenceObject: derived  
+                x-lineageDerivedLogic: The firstName property is published from 'SPRIDEN_FIRST_NAME' field. The firstName stored in 'SPBPERS_PREF_FIRST_NAME' field will be published as firstName of the 'favoured' name without a name type ID if there is no other name with the name type equivalent to 'favoured'.
+              middleName:
+                title: Middle Name
+                description: The person's middle name.
+                type: string
+                x-lineageReferenceObject: SPRIDEN_MI(SPRIDEN)
+              lastNamePrefix:
+                title: Last Name Prefix
+                description: The article or preposition portion of a person's last name. For
+                  example, "De la", "Van", or "Van der Von".
+                type: string
+                x-lineageReferenceObject: SPRIDEN_SURNAME_PREFIX(SPRIDEN)
+              lastName:
+                title: Last Name
+                description: The person's last, or family, name.
+                type: string
+                x-lineageReferenceObject: SPRIDEN_LAST_NAME(SPRIDEN)
+              pedigree:
+                title: Pedigree/Suffix
+                description: The person's pedigree. For example, "Jr." or "Sr.".
+                type: string
+                x-lineageReferenceObject: SPBPERS_NAME_SUFFIX(SPBPERS) or SPRIDENS_NAME_SUFFIX(SPRIDENS)
+              professionalAbbreviations:
+                title: Professional Abbreviation
+                description: A post-nominal professional abbreviation, reflecting an earned
+                  degree or honor. For example, "M.D." or "Ph.D.".
+                type: array
+                items:
+                  type: string
+                  x-lineageReferenceObject: SPRIDENM_PROF_ABBR(SPRIDENM)
+            additionalProperties: false
+            required:
+              - fullName
+        roles:
+          title: Role
+          description: The roles that a person fills as he/she interacts with the
+            institution.
+          type: array
+          items:
+            type: object
+            properties:
+              role:
+                title: Role
+                description: The actions and activities assigned to, required of, or expected of
+                  a person. For example, the roles of "Faculty" or "Student".
+                enum:
+                  - student
+                  - instructor
+                  - employee
+                  - vendor
+                  - alumni
+                  - prospectiveStudent
+                  - advisor
+                type: string
+                x-lineageReferenceObject: derived  
+                x-lineageDerivedLogic: Displays the role enum 'vendor' if the person has a record in FTVVEND, 'instructor' if the person has a record in SIBINST where the SIBINST Faculty Status is defined as Active in STVFCST and SIBINST_SCHD_IND = 'Y', 'employee' if the person has a record in PEBEMPL, 'prospectiveStudent' if the person has a record in SRBRECR, 'alumni' if the person has a record in APRCATG, 'student' if the person has a record in SGBSTDN, 'advisor' if the person has a record in SIBINST where the SIBINST Faculty Status is defined as Active in STVFCST and SIBINST_ADVR_IND = 'Y'
+              startOn:
+                title: Start Date
+                description: The date when a person starts filling a role.
+                oneOf:
+                  - type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    x-lineageReferenceObject: APRCATG_ACTIVITY_DATE(APRCATG) or STVTERM_START_DATE(STVTERM) or FTVVEND_EFF_DATE(FTVVEND) or PEBEMPL_FIRST_WORK_DATE(PEBEMPL) or STVTERM_START_DATE(STVTERM) or STVTERM_START_DATE(STVTERM) or STVTERM_START_DATE(STVTERM)
+                  - type: string
+                    maxLength: 0
+              endOn:
+                title: End Date
+                description: The date when a person stops filling a role.
+                oneOf:
+                  - type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                    x-lineageReferenceObject: PEBEMPL_LAST_WORK_DATE(PEBEMPL) or STVTERM_END_DATE(STVTERM) or STVTERM_END_DATE(STVTERM) or FTVVEND_TERM_DATE(FTVVEND) or STVTERM_END_DATE(STVTERM) or STVTERM_END_DATE(STVTERM)
+                  - type: string
+                    maxLength: 0
+            additionalProperties: false
+            required:
+              - role
+        credentials:
+          title: Credentials
+          description: Information that identifies a user to a system such as a network or computer.
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                title: Type
+                description: The type of credential, such as "Person ID", "System ID", etc.
+                enum:
+                  - ssn
+                  - sin
+                  - bannerId
+                  - colleaguePersonId
+                  - elevateId
+                  - bannerSourcedId
+                  - bannerUserName
+                  - bannerUdcId
+                  - colleagueUserName
+                  - taxIdentificationNumber
+                  - crmAdvanceUserName
+                  - powerCampusId
+                  - campusLogicId
+                  - quercusId
+                  - powerCampusUserName
+                  - campusLogicUserName
+                  - quercusUserName
+                type: string
+              value:
+                title: Value
+                description: The current value of the credential.
+                type: string
+                minLength: 1
+              startOn:
+                title: Start Date
+                description: The date when the credential starts being valid.
+                oneOf:
+                  - type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                  - type: string
+                    maxLength: 0
+                    example: ""
+
+              endOn:
+                title: End Date
+                description: The date when the credential stops being valid.
+                oneOf:
+                  - type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                  - type: string
+                    maxLength: 0
+
+            additionalProperties: false
+            required:
+              - type
+              - value      
+      required: 
+          - id
+          - names
+    schema-persons-profiles-qapi.json:
+      title: Person Profiles QAPI
+      description: Provide details such as credentials roles and names for individuals interacting with an institution(for example \student\ \constituent\ or \vendor\).
+      type: object
+      properties: 
+        persons:
+          title: persons
+          description: The list of person identifiers for the search criteria.
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                title: ID
+                description: The global identifier for the Genders.
+                type: string
+                format: guid
+                pattern: ^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$
+                x-lineageReferenceObject: GORGUID_GUID(LDM_NAME= persons)
+            additionalProperties: false
+            required:
+                - id

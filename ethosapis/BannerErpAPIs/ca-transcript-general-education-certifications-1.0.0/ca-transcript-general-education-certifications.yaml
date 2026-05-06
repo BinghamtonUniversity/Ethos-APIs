@@ -1,0 +1,220 @@
+openapi: 3.0.0
+info:
+  title: ca-transcript-general-education-certifications
+  description: This API retrieves all California User Defined Extensions elements
+    for General Education Certifications based on the Banner ID and Level Code.
+  version: 1.0.0-beta
+  x-audience: all
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: beta
+  x-source-domain: Student
+  x-source-title: CA Transcript General Education Certifications
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/ca-transcript-general-education-certifications:
+    get:
+      summary: Return User Defined Extensions elements for General Education
+        Certification
+      description: Return California User Defined Extensions elements for General
+        Education Certification.
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_CA_TRANS_GEN_EDU_CERTS
+      tags:
+        - ca-transcript-general-education-certifications
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards from more information. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: bannerId
+          in: query
+          required: true
+          schema:
+            title: Banner ID
+            type: string
+            description: Banner ID of the student holding the account.
+            maxLength: 9
+            x-lineageReferenceObject: SPRIDEN_ID
+          description: >
+            ### Banner ID
+
+            Returns the User Defined Extensions elements based on on the Banner
+            ID.
+
+            ```
+
+            /ca-transcript-general-education-certifications?levlCode=UG&bannerId=A40505078
+
+            ```
+        - name: levlCode
+          in: query
+          required: true
+          schema:
+            type: string
+            title: Level Code
+            maxLength: 2
+            x-lineageReferenceObject: SHRLGPA_LEVL_CODE
+            x-lineageLookupReferenceObject: STVLEVL
+          description: >
+            ### Level Code
+
+            Returns the User Defined Extensions elements based on on the Level
+            Code.
+
+            ```
+
+            /ca-transcript-general-education-certifications?levlCode=UG&bannerId=A40505078
+
+            ```
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/schema-transcript-general-education-certifications.\
+                  json"
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-transcript-general-education-certifications.json:
+      title: General Education Certification elements
+      description: California User Defined Extensions elements for General Education
+        Certification based on the Banner ID and Level Code.
+      type: array
+      items:
+        type: object
+        properties:
+          sectionResult:
+            title: Section Result
+            description: sectionResult specifies if the General Education Certification
+              detail should be placed under CSU GE, UC IGETC, or CSU IGETC.
+            type: array
+            items:
+              type: object
+              properties:
+                sectionCode:
+                  title: Section Code
+                  type: string
+                metInd:
+                  title: Met Indicator
+                  type: boolean
+                completionDate:
+                  title: Completion Date
+                  type: string
+                areaResult:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      areaCode:
+                        title: Area Code
+                        type: string
+                      metInd:
+                        title: Met Indicator
+                        type: string
+                      completionDate:
+                        title: Completion Date
+                        type: string
+          detailedReport:
+            title: Detailed Report
+            description: Detailed Report specifies if the General Education Certification
+              detail should be placed under CSU GE, UC IGETC, or CSU IGETC.
+            type: array
+            items:
+              type: object
+              properties:
+                areaCode:
+                  type: string
+                attribute:
+                  type: string
+                courses:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      indicator:
+                        type: string
+                      surrogateId:
+                        type: string
+                      metInd:
+                        type: string
+          courseAreaResult:
+            title: Course Area Result
+            description: Course Area Result specifies the details about the Courese related
+              General Education Certification User Defined Extensions elements
+            type: array
+            items:
+              type: object
+              properties:
+                appliedArea:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      areaAttribute:
+                        type: string
+                      sectionCode:
+                        type: string
+                eligibleArea:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      areaAttribute:
+                        type: array
+                        items:
+                          type: string
+                      sectionCode:
+                        type: string
+                indicator:
+                  type: string
+                surrogateId:
+                  type: string
+      additionalProperties: false

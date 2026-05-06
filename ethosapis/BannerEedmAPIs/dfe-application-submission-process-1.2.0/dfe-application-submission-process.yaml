@@ -1,0 +1,1094 @@
+openapi: 3.0.0
+info:
+  title: DfE Application Submission Process
+  description: >
+    This API creates a new DfE candidate application record with given data in
+    the request body.
+  version: 1.2.0
+  x-source-system: banner
+  x-api-type: ethos
+  x-source-domain: Recruitment
+  x-audience: all
+  x-release-status: ga
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/dfe-application-submission-process:
+    post:
+      summary: Create a new resource in SAREAAS table
+      description: |
+        
+        Creates a new DfE candidate record in SAREAAS table
+      security:
+        - EthosIntegrationBearer: []
+      x-method-permissions: API_DFE_SUBMISSION_PROCESS
+      tags:
+        - DfE Application Submission Process
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Please refer to the API
+            source documentation for detailed support information. Prefer to use
+            only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+        - name: content type
+          in: header
+          required: true
+          description: >
+            The version of the resource supplied in the request. Please refer to
+            the API source documentation for detailed support information.
+            Prefer to use only the whole MAJOR version. 
+
+            ```
+
+            application/vnd.hedtech.integration.v1.0.0+json
+
+            ```
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            X-Media-Type:
+              description: application/vnd.hedtech.integration.v1.0.0+json
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/schema-dfe-application-submission-process.json"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Permission Denied
+        "404":
+          description: Resource not found
+        "500":
+          description: Server error, unexpected configuration or data
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-dfe-application-submission-process.json"
+components:
+  securitySchemes:
+    EthosIntegrationBearer:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-dfe-application-submission-process.json:
+      title: DfE Application Submission Process
+      description: The submission of teachers training applications in UK under UK
+        Government Department, DfE (Department for Education).
+      type: object
+      properties:
+        metadata:
+          title: Metadata
+          description: Metadata about the JSON payload
+          type: object
+          properties:
+            createdBy:
+              title: Created By
+              description: The name of the originator (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            createdOn:
+              title: Created On
+              description: The date and time when the entity instance was created
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            modifiedBy:
+              title: Modified By
+              description: The name of the modifier (user or system) of the data. This is
+                informational only, do not use in business logic!
+              type: string
+            modifiedOn:
+              title: Modified On
+              description: The date and time when the entity instance was last modified
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+          additionalProperties: false
+        dfeApplicationId:
+          title: DfE Application ID
+          description: The unique DfE ID of this application.
+          type: string
+          minLength: 1
+        type:
+          title: Type
+          description: Type of the object, always 'application'.
+          type: string
+        attribute:
+          title: Attribute
+          description: The attributes of the application and applicant.
+          type: object
+          properties:
+            status:
+              title: Status
+              description: The status of this application.
+              type: string
+            phase:
+              title: Phase
+              description: The phase of this application. In the first phase, 'Apply 1', the
+                candidate can choose up to 3 courses. If all of those choices
+                are rejected, declined, or withdrawn, the user can go into
+                'Apply 2'. This means they can choose 1 course at a time.
+              type: string
+            submittedOn:
+              title: Submitted Date
+              description: Time of submission.
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            updatedOn:
+              title: Updated Date
+              description: Time of last change.
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            rejectByDefaultOn:
+              title: Reject By Default Date
+              description: Time when the application is due to be rejected by default.
+              oneOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                - type: string
+                  maxLength: 0
+            recruitedOn:
+              title: Recruited On
+              description: Indicates when the candidate met their conditions, receiving a firm
+                place on the course.
+              oneOf:
+                - type: string
+                  format: date
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                - type: string
+                  maxLength: 0
+            offerDeferredAt:
+              title: Offer Deferred At
+              description: Application deferred date
+              oneOf:
+                - type: string
+                  format: date
+                  pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                - type: string
+                  maxLength: 0
+            statusBeforeDeferral:
+              title: Status Before Deferral
+              description: The status of the application before deferral.
+              type: string
+            deferredToRecruitmentCycleYear:
+              title: Deferred To Recruitment Cycle Year
+              description: The recruitment cycle year a deferred application can be confirmed.
+              type: string
+            personalStatement:
+              title: Personal Statement
+              description: The candidate’s personal statement, combined from the 'Becoming a
+                Teacher' and 'Subject Knowledge' fields in the application form.
+              type: string
+            interviewPreference:
+              title: Interview Preference
+              description: The candidate’s interview preferences.
+              type: string
+            furtherInformation:
+              title: Further Information
+              description: Other personal or professional issues relevant to the application
+                which are not covered in the form.
+              type: string
+            candidate:
+              title: Candidate
+              description: Personal Details of an applicant.
+              type: object
+              properties:
+                id:
+                  title: ID
+                  description: The candidate’s ID in the Apply system.
+                  type: string
+                  minLength: 1
+                firstName:
+                  title: First Name
+                  description: The candidate’s first name.
+                  type: string
+                  minLength: 1
+                lastName:
+                  title: Last Name
+                  description: The candidate’s last name.
+                  type: string
+                  minLength: 1
+                dateOfBirth:
+                  title: Date Of Birth
+                  description: The candidate’s date of birth.
+                  oneOf:
+                    - type: string
+                      format: date
+                      pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                    - type: string
+                      maxLength: 0
+                nationality:
+                  title: Nationality
+                  description: One or more ISO 3166 country codes.
+                  type: array
+                  items:
+                    type: string
+                domicile:
+                  title: Domicile
+                  description: The candidate’s domicile, extracted from their address.
+                  type: string
+                ukResidencyStatus:
+                  title: UK Residency Status
+                  description: The candidate’s UK residency status, e.g. Citizen.
+                  type: string
+                ukResidencyStatusCode:
+                  title: UK Residency Status Code
+                  description: The candidate’s UK residency status code.
+                  type: string
+                feePayer:
+                  title: Fee Payer
+                  description: Provisional fee payer status based on a candidate's nationality,
+                    residency status and domicile.
+                  type: string
+                englishMainLanguage:
+                  title: English Main Language
+                  description: Does this candidate have English as a main language?
+                  oneOf:
+                    - type: boolean
+                    - type: string
+                      nullable: true
+                englishLanguageQualification:
+                  title: English Language Qualification
+                  description: About this candidate's English language qualifications, if English
+                    is not their main language.
+                  type: string
+                otherLanguage:
+                  title: Other Language
+                  description: Details of the candidate's fluency in other languages.
+                  type: string
+                disabilityDisclosure:
+                  title: Disability Disclosure
+                  description: Voluntary disclosure of disabliity or SEN so providers can provide
+                    appropriate support.
+                  type: string
+              additionalProperties: false
+              required:
+                - id
+                - firstName
+                - lastName
+            contactDetails:
+              title: Contact Details
+              description: Phone, email and physical addresses where an applicant may be
+                contacted.
+              type: object
+              properties:
+                addressLine1:
+                  title: Address Line1
+                  description: The candidate’s address line 1.
+                  type: string
+                  minLength: 1
+                addressLine2:
+                  title: Address Line2
+                  description: The candidate’s address line 2.
+                  type: string
+                addressLine3:
+                  title: Address Line3
+                  description: The candidate’s address line 3.
+                  type: string
+                addressLine4:
+                  title: Address Line4
+                  description: The candidate’s address line 4.
+                  type: string
+                country:
+                  title: Country
+                  description: The candidate’s country - ISO 3166 country code.
+                  type: string
+                  minLength: 1
+                email:
+                  title: Email
+                  description: The candidate’s email address.
+                  type: string
+                  minLength: 1
+                phoneNumber:
+                  title: Phone Number
+                  description: The candidate’s phone number.
+                  type: string
+                postcode:
+                  title: Postcode
+                  description: The candidate’s postcode.
+                  type: string
+              additionalProperties: false
+              required:
+                - addressLine1
+                - country
+                - email
+            course:
+              title: Course
+              description: Identifies the subject requested by an applicant and all related
+                information.
+              oneOf:
+                - type: object
+                  properties:
+                    recruitmentCycleYear:
+                      title: Recruitment Cycle Year
+                      description: The course’s recruitment cycle year.
+                      type: integer
+                    providerCode:
+                      title: Provider Code
+                      description: The provider’s code.
+                      type: string
+                    courseCode:
+                      title: Course Code
+                      description: The course’s code.
+                      type: string
+                      minLength: 1
+                    siteCode:
+                      title: Site Code
+                      description: The site’s code.
+                      type: string
+                      minLength: 1
+                    studyMode:
+                      title: Study Mode
+                      description: Can be 'full_time' or 'part_time'.
+                      type: string
+                    startDate:
+                      title: Start Date
+                      description: Indicates when this course starts.
+                      type: string
+                  additionalProperties: false
+                  required:
+                    - recruitmentCycleYear
+                    - courseCode
+                    - siteCode
+                - type: object
+                  maxProperties: 0
+            qualification:
+              title: Qualification
+              description: Information about applicant’s qualification.
+              type: object
+              properties:
+                gcses:
+                  title: GCSES
+                  description: Information related to General Certificate of Secondary Education
+                    (GCSE) exams.
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The qualification ID in the Apply system.
+                        oneOf:
+                          - type: integer
+                          - type: string
+                            nullable: true
+                      qualificationType:
+                        title: Qualification Type
+                        description: The qualification awarded.
+                        type: string
+                      nonUkQualificationType:
+                        title: Non UK Qualification Type
+                        description: For a qualification of type non_uk, this field will contain a
+                          free-text description of the qualification type.
+                        type: string
+                      subject:
+                        title: Subject
+                        description: The subject studied.
+                        type: string
+                      subjectCode:
+                        title: Subject Code
+                        description: The HECoS code for the subject studied, if available.
+                        type: string
+                      grade:
+                        title: Grade
+                        description: The grade awarded.
+                        type: string
+                      awardYear:
+                        title: Award Year
+                        description: The year the award was made.
+                        type: string
+                      institutionDetails:
+                        title: Institution Details
+                        description: Details about the institution and awarding body.
+                        type: string
+                      equivalencyDetails:
+                        title: Equivalency Details
+                        description: Details of equivalency, if this qualification was awarded overseas.
+                        type: string
+                      awardingBody:
+                        title: Awarding Body
+                        description: Details about the qualification awarding body.
+                        type: string
+                      startYear:
+                        title: Start Year
+                        description: The year the candidate started qualification.
+                        type: string
+                      hesaDegreeType:
+                        title: HESA Degree Type
+                        description: HESA code for degree type.
+                        type: string
+                      hesaDegreeSubject:
+                        title: HESA Degree Subject
+                        description: HESA code for degree subject.
+                        type: string
+                      hesaDegreeClass:
+                        title: HESA Degree Class
+                        description: HESA code for degree class.
+                        type: string
+                      hesaDegreeEstablishment:
+                        title: HESA Degree Establishment
+                        description: HESA code for degree establishment.
+                        type: string
+                      hesaDegreeCountry:
+                        title: HESA Degree Country
+                        description: HESA code for degree country.
+                        type: string
+                      hesaDegreeStartDate:
+                        title: HESA Degree Start Date
+                        description: Degree start date.
+                        oneOf:
+                          - type: string
+                            format: date
+                            pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                          - type: string
+                            maxLength: 0
+                      hesaDegreeEndDate:
+                        title: HESA Degree End Date
+                        description: Degree End date.
+                        oneOf:
+                          - type: string
+                            format: date
+                            pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                          - type: string
+                            maxLength: 0
+                    additionalProperties: false
+                degrees:
+                  title: Degrees
+                  description: Information about an applicant’s degree.
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The qualification ID in the Apply system.
+                        oneOf:
+                          - type: integer
+                          - type: string
+                            nullable: true
+                      qualificationType:
+                        title: Qualification Type
+                        description: The qualification awarded.
+                        type: string
+                      nonUkQualificationType:
+                        title: Non UK Qualification Type
+                        description: For a qualification of type non_uk, this field will contain a
+                          free-text description of the qualification type.
+                        type: string
+                      subject:
+                        title: Subject
+                        description: The subject studied.
+                        type: string
+                      subjectCode:
+                        title: Subject Code
+                        description: The HECoS code for the subject studied, if available.
+                        type: string
+                      grade:
+                        title: Grade
+                        description: The grade awarded.
+                        type: string
+                      awardYear:
+                        title: Award Year
+                        description: The year the award was made.
+                        type: string
+                      institutionDetails:
+                        title: Institution Details
+                        description: Details about the institution and awarding body.
+                        type: string
+                      equivalencyDetails:
+                        title: Equivalency Details
+                        description: Details of equivalency, if this qualification was awarded overseas.
+                        type: string
+                      awardingBody:
+                        title: Awarding Body
+                        description: Details about the qualification awarding body.
+                        type: string
+                      startYear:
+                        title: Start Year
+                        description: The year the candidate started qualification.
+                        type: string
+                      hesaDegreeType:
+                        title: HESA Degree type
+                        description: HESA code for degree type.
+                        type: string
+                      hesaDegreeSubject:
+                        title: HESA Degree Subject
+                        description: HESA code for degree subject.
+                        type: string
+                      hesaDegreeClass:
+                        title: HESA Degree Class
+                        description: HESA code for degree class.
+                        type: string
+                      hesaDegreeEstablishment:
+                        title: HESA Degree Establishment
+                        description: HESA code for degree establishment.
+                        type: string
+                      hesaDegreeCountry:
+                        title: HESA Degree Country
+                        description: HESA code for degree country.
+                        type: string
+                      hesaDegreeStartDate:
+                        title: HESA Degree Start Date
+                        description: Degree start date.
+                        oneOf:
+                          - type: string
+                            format: date-time
+                            pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                          - type: string
+                            maxLength: 0
+                      hesaDegreeEndDate:
+                        title: HESA Degree End Date
+                        description: Degree End date.
+                        oneOf:
+                          - type: string
+                            format: date-time
+                            pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                          - type: string
+                            maxLength: 0
+                    additionalProperties: false
+                otherQualifications:
+                  title: Other Qualifications
+                  description: Additional qualification details of an applicant.
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The qualification ID in the Apply system.
+                        oneOf:
+                          - type: integer
+                          - type: string
+                            nullable: true
+                      qualificationType:
+                        title: Qualification Type
+                        description: The qualification awarded.
+                        type: string
+                      nonUkQualificationType:
+                        title: Non UK Qualification Type
+                        description: For a qualification of type non_uk, this field will contain a
+                          free-text description of the qualification type.
+                        type: string
+                      subject:
+                        title: Subject
+                        description: The subject studied.
+                        type: string
+                      subjectCode:
+                        title: Subject Code
+                        description: The HECoS code for the subject studied, if available.
+                        type: string
+                      grade:
+                        title: Grade
+                        description: The grade awarded.
+                        type: string
+                      awardYear:
+                        title: Award Year
+                        description: The year the award was made.
+                        type: string
+                      institutionDetails:
+                        title: Institution Details
+                        description: Details about the institution and awarding body.
+                        type: string
+                      equivalencyDetails:
+                        title: Equivalency Details
+                        description: Details of equivalency, if this qualification was awarded overseas.
+                        type: string
+                      awardingBody:
+                        title: Awarding Body
+                        description: Details about the qualification awarding body.
+                        type: string
+                      startYear:
+                        title: Start Year
+                        description: The year the candidate started qualification.
+                        type: string
+                      hesaDegreeType:
+                        title: HESA Degree type
+                        description: HESA code for degree type.
+                        type: string
+                      hesaDegreeSubject:
+                        title: HESA Degree Subject
+                        description: HESA code for degree subject.
+                        type: string
+                      hesaDegreeClass:
+                        title: HESA Degree Class
+                        description: HESA code for degree class.
+                        type: string
+                      hesaDegreeEstablishment:
+                        title: HESA degree establishment
+                        description: HESA code for degree establishment.
+                        type: string
+                      hesaDegreeCountry:
+                        title: HESA Degree Country
+                        description: HESA code for degree country.
+                        type: string
+                      hesaDegreeStartDate:
+                        title: HESA Degree Start Date
+                        description: Degree start date.
+                        oneOf:
+                          - type: string
+                            format: date-time
+                            pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                          - type: string
+                            maxLength: 0
+                      hesaDegreeEndDate:
+                        title: HESA Degree End Date
+                        description: Degree End date.
+                        oneOf:
+                          - type: string
+                            format: date-time
+                            pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                          - type: string
+                            maxLength: 0
+                    additionalProperties: false
+                missingGcsesExplanation:
+                  title: Missing gcses Explanation
+                  description: If the candidate lacks any required GCSEs, this field will contain
+                    their free-text explanation of why this is the case.
+                  type: string
+              additionalProperties: false
+            workExperience:
+              title: Work Experience
+              description: Information about an applicant’s current and previous employments.
+              type: object
+              properties:
+                jobs:
+                  title: Jobs
+                  description: Information about an applicant’s jobs.
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The work experience ID in the Apply system.
+                        oneOf:
+                          - type: integer
+                          - type: string
+                            nullable: true
+                      organisationName:
+                        title: Organisation Name
+                        description: The organisation worked for.
+                        type: string
+                      startDate:
+                        title: Start Date
+                        description: The date the position began.
+                        oneOf:
+                          - type: string
+                            format: date
+                            pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                          - type: string
+                            maxLength: 0
+                      endDate:
+                        title: End Date
+                        description: The date the position finished, if applicable.
+                        oneOf:
+                          - type: string
+                            format: date
+                            pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                          - type: string
+                            maxLength: 0
+                      role:
+                        title: Role
+                        description: The position held by the candidate.
+                        type: string
+                      description:
+                        title: Description
+                        description: A written description of the work involved.
+                        type: string
+                      workingWithChildren:
+                        title: Working With Children
+                        description: Did this position involve working in a school or with children?
+                        oneOf:
+                          - type: boolean
+                          - type: string
+                            nullable: true
+                      commitment:
+                        title: Commitment
+                        description: Whether the work was full time or part time.
+                        type: string
+                    additionalProperties: false
+                volunteering:
+                  title: Volunteering
+                  description: Information about an applicant’s volunteering experience.
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        title: ID
+                        description: The work experience ID in the Apply system.
+                        oneOf:
+                          - type: integer
+                          - type: string
+                            nullable: true
+                      organisationName:
+                        title: Organisation Name
+                        description: The organisation worked for.
+                        type: string
+                      startDate:
+                        title: Start Date
+                        description: The date the position began.
+                        oneOf:
+                          - type: string
+                            format: date
+                            pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                          - type: string
+                            maxLength: 0
+                      endDate:
+                        title: End Date
+                        description: The date the position finished, if applicable.
+                        oneOf:
+                          - type: string
+                            format: date
+                            pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                          - type: string
+                            maxLength: 0
+                      role:
+                        title: Role
+                        description: The position held by the candidate.
+                        type: string
+                      description:
+                        title: Description
+                        description: A written description of the work involved.
+                        type: string
+                      workingWithChildren:
+                        title: Working With Children
+                        description: Did this position involve working in a school or with children?
+                        oneOf:
+                          - type: boolean
+                          - type: string
+                            nullable: true
+                      commitment:
+                        title: Commitment
+                        description: Whether the work was full time or part time
+                        type: string
+                    additionalProperties: false
+                workHistoryBreakExplanation:
+                  title: Work History Break Explanation
+                  description: The candidate’s explanation for any breaks in work history. Will be
+                    null if there aren't any breaks in the candidate’s work
+                    history. We define a break in work history as more than a
+                    month between 2 jobs.
+                  type: string
+              additionalProperties: false
+            references:
+              title: References
+              description: Information about an applicant’s referee and the reference
+                associated with the referee.
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    title: ID
+                    description: A unique reference ID.
+                    type: string
+                  name:
+                    title: Name
+                    description: The referee’s name.
+                    type: string
+                  email:
+                    title: Email
+                    description: The referee’s email.
+                    type: string
+                  relationship:
+                    title: Relationship
+                    description: The candidate’s description of their relationship with the referee.
+                    type: string
+                  reference:
+                    title: Reference
+                    description: The reference content provided by the referee.
+                    type: string
+                  safeguardingConcerns:
+                    title: Safeguarding Concerns
+                    description: Indicates whether the referee flagged safeguarding concerns about
+                      this candidate.
+                    type: string
+                  refereeType:
+                    title: Referee Type
+                    description: The referee’s relationship to the candidate.
+                    type: string
+                additionalProperties: false
+            interviews:
+              title: Interviews
+              description: Array Of Interviews
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    title: Id
+                    description: DfE Interview Id
+                    type: string
+                  providerCode:
+                    title: Provider Code
+                    description: The training or the ratifying provider for the application and the
+                      course applied to
+                    type: string
+                  interviewDate:
+                    title: Interview Date And Time
+                    description: Date and time of the interview
+                    type: string
+                    format: date-time
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$
+                  location:
+                    title: Location
+                    description: The string describing where or how the interview will take place
+                    type: string
+                  additionalDetails:
+                    title: Additional Details
+                    description: The string for additional notes.
+                    type: string
+                  cancelledOn:
+                    title: Cancelled On
+                    description: Date and time of cancellation, if cancelled
+                    type: string
+                    format: date
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                  cancellationReason:
+                    title: Cancellation Reason
+                    description: The reason for the cancellation. If none are yet provided for an
+                      application rejected by default
+                    type: string
+                  createdOn:
+                    title: Created On
+                    description: Date and time the original interview was created
+                    type: string
+                    format: date
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                  updatedOn:
+                    title: Updated On
+                    description: Date and time the interview was updated
+                    type: string
+                    format: date
+                    pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                additionalProperties: false
+            offer:
+              title: Offer
+              description: Decisions made on application.
+              oneOf:
+                - type: object
+                  properties:
+                    conditions:
+                      title: Conditions
+                      description: Conditions to be met for admissions.
+                      type: array
+                      items:
+                        type: string
+                    course:
+                      title: Course
+                      description: Identifies the subject requested by an applicant and all related
+                        information.
+                      type: object
+                      properties:
+                        recruitmentCycleYear:
+                          title: Recruitment Cycle Year
+                          description: The course’s recruitment cycle year
+                          type: integer
+                        providerCode:
+                          title: Provider Code
+                          description: The provider’s code.
+                          type: string
+                        courseCode:
+                          title: Course Code
+                          description: The course’s code.
+                          type: string
+                          minLength: 1
+                        siteCode:
+                          title: Site Code
+                          description: The site’s code
+                          type: string
+                          minLength: 1
+                        studyMode:
+                          title: Study Mode
+                          description: Can be 'full_time' or 'part_time'.
+                          type: string
+                        startDate:
+                          title: Start Date
+                          description: Indicates when this course starts.
+                          type: string
+                      additionalProperties: false
+                      required:
+                        - recruitmentCycleYear
+                        - courseCode
+                        - siteCode
+                    offerMadeOn:
+                      title: Offer Made On
+                      description: Date and time the offer was made.
+                      oneOf:
+                        - type: string
+                          format: date
+                          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                        - type: string
+                          maxLength: 0
+                    offerAcceptedOn:
+                      title: Offer Accepted On
+                      description: Date and time the offer was accepted.
+                      oneOf:
+                        - type: string
+                          format: date
+                          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                        - type: string
+                          maxLength: 0
+                    offerDeclinedOn:
+                      title: Offer Declined On
+                      description: Date and time the offer was declined.
+                      oneOf:
+                        - type: string
+                          format: date
+                          pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                        - type: string
+                          maxLength: 0
+                  additionalProperties: false
+                  required:
+                    - course
+                - type: object
+                  maxProperties: 0
+            withdrawal:
+              title: Withdrawal
+              description: Date and reason for withdrawal.
+              oneOf:
+                - type: object
+                  properties:
+                    date:
+                      title: Date
+                      description: Date of the withdrawal.
+                      type: string
+                      format: date
+                      pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                  additionalProperties: false
+                  required:
+                    - date
+                - type: object
+                  maxProperties: 0
+            rejection:
+              title: Rejection
+              description: Reason for rejection.
+              oneOf:
+                - type: object
+                  properties:
+                    reason:
+                      title: Reason
+                      description: The reason for rejection or offer withdrawal.
+                      type: string
+                      minLength: 1
+                    date:
+                      title: Date
+                      description: Date of rejection
+                      type: string
+                      format: date
+                      pattern: ^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])$
+                  additionalProperties: false
+                  required:
+                    - reason
+                    - date
+                - type: object
+                  maxProperties: 0
+            hesaIttData:
+              title: Hesa Itt Data
+              description: Information required by HESA for the Initial Teacher Training data
+                return. This information will only be returned once the
+                application status is `enrolled`.
+              type: object
+              properties:
+                sex:
+                  title: Sex
+                  description: The candidate’s sex as a [1-digit HESA code for Sex].
+                  type: string
+                disability:
+                  title: Disability
+                  description: The candidate’s disability as [a 2-digit HESA code for Disability].
+                  type: array
+                  items:
+                    type: string
+                ethnicity:
+                  title: Ethnicity
+                  description: The candidate’s ethnicity as [a 2-digit HESA code for Ethnicity].
+                  type: string
+                otherDisabilityDetails:
+                  title: Other Disability Details
+                  description: The candidate’s description of their disability, if they selected
+                    “Other” and entered a value.
+                  type: string
+                otherEthnicityDetails:
+                  title: Other Ethnicity Details
+                  description: The candidate’s description of their ethnicity, if they selected
+                    “Other” and entered a value.
+                  type: string
+              additionalProperties: false
+            supportReference:
+              title: Support Reference
+              description: The candidate's reference number for their application in the Apply
+                system.
+              type: string
+            safeguardingIssuesStatus:
+              title: Safeguarding Issues Status
+              description: Status of candidate's response to the safeguarding issues
+                declaration.
+              type: string
+            safeguardingIssuesDetailsUrl:
+              title: Safeguarding Issues Details Url
+              description: URL to Apply system where safeguarding issues disclosed by the
+                candidate can be access by users with permissions to view
+                safeguarding information.
+              type: string
+            withdrawnOrDeclinedForCandidate:
+              title: Withdrawn Or Declined For Candidate
+              description: Was application withdrawn or offer declined at candidate’s request
+              type: boolean
+          additionalProperties: false
+          required:
+            - candidate
+            - contactDetails
+      required:
+        - dfeApplicationId
+        - attribute
+      additionalProperties: false

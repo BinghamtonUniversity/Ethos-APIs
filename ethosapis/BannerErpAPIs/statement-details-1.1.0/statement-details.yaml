@@ -1,0 +1,514 @@
+openapi: 3.0.0
+info:
+  title: Statement Details
+  description: The Statement Details API provides information on the statements generated.
+  version: 1.1.0
+  x-source-domain: Student
+  x-source-name: TBBSTMT
+  x-source-system: banner
+  x-api-type: erp
+  x-release-status: ga
+  x-audience: all
+servers:
+  - url: https://integrate.elluciancloud.com
+    description: Ethos Integration API U.S.
+  - url: https://integrate.elluciancloud.ca
+    description: Ethos Integration API Canada
+  - url: https://integrate.elluciancloud.ie
+    description: Ethos Integration API Europe
+  - url: https://integrate.elluciancloud.com.au
+    description: Ethos Integration API Asia-Pacific
+  - url: "{server_url}"
+    description: Custom server url
+    variables:
+      server_url:
+        default: localhost
+paths:
+  /api/statement-details:
+    get:
+      summary: Returns listing of all the statements.
+      description: Return all information on statements that are generated from TSRRBILL/TSRSBILL, from table TBBSTMT with Parsing status is 'P' or 'N' or NULL.
+      security:
+        - BearerAuth: []
+      x-method-permissions: API_STATEMENT_DETAILS
+      tags:
+        - statement-details
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards for more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.1.0+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: criteria
+          in: query
+          required: false
+          schema:
+            type: object
+            $ref: '#/components/schemas/statement-details-1.1.0_query_request'
+          description: >
+            ### Bill Run
+
+            Returns the statements based on the bill run number
+
+            ```
+
+            /statement-details?criteria={"billRun":1}
+
+            ```
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1.1.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/statement-details-1.1.0'
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_v2'
+              examples:
+                BillRunMissing:
+                  $ref: '#/components/examples/BillRunMissing'
+  /api/statement-details/billRun:
+    put:
+      summary: Update the record for the statements.
+      description: Update the requested record for the statements.
+      security:
+        - BearerAuth: []
+      x-method-permissions: API_STATEMENT_DETAILS
+      tags:
+        - statement-details
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          description: >
+            The version of the resource requested. Prefer to use only the whole
+            MAJOR version.  See the semantic versioning topic in the API
+            Standards for more information.
+
+            ```
+
+            application/vnd.hedtech.integration.v1.1.0+json
+
+            ```
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The maximum number of resources requesting for this result set.
+            Default page limit is 500 and upper limit is 1000.
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: The 0 based index for a collection of resources for the page
+            requested.
+          schema:
+            type: integer
+        - name: billRun
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: parsingStatusCode
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: mediaId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+            X-Content-Restricted:
+              description: If the response is not a full representation of the resource, a partial representation is returned. Otherwise, this header is not included.
+              schema:
+                type: string
+            X-Total-Count:
+              description: Specifies the total number of resources that satisfy the query.
+              schema:
+                type: integer
+            X-Max-Page-Size:
+              description: Specifies the maximum number of resources returned in a response.
+              schema:
+                type: integer
+          content:
+            application/vnd.hedtech.integration.v1.1.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/statement-details-1.1.0'
+        "400":
+          description: Failure. Bad Request. The server cannot process the request due to something that is perceived to be a client error.
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/errors_v2'
+              examples:
+                BillRunMissing:
+                  $ref: '#/components/examples/BillRunMissing'
+                MediaIdMissing:
+                  $ref: '#/components/examples/MediaIdMissing'
+                ParsingCodeMissing:
+                  $ref: '#/components/examples/ParsingCodeMissing'
+                InvalidStatus:
+                  $ref: '#/components/examples/InvalidStatus'
+                IncorrectStatus:
+                  $ref: '#/components/examples/IncorrectStatus'
+                NoRecords:
+                  $ref: '#/components/examples/NoRecords'
+      requestBody:
+        required: true
+        content:
+          application/vnd.hedtech.integration.v1.1.0+json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/schema-extension-statement-details-request.json"
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    schema-extension-statement-details-request.json:
+      title: Statement Details PUT Request
+      type: object
+      properties:
+        billRun:
+          title: Bill Run Number
+          description: "Run Number for bill as submitted via job submission."
+          type: integer
+        parsingStatusCode:
+          title: Parsing Status Code
+          description: "This field indicates if Billing Statements are to be submitted and updated by a third party. N - No third party revision. P - third party revision enabled but not completed. C - third party revision complete."
+          type: string
+        mediaId:
+          title: Media ID
+          description: "Reference to Media Id of the centralized storage for binary large objects table (GORBLOB)."
+          type: string
+      required:
+        - billRun
+        - parsingStatusCode
+        - mediaId
+      additionalProperties: false
+    statement-details-1.1.0:
+      title: statement-details-1.1.0
+      description: Information on the statements based on the bill run number.
+      type: object
+      properties:
+        statementNumber:
+          title: Statement Number
+          description: Unique generated document number for the statement.
+          type: integer
+          maxLength: 38
+          x-lineageReferenceObject: TBBSTMT_STMT_NUMBER
+        bannerId:
+          title: Banner ID
+          description: Banner ID of the student holding the account.
+          type: string
+          maxLength: 9
+          x-lineageReferenceObject: SPRIDEN_ID
+        billDate:
+          title: Bill Date
+          description: Date of the bill as specified by the parameter.
+          type: string
+          x-lineageReferenceObject: TBBSTMT_BILL_DATE
+        billRun:
+          title: Bill Run
+          description: Run Number for bill as submitted via job submission.
+          type: integer
+          maxLength: 4
+          x-lineageReferenceObject: TBBSTMT_BILL_RUN
+        userId:
+          title: User ID
+          description: Oracle ID of the user who created or last updated the data.
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: TBBSTMT_USER_ID
+        activityDate:
+          title: Activity Date
+          description: The last date this row was created or updated.
+          type: string
+          x-lineageReferenceObject: TBBSTMT_ACTIVITY_DATE
+        dataOrigin:
+          title: Data Origin
+          description: Source system that last created or updated the data.
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: TBBSTMT_DATA_ORIGIN
+        type:
+          title: Type
+          description: Type of statement requested, ST = student statement, SB = schedule bill.
+          type: string
+          maxLength: 2
+          x-lineageReferenceObject: TBBSTMT_TYPE
+        sort:
+          title: Sort
+          description: Sort variable for printing, 00 - no address, 01- valid address.
+          type: string
+          maxLength: 2
+          x-lineageReferenceObject: TBBSTMT_SORT
+        termCode:
+          title: Term Code
+          description: Term for which the statement is produced, when processing schedule bill. Valid in STVTERM.
+          type: string
+          maxLength: 6
+          x-lineageReferenceObject: TBBSTMT_TERM_CODE
+        dueDate:
+          title: Due Date
+          description: Due Date by which payment is requested.
+          type: string
+          x-lineageReferenceObject: TBBSTMT_DUE_DATE
+        addressCode:
+          title: Address Code
+          description: In combination with ATYP_SEQNO, the address where the statement will be sent.
+          type: string
+          maxLength: 2
+          x-lineageReferenceObject: TBBSTMT_ATYP_CODE
+        addressSequenceNumber:
+          title: Address Sequence Number
+          description: In combination with ATYP_CODE, the address where the statement will be sent. Combination valid and active in SPRADDR.
+          type: integer
+          maxLength: 2
+          x-lineageReferenceObject: TBBSTMT_ATYP_SEQNO
+        sortZip:
+          title: Sort Zip
+          description: Zip Code to which statement will be sent for sort by zip code.
+          type: string
+          maxLength: 30
+          x-lineageReferenceObject: TBBSTMT_SORT_ZIP
+        sortId:
+          title: Sort ID
+          description: Identification Number of the entity receiving the bill for sort by Id.
+          type: string
+          maxLength: 9
+          x-lineageReferenceObject: TBBSTMT_SORT_ID
+        sortName:
+          title: Sort Name
+          description: Name of the entity receiving the bill for sort by name.
+          type: string
+          maxLength: 75
+          x-lineageReferenceObject: TBBSTMT_SORT_NAME
+        sortCampus:
+          title: Sort Campus
+          description: The campus location associated with the student for the term, populated if sorting schedule bill.
+          type: string
+          maxLength: 3
+          x-lineageReferenceObject: TBBSTMT_SORT_CAMPUS
+        emailAddress:
+          title: Email Address
+          description: Email address for the recipient of the bill.
+          type: string
+          maxLength: 128
+          x-lineageReferenceObject: TBBSTMT_EMAIL_ADDR
+        balance:
+          title: Balance
+          description: Balance of the account at the time of billing.
+          type: integer
+          maxLength: 14
+          x-lineageReferenceObject: TBBSTMT_BALANCE
+        pastDue:
+          title: Past Due
+          description: Amount Past Due at the time of billing.
+          type: integer
+          maxLength: 14
+          x-lineageReferenceObject: TBBSTMT_PAST_DUE
+        amountDue:
+          title: Amount Due
+          description: Amount currently due in response to billing.
+          type: integer
+          maxLength: 14
+          x-lineageReferenceObject: TBBSTMT_AMOUNT_DUE
+        minumumDue:
+          title: Minimum Due
+          description: Minimum payment due in response to billing if dynamic automated installment plan calculated.
+          type: integer
+          maxLength: 14
+          x-lineageReferenceObject: TBBSTMT_MINIMUM_DUE
+        mediaId:
+          title: Media ID
+          description: Reference to Media Id of the centralized storage for binary large objects table (GORBLOB).
+          type: integer
+          maxLength: 38
+          x-lineageReferenceObject: TBBSTMT_MEDIA_ID
+        parsingStatusCode:
+          title: Parsing Status Code
+          description: This field indicates if Billing Statements are to be submitted and updated by a third party. N - No third party revision. P - third party revision enabled but not completed. C - third party revision complete.
+          type: string
+          maxLength: 1
+          x-lineageReferenceObject: TBBSTMT_PARSING_STATUS_CDE
+      required:
+        - billRun
+    statement-details-1.1.0_query_request:
+      type: object
+      properties:
+        billRun:
+          title: Bill Run
+          description: Run Number for bill as submitted via job submission.
+          type: integer
+          maxLength: 4
+          x-lineageReferenceObject: TBBSTMT_BILL_RUN
+    errors_v2:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+              type: object
+              properties:
+                code:
+                  type: string
+                  description: The error message code used to describe the error details.
+                description:
+                  type: string
+                  description: The error description used to describe the error details.
+                message:
+                  type: string
+                  description: The detailed actionable error message.
+  examples:
+    BillRunMissing:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Bill Run number be must included in the request."
+                }
+            ]
+        }
+    MediaIdMissing:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "MediaID be must included in the request."
+                }
+            ]
+        }
+    ParsingCodeMissing:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Parsing Status Code must be included in the request."
+                }
+            ]
+        }
+    InvalidStatus:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Parsing Status Code can be updated when the existing value is 'P' or 'N' or NULL."
+                }
+            ]
+        }
+    IncorrectStatus:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "Parsing Status Code can only be updated to a C, no other value is accepted."
+                }
+            ]
+        }
+    NoRecords:
+      value: |-
+        {
+            "errors": [
+                {
+                    "code": "Global.SchemaValidation.Error",
+                    "description": "Errors parsing input JSON.",
+                    "message": "No record exists in TBBSTMT for the request made, please check values and try again."
+                }
+            ]
+        }

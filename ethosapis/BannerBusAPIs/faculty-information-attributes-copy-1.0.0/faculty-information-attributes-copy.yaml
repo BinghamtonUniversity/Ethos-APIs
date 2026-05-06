@@ -1,0 +1,170 @@
+openapi: 3.0.0
+info:
+  title: faculty-information-attributes-copy
+  description: API for SIAINST administrative page
+  version: 1.0.0
+  x-audience: all
+  x-release-status: ga
+  x-source-name: SIAINST
+  x-source-domain: Student
+  x-source-title: Faculty Information Form
+  x-source-system: banner
+  x-api-type: bus-poc
+servers:
+- url: https://integrate.elluciancloud.com
+  description: Ethos Integration API U.S.
+- url: https://integrate.elluciancloud.ca
+  description: Ethos Integration API Canada
+- url: https://integrate.elluciancloud.ie
+  description: Ethos Integration API Europe
+- url: https://integrate.elluciancloud.com.au
+  description: Ethos Integration API Asia-Pacific
+- url: "{server_url}"
+  description: Custom server url
+  variables:
+    server_url:
+      default: localhost
+paths:
+  /api/faculty-information-attributes-copy:
+    post:
+      tags:
+      - faculty-information-attributes-copy
+      summary: Creates a new resource in SIAINST
+      parameters: []
+      requestBody:
+        content:
+          application/vnd.hedtech.integration.v1.0.0+json:
+            schema:
+              $ref: "#/components/schemas/faculty-information-attributes-copy-1.0.0_post_request"
+            example:
+              keyblckTermCode: "201520"
+              id: A00030988
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Media-Type:
+              description: The full semantic version with the media type of the response
+              schema:
+                type: string
+            X-STP-Code:
+              description: "If STP (MEP) is enabled, returns the MEP code the response\
+                \ body is associated to"
+              schema:
+                type: string
+            X-SDE-Enabled:
+              description: If SDE is enabled for this page
+              schema:
+                type: string
+          content:
+            application/vnd.hedtech.integration.v1.0.0+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/faculty-information-attributes-copy-1.0.0_post_response"
+        "401":
+          description: Failure. Unauthorized
+        "400":
+          description: Error
+          content:
+            application/vnd.hedtech.integration.errors.v2+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/errors-2.0.0"
+      security:
+      - BasicAuth: []
+        EllucianOAuthUserToken: []
+  /qapi/faculty-information-attributes-copy: {}
+components:
+  schemas:
+    faculty-information-attributes-copy-1.0.0_post_response:
+      type: object
+      properties:
+        sirattr_ctrl_block:
+          type: array
+          items:
+            type: object
+            properties:
+              sirattrTermCodeFrom:
+                title: From Term
+                maxLength: 6
+                type: string
+                description: "Lineage reference object : sirattrTermCodeFrom"
+                x-lineageReferenceObject: sirattrTermCodeFrom
+              sirattrTermCodeTo:
+                title: To Term
+                maxLength: 6
+                type: string
+                description: "Lineage reference object : sirattrTermCodeTo"
+                x-lineageReferenceObject: sirattrTermCodeTo
+            x-lineageReferenceObject: sirattr_ctrl_block
+        sirattr:
+          type: array
+          items:
+            required:
+            - fattCode
+            type: object
+            properties:
+              fattCode:
+                title: Code
+                maxLength: 30
+                type: string
+                description: "Lineage reference object : SIRATTR_FATT_CODE, Lookup\
+                  \ lineage reference object : stvfatt"
+                x-lineageReferenceObject: SIRATTR_FATT_CODE
+                x-lineageLookupReferenceObject: stvfatt
+              fattDesc:
+                type: string
+            x-lineageReferenceObject: sirattr
+    faculty-information-attributes-copy-1.0.0_post_request:
+      type: object
+      properties:
+        keyblckTermCode:
+          title: Term
+          maxLength: 30
+          type: string
+          description: "Lineage reference object : keyblckTermCode"
+          x-lineageReferenceObject: keyblckTermCode
+        id:
+          title: ID
+          maxLength: 9
+          type: string
+          description: "Lineage reference object : id"
+          x-lineageReferenceObject: id
+      x-lineageReferenceObject: KEY_BLOCK
+    errors-2.0.0:
+      required:
+      - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The global identifier of the resource in error.
+              sourceId:
+                type: string
+                description: The source applications data reference identifier for
+                  the primary data entity used to create the resource. This is useful
+                  for referencing the source item through the applications administrative
+                  user interface.
+              code:
+                type: string
+                description: The error message code used to describe the error details.
+              description:
+                type: string
+                description: The error description used to describe the error details.
+              message:
+                type: string
+                description: 'The detailed actionable error message. '
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    EllucianOAuthUserToken:
+      type: http
+      scheme: bearer
