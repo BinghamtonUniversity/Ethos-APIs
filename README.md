@@ -18,3 +18,5 @@ OA3ClientLibraries/
 
 ## Note
 - The page loads Scalar from `https://cdn.jsdelivr.net/npm/@scalar/api-reference`.
+
+- This does not inlcude the python script to covert the ethos APIs to OA3 libs.
