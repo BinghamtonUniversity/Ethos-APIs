@@ -13,7 +13,7 @@ catalog.js
 scalar-manifest.json
 scalar-search-index.json
 ethosapis/
-OA3 Client Libraries/
+OA3ClientLibraries/
 ```
 
 ## Note
